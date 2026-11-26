@@ -149,7 +149,7 @@ import { Fragment, useEffect, useRef, useState } from 'react';
 import { cx } from '../lib/cx';
 import { useControllable, useIsoLayoutEffect } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { Fold, Spin, Swap, Tip } from '../lib/motion';
+import { Fold, Spin, Swap, SwapIcon, Tip } from '../lib/motion';
 import '../designme.css';
 import './web-search.css';
 
@@ -232,10 +232,10 @@ export function WebSearch({ queries, done = false, answer, open, onOpenChange, b
     return () => { ro.disconnect(); el.style.height = ''; };
   }, []);
   return (
-    <div data-dm="" ref={root} className={cx('dm-wsx', !bare && 'dm-panel', 'dm-growing', className)} style={bare ? { paddingInline: 0 } : undefined}>
+    <div data-dm="" ref={root} className={cx('dm-wsx', !bare && 'dm-panel', 'dm-growing dm-mx-grow dm-mx-ic', className)} style={bare ? { paddingInline: 0 } : undefined}>
       <div className="dm-grow" ref={wrap}>
-      <button type="button" className="dm-wsx-h" aria-expanded={isOpen} onClick={() => setOpen(!isOpen)}>
-        <span className="dm-wsx-ic">{done ? <Icon name="globe" size="xs" /> : <Spin />}</span>
+      <button type="button" className="dm-wsx-h dm-mx-press" aria-expanded={isOpen} onClick={() => setOpen(!isOpen)}>
+        <span className="dm-wsx-ic"><SwapIcon id={done ? 'globe' : 'spin'}>{done ? <Icon name="globe" size="xs" /> : <Spin />}</SwapIcon></span>
         <Swap className={cx('dm-wsx-st', !done && 'dm-shim')}>{line}</Swap>
         <span className="dm-wsx-marks" aria-hidden="true">{sites.slice(0, 4).map(s => <span key={s} className={cx(hotPage?.domain === s && 'dm-hl')}>{s[0].toUpperCase()}</span>)}{sites.length > 4 && <span className="dm-n">+{sites.length - 4}</span>}</span>
         <Icon name="chev-d" size="xs" />
@@ -247,7 +247,7 @@ export function WebSearch({ queries, done = false, answer, open, onOpenChange, b
             const lit = hotPage && hotPage.q === q.key;
             return (
               <div key={q.key} className={cx('dm-wsx-q', lit && !o && 'dm-hl', 'dm-enter')}>
-                <button type="button" className={cx('dm-wsx-qh', !has && q.status === 'done' && 'dm-empty')} aria-expanded={o} onClick={() => has && setQOpen({ ...qOpen, [q.key]: !o })}
+                <button type="button" className={cx('dm-wsx-qh dm-mx-press', !has && q.status === 'done' && 'dm-empty')} aria-expanded={o} onClick={() => has && setQOpen({ ...qOpen, [q.key]: !o })}
                   aria-label={q.status === 'done' ? `${q.query}: ${q.results ? q.results + ' results' : 'no results'}${q.time ? ', ' + q.time : ''}` : undefined}>
                   <Icon name="search" size="xs" /><span className={cx('dm-t', q.status === 'searching' && 'dm-shim')}>{q.query}</span>
                   <span className={cx('dm-n', q.status === 'searching' && 'dm-shim', q.status === 'done' && !q.results && 'dm-none')}>{q.status === 'searching' ? 'Searching' : q.results ? `${q.results} results` : 'No results'}</span>

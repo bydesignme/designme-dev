@@ -228,7 +228,7 @@ function Item({ file, delay, onRemove, clean }: { file: Attachment; delay: numbe
           </svg>}
       {onRemove && (
         <Tip label="Remove">
-          <button type="button" className="dm-ib" aria-label={`Remove ${file.name}`} disabled={leaving}
+          <button type="button" className="dm-ib dm-mx-press" aria-label={`Remove ${file.name}`} disabled={leaving}
             onClick={() => { setLeaving(true); t.current = setTimeout(() => onRemove(file.id), 320); }}><Icon name="x" size="xs" /></button>
         </Tip>
       )}
@@ -332,7 +332,7 @@ export function AttachmentTray({ files, onFiles, onRemove, title = 'Drop files h
   </>);
 
   return (
-    <div data-dm="" ref={root} className={cx('dm-atx', clean && 'dm-growing', clean && (over || dragging) && 'dm-over', className)}
+    <div data-dm="" ref={root} className={cx('dm-atx dm-mx-grow', clean && 'dm-growing', clean && (over || dragging) && 'dm-over', className)}
       {...(clean ? { onDragEnter: hold, onDragOver: hold, onDragLeave: leave, onDrop: dropped } : {})}>
       {clean ? <div className="dm-grow" ref={inner}>{body}</div> : body}
     </div>

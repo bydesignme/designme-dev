@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, ctl, enter, grow, hoverGlide, html, stagger, swap } from '../core/core.js';
+import { $, $$, DM, I, ctl, enter, grow, hoverGlide, html, iconSwap, stagger, swap } from '../core/core.js';
 DM.def('plan-review', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{plus}', I('plus','xs'));
   // each step, and the line it reports when it's done
@@ -12,14 +12,14 @@ DM.def('plan-review', (r, c) => {
   ];
   const list = $('.plx-list', r), st = $('.plx-st', r), tm = $('.plx-tm', r), go = $('.plx-go', r), f = $('.plx-f', r);
   if (!r.closest('.ahx')) c.offs.push(hoverGlide(list, '.plx-s'));
-  const row = (t, i) => `<li class="plx-s"><span class="n">${i + 1}</span><span class="b"><span class="t" contenteditable="true" spellcheck="false" role="textbox" aria-label="Step ${i + 1}">${t[0]}</span><span class="d"><span></span></span></span><button class="ib plx-x" aria-label="Skip step" data-tip="Skip step">${I('x','xs')}</button></li>`;
+  const row = (t, i) => `<li class="plx-s"><span class="n">${i + 1}</span><span class="b"><span class="t" contenteditable="true" spellcheck="false" role="textbox" aria-label="Step ${i + 1}">${t[0]}</span><span class="d"><span></span></span></span><button class="ib plx-x mx-press" aria-label="Skip step" data-tip="Skip step">${I('x','xs')}</button></li>`;
   list.innerHTML = S.map(row).join(''); stagger($$('.plx-s', list), 60, 100);
   const count = () => { const on = $$('.plx-s:not(.off)', list); on.forEach((s, i) => $('.n', s).textContent = i + 1); $$('.plx-s.off .n', list).forEach(n => n.textContent = '–'); swap(st, 'About ' + Math.max(1, Math.round(on.length * .8)) + ' min'); };
   function bind(s, done){
     const t = $('.t', s), orig = t.textContent; s._done = done || 'Done';
     t.onkeydown = e => { if (e.key === 'Enter'){ e.preventDefault(); t.blur(); } };
     t.onblur = () => { const ed = t.textContent.trim() !== orig; s.classList.toggle('edited', ed); if (ed) s._done = 'Done as you wrote it'; };
-    $('.plx-x', s).onclick = () => { const off = s.classList.toggle('off'); $('.plx-x', s).dataset.tip = off ? 'Include step' : 'Skip step'; $('.plx-x', s).setAttribute('aria-label', off ? 'Include step' : 'Skip step'); $('.plx-x', s).innerHTML = I(off ? 'undo' : 'x', 'xs'); count(); };
+    $('.plx-x', s).onclick = () => { const off = s.classList.toggle('off'); $('.plx-x', s).dataset.tip = off ? 'Include step' : 'Skip step'; $('.plx-x', s).setAttribute('aria-label', off ? 'Include step' : 'Skip step'); const xb = $('.plx-x', s); iconSwap(xb, () => { xb.innerHTML = I(off ? 'undo' : 'x', 'xs'); }, { inner:true }); count(); };
   }
   $$('.plx-s', list).forEach((s, i) => bind(s, S[i][1]));
   // the panel grows with the plan (owner, 17 Nov): no room kept for the final state, the height eases open as done lines
@@ -39,7 +39,7 @@ DM.def('plan-review', (r, c) => {
     // the approved plan is fixed: the skip buttons keep their space but can't be used
     $$('.plx-x', list).forEach(b => { b.disabled = true; b.style.visibility = 'hidden'; });
     // the status line says it is running and how long is left; the foot keeps only Stop (no line repeating the head)
-    f.innerHTML = `<span class="muted plx-n"></span><button class="pill ghost sm plx-stop">${I('stop','xs')}Stop</button>`; stagger([...f.children], 50);
+    f.innerHTML = `<span class="muted plx-n"></span><button class="pill ghost sm plx-stop mx-press">${I('stop','xs')}Stop</button>`; stagger([...f.children], 50);
     let stop = false; $('.plx-stop', f).onclick = () => stop = true;
     $('.plx-mk', r).classList.add('on');
     const t0 = performance.now(), tick = agent.every(250, () => tm.textContent = clock(performance.now() - t0)); tm.textContent = '0:00'; enter(tm);
@@ -49,13 +49,13 @@ DM.def('plan-review', (r, c) => {
         const s = on[i]; s.classList.add('run'); txt(s).classList.add('shim'); n(s).innerHTML = '<span class="spin"></span>'; st.classList.add('shim'); swap(st, 'About ' + Math.max(1, Math.round((on.length - i) * .8)) + ' min left'); await agent.wait(900);
         // the second step hits a rate limit: the agent waits it out, counting down, and tries again
         if (s === $$('.plx-s', list)[1] && !stop){
-          s.classList.replace('run', 'retry'); txt(s).classList.remove('shim'); n(s).innerHTML = I('clock','xs');
+          s.classList.replace('run', 'retry'); txt(s).classList.remove('shim'); iconSwap(n(s), () => { n(s).innerHTML = I('clock','xs'); }, { inner:true });
           for (let k = 3; k > 0 && !stop; k--){ note(s, `Rate limited by the browser tool. Retrying in ${k}s`, 'warn'); await agent.wait(1000); }
           if (stop) break;
-          s.classList.replace('retry', 'run'); txt(s).classList.add('shim'); n(s).innerHTML = '<span class="spin"></span>'; note(s, 'Retrying'); $('.d>span', s).classList.add('shim'); await agent.wait(700);
+          s.classList.replace('retry', 'run'); txt(s).classList.add('shim'); iconSwap(n(s), () => { n(s).innerHTML = '<span class="spin"></span>'; }, { inner:true }); note(s, 'Retrying'); $('.d>span', s).classList.add('shim'); await agent.wait(700);
           s._done += ', after 1 retry';
         }
-        s.classList.remove('run'); txt(s).classList.remove('shim'); $('.d>span', s).classList.remove('shim'); s.classList.add('done'); n(s).innerHTML = I('check','xs'); enter(n(s).firstElementChild); note(s, s._done);
+        s.classList.remove('run'); txt(s).classList.remove('shim'); $('.d>span', s).classList.remove('shim'); s.classList.add('done'); iconSwap(n(s), () => { n(s).innerHTML = I('check','xs'); }, { inner:true }); note(s, s._done);
       }
     } finally { clearInterval(tick); }
     $('.plx-mk', r).classList.remove('on');
@@ -63,7 +63,7 @@ DM.def('plan-review', (r, c) => {
     // a finished plan has no elapsed clock (owner, 18 Nov): the status line says how long it took
     // See changes is the white outlined secondary (owner, 23 Nov); inside Agent harness (Phase II) it keeps its grey one for now
     tm.textContent = ''; st.classList.remove('shim');
-    swap(st, stop ? 'Stopped, progress kept' : 'Done in ' + clock(performance.now() - t0) + '. 4 frames updated'); f.innerHTML = `<span class="muted plx-n"></span><button class="pill ${r.closest('.ahx') ? 'soft' : 'line'} sm">${I('eye','xs')}See changes</button>`; enter(f.lastElementChild);
+    swap(st, stop ? 'Stopped, progress kept' : 'Done in ' + clock(performance.now() - t0) + '. 4 frames updated'); f.innerHTML = `<span class="muted plx-n"></span><button class="pill ${r.closest('.ahx') ? 'soft' : 'line mx-press'} sm">${I('eye','xs')}See changes</button>`; enter(f.lastElementChild);
   });
   // the preview's story: rewrite a step, approve, and watch the agent work through a rate limit to the end
   c.story(async s => {

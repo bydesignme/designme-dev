@@ -37,7 +37,7 @@ Composer is the box where a person writes a task for a design or coding agent an
 - The text box grows as you type, up to 160px. Enter sends, Shift+Enter adds a new line, and `onSubmit` receives the trimmed text and the attachments before the box clears.
 - Attachments show as chips above the text. A chip can be loading, with a spinner, or failed, in red with a Try again button that calls `onRetry`. Send waits until every attachment has loaded.
 - The attach menu lists `addOptions`, which default to a file, a Figma frame and a screenshot, and calls `onAdd` with the one picked.
-- A chip in the toolbar shows what the agent works on, from `contexts`, and opens a menu to switch it. It only shows when you pass `contexts`.
+- A chip in the toolbar shows what the agent works on, from `contexts`, and opens a menu to switch it. It only shows when you pass `contexts`. The chip's icon crossfades to the new pick and the chip eases to the width of its new words.
 - The mode chip picks what the agent may do from `modes`, which default to Ask (answer only, change nothing), Edit (change frames on a new page) and Plan (propose steps before it starts). `tools` adds your own controls just before it.
 - While `busy` is true, the Send button becomes a Stop button that calls `onStop`.
 - When `onDictate` is set, a microphone button appears. With `dictating` on, the toolbar shows a red dot, Listening and a clock, with Cancel to restore the earlier text and Done to keep what was heard.
@@ -230,7 +230,7 @@ import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 
 import { cx } from '../lib/cx';
 import { useControllable, useIsoLayoutEffect, useSeconds } from '../lib/hooks';
 import { Icon, type IconName } from '../lib/icons';
-import { Spin, Swap, Tip, useGrow } from '../lib/motion';
+import { Spin, Swap, SwapIcon, Tip, useGrow } from '../lib/motion';
 import { focusMenu, menuStep } from '../lib/popover';
 import '../designme.css';
 // its menus' rows glide in Clean
@@ -394,7 +394,7 @@ export function Composer({
   });
   const popProps = (name: PopName, cls: string) => ({
     ref: (el: HTMLDivElement | null) => { pops.current[name] = el; },
-    className: cx('dm-pop', cls, pop === name && 'dm-open'), style: place[name], inert: pop !== name
+    className: cx('dm-pop dm-mx-pop dm-mx-rows dm-mx-glide', cls, pop === name && 'dm-open'), style: place[name], inert: pop !== name
   });
 
   /* ---------- attachments leave with a short fade before they go ---------- */
@@ -424,14 +424,17 @@ export function Composer({
   };
 
   return (
-    <div data-dm="" ref={root} className={cx('dm-cpx dm-growing', className)}>
+    // its motion (motion pieces): its menus grow out of their buttons, their rows settle one after another and one highlight
+    // glides between them; presses show at once; icons crossfade and words that change ease their box to the new width; the
+    // thread and the box grow on the spring
+    <div data-dm="" ref={root} className={cx('dm-cpx dm-growing dm-mx-grow', className)}>
       <div ref={inner} className="dm-grow">
       <div className="dm-cpx-thread" aria-live="polite">{thread}</div>
       <div ref={box} className="dm-cpx-box" data-mode={dictating ? 'voice' : 'idle'}>
-        <div className="dm-cpx-att">{files.map(f => (
+        <div className="dm-cpx-att dm-mx-ic">{files.map(f => (
           <span key={f.key} className={cx('dm-fchip', f.status === 'loading' && 'dm-ld', f.status === 'error' && 'dm-err', leaving.includes(f.key) ? 'dm-leave' : 'dm-enter')}>
-            <span className="dm-ic" style={{ display: 'grid' }}>{f.status === 'loading' ? <Spin /> : <Icon name={f.status === 'error' ? 'alert' : f.icon ?? 'clip'} size="xs" />}</span>
-            <Swap className="dm-n">{f.label}</Swap>
+            <span className="dm-ic" style={{ display: 'grid' }}><SwapIcon id={f.status ?? 'ready'}>{f.status === 'loading' ? <Spin /> : <Icon name={f.status === 'error' ? 'alert' : f.icon ?? 'clip'} size="xs" />}</SwapIcon></span>
+            <Swap className="dm-n dm-mx-w">{f.label}</Swap>
             {f.status === 'error' && onRetry && <Tip label="Try again"><button type="button" className="dm-rt" aria-label="Try again" onClick={() => onRetry(f.key)}><Icon name="refresh" size="xs" /></button></Tip>}
             <button type="button" className="dm-x" aria-label={'Remove ' + f.label} onClick={() => remove(f.key)}><Icon name="x" size="xs" /></button>
           </span>))}
@@ -444,34 +447,33 @@ export function Composer({
           }} />
         <div className="dm-cpx-rows">
           <div className="dm-cpx-bar" inert={dictating}>
-            <Tip label="Attach a file or a frame" off={pop === 'plus'}><button type="button" className="dm-ib dm-cpx-add" aria-label="Attach" {...trigger('plus')}><Icon name="clip" /></button></Tip>
-            {ctxOpt && <Tip label="What the agent works on" off={pop === 'ctx'}><button type="button" className="dm-chip dm-cpx-ctx" {...trigger('ctx')}><Icon name={ctxOpt.icon ?? 'folder'} /><Swap className="dm-cpx-ctx-n">{ctxOpt.label ?? ctxOpt.value}</Swap><Icon name="chev-d" size="xs" /></button></Tip>}
+            <Tip label="Attach a file or a frame" off={pop === 'plus'}><button type="button" className="dm-ib dm-cpx-add dm-mx-press" aria-label="Attach" {...trigger('plus')}><Icon name="clip" /></button></Tip>
+            {ctxOpt && <Tip label="What the agent works on" off={pop === 'ctx'}><button type="button" className="dm-chip dm-cpx-ctx dm-mx-ic" {...trigger('ctx')}><SwapIcon id={ctxOpt.value}><Icon name={ctxOpt.icon ?? 'folder'} /></SwapIcon><Swap className="dm-cpx-ctx-n dm-mx-w">{ctxOpt.label ?? ctxOpt.value}</Swap><Icon name="chev-d" size="xs" /></button></Tip>}
             <span className="dm-sp" />
             {tools}
-            {mdOpt && <Tip label="What the agent may do" off={pop === 'mode'}><button type="button" className="dm-chip dm-cpx-mode" {...trigger('mode')}><Icon name={mdOpt.icon ?? 'edit'} /><Swap className="dm-cpx-mode-n">{mdOpt.label ?? mdOpt.value}</Swap><Icon name="chev-d" size="xs" /></button></Tip>}
-            {onDictate && <Tip label="Dictate"><button type="button" className="dm-ib dm-cpx-mic" aria-label="Dictate" onClick={onDictate}><Icon name="mic" /></button></Tip>}
-            {busy
-              ? <Tip label="Stop"><button type="button" className="dm-cpx-send" aria-label="Stop" onClick={onStop}><Icon name="stop" /></button></Tip>
-              : <Tip label="Send" kbd="↵"><button type="button" className="dm-cpx-send" aria-label="Send" disabled={!canSend} onClick={submit}><Icon name="up" /></button></Tip>}
+            {mdOpt && <Tip label="What the agent may do" off={pop === 'mode'}><button type="button" className="dm-chip dm-cpx-mode dm-mx-ic" {...trigger('mode')}><SwapIcon id={mdOpt.value}><Icon name={mdOpt.icon ?? 'edit'} /></SwapIcon><Swap className="dm-cpx-mode-n dm-mx-w">{mdOpt.label ?? mdOpt.value}</Swap><Icon name="chev-d" size="xs" /></button></Tip>}
+            {onDictate && <Tip label="Dictate"><button type="button" className="dm-ib dm-cpx-mic dm-mx-press" aria-label="Dictate" onClick={onDictate}><Icon name="mic" /></button></Tip>}
+            {/* send and stop are one button, so its arrow and its square crossfade as the agent starts and stops */}
+            <Tip label={busy ? 'Stop' : 'Send'} kbd={busy ? undefined : '↵'}><button type="button" className="dm-cpx-send dm-mx-ic" aria-label={busy ? 'Stop' : 'Send'} disabled={!busy && !canSend} onClick={busy ? onStop : submit}><SwapIcon id={busy ? 'stop' : 'up'}><Icon name={busy ? 'stop' : 'up'} /></SwapIcon></button></Tip>
           </div>
           <div className="dm-cpx-voice" inert={!dictating}>
             <span className="dm-cpx-rec"><span className="dm-cpx-dot" />Listening</span><span className="dm-cpx-tm dm-num dm-muted">{clock(dictationSeconds ?? counted)}</span>
             <span className="dm-sp" />
-            <button type="button" className="dm-pill dm-ghost dm-sm dm-cpx-cancel" onClick={() => endDictation(false)}>Cancel</button>
+            <button type="button" className="dm-pill dm-ghost dm-sm dm-cpx-cancel dm-mx-press" onClick={() => endDictation(false)}>Cancel</button>
             <button type="button" className="dm-pill dm-primary dm-sm dm-cpx-ok" onClick={() => endDictation(true)}>Done</button>
           </div>
         </div>
 
         <div role="menu" aria-label="Attach" {...popProps('plus', 'dm-pp-plus')}>
-          {addOptions.map(o => <button key={o.value} type="button" role="menuitem" className="dm-mi" onClick={pick(() => onAdd?.(o.value))}><Icon name={o.icon ?? 'clip'} /><span>{o.label ?? o.value}{o.detail && <span className="dm-d">{o.detail}</span>}</span></button>)}
+          {addOptions.map(o => <button key={o.value} type="button" role="menuitem" className="dm-mi dm-mx-press" onClick={pick(() => onAdd?.(o.value))}><Icon name={o.icon ?? 'clip'} /><span>{o.label ?? o.value}{o.detail && <span className="dm-d">{o.detail}</span>}</span></button>)}
         </div>
         {contexts && contexts.length > 0 && <div role="menu" aria-label="Working on" {...popProps('ctx', 'dm-pp-ctx')}>
           <div className="dm-ph">Working on</div>
-          {contexts.map(o => <button key={o.value} type="button" role="menuitemradio" aria-checked={o.value === ctx} className="dm-mi" onClick={pick(() => setCtx(o.value))}><Icon name={o.icon ?? 'folder'} /><span>{o.label ?? o.value}{o.detail && <span className="dm-d">{o.detail}</span>}</span><Check /></button>)}
+          {contexts.map(o => <button key={o.value} type="button" role="menuitemradio" aria-checked={o.value === ctx} className="dm-mi dm-mx-press" onClick={pick(() => setCtx(o.value))}><Icon name={o.icon ?? 'folder'} /><span>{o.label ?? o.value}{o.detail && <span className="dm-d">{o.detail}</span>}</span><Check /></button>)}
         </div>}
         <div role="menu" aria-label="The agent may" {...popProps('mode', 'dm-pp-mode')}>
           <div className="dm-ph">The agent may</div>
-          {modes.map(o => <button key={o.value} type="button" role="menuitemradio" aria-checked={o.value === md} className="dm-mi" onClick={pick(() => setMd(o.value))}><Icon name={o.icon ?? 'edit'} /><span>{o.label ?? o.value}{o.detail && <span className="dm-d">{o.detail}</span>}</span><Check /></button>)}
+          {modes.map(o => <button key={o.value} type="button" role="menuitemradio" aria-checked={o.value === md} className="dm-mi dm-mx-press" onClick={pick(() => setMd(o.value))}><Icon name={o.icon ?? 'edit'} /><span>{o.label ?? o.value}{o.detail && <span className="dm-d">{o.detail}</span>}</span><Check /></button>)}
         </div>
       </div>
       </div>

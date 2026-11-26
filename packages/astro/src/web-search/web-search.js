@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, enter, grow, html, swap } from '../core/core.js';
+import { $, $$, DM, I, enter, grow, html, iconSwap, swap } from '../core/core.js';
 DM.def('web-search', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{chev}', I('chev-d','xs'));
   // the searches: what was asked, how many results, how long it took, and the pages it opened. The first finds nothing and is
@@ -29,7 +29,7 @@ DM.def('web-search', (r, c) => {
   c.run(async () => {
     await c.wait(500);
     for (const [k, q] of Q.entries()){
-      const el = html(`<div class="wsx-q" data-k="${k}"><button class="wsx-qh${q.n ? '' : ' empty'}" aria-expanded="false">${I('search','xs')}<span class="t shim">${q.q}</span><span class="n shim">Searching</span><span class="tm num"></span>${I('chev-r','xs')}</button>${q.from != null ? `<span class="wsx-rw">${I('refresh','xs')}Asked again in other words</span>` : ''}${q.p ? '<div class="fold shut"><div><ul class="wsx-rs"></ul></div></div>' : ''}</div>`);
+      const el = html(`<div class="wsx-q" data-k="${k}"><button class="wsx-qh mx-press${q.n ? '' : ' empty'}" aria-expanded="false">${I('search','xs')}<span class="t shim">${q.q}</span><span class="n shim">Searching</span><span class="tm num"></span>${I('chev-r','xs')}</button>${q.from != null ? `<span class="wsx-rw">${I('refresh','xs')}Asked again in other words</span>` : ''}${q.p ? '<div class="fold shut"><div><ul class="wsx-rs"></ul></div></div>' : ''}</div>`);
       // the head says what is happening; the query and its pages are in the rows under it, so it repeats neither (owner, 18 Nov)
       list.appendChild(el); enter(el); swap(st, 'Searching the web');
       const b = $('.wsx-qh', el); b.onclick = () => { if ($('.fold', el)) qOpen(el, b.getAttribute('aria-expanded') !== 'true'); };
@@ -51,7 +51,8 @@ DM.def('web-search', (r, c) => {
       await c.wait(500); qOpen(el, false);
     }
     // done: the trail folds to one line, and the answer streams in under it, citing its pages
-    done = true; ic.innerHTML = I('globe','xs'); st.classList.remove('shim');
+    // (the spinner crossfades to the globe: iconSwap(), motion pieces)
+    done = true; iconSwap(ic, () => { ic.innerHTML = I('globe','xs'); }, { inner:true }); st.classList.remove('shim');
     const read = Q.flatMap(q => q.p || []).filter(p => p[3] === 'read' || p[3] === 'skim').length;
     swap(st, `${Q.length} searches, ${read} pages read`); say(`Done: ${Q.length} searches, ${read} pages read`);
     await c.wait(400); setOpen(false);

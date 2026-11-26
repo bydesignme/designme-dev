@@ -167,6 +167,10 @@
    why; once done it folds to one line, and the answer under it points back at its pages */
 /* hover fills are a quiet 5%, so they show wherever the trail sits (on the stage, --dm-row is the stage's own colour) */
 .wsx{padding:6px;display:flex;flex-direction:column;font-size:13px;--dm-row:color-mix(in srgb,var(--dm-fg) 5%,transparent)}
+/* its motion (the core's motion pieces, owner, 26 Nov): a press on the head or a search shows at once, a step deeper than its
+   hover (.mx-press); the spinner crossfades to the globe when it is done (.mx-ic); the card grows on the spring (.mx-grow) */
+.wsx{--dm-row-press:color-mix(in srgb,var(--dm-fg) 9%,transparent)}
+:root[data-style="clean"] .wsx,:root [data-style="clean"] .wsx,:root [data-style="clean"].wsx{--dm-row-press:var(--dm-row-on)}
 /* the head's mark sits as far from the top as from the side: 16px in from the panel's edges (owner, 21 Nov: "more padding at
    the top of the card?") */
 .wsx-h{display:flex;align-items:center;gap:10px;width:100%;padding:10px;border-radius:var(--dm-r-in);text-align:left;font-size:13.5px;transition:background var(--dm-t-fast)}
@@ -295,8 +299,8 @@
     <p class="side-cta-d">Expert design and dev support for startups and enterprises, from Astro sites to React apps and AI products.</p>
     <a class="hire-btn" href="https://www.designme.agency/intro?utm_source=designme.dev&utm_medium=referral&utm_campaign=book_a_call" target="_blank" rel="noopener">Book a call<span class="ms"><svg class="sh" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></span></a></div></div></details><nav class="pg-crumbs" aria-label="Breadcrumb"><a href="/library">Library</a><span>/</span><a href="/library#s-status">Agent status</a></nav><h1 class="pg-h1" id="content" tabindex="-1">Web search</h1><p class="pg-lead">The agent&#39;s searches as a trail: what it asked, what came back, what it read or skipped, and the answer with its sources. Free and MIT licensed, as HTML, a typed React component or an Astro component, in three styles with light and dark mode.</p><div class="pg-installs"><div class="pg-cmd"><span class="d">$</span><span class="c"><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">web-search</span></span><button type="button" data-copy="npx designme add web-search" aria-label="Copy install command"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg></button></div><div class="pg-cmd"><span class="d">$</span><span class="c"><span class="cp-w">npx</span> <span class="cp-w">shadcn@latest</span> <span class="cp-w">add</span> https:/<wbr>/<wbr>designme.dev/<wbr>r/<wbr>shadcn/<wbr>web-search.json</span><button type="button" data-copy="npx shadcn@latest add https://designme.dev/r/shadcn/web-search.json" aria-label="Copy the shadcn command"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg></button></div></div><button class="cp-copy cp-copy-top" type="button" id="cp-copy-code">Copy code</button><p class="cp-studio">Need this designed into your product? <a href="https://www.designme.agency/intro?utm_source=designme.dev&amp;utm_medium=referral&amp;utm_campaign=book_a_call" target="_blank" rel="noopener">Book a call</a></p><section class="cp-demo" aria-label="Web search demo"><button type="button" class="cp-anim" id="cp-replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg>Animate</button><div class="pg-demo stage-inner" style="--h-a:578px;--h-j:590px;--h-k:612px;--h-l:612px;--h-m:634px"><div class="card bare" data-c="web-search">
   <div class="stage-in">
-    <div class="wsx panel">
-      <button class="wsx-h" aria-expanded="true"><span class="wsx-ic"><span class="spin"></span></span><span class="wsx-st shim">Searching the web</span><span class="wsx-marks" aria-hidden="true"></span><svg class="i xs"><use href="#i-chev-d"/></svg></button>
+    <div class="wsx panel mx-grow mx-ic">
+      <button class="wsx-h mx-press" aria-expanded="true"><span class="wsx-ic"><span class="spin"></span></span><span class="wsx-st shim">Searching the web</span><span class="wsx-marks" aria-hidden="true"></span><svg class="i xs"><use href="#i-chev-d"/></svg></button>
       <div class="fold wsx-fold"><div><div class="wsx-list"></div></div></div>
       <div class="wsx-ans"></div>
       <p class="wsx-sr" role="status"></p>
@@ -395,7 +399,7 @@ import { Fragment, useEffect, useRef, useState } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useControllable, useIsoLayoutEffect } from &#39;../lib/hooks&#39;;
 import { Icon } from &#39;../lib/icons&#39;;
-import { Fold, Spin, Swap, Tip } from &#39;../lib/motion&#39;;
+import { Fold, Spin, Swap, SwapIcon, Tip } from &#39;../lib/motion&#39;;
 import &#39;../designme.css&#39;;
 import &#39;./web-search.css&#39;;
 
@@ -478,10 +482,10 @@ export function WebSearch({ queries, done = false, answer, open, onOpenChange, b
     return () =&gt; { ro.disconnect(); el.style.height = &#39;&#39;; };
   }, []);
   return (
-    &lt;div data-dm=&quot;&quot; ref={root} className={cx(&#39;dm-wsx&#39;, !bare &amp;&amp; &#39;dm-panel&#39;, &#39;dm-growing&#39;, className)} style={bare ? { paddingInline: 0 } : undefined}&gt;
+    &lt;div data-dm=&quot;&quot; ref={root} className={cx(&#39;dm-wsx&#39;, !bare &amp;&amp; &#39;dm-panel&#39;, &#39;dm-growing dm-mx-grow dm-mx-ic&#39;, className)} style={bare ? { paddingInline: 0 } : undefined}&gt;
       &lt;div className=&quot;dm-grow&quot; ref={wrap}&gt;
-      &lt;button type=&quot;button&quot; className=&quot;dm-wsx-h&quot; aria-expanded={isOpen} onClick={() =&gt; setOpen(!isOpen)}&gt;
-        &lt;span className=&quot;dm-wsx-ic&quot;&gt;{done ? &lt;Icon name=&quot;globe&quot; size=&quot;xs&quot; /&gt; : &lt;Spin /&gt;}&lt;/span&gt;
+      &lt;button type=&quot;button&quot; className=&quot;dm-wsx-h dm-mx-press&quot; aria-expanded={isOpen} onClick={() =&gt; setOpen(!isOpen)}&gt;
+        &lt;span className=&quot;dm-wsx-ic&quot;&gt;&lt;SwapIcon id={done ? &#39;globe&#39; : &#39;spin&#39;}&gt;{done ? &lt;Icon name=&quot;globe&quot; size=&quot;xs&quot; /&gt; : &lt;Spin /&gt;}&lt;/SwapIcon&gt;&lt;/span&gt;
         &lt;Swap className={cx(&#39;dm-wsx-st&#39;, !done &amp;&amp; &#39;dm-shim&#39;)}&gt;{line}&lt;/Swap&gt;
         &lt;span className=&quot;dm-wsx-marks&quot; aria-hidden=&quot;true&quot;&gt;{sites.slice(0, 4).map(s =&gt; &lt;span key={s} className={cx(hotPage?.domain === s &amp;&amp; &#39;dm-hl&#39;)}&gt;{s[0].toUpperCase()}&lt;/span&gt;)}{sites.length &gt; 4 &amp;&amp; &lt;span className=&quot;dm-n&quot;&gt;+{sites.length - 4}&lt;/span&gt;}&lt;/span&gt;
         &lt;Icon name=&quot;chev-d&quot; size=&quot;xs&quot; /&gt;
@@ -493,7 +497,7 @@ export function WebSearch({ queries, done = false, answer, open, onOpenChange, b
             const lit = hotPage &amp;&amp; hotPage.q === q.key;
             return (
               &lt;div key={q.key} className={cx(&#39;dm-wsx-q&#39;, lit &amp;&amp; !o &amp;&amp; &#39;dm-hl&#39;, &#39;dm-enter&#39;)}&gt;
-                &lt;button type=&quot;button&quot; className={cx(&#39;dm-wsx-qh&#39;, !has &amp;&amp; q.status === &#39;done&#39; &amp;&amp; &#39;dm-empty&#39;)} aria-expanded={o} onClick={() =&gt; has &amp;&amp; setQOpen({ ...qOpen, [q.key]: !o })}
+                &lt;button type=&quot;button&quot; className={cx(&#39;dm-wsx-qh dm-mx-press&#39;, !has &amp;&amp; q.status === &#39;done&#39; &amp;&amp; &#39;dm-empty&#39;)} aria-expanded={o} onClick={() =&gt; has &amp;&amp; setQOpen({ ...qOpen, [q.key]: !o })}
                   aria-label={q.status === &#39;done&#39; ? `${q.query}: ${q.results ? q.results + &#39; results&#39; : &#39;no results&#39;}${q.time ? &#39;, &#39; + q.time : &#39;&#39;}` : undefined}&gt;
                   &lt;Icon name=&quot;search&quot; size=&quot;xs&quot; /&gt;&lt;span className={cx(&#39;dm-t&#39;, q.status === &#39;searching&#39; &amp;&amp; &#39;dm-shim&#39;)}&gt;{q.query}&lt;/span&gt;
                   &lt;span className={cx(&#39;dm-n&#39;, q.status === &#39;searching&#39; &amp;&amp; &#39;dm-shim&#39;, q.status === &#39;done&#39; &amp;&amp; !q.results &amp;&amp; &#39;dm-none&#39;)}&gt;{q.status === &#39;searching&#39; ? &#39;Searching&#39; : q.results ? `${q.results} results` : &#39;No results&#39;}&lt;/span&gt;
@@ -523,12 +527,16 @@ export function WebSearch({ queries, done = false, answer, open, onOpenChange, b
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>web-search.css<span class="l">React · 118 lines</span></summary><pre class="cp-pre" data-name="web-search.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>web-search.css<span class="l">React · 122 lines</span></summary><pre class="cp-pre" data-name="web-search.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Web search ---------- */
 /* the agent&#39;s searches as a trail: each query with what came back, each page with whether it was read, skimmed or skipped and
    why; once done it folds to one line, and the answer under it points back at its pages */
 /* hover fills are a quiet 5%, so they show wherever the trail sits (on the stage, --dm-row is the stage&#39;s own colour) */
 .dm-wsx{padding:6px;display:flex;flex-direction:column;font-size:13px;--dm-row:color-mix(in srgb,var(--dm-fg) 5%,transparent)}
+/* its motion (the core&#39;s motion pieces, owner, 26 Nov): a press on the head or a search shows at once, a step deeper than its
+   hover (.mx-press); the spinner crossfades to the globe when it is done (.mx-ic); the card grows on the spring (.mx-grow) */
+.dm-wsx{--dm-row-press:color-mix(in srgb,var(--dm-fg) 9%,transparent)}
+:root[data-style=&quot;clean&quot;] .dm-wsx,:root [data-style=&quot;clean&quot;] .dm-wsx,:root [data-style=&quot;clean&quot;].dm-wsx{--dm-row-press:var(--dm-row-on)}
 /* the head&#39;s mark sits as far from the top as from the side: 16px in from the panel&#39;s edges (owner, 21 Nov: &quot;more padding at
    the top of the card?&quot;) */
 .dm-wsx-h{display:flex;align-items:center;gap:10px;width:100%;padding:10px;border-radius:var(--dm-r-in);text-align:left;font-size:13.5px;transition:background var(--dm-t-fast)}
@@ -657,8 +665,8 @@ const { class: className, ...rest } = Astro.props;
 ---
 &lt;div class:list={[&#39;card&#39;, &#39;bare&#39;, className]} data-c=&quot;web-search&quot; {...rest}&gt;
   &lt;div class=&quot;stage-in&quot;&gt;&lt;Fragment is:raw&gt;
-&lt;div class=&quot;wsx panel&quot;&gt;
-  &lt;button class=&quot;wsx-h&quot; aria-expanded=&quot;true&quot;&gt;&lt;span class=&quot;wsx-ic&quot;&gt;&lt;span class=&quot;spin&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;wsx-st shim&quot;&gt;Searching the web&lt;/span&gt;&lt;span class=&quot;wsx-marks&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;svg class=&quot;i xs&quot;&gt;&lt;use href=&quot;#i-chev-d&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;
+&lt;div class=&quot;wsx panel mx-grow mx-ic&quot;&gt;
+  &lt;button class=&quot;wsx-h mx-press&quot; aria-expanded=&quot;true&quot;&gt;&lt;span class=&quot;wsx-ic&quot;&gt;&lt;span class=&quot;spin&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;wsx-st shim&quot;&gt;Searching the web&lt;/span&gt;&lt;span class=&quot;wsx-marks&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;svg class=&quot;i xs&quot;&gt;&lt;use href=&quot;#i-chev-d&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;
   &lt;div class=&quot;fold wsx-fold&quot;&gt;&lt;div&gt;&lt;div class=&quot;wsx-list&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;
   &lt;div class=&quot;wsx-ans&quot;&gt;&lt;/div&gt;
   &lt;p class=&quot;wsx-sr&quot; role=&quot;status&quot;&gt;&lt;/p&gt;
@@ -670,19 +678,23 @@ const { class: className, ...rest } = Astro.props;
 &lt;/script&gt;
 </code></pre></details><details class="cp-file"><summary>web-search.html<span class="l">HTML · 11 lines</span></summary><pre class="cp-pre" data-name="web-search.html"><code>&lt;div class=&quot;card bare&quot; data-c=&quot;web-search&quot;&gt;
   &lt;div class=&quot;stage-in&quot;&gt;
-    &lt;div class=&quot;wsx panel&quot;&gt;
-      &lt;button class=&quot;wsx-h&quot; aria-expanded=&quot;true&quot;&gt;&lt;span class=&quot;wsx-ic&quot;&gt;&lt;span class=&quot;spin&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;wsx-st shim&quot;&gt;Searching the web&lt;/span&gt;&lt;span class=&quot;wsx-marks&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;svg class=&quot;i xs&quot;&gt;&lt;use href=&quot;#i-chev-d&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;
+    &lt;div class=&quot;wsx panel mx-grow mx-ic&quot;&gt;
+      &lt;button class=&quot;wsx-h mx-press&quot; aria-expanded=&quot;true&quot;&gt;&lt;span class=&quot;wsx-ic&quot;&gt;&lt;span class=&quot;spin&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;wsx-st shim&quot;&gt;Searching the web&lt;/span&gt;&lt;span class=&quot;wsx-marks&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;svg class=&quot;i xs&quot;&gt;&lt;use href=&quot;#i-chev-d&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;
       &lt;div class=&quot;fold wsx-fold&quot;&gt;&lt;div&gt;&lt;div class=&quot;wsx-list&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;
       &lt;div class=&quot;wsx-ans&quot;&gt;&lt;/div&gt;
       &lt;p class=&quot;wsx-sr&quot; role=&quot;status&quot;&gt;&lt;/p&gt;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>web-search.css<span class="l">HTML · 117 lines</span></summary><pre class="cp-pre" data-name="web-search.css"><code>/* ---------- Web search ---------- */
+</code></pre></details><details class="cp-file"><summary>web-search.css<span class="l">HTML · 121 lines</span></summary><pre class="cp-pre" data-name="web-search.css"><code>/* ---------- Web search ---------- */
 /* the agent&#39;s searches as a trail: each query with what came back, each page with whether it was read, skimmed or skipped and
    why; once done it folds to one line, and the answer under it points back at its pages */
 /* hover fills are a quiet 5%, so they show wherever the trail sits (on the stage, --dm-row is the stage&#39;s own colour) */
 .wsx{padding:6px;display:flex;flex-direction:column;font-size:13px;--dm-row:color-mix(in srgb,var(--dm-fg) 5%,transparent)}
+/* its motion (the core&#39;s motion pieces, owner, 26 Nov): a press on the head or a search shows at once, a step deeper than its
+   hover (.mx-press); the spinner crossfades to the globe when it is done (.mx-ic); the card grows on the spring (.mx-grow) */
+.wsx{--dm-row-press:color-mix(in srgb,var(--dm-fg) 9%,transparent)}
+:root[data-style=&quot;clean&quot;] .wsx,:root [data-style=&quot;clean&quot;] .wsx,:root [data-style=&quot;clean&quot;].wsx{--dm-row-press:var(--dm-row-on)}
 /* the head&#39;s mark sits as far from the top as from the side: 16px in from the panel&#39;s edges (owner, 21 Nov: &quot;more padding at
    the top of the card?&quot;) */
 .wsx-h{display:flex;align-items:center;gap:10px;width:100%;padding:10px;border-radius:var(--dm-r-in);text-align:left;font-size:13.5px;transition:background var(--dm-t-fast)}
@@ -794,7 +806,7 @@ const { class: className, ...rest } = Astro.props;
 :root[data-style=&quot;clean&quot;][data-theme=&quot;dark&quot;] .wsx,:root[data-theme=&quot;dark&quot;] [data-style=&quot;clean&quot;] .wsx,:root[data-theme=&quot;dark&quot;] [data-style=&quot;clean&quot;].wsx{--dm-wsx-lift:color-mix(in srgb,var(--dm-fg) 16%,var(--dm-surface))}
 @media (prefers-color-scheme:dark){:root[data-style=&quot;clean&quot;]:not([data-theme=&quot;light&quot;]) .wsx,:root:not([data-theme=&quot;light&quot;]) [data-style=&quot;clean&quot;] .wsx,:root:not([data-theme=&quot;light&quot;]) [data-style=&quot;clean&quot;].wsx{--dm-wsx-lift:color-mix(in srgb,var(--dm-fg) 16%,var(--dm-surface))}}
 :root[data-style=&quot;clean&quot;] .wsx-cite,:root [data-style=&quot;clean&quot;] .wsx-cite,:root [data-style=&quot;clean&quot;].wsx-cite{transition:background-color var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
-</code></pre></details><details class="cp-file"><summary>web-search.js<span class="l">HTML · 76 lines</span></summary><pre class="cp-pre" data-name="web-search.js"><code>DM.def(&#39;web-search&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>web-search.js<span class="l">HTML · 77 lines</span></summary><pre class="cp-pre" data-name="web-search.js"><code>DM.def(&#39;web-search&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(&#39;{chev}&#39;, I(&#39;chev-d&#39;,&#39;xs&#39;));
   // the searches: what was asked, how many results, how long it took, and the pages it opened. The first finds nothing and is
   // asked again in other words
@@ -823,7 +835,7 @@ const { class: className, ...rest } = Astro.props;
   c.run(async () =&gt; {
     await c.wait(500);
     for (const [k, q] of Q.entries()){
-      const el = html(`&lt;div class=&quot;wsx-q&quot; data-k=&quot;${k}&quot;&gt;&lt;button class=&quot;wsx-qh${q.n ? &#39;&#39; : &#39; empty&#39;}&quot; aria-expanded=&quot;false&quot;&gt;${I(&#39;search&#39;,&#39;xs&#39;)}&lt;span class=&quot;t shim&quot;&gt;${q.q}&lt;/span&gt;&lt;span class=&quot;n shim&quot;&gt;Searching&lt;/span&gt;&lt;span class=&quot;tm num&quot;&gt;&lt;/span&gt;${I(&#39;chev-r&#39;,&#39;xs&#39;)}&lt;/button&gt;${q.from != null ? `&lt;span class=&quot;wsx-rw&quot;&gt;${I(&#39;refresh&#39;,&#39;xs&#39;)}Asked again in other words&lt;/span&gt;` : &#39;&#39;}${q.p ? &#39;&lt;div class=&quot;fold shut&quot;&gt;&lt;div&gt;&lt;ul class=&quot;wsx-rs&quot;&gt;&lt;/ul&gt;&lt;/div&gt;&lt;/div&gt;&#39; : &#39;&#39;}&lt;/div&gt;`);
+      const el = html(`&lt;div class=&quot;wsx-q&quot; data-k=&quot;${k}&quot;&gt;&lt;button class=&quot;wsx-qh mx-press${q.n ? &#39;&#39; : &#39; empty&#39;}&quot; aria-expanded=&quot;false&quot;&gt;${I(&#39;search&#39;,&#39;xs&#39;)}&lt;span class=&quot;t shim&quot;&gt;${q.q}&lt;/span&gt;&lt;span class=&quot;n shim&quot;&gt;Searching&lt;/span&gt;&lt;span class=&quot;tm num&quot;&gt;&lt;/span&gt;${I(&#39;chev-r&#39;,&#39;xs&#39;)}&lt;/button&gt;${q.from != null ? `&lt;span class=&quot;wsx-rw&quot;&gt;${I(&#39;refresh&#39;,&#39;xs&#39;)}Asked again in other words&lt;/span&gt;` : &#39;&#39;}${q.p ? &#39;&lt;div class=&quot;fold shut&quot;&gt;&lt;div&gt;&lt;ul class=&quot;wsx-rs&quot;&gt;&lt;/ul&gt;&lt;/div&gt;&lt;/div&gt;&#39; : &#39;&#39;}&lt;/div&gt;`);
       // the head says what is happening; the query and its pages are in the rows under it, so it repeats neither (owner, 18 Nov)
       list.appendChild(el); enter(el); swap(st, &#39;Searching the web&#39;);
       const b = $(&#39;.wsx-qh&#39;, el); b.onclick = () =&gt; { if ($(&#39;.fold&#39;, el)) qOpen(el, b.getAttribute(&#39;aria-expanded&#39;) !== &#39;true&#39;); };
@@ -845,7 +857,8 @@ const { class: className, ...rest } = Astro.props;
       await c.wait(500); qOpen(el, false);
     }
     // done: the trail folds to one line, and the answer streams in under it, citing its pages
-    done = true; ic.innerHTML = I(&#39;globe&#39;,&#39;xs&#39;); st.classList.remove(&#39;shim&#39;);
+    // (the spinner crossfades to the globe: iconSwap(), motion pieces)
+    done = true; iconSwap(ic, () =&gt; { ic.innerHTML = I(&#39;globe&#39;,&#39;xs&#39;); }, { inner:true }); st.classList.remove(&#39;shim&#39;);
     const read = Q.flatMap(q =&gt; q.p || []).filter(p =&gt; p[3] === &#39;read&#39; || p[3] === &#39;skim&#39;).length;
     swap(st, `${Q.length} searches, ${read} pages read`); say(`Done: ${Q.length} searches, ${read} pages read`);
     await c.wait(400); setOpen(false);
@@ -1234,7 +1247,7 @@ const fitHits = window.dmFitHits || (() => {
   c.run(async () => {
     await c.wait(500);
     for (const [k, q] of Q.entries()){
-      const el = html(`<div class="wsx-q" data-k="${k}"><button class="wsx-qh${q.n ? '' : ' empty'}" aria-expanded="false">${I('search','xs')}<span class="t shim">${q.q}</span><span class="n shim">Searching</span><span class="tm num"></span>${I('chev-r','xs')}</button>${q.from != null ? `<span class="wsx-rw">${I('refresh','xs')}Asked again in other words</span>` : ''}${q.p ? '<div class="fold shut"><div><ul class="wsx-rs"></ul></div></div>' : ''}</div>`);
+      const el = html(`<div class="wsx-q" data-k="${k}"><button class="wsx-qh mx-press${q.n ? '' : ' empty'}" aria-expanded="false">${I('search','xs')}<span class="t shim">${q.q}</span><span class="n shim">Searching</span><span class="tm num"></span>${I('chev-r','xs')}</button>${q.from != null ? `<span class="wsx-rw">${I('refresh','xs')}Asked again in other words</span>` : ''}${q.p ? '<div class="fold shut"><div><ul class="wsx-rs"></ul></div></div>' : ''}</div>`);
       // the head says what is happening; the query and its pages are in the rows under it, so it repeats neither (owner, 18 Nov)
       list.appendChild(el); enter(el); swap(st, 'Searching the web');
       const b = $('.wsx-qh', el); b.onclick = () => { if ($('.fold', el)) qOpen(el, b.getAttribute('aria-expanded') !== 'true'); };
@@ -1256,7 +1269,8 @@ const fitHits = window.dmFitHits || (() => {
       await c.wait(500); qOpen(el, false);
     }
     // done: the trail folds to one line, and the answer streams in under it, citing its pages
-    done = true; ic.innerHTML = I('globe','xs'); st.classList.remove('shim');
+    // (the spinner crossfades to the globe: iconSwap(), motion pieces)
+    done = true; iconSwap(ic, () => { ic.innerHTML = I('globe','xs'); }, { inner:true }); st.classList.remove('shim');
     const read = Q.flatMap(q => q.p || []).filter(p => p[3] === 'read' || p[3] === 'skim').length;
     swap(st, `${Q.length} searches, ${read} pages read`); say(`Done: ${Q.length} searches, ${read} pages read`);
     await c.wait(400); setOpen(false);

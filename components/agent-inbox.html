@@ -180,6 +180,7 @@
 .aib-gl{display:flex;flex-direction:column}
 .aib-i{display:flex;align-items:center;gap:12px;padding:8px 0;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));font-size:13px;transition:background .16s}
 .aib-i.mv{position:relative;z-index:1;background:var(--dm-surface)}
+/* (as a group goes or comes back the panel springs to its new height at the motion pieces' pace, .mx-grow) */
 /* nothing in it grows or shrinks when it is pressed (owner, 18 Nov); Clean's ink primary alone presses */
 .aib :is(.ib,.pill):active,:root[data-style="clean"] .aib .ib:active,:root [data-style="clean"] .aib .ib:active,:root [data-style="clean"].aib .ib:active{transform:none}
 .aib-av{width:28px;height:28px;border-radius:var(--dm-r-sm);display:grid;place-items:center;flex:none;font-size:11px;font-weight:500}
@@ -220,7 +221,7 @@
     <p class="side-cta-d">Expert design and dev support for startups and enterprises, from Astro sites to React apps and AI products.</p>
     <a class="hire-btn" href="https://www.designme.agency/intro?utm_source=designme.dev&utm_medium=referral&utm_campaign=book_a_call" target="_blank" rel="noopener">Book a call<span class="ms"><svg class="sh" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></span></a></div></div></details><nav class="pg-crumbs" aria-label="Breadcrumb"><a href="/library">Library</a><span>/</span><a href="/library#s-status">Agent status</a></nav><h1 class="pg-h1" id="content" tabindex="-1">Agent inbox</h1><p class="pg-lead">Every run that needs you, is running or is done, in one list. Free and MIT licensed, as HTML, a typed React component or an Astro component, in three styles with light and dark mode.</p><div class="pg-installs"><div class="pg-cmd"><span class="d">$</span><span class="c"><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">agent-inbox</span></span><button type="button" data-copy="npx designme add agent-inbox" aria-label="Copy install command"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg></button></div><div class="pg-cmd"><span class="d">$</span><span class="c"><span class="cp-w">npx</span> <span class="cp-w">shadcn@latest</span> <span class="cp-w">add</span> https:/<wbr>/<wbr>designme.dev/<wbr>r/<wbr>shadcn/<wbr>agent-inbox.json</span><button type="button" data-copy="npx shadcn@latest add https://designme.dev/r/shadcn/agent-inbox.json" aria-label="Copy the shadcn command"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg></button></div></div><button class="cp-copy cp-copy-top" type="button" id="cp-copy-code">Copy code</button><p class="cp-studio">Need this designed into your product? <a href="https://www.designme.agency/intro?utm_source=designme.dev&amp;utm_medium=referral&amp;utm_campaign=book_a_call" target="_blank" rel="noopener">Book a call</a></p><section class="cp-demo" aria-label="Agent inbox demo"><button type="button" class="cp-anim" id="cp-replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg>Animate</button><div class="pg-demo stage-inner" style="--h-a:597px;--h-j:565px;--h-k:565px;--h-l:565px;--h-m:565px"><div class="card" data-c="agent-inbox">
   <div class="stage-in">
-    <div class="aib panel">
+    <div class="aib panel mx-grow">
       <div class="aib-h"><b>Inbox</b></div>
       <div class="aib-gs"></div>
     </div>
@@ -409,7 +410,7 @@ export function AgentInbox({ runs, onApprove, onRetry, title = &#39;Inbox&#39;, 
   }, [sig]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    &lt;div data-dm=&quot;&quot; ref={root} className={cx(&#39;dm-aib dm-panel dm-growing&#39;, className)}&gt;
+    &lt;div data-dm=&quot;&quot; ref={root} className={cx(&#39;dm-aib dm-panel dm-growing dm-mx-grow&#39;, className)}&gt;
       &lt;div ref={inner} className=&quot;dm-grow&quot;&gt;
       &lt;div className=&quot;dm-aib-h&quot;&gt;
         {/* the head has a neutral mark in a tile, the column the agents&#39; marks sit in; each group carries its own count */}
@@ -460,7 +461,7 @@ function Right({ run, group, fail, secs, fresh, onApprove, onRetry }: { run: Inb
   else body = &lt;&gt;&lt;span className=&quot;dm-ok&quot;&gt;&lt;Icon name=&quot;ok&quot; size=&quot;xs&quot; /&gt;&lt;/span&gt;&lt;span&gt;{run.ended}&lt;/span&gt;&lt;/&gt;;
   return &lt;span className={cx(&#39;dm-aib-r&#39;, e?.className)} style={e?.style}&gt;{body}&lt;/span&gt;;
 }
-</code></pre></details><details class="cp-file"><summary>agent-inbox.css<span class="l">React · 43 lines</span></summary><pre class="cp-pre" data-name="agent-inbox.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>agent-inbox.css<span class="l">React · 44 lines</span></summary><pre class="cp-pre" data-name="agent-inbox.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Agent inbox ---------- */
 /* every run in one list, grouped by what it needs: Needs you, Running, Done. A run glides to its new group when it moves.
    The card sits on two columns (owner, 18 Nov), its content 16px from every edge: the head&#39;s neutral mark in a 28px column
@@ -479,6 +480,7 @@ function Right({ run, group, fail, secs, fresh, onApprove, onRetry }: { run: Inb
 .dm-aib-gl{display:flex;flex-direction:column}
 .dm-aib-i{display:flex;align-items:center;gap:12px;padding:8px 0;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));font-size:13px;transition:background .16s}
 .dm-aib-i.dm-mv{position:relative;z-index:1;background:var(--dm-surface)}
+/* (as a group goes or comes back the panel springs to its new height at the motion pieces&#39; pace, .mx-grow) */
 /* nothing in it grows or shrinks when it is pressed (owner, 18 Nov); Clean&#39;s ink primary alone presses */
 .dm-aib :is(.dm-ib,.dm-pill):active,:root[data-style=&quot;clean&quot;] .dm-aib .dm-ib:active,:root [data-style=&quot;clean&quot;] .dm-aib .dm-ib:active,:root [data-style=&quot;clean&quot;].dm-aib .dm-ib:active{transform:none}
 .dm-aib-av{width:28px;height:28px;border-radius:var(--dm-r-sm);display:grid;place-items:center;flex:none;font-size:11px;font-weight:500}
@@ -519,7 +521,7 @@ const { class: className, ...rest } = Astro.props;
 ---
 &lt;div class:list={[&#39;card&#39;, className]} data-c=&quot;agent-inbox&quot; {...rest}&gt;
   &lt;div class=&quot;stage-in&quot;&gt;&lt;Fragment is:raw&gt;
-&lt;div class=&quot;aib panel&quot;&gt;
+&lt;div class=&quot;aib panel mx-grow&quot;&gt;
   &lt;div class=&quot;aib-h&quot;&gt;&lt;b&gt;Inbox&lt;/b&gt;&lt;/div&gt;
   &lt;div class=&quot;aib-gs&quot;&gt;&lt;/div&gt;
 &lt;/div&gt;
@@ -530,13 +532,13 @@ const { class: className, ...rest } = Astro.props;
 &lt;/script&gt;
 </code></pre></details><details class="cp-file"><summary>agent-inbox.html<span class="l">HTML · 9 lines</span></summary><pre class="cp-pre" data-name="agent-inbox.html"><code>&lt;div class=&quot;card&quot; data-c=&quot;agent-inbox&quot;&gt;
   &lt;div class=&quot;stage-in&quot;&gt;
-    &lt;div class=&quot;aib panel&quot;&gt;
+    &lt;div class=&quot;aib panel mx-grow&quot;&gt;
       &lt;div class=&quot;aib-h&quot;&gt;&lt;b&gt;Inbox&lt;/b&gt;&lt;/div&gt;
       &lt;div class=&quot;aib-gs&quot;&gt;&lt;/div&gt;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>agent-inbox.css<span class="l">HTML · 42 lines</span></summary><pre class="cp-pre" data-name="agent-inbox.css"><code>/* ---------- Agent inbox ---------- */
+</code></pre></details><details class="cp-file"><summary>agent-inbox.css<span class="l">HTML · 43 lines</span></summary><pre class="cp-pre" data-name="agent-inbox.css"><code>/* ---------- Agent inbox ---------- */
 /* every run in one list, grouped by what it needs: Needs you, Running, Done. A run glides to its new group when it moves.
    The card sits on two columns (owner, 18 Nov), its content 16px from every edge: the head&#39;s neutral mark in a 28px column
    with the agents&#39; marks under it, and the title and each run&#39;s words 12px after it; the buttons and the clocks end on the
@@ -554,6 +556,7 @@ const { class: className, ...rest } = Astro.props;
 .aib-gl{display:flex;flex-direction:column}
 .aib-i{display:flex;align-items:center;gap:12px;padding:8px 0;border-radius:calc(10px * var(--dm-rk-m,var(--dm-rk)));font-size:13px;transition:background .16s}
 .aib-i.mv{position:relative;z-index:1;background:var(--dm-surface)}
+/* (as a group goes or comes back the panel springs to its new height at the motion pieces&#39; pace, .mx-grow) */
 /* nothing in it grows or shrinks when it is pressed (owner, 18 Nov); Clean&#39;s ink primary alone presses */
 .aib :is(.ib,.pill):active,:root[data-style=&quot;clean&quot;] .aib .ib:active,:root [data-style=&quot;clean&quot;] .aib .ib:active,:root [data-style=&quot;clean&quot;].aib .ib:active{transform:none}
 .aib-av{width:28px;height:28px;border-radius:var(--dm-r-sm);display:grid;place-items:center;flex:none;font-size:11px;font-weight:500}

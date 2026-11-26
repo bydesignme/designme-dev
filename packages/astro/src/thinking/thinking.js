@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, DM, I, REDUCE, enter, grow, html, swap, tip } from '../core/core.js';
+import { $, DM, I, REDUCE, enter, grow, html, iconSwap, swap, tip } from '../core/core.js';
 DM.def('thinking', (r, c) => {
   const tk = $('.tk', r), list = $('.tk-list', r), title = $('.tk-title', r), time = $('.tk-time', r), head = $('.tk-h', r), fold = $('.tk-fold', r), mark = $('.tk-mark', r);
   // each step: what the agent does and what it found. Measuring the cards times out once, counts down and tries again
@@ -20,7 +20,8 @@ DM.def('thinking', (r, c) => {
   // (the template's chevron names the sprite's icon directly, which the homepage renames, so it is drawn through I())
   $('.tk-chev', r).outerHTML = I('chev-d', 'xs tk-chev');
   // the header becomes what the work came to
-  const finish = () => { live = false; head.classList.add('tk-fin'); mark.innerHTML = clean ? I('check','xs') : I('ok'); enter(mark.firstElementChild); title.classList.remove('shim'); swap(title, '3 cards to fix, 2 changes planned'); };
+  // (the dots and the finished mark crossfade, iconSwap(); Clean draws its tick on its disc as before)
+  const finish = () => { live = false; head.classList.add('tk-fin'); if (clean){ mark.innerHTML = I('check','xs'); enter(mark.firstElementChild); } else iconSwap(mark, () => { mark.innerHTML = I('ok'); }); title.classList.remove('shim'); swap(title, '3 cards to fix, 2 changes planned'); };
   // the line under a step opens and then crossfades; what the step found writes itself in a word at a time, and a tip on it
   // holds the detail
   const words = t => t.split(' ').map((w, i, a) => `<span class="w" style="animation-delay:${i * 45}ms">${w}${i < a.length - 1 ? ' ' : ''}</span>`).join('');
@@ -29,7 +30,8 @@ DM.def('thinking', (r, c) => {
     clearTimeout(sp._tone); const set = () => sp.classList.toggle('warn', warn);
     if (found){ set(); sp._sw = null; sp.classList.remove('out'); sp.innerHTML = tip ? `<span data-tip="${tip}">${words(text)}</span>` : words(text); }
     else { const lag = !REDUCE && !!sp.textContent.trim() && sp.textContent !== text; swap(sp, text); if (lag) sp._tone = setTimeout(set, 170); else set(); } };
-  const glyph = (li, g) => { const mk = $('.mk', li); mk.innerHTML = g; enter(mk.firstElementChild); };
+  // (a step's mark crossfades on its tile, which keeps its fill: iconSwap(); Clean draws its disc and tick as before)
+  const glyph = (li, g) => { const mk = $('.mk', li), put = () => { mk.innerHTML = g; }; if (clean){ put(); enter(mk.firstElementChild); } else iconSwap(mk, put, { inner:true }); };
   let secs = 0, live = true; c.every(1000, () => { if (live){ secs++; time.textContent = secs + 's'; } });
   c.run(async () => {
     await c.wait(600);

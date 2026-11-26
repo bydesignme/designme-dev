@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, grow, hoverGlide, stagger, swap } from '../core/core.js';
+import { $, $$, DM, I, grow, hoverGlide, reflow, stagger, swap } from '../core/core.js';
 DM.def('file-explorer', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{search}', I('search','xs')).replace('{filter}', I('filter','xs'));
   // Clean's one hover: a highlight that glides from row to row (hoverGlide)
@@ -43,9 +43,12 @@ DM.def('file-explorer', (r, c) => {
     });
     requestAnimationFrame(edge);
   }
-  inp.oninput = paint;
-  $('.pill', em).onclick = () => { inp.value = ''; paint(); stagger($$('.fxp-n', tree), 25); inp.focus({ preventScroll:true }); };
-  chB.onclick = () => { only = !only; chB.setAttribute('aria-pressed', only); swap(st, only ? '6 files changed by the agent' : sel); paint(); stagger($$('.fxp-n', tree), 25); };
+  // a filter or Only changed moves the rows: the ones that stay glide to their new places, new ones rise in out of a short blur
+  // and the ones that go fade where they were (reflow(), motion pieces); the card eases to its new height
+  const repaint = () => reflow(() => $$('.fxp-n', tree), paint, { by:'data-p', root, host:tree, blur:true });
+  inp.oninput = repaint;
+  $('.pill', em).onclick = () => { inp.value = ''; repaint(); inp.focus({ preventScroll:true }); };
+  chB.onclick = () => { only = !only; chB.setAttribute('aria-pressed', only); swap(st, only ? '6 files changed by the agent' : sel); repaint(); };
   st.textContent = sel; paint(); stagger($$('.fxp-n', tree), 25);
   // the card grows as folders open and shrinks as they close or the filter narrows (owner, 17 Nov: no room kept for later)
   c.offs.push(grow(root));

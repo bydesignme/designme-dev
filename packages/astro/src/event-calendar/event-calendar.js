@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, AV, DM, I, enter, hideTip, html, openPop, swap } from '../core/core.js';
+import { $, $$, AV, DM, I, REDUCE, enter, hideTip, html, mxWidth, openPop, swap } from '../core/core.js';
 DM.def('event-calendar', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{spark}', I('spark','xs'));
   const DAYS = ['Mon 19','Tue 20','Wed 21','Thu 22','Fri 23'], H0 = 9;
@@ -26,7 +26,7 @@ DM.def('event-calendar', (r, c) => {
   $$('button', days).forEach(b => b.onclick = () => showDay(+b.dataset.d));
   const tm = h => { const hh = Math.floor(h), mm = Math.round((h - hh) * 60); return `${hh > 12 ? hh - 12 : hh}:${String(mm).padStart(2, '0')}`; };
   const ev = (e, cls = '') => html(`<button class="ecx-e ${cls}" style="top:${at(e[1])};height:${tall(e[2])};background:var(--dm-p${e[4]}-bg);color:var(--dm-p${e[4]})"><b>${e[3]}</b><span>${tm(e[1])} – ${tm(e[1] + e[2])}</span></button>`);
-  const panel = $('.ecx', r), msg = $('.ecx-msg', r), pop = html('<div class="ecx-pop" role="dialog" aria-label="Event"></div>'); panel.appendChild(pop);
+  const panel = $('.ecx', r), msg = $('.ecx-msg', r), pop = html('<div class="ecx-pop mx-pop" role="dialog" aria-label="Event"></div>'); panel.appendChild(pop);
   const WHO = [['MK','var(--dm-av-l)','MK-g03'],['JO','var(--dm-av-m)','JO-g01'],['DA','var(--dm-av-b)'],['AR','var(--dm-av-p)','AR-g02']], DAYN = ['Mon','Tue','Wed','Thu','Fri'];
   let openFor = null;
   const say = t => swap(msg, t);
@@ -35,7 +35,7 @@ DM.def('event-calendar', (r, c) => {
   /* the details card opens beside the event and stays inside the calendar */
   function openPop(el){
     const e = el._e; if (openFor === el){ closePop(); return; } if (openFor) openFor.classList.remove('on'); openFor = el; el.classList.add('on'); const n = 2 + e[3].length % 3, fresh = e[3] === 'New event';
-    pop.innerHTML = `<div class="ecx-ph"><i style="background:var(--dm-p${e[4]})"></i>${fresh ? '<input class="ecx-ti" placeholder="Add a title" aria-label="Event title">' : `<b>${e[3]}</b>`}<button class="ib ecx-px" aria-label="Close" data-tip="Close">${I('x','xs')}</button></div><div class="ecx-pt">${DAYN[e[0]]} ${DAYS[e[0]].split(' ')[1]} Oct · ${tm(e[1])} – ${tm(e[1] + e[2])}</div><div class="ecx-pw">${WHO.slice(0, n).map(w => AV(w[0], w[1], w[2])).join('')}<span class="muted">${n} people</span></div><div class="ecx-pa">${fresh ? '<button class="pill line sm ecx-del">Discard</button><button class="pill primary sm ecx-save">Save</button>' : `<button class="pill line sm ecx-prep">${I('spark','xs')}Prep notes</button><button class="pill primary sm">Join</button>`}</div>`;
+    pop.innerHTML = `<div class="ecx-ph"><i style="background:var(--dm-p${e[4]})"></i>${fresh ? '<input class="ecx-ti" placeholder="Add a title" aria-label="Event title">' : `<b>${e[3]}</b>`}<button class="ib ecx-px mx-press" aria-label="Close" data-tip="Close">${I('x','xs')}</button></div><div class="ecx-pt">${DAYN[e[0]]} ${DAYS[e[0]].split(' ')[1]} Oct · ${tm(e[1])} – ${tm(e[1] + e[2])}</div><div class="ecx-pw">${WHO.slice(0, n).map(w => AV(w[0], w[1], w[2])).join('')}<span class="muted">${n} people</span></div><div class="ecx-pa">${fresh ? '<button class="pill line sm ecx-del mx-press">Discard</button><button class="pill primary sm ecx-save">Save</button>' : `<button class="pill line sm ecx-prep mx-press">${I('spark','xs')}Prep notes</button><button class="pill primary sm">Join</button>`}</div>`;
     const pr = panel.getBoundingClientRect(), er = el.getBoundingClientRect(), w = 248;
     let x = er.right - pr.left + 8; if (x + w > pr.width - 16) x = er.left - pr.left - w - 8; x = Math.max(16, x);
     let y = er.top - pr.top; y = Math.max(16, Math.min(y, pr.height - pop.offsetHeight - 24));
@@ -45,7 +45,9 @@ DM.def('event-calendar', (r, c) => {
     $('.ecx-px', pop).onclick = closePop;
     // Prep notes: its words shimmer while the agent writes; then the notes arrive above the buttons and the button stays, with
     // the green tick in place of its spark
-    const prep = $('.ecx-prep', pop); if (prep) prep.onclick = () => { if (prep._busy) return; prep._busy = true; prep.innerHTML = '<span class="think on"><i></i><i></i><i></i><i></i></span><span class="shim">Writing</span>'; c.later(1200, () => { if (!prep.isConnected) return; const nt = html(`<div class="ecx-note">${I('spark','xs')}<span>Last week's decisions and 3 open questions.</span></div>`); prep.closest('.ecx-pa').before(nt); enter(nt); prep.innerHTML = I('check','xs') + 'Prep notes'; prep.classList.add('done'); prep.setAttribute('aria-disabled', 'true'); }); };
+    // (the button eases to the width of what it says now: mxWidth(), motion pieces)
+    const relabel = (b, h) => { const w0 = b.offsetWidth; b.innerHTML = h; if (!REDUCE && w0) mxWidth(b, w0); };
+    const prep = $('.ecx-prep', pop); if (prep) prep.onclick = () => { if (prep._busy) return; prep._busy = true; relabel(prep, '<span class="think on"><i></i><i></i><i></i><i></i></span><span class="shim">Writing</span>'); c.later(1200, () => { if (!prep.isConnected) return; const nt = html(`<div class="ecx-note">${I('spark','xs')}<span>Last week's decisions and 3 open questions.</span></div>`); prep.closest('.ecx-pa').before(nt); enter(nt); relabel(prep, I('check','xs') + 'Prep notes'); prep.classList.add('done'); prep.setAttribute('aria-disabled', 'true'); }); };
     const ti = $('.ecx-ti', pop); if (ti){ ti.focus({ preventScroll:true });
       const save = () => { const v = ti.value.trim() || 'Untitled'; e[3] = v; $('b', el).textContent = v; el.dataset.tip = v + ', ' + tm(e[1]); closePop(); say('Added ' + v + ', ' + DAYN[e[0]] + ' ' + tm(e[1])); };
       ti.onkeydown = k => { if (k.key === 'Enter') save(); if (k.key === 'Escape'){ el.remove(); closePop(); } };
@@ -83,11 +85,11 @@ DM.def('event-calendar', (r, c) => {
   const tell = t => swap(ask, I('spark','xs') + t, true);
   ask.onclick = () => c.run(async () => {
     $$('.ecx-e.sug', grid).forEach(x => x.remove());
-    ask.innerHTML = '<span class="think on"><i></i><i></i><i></i><i></i></span><span class="shim">Checking 4 calendars</span>'; const sc = $('.ecx-scan', grid); sc.classList.remove('go'); void sc.offsetWidth; sc.classList.add('go');
+    const w0 = ask.offsetWidth; ask.innerHTML = '<span class="think on"><i></i><i></i><i></i><i></i></span><span class="shim">Checking 4 calendars</span>'; if (!REDUCE && w0) mxWidth(ask, w0); const sc = $('.ecx-scan', grid); sc.classList.remove('go'); void sc.offsetWidth; sc.classList.add('go');
     await c.wait(1300);
     const S = [[2,13.5,.75,'Design review','b'],[4,13,.75,'Design review','b']];
     S.forEach((s, i) => { const el = ev(s, 'sug' + (i ? ' alt' : '')); if (!i) el.insertAdjacentHTML('beforeend', '<div class="ecx-sg"><button class="y">Book</button><button class="n">Other</button></div>'); col(s[0]).appendChild(el); el.style.animationDelay = i * 120 + 'ms'; el.style.height = 'auto'; el.style.minHeight = tall(s[2]); });
-    ask.innerHTML = I('spark','xs') + 'Everyone is free Wed 1:30';
+    { const w0 = ask.offsetWidth; ask.innerHTML = I('spark','xs') + 'Everyone is free Wed 1:30'; if (!REDUCE && w0) mxWidth(ask, w0); }
     showDay(S[0][0]);
     const best = $('.ecx-e.sug:not(.alt)', grid);
     $('.y', best).onclick = e => { e.stopPropagation(); best.classList.remove('sug'); best.style.background = 'var(--dm-pb-bg)'; best.style.color = 'var(--dm-pb)'; best.style.boxShadow = ''; $('.ecx-sg', best).remove(); enter(best); bind(best, S[0]); $$('.ecx-e.sug', grid).forEach(x => x.remove()); tell('Booked, invites sent to 4 people'); };

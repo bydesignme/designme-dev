@@ -205,7 +205,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { cx } from '../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { enter, Spin, Swap, Tip } from '../lib/motion';
+import { enter, Spin, Swap, SwapIcon, Tip } from '../lib/motion';
 import { usePopover } from '../lib/popover';
 import '../designme.css';
 // its menus' rows glide in Clean
@@ -367,7 +367,7 @@ export function PermissionGate({
   const allowLabel = n ? `Allow ${n} ${word(n)}` : 'Pick a scope';
 
   return (
-    <div data-dm="" ref={root} className={cx('dm-pgx', !bare && 'dm-panel', 'dm-growing', followUp && state === 'asking' && 'dm-esc', className)}>
+    <div data-dm="" ref={root} className={cx('dm-pgx', !bare && 'dm-panel', 'dm-growing dm-mx-grow dm-mx-ic', followUp && state === 'asking' && 'dm-esc', className)}>
       {/* grow()'s wrapper in Clean; elsewhere it takes no box of its own */}
       <div ref={inner} className="dm-grow dm-dm-grow">
       <div className="dm-pgx-h">
@@ -390,32 +390,32 @@ export function PermissionGate({
             })}
           </div>
           <div key={'f' + foot.key} className={cx('dm-pgx-f', foot.className)} style={foot.style}>
-            <button {...durMenu.trigger} type="button" className="dm-pgx-db" aria-label="How long"><Swap className="dm-pgx-dv">{durLabel(dur)}</Swap><Icon name="chev-d" size="xs" /></button>
+            <button {...durMenu.trigger} type="button" className="dm-pgx-db dm-mx-press" aria-label="How long"><Swap className="dm-pgx-dv dm-mx-w">{durLabel(dur)}</Swap><Icon name="chev-d" size="xs" /></button>
             <span className="dm-sp" />
-            <button type="button" className="dm-pill dm-ghost dm-sm dm-pgx-no" onClick={decline}>{declineLabel}</button>
+            <button type="button" className="dm-pill dm-ghost dm-sm dm-pgx-no dm-mx-press" onClick={decline}>{declineLabel}</button>
             <button type="button" className="dm-pill dm-primary dm-sm dm-pgx-ok" disabled={!n} onClick={allow}>
               {waiting ? <Spin /> : single ? <Swap>Allow</Swap> : clean && n
                 ? <span className="dm-pgx-l">Allow <Count n={n} /> <Swap className="dm-pgx-w">{word(n)}</Swap></span>
-                : <Swap>{allowLabel}</Swap>}
+                : <Swap className="dm-mx-w">{allowLabel}</Swap>}
             </button>
           </div>
         </>
       )}
-      <div {...durMenu.pop} className={cx(durMenu.pop.className, 'dm-pgx-pop')} role="menu" aria-label="How long">
+      <div {...durMenu.pop} className={cx(durMenu.pop.className, 'dm-pgx-pop dm-mx-pop dm-mx-rows dm-mx-glide')} role="menu" aria-label="How long">
         {durations.map(d => (
-          <button key={d} type="button" className="dm-mi" role="menuitemradio" aria-checked={d === dur} onClick={() => { setDur(d); durMenu.closeSoon(); }}>
+          <button key={d} type="button" className="dm-mi dm-mx-press" role="menuitemradio" aria-checked={d === dur} onClick={() => { setDur(d); durMenu.closeSoon(); }}>
             <span>{durLabel(d)}{durationDetails[d] && <span className="dm-d">{durationDetails[d]}</span>}</span><span className="dm-ck"><Icon name="check" size="xs" /></span>
           </button>
         ))}
       </div>
       {state === 'allowed' && (
         <div className={cx('dm-pgx-done', working ? 'dm-run' : 'dm-ok', leaving ? 'dm-leave' : 'dm-enter')}>
-          <span className="dm-g">{working ? <Spin /> : <Icon name={clean ? 'check' : 'ok'} />}</span>
+          <span className="dm-g"><SwapIcon id={working ? 'spin' : 'done'}>{working ? <Spin /> : <Icon name={clean ? 'check' : 'ok'} />}</SwapIcon></span>
           <span className="dm-t">
             <b className="dm-pgx-a"><Swap>{allowedTitle ?? `Allowed ${granted || n} ${(granted || n) > 1 ? 'scopes' : 'scope'} ${durSpan(dur)}`}</Swap></b>
             {allowedDetail !== undefined && <Swap>{allowedDetail}</Swap>}
           </span>
-          <button type="button" className="dm-pill dm-line dm-sm" onClick={() => setLeaving(true)}>Revoke</button>
+          <button type="button" className="dm-pill dm-line dm-sm dm-mx-press" onClick={() => setLeaving(true)}>Revoke</button>
           <span className="dm-pgx-sum"><span className="dm-l">{names.join(', ')}</span><span className="dm-s">{`${names.length} ${word(names.length)} allowed`}</span></span>
         </div>
       )}
@@ -423,7 +423,7 @@ export function PermissionGate({
         <div className="dm-pgx-done dm-enter" style={{ background: 'var(--dm-chip)' }}>
           <Icon name="info" />
           <span className="dm-t">{declinedTitle}{declinedDetail && <span>{declinedDetail}</span>}</span>
-          <button type="button" className="dm-pill dm-line dm-sm" onClick={undo}>Undo</button>
+          <button type="button" className="dm-pill dm-line dm-sm dm-mx-press" onClick={undo}>Undo</button>
           <span className="dm-pgx-sum"><span className="dm-l">{declinedSummary}</span><span className="dm-s">{declinedSummary}</span></span>
         </div>
       )}

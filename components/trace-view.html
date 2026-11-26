@@ -205,6 +205,8 @@
 .trv-r[aria-expanded="true"]{background:var(--dm-row)}
 @media (hover:hover) and (pointer:fine){.trv-r:hover{background:var(--dm-row)}}
 .trv-r[aria-expanded="true"] .trv-tk{color:var(--dm-fg2)}
+/* its motion pieces (core's "motion pieces", 26 Nov): one highlight glides from span to span in every style (.mx-glide), the
+   picked span keeps its own fill; the details' parts settle one after another as they open (.mx-rows); Close presses at once */
 .trv-r:focus-visible{outline:0;box-shadow:inset 0 0 0 2px var(--dm-focus)}
 .trv-n{position:relative;display:flex;align-items:center;gap:19px;min-width:0;align-self:stretch;padding-left:calc(7px + var(--dm-lv,0) * 16px)}
 .trv-k{position:relative;z-index:1;width:18px;height:18px;display:grid;place-items:center;flex:none;border-radius:var(--dm-r-tiny,5px);color:color-mix(in srgb,var(--dm-k) 70%,var(--dm-fg));background:color-mix(in srgb,var(--dm-k) 13%,var(--dm-surface))}
@@ -302,8 +304,8 @@
       <div class="trv-h"><div class="trv-ht"><b>Pricing research</b><span class="muted trv-st" aria-live="polite"></span></div><span class="trv-nums"><span class="trv-tot num">0.00s</span></span></div>
       <div class="trv-lg" role="list" aria-label="Spans by kind"></div>
       <div class="trv-ax" aria-hidden="true"><span>Span</span><span class="trv-sc"></span><span class="trv-tk">Tokens</span><span class="trv-ms">Time</span></div>
-      <div class="trv-rows" role="group" aria-label="Spans"></div>
-      <div class="fold shut trv-dt" inert><div><div class="trv-dc" role="region" aria-label="Span details"></div></div></div>
+      <div class="trv-rows mx-glide" role="group" aria-label="Spans"></div>
+      <div class="fold shut trv-dt" inert><div><div class="trv-dc mx-rows mx-play" role="region" aria-label="Span details"></div></div></div>
     </div>
   </div>
 </div>
@@ -547,7 +549,7 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
         &lt;span className=&quot;dm-trv-sc&quot;&gt;{labels.map(v =&gt; &lt;span key={v} style={{ left: `${(v / span) * 100}%` }}&gt;{v}s&lt;/span&gt;)}&lt;/span&gt;
         &lt;span className=&quot;dm-trv-tk&quot;&gt;Tokens&lt;/span&gt;&lt;span className=&quot;dm-trv-ms&quot;&gt;Time&lt;/span&gt;
       &lt;/div&gt;
-      &lt;div ref={rows} className={cx(&#39;dm-trv-rows&#39;, sel &amp;&amp; &#39;dm-sel&#39;)} role=&quot;group&quot; aria-label=&quot;Spans&quot; onKeyDown={onKey}&gt;
+      &lt;div ref={rows} className={cx(&#39;dm-trv-rows dm-mx-glide&#39;, sel &amp;&amp; &#39;dm-sel&#39;)} role=&quot;group&quot; aria-label=&quot;Spans&quot; onKeyDown={onKey}&gt;
         {shown.map(row =&gt; {
           const { s, lv } = row;
           const [kind, icon, col] = KIND[s.kind], w = took(s), tk = tokensOf(s), run = running(s), sl = slow(s);
@@ -572,11 +574,11 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
       &lt;/div&gt;
       &lt;Fold open={!!sel} className=&quot;dm-trv-dt&quot;&gt;
         {cur &amp;&amp; (
-          &lt;div key={cur.id} className=&quot;dm-trv-dc dm-enter&quot; role=&quot;region&quot; aria-label=&quot;Span details&quot;&gt;
+          &lt;div key={cur.id} className=&quot;dm-trv-dc dm-mx-rows dm-mx-play&quot; role=&quot;region&quot; aria-label=&quot;Span details&quot;&gt;
             &lt;div className=&quot;dm-trv-dh&quot;&gt;
               &lt;span className=&quot;dm-trv-k&quot; style={{ &#39;--dm-k&#39;: KIND[cur.kind][2] } as CSSProperties}&gt;&lt;Icon name={KIND[cur.kind][1]} size=&quot;xs&quot; /&gt;&lt;/span&gt;
               &lt;b&gt;{cur.name}&lt;/b&gt;{slow(cur) &amp;&amp; &lt;span className=&quot;dm-tag dm-warn&quot;&gt;slow&lt;/span&gt;}
-              &lt;Tip label=&quot;Close&quot;&gt;&lt;button type=&quot;button&quot; className=&quot;dm-ib dm-trv-x&quot; aria-label=&quot;Close details&quot; onClick={e =&gt; close(e.currentTarget.contains(document.activeElement))}&gt;&lt;Icon name=&quot;x&quot; /&gt;&lt;/button&gt;&lt;/Tip&gt;
+              &lt;Tip label=&quot;Close&quot;&gt;&lt;button type=&quot;button&quot; className=&quot;dm-ib dm-trv-x dm-mx-press&quot; aria-label=&quot;Close details&quot; onClick={e =&gt; close(e.currentTarget.contains(document.activeElement))}&gt;&lt;Icon name=&quot;x&quot; /&gt;&lt;/button&gt;&lt;/Tip&gt;
             &lt;/div&gt;
             &lt;div className=&quot;dm-trv-pos&quot; aria-hidden=&quot;true&quot; style={{ &#39;--dm-k&#39;: KIND[cur.kind][2] } as CSSProperties}&gt;
               &lt;i style={{ left: `${(cur.start / span) * 100}%`, width: `${(took(cur) / span) * 100}%` }} /&gt;
@@ -598,7 +600,7 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>trace-view.css<span class="l">React · 121 lines</span></summary><pre class="cp-pre" data-name="trace-view.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>trace-view.css<span class="l">React · 123 lines</span></summary><pre class="cp-pre" data-name="trace-view.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Trace view ---------- */
 /* one agent run as a waterfall: every span on a shared time axis, nested under the span that started it, with its tokens
    and latency. The run itself is the head: its mark, its name, how it is going, and its total tokens and time. The card
@@ -642,6 +644,8 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
 .dm-trv-r[aria-expanded=&quot;true&quot;]{background:var(--dm-row)}
 @media (hover:hover) and (pointer:fine){.dm-trv-r:hover{background:var(--dm-row)}}
 .dm-trv-r[aria-expanded=&quot;true&quot;] .dm-trv-tk{color:var(--dm-fg2)}
+/* its motion pieces (core&#39;s &quot;motion pieces&quot;, 26 Nov): one highlight glides from span to span in every style (.mx-glide), the
+   picked span keeps its own fill; the details&#39; parts settle one after another as they open (.mx-rows); Close presses at once */
 .dm-trv-r:focus-visible{outline:0;box-shadow:inset 0 0 0 2px var(--dm-focus)}
 .dm-trv-n{position:relative;display:flex;align-items:center;gap:19px;min-width:0;align-self:stretch;padding-left:calc(7px + var(--dm-lv,0) * 16px)}
 .dm-trv-k{position:relative;z-index:1;width:18px;height:18px;display:grid;place-items:center;flex:none;border-radius:var(--dm-r-tiny,5px);color:color-mix(in srgb,var(--dm-k) 70%,var(--dm-fg));background:color-mix(in srgb,var(--dm-k) 13%,var(--dm-surface))}
@@ -739,8 +743,8 @@ const { class: className, ...rest } = Astro.props;
   &lt;div class=&quot;trv-h&quot;&gt;&lt;div class=&quot;trv-ht&quot;&gt;&lt;b&gt;Pricing research&lt;/b&gt;&lt;span class=&quot;muted trv-st&quot; aria-live=&quot;polite&quot;&gt;&lt;/span&gt;&lt;/div&gt;&lt;span class=&quot;trv-nums&quot;&gt;&lt;span class=&quot;trv-tot num&quot;&gt;0.00s&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;
   &lt;div class=&quot;trv-lg&quot; role=&quot;list&quot; aria-label=&quot;Spans by kind&quot;&gt;&lt;/div&gt;
   &lt;div class=&quot;trv-ax&quot; aria-hidden=&quot;true&quot;&gt;&lt;span&gt;Span&lt;/span&gt;&lt;span class=&quot;trv-sc&quot;&gt;&lt;/span&gt;&lt;span class=&quot;trv-tk&quot;&gt;Tokens&lt;/span&gt;&lt;span class=&quot;trv-ms&quot;&gt;Time&lt;/span&gt;&lt;/div&gt;
-  &lt;div class=&quot;trv-rows&quot; role=&quot;group&quot; aria-label=&quot;Spans&quot;&gt;&lt;/div&gt;
-  &lt;div class=&quot;fold shut trv-dt&quot; inert&gt;&lt;div&gt;&lt;div class=&quot;trv-dc&quot; role=&quot;region&quot; aria-label=&quot;Span details&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;
+  &lt;div class=&quot;trv-rows mx-glide&quot; role=&quot;group&quot; aria-label=&quot;Spans&quot;&gt;&lt;/div&gt;
+  &lt;div class=&quot;fold shut trv-dt&quot; inert&gt;&lt;div&gt;&lt;div class=&quot;trv-dc mx-rows mx-play&quot; role=&quot;region&quot; aria-label=&quot;Span details&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;/div&gt;
   &lt;/Fragment&gt;&lt;/div&gt;
 &lt;/div&gt;
@@ -753,12 +757,12 @@ const { class: className, ...rest } = Astro.props;
       &lt;div class=&quot;trv-h&quot;&gt;&lt;div class=&quot;trv-ht&quot;&gt;&lt;b&gt;Pricing research&lt;/b&gt;&lt;span class=&quot;muted trv-st&quot; aria-live=&quot;polite&quot;&gt;&lt;/span&gt;&lt;/div&gt;&lt;span class=&quot;trv-nums&quot;&gt;&lt;span class=&quot;trv-tot num&quot;&gt;0.00s&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;
       &lt;div class=&quot;trv-lg&quot; role=&quot;list&quot; aria-label=&quot;Spans by kind&quot;&gt;&lt;/div&gt;
       &lt;div class=&quot;trv-ax&quot; aria-hidden=&quot;true&quot;&gt;&lt;span&gt;Span&lt;/span&gt;&lt;span class=&quot;trv-sc&quot;&gt;&lt;/span&gt;&lt;span class=&quot;trv-tk&quot;&gt;Tokens&lt;/span&gt;&lt;span class=&quot;trv-ms&quot;&gt;Time&lt;/span&gt;&lt;/div&gt;
-      &lt;div class=&quot;trv-rows&quot; role=&quot;group&quot; aria-label=&quot;Spans&quot;&gt;&lt;/div&gt;
-      &lt;div class=&quot;fold shut trv-dt&quot; inert&gt;&lt;div&gt;&lt;div class=&quot;trv-dc&quot; role=&quot;region&quot; aria-label=&quot;Span details&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;
+      &lt;div class=&quot;trv-rows mx-glide&quot; role=&quot;group&quot; aria-label=&quot;Spans&quot;&gt;&lt;/div&gt;
+      &lt;div class=&quot;fold shut trv-dt&quot; inert&gt;&lt;div&gt;&lt;div class=&quot;trv-dc mx-rows mx-play&quot; role=&quot;region&quot; aria-label=&quot;Span details&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>trace-view.css<span class="l">HTML · 120 lines</span></summary><pre class="cp-pre" data-name="trace-view.css"><code>/* ---------- Trace view ---------- */
+</code></pre></details><details class="cp-file"><summary>trace-view.css<span class="l">HTML · 122 lines</span></summary><pre class="cp-pre" data-name="trace-view.css"><code>/* ---------- Trace view ---------- */
 /* one agent run as a waterfall: every span on a shared time axis, nested under the span that started it, with its tokens
    and latency. The run itself is the head: its mark, its name, how it is going, and its total tokens and time. The card
    sits on two columns (owner, 18 Nov): the head&#39;s mark in a 32px column with the title&#39;s words 12px after it; each span&#39;s
@@ -801,6 +805,8 @@ const { class: className, ...rest } = Astro.props;
 .trv-r[aria-expanded=&quot;true&quot;]{background:var(--dm-row)}
 @media (hover:hover) and (pointer:fine){.trv-r:hover{background:var(--dm-row)}}
 .trv-r[aria-expanded=&quot;true&quot;] .trv-tk{color:var(--dm-fg2)}
+/* its motion pieces (core&#39;s &quot;motion pieces&quot;, 26 Nov): one highlight glides from span to span in every style (.mx-glide), the
+   picked span keeps its own fill; the details&#39; parts settle one after another as they open (.mx-rows); Close presses at once */
 .trv-r:focus-visible{outline:0;box-shadow:inset 0 0 0 2px var(--dm-focus)}
 .trv-n{position:relative;display:flex;align-items:center;gap:19px;min-width:0;align-self:stretch;padding-left:calc(7px + var(--dm-lv,0) * 16px)}
 .trv-k{position:relative;z-index:1;width:18px;height:18px;display:grid;place-items:center;flex:none;border-radius:var(--dm-r-tiny,5px);color:color-mix(in srgb,var(--dm-k) 70%,var(--dm-fg));background:color-mix(in srgb,var(--dm-k) 13%,var(--dm-surface))}
@@ -877,7 +883,7 @@ const { class: className, ...rest } = Astro.props;
 :root[data-style=&quot;clean&quot;] .trv-r.run:not([data-k=&quot;agent&quot;]) .trv-b i::after,:root [data-style=&quot;clean&quot;] .trv-r.run:not([data-k=&quot;agent&quot;]) .trv-b i::after,:root [data-style=&quot;clean&quot;].trv-r.run:not([data-k=&quot;agent&quot;]) .trv-b i::after{display:none}
 :root[data-style=&quot;clean&quot;] .trv-dc,:root [data-style=&quot;clean&quot;] .trv-dc,:root [data-style=&quot;clean&quot;].trv-dc{padding-top:var(--dm-strip-y);background:var(--dm-strip);border-top-color:var(--dm-line);border-radius:0 0 var(--dm-r-card) var(--dm-r-card)}
 :root[data-style=&quot;clean&quot;] .trv-io code,:root [data-style=&quot;clean&quot;] .trv-io code,:root [data-style=&quot;clean&quot;].trv-io code{background:var(--dm-surface);box-shadow:inset 0 0 0 1px var(--dm-hair)}
-</code></pre></details><details class="cp-file"><summary>trace-view.js<span class="l">HTML · 132 lines</span></summary><pre class="cp-pre" data-name="trace-view.js"><code>DM.def(&#39;trace-view&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>trace-view.js<span class="l">HTML · 133 lines</span></summary><pre class="cp-pre" data-name="trace-view.js"><code>DM.def(&#39;trace-view&#39;, (r, c) =&gt; {
   // the kinds of span, each with its mark and colour: the identity slots of the chart palette, and grey for the agents
   // that hold the other spans. The name is always on the mark, in a tooltip, and in the span&#39;s label
   const K = { agent:[&#39;Agent&#39;,&#39;cpu&#39;,&#39;var(--dm-muted)&#39;], llm:[&#39;LLM call&#39;,&#39;spark&#39;,&#39;var(--dm-c2)&#39;], tool:[&#39;Tool call&#39;,&#39;term&#39;,&#39;var(--dm-c6)&#39;], ret:[&#39;Retrieval&#39;,&#39;search&#39;,&#39;var(--dm-c3)&#39;] };
@@ -973,13 +979,14 @@ const { class: className, ...rest } = Astro.props;
     if (!x) return;
     x.el.setAttribute(&#39;aria-expanded&#39;, &#39;true&#39;);
     const [kind, icon, col] = K[x.k];
-    dc.innerHTML = `&lt;div class=&quot;trv-dh&quot;&gt;&lt;span class=&quot;trv-k&quot; style=&quot;--dm-k:${col}&quot;&gt;${I(icon,&#39;xs&#39;)}&lt;/span&gt;&lt;b&gt;${x.n}&lt;/b&gt;${x.slow ? &#39;&lt;span class=&quot;tag warn&quot;&gt;slow&lt;/span&gt;&#39; : &#39;&#39;}&lt;button class=&quot;ib trv-x&quot; aria-label=&quot;Close details&quot; data-tip=&quot;Close&quot;&gt;${I(&#39;x&#39;)}&lt;/button&gt;&lt;/div&gt;
+    dc.innerHTML = `&lt;div class=&quot;trv-dh&quot;&gt;&lt;span class=&quot;trv-k&quot; style=&quot;--dm-k:${col}&quot;&gt;${I(icon,&#39;xs&#39;)}&lt;/span&gt;&lt;b&gt;${x.n}&lt;/b&gt;${x.slow ? &#39;&lt;span class=&quot;tag warn&quot;&gt;slow&lt;/span&gt;&#39; : &#39;&#39;}&lt;button class=&quot;ib trv-x mx-press&quot; aria-label=&quot;Close details&quot; data-tip=&quot;Close&quot;&gt;${I(&#39;x&#39;)}&lt;/button&gt;&lt;/div&gt;
       &lt;div class=&quot;trv-pos&quot; aria-hidden=&quot;true&quot; style=&quot;--dm-k:${col}&quot;&gt;&lt;i style=&quot;left:${x.s / SPAN * 100}%&quot;&gt;&lt;/i&gt;&lt;/div&gt;
       &lt;div class=&quot;trv-kv&quot;&gt;&lt;div&gt;&lt;span&gt;Kind&lt;/span&gt;&lt;b&gt;${kind}&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;span&gt;Starts at&lt;/span&gt;&lt;b class=&quot;num&quot;&gt;${sec(x.s)}&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;span&gt;Latency&lt;/span&gt;&lt;b class=&quot;num trv-lt&quot;&gt;&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;span&gt;Tokens&lt;/span&gt;&lt;b class=&quot;num trv-tn&quot;&gt;&lt;/b&gt;&lt;/div&gt;&lt;/div&gt;
       &lt;div class=&quot;trv-io&quot;&gt;&lt;span&gt;Input&lt;/span&gt;&lt;code&gt;${x.in}&lt;/code&gt;&lt;span&gt;Output&lt;/span&gt;&lt;code class=&quot;out&quot;&gt;&lt;/code&gt;&lt;/div&gt;`;
     // closing hands focus back to the span, if it was inside the details
     $(&#39;.trv-x&#39;, dc).onclick = () =&gt; { const el = sel.el, back = dc.contains(document.activeElement); open(null); if (back) el.focus({ preventScroll:true }); };
-    fill(); enter(dc);
+    // (its parts settle one after another as it opens: .mx-rows on the card, motion pieces)
+    fill();
   }
   function fill(){
     const x = sel, done = T &gt;= x.s + x.d;
@@ -1440,13 +1447,14 @@ const fitHits = window.dmFitHits || (() => {
     if (!x) return;
     x.el.setAttribute('aria-expanded', 'true');
     const [kind, icon, col] = K[x.k];
-    dc.innerHTML = `<div class="trv-dh"><span class="trv-k" style="--dm-k:${col}">${I(icon,'xs')}</span><b>${x.n}</b>${x.slow ? '<span class="tag warn">slow</span>' : ''}<button class="ib trv-x" aria-label="Close details" data-tip="Close">${I('x')}</button></div>
+    dc.innerHTML = `<div class="trv-dh"><span class="trv-k" style="--dm-k:${col}">${I(icon,'xs')}</span><b>${x.n}</b>${x.slow ? '<span class="tag warn">slow</span>' : ''}<button class="ib trv-x mx-press" aria-label="Close details" data-tip="Close">${I('x')}</button></div>
       <div class="trv-pos" aria-hidden="true" style="--dm-k:${col}"><i style="left:${x.s / SPAN * 100}%"></i></div>
       <div class="trv-kv"><div><span>Kind</span><b>${kind}</b></div><div><span>Starts at</span><b class="num">${sec(x.s)}</b></div><div><span>Latency</span><b class="num trv-lt"></b></div><div><span>Tokens</span><b class="num trv-tn"></b></div></div>
       <div class="trv-io"><span>Input</span><code>${x.in}</code><span>Output</span><code class="out"></code></div>`;
     // closing hands focus back to the span, if it was inside the details
     $('.trv-x', dc).onclick = () => { const el = sel.el, back = dc.contains(document.activeElement); open(null); if (back) el.focus({ preventScroll:true }); };
-    fill(); enter(dc);
+    // (its parts settle one after another as it opens: .mx-rows on the card, motion pieces)
+    fill();
   }
   function fill(){
     const x = sel, done = T >= x.s + x.d;

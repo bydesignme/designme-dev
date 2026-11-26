@@ -233,6 +233,10 @@
 .atr-nm{flex:0 0 auto;max-width:100%;overflow:hidden;text-overflow:ellipsis;font-weight:500}
 .atr-tg{align-self:center;width:16px;height:16px;margin-left:-6px;flex:none;display:grid;place-items:center;border-radius:calc(4px * var(--dm-rk-s,var(--dm-rk)));color:var(--dm-muted);cursor:pointer;transition:background var(--dm-t-fast),color var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.atr-tg:hover{background:color-mix(in srgb,var(--dm-fg) 9%,transparent);color:var(--dm-fg)}}
+/* its motion pieces (core's "motion pieces", 26 Nov): one highlight glides from row to row in Soft and Blueprint too (.mx-glide),
+   in the rows' own hover fill; a press on a branch's chevron shows at once (.mx-press) */
+.atr-tree.mx-glide{--dm-hg-bg:color-mix(in srgb,var(--dm-fg) 5%,transparent)}
+:root[data-style="clean"] .atr-tree.mx-glide,:root [data-style="clean"] .atr-tree.mx-glide,:root [data-style="clean"].atr-tree.mx-glide{--dm-hg-bg:var(--dm-row)}
 .atr-tg svg{width:12px;height:12px;transition:transform .32s var(--dm-ease)}
 .atr-n[aria-expanded="false"]>.atr-b .atr-tg svg{transform:rotate(-90deg)}
 .atr-sub{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;font-size:12px;color:var(--dm-muted)}
@@ -250,7 +254,7 @@
 /* the tree grows with its rows (grow(), owner 17 Nov): each new row already opens its own height smoothly, so the panel
    follows its content frame by frame, with nothing cut off and no room left over; the way on under a row (a fix, Approve and
    Hold) opens its height the same way. Where a browser can't ease a height to auto, it appears at once */
-.atr.growing{transition:none;interpolate-size:allow-keywords}
+.atr.growing{--dm-grow-t:0s;interpolate-size:allow-keywords}
 .atr-ask{overflow:clip;overflow-clip-margin:4px;animation:atrask .42s var(--dm-atr-ez) backwards}
 @keyframes atrask{from{height:0;padding-bottom:0;opacity:0}}
 .atr .atr-n[data-ph="in"]>.atr-b>.atr-ask{animation:atrask .42s var(--dm-atr-ez) backwards,atrin .56s var(--dm-atr-ez) backwards}
@@ -451,7 +455,7 @@
     <div class="dm atr-dm" data-designs="card"><div class="dm-main">
     <div class="atr panel" data-s="run">
       <div class="atr-h"><div class="atr-hd"><b class="atr-t">Redesign the pricing page</b><span class="atr-s"><span class="atr-dot" aria-hidden="true"></span><span class="atr-m">Starting</span><span aria-hidden="true">·</span><span class="atr-time num">0:00</span></span></div><span class="atr-tot num">$0.00</span></div>
-      <div class="atr-tree" role="tree" aria-label="Agents"><svg class="atr-ln" aria-hidden="true"></svg></div>
+      <div class="atr-tree mx-glide" role="tree" aria-label="Agents"><svg class="atr-ln" aria-hidden="true"></svg></div>
       <p class="atr-f"></p>
       <p class="atr-sr" role="status"></p>
     </div>
@@ -929,7 +933,7 @@ export function AgentTree({ root, title, status, seconds, collapsed, defaultColl
             &lt;Mark key={m} m={m} /&gt;
             {who}
             &lt;span className=&quot;dm-atr-w&quot;&gt;
-              &lt;span className=&quot;dm-atr-tx&quot;&gt;&lt;span className=&quot;dm-atr-nm&quot;&gt;{n.name}&lt;/span&gt;{k &gt; 0 &amp;&amp; &lt;span className=&quot;dm-atr-tg&quot; aria-hidden=&quot;true&quot;&gt;&lt;Icon name=&quot;chev-d&quot; size=&quot;xs&quot; /&gt;&lt;/span&gt;}&lt;span className=&quot;dm-atr-sub&quot;&gt;{n.task}&lt;/span&gt;&lt;/span&gt;
+              &lt;span className=&quot;dm-atr-tx&quot;&gt;&lt;span className=&quot;dm-atr-nm&quot;&gt;{n.name}&lt;/span&gt;{k &gt; 0 &amp;&amp; &lt;span className=&quot;dm-atr-tg dm-mx-press&quot; aria-hidden=&quot;true&quot;&gt;&lt;Icon name=&quot;chev-d&quot; size=&quot;xs&quot; /&gt;&lt;/span&gt;}&lt;span className=&quot;dm-atr-sub&quot;&gt;{n.task}&lt;/span&gt;&lt;/span&gt;
               &lt;span className=&quot;dm-atr-q dm-num&quot;&gt;
                 {t &gt;= 1 &amp;&amp; &lt;span className=&quot;dm-atr-sec&quot;&gt;&lt;span&gt;{Math.floor(t)}s&lt;/span&gt;&lt;span aria-hidden=&quot;true&quot;&gt; ·&lt;/span&gt;&lt;/span&gt;}
                 {k ? &lt;Tip label={`Its own ${money(n.cost ?? 0)}, ${kinds(k, lv)} ${money(v - (n.cost ?? 0))}`}&gt;{cost}&lt;/Tip&gt; : cost}
@@ -954,7 +958,7 @@ export function AgentTree({ root, title, status, seconds, collapsed, defaultColl
         &lt;div className=&quot;dm-atr-hd&quot;&gt;&lt;b className=&quot;dm-atr-t&quot;&gt;{title}&lt;/b&gt;&lt;span className=&quot;dm-atr-s&quot;&gt;&lt;span className=&quot;dm-atr-dot&quot; aria-hidden=&quot;true&quot; /&gt;&lt;span className=&quot;dm-atr-m&quot;&gt;{line}&lt;/span&gt;&lt;span aria-hidden=&quot;true&quot;&gt;·&lt;/span&gt;&lt;span className=&quot;dm-atr-time dm-num&quot;&gt;{clock(secs)}&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;
         &lt;span className=&quot;dm-atr-tot dm-num&quot;&gt;{money(sum(root))}&lt;/span&gt;
       &lt;/div&gt;
-      &lt;div ref={treeRef} className=&quot;dm-atr-tree&quot; role=&quot;tree&quot; aria-label=&quot;Agents&quot; onKeyDown={onKey} onClick={onClick}&gt;
+      &lt;div ref={treeRef} className=&quot;dm-atr-tree dm-mx-glide&quot; role=&quot;tree&quot; aria-label=&quot;Agents&quot; onKeyDown={onKey} onClick={onClick}&gt;
         &lt;svg className=&quot;dm-atr-ln&quot; aria-hidden=&quot;true&quot; /&gt;
         {node(root, 0)}
       &lt;/div&gt;
@@ -964,7 +968,7 @@ export function AgentTree({ root, title, status, seconds, collapsed, defaultColl
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>agent-tree.css<span class="l">React · 168 lines</span></summary><pre class="cp-pre" data-name="agent-tree.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>agent-tree.css<span class="l">React · 172 lines</span></summary><pre class="cp-pre" data-name="agent-tree.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Agent tree ---------- */
 /* an orchestrator and the agents it hands work to, as a tree that grows while the run plays: a header with the run&#39;s title,
    its status, the time and the total cost, then the tree. A parent&#39;s line runs down from its mark and each child branches
@@ -1036,6 +1040,10 @@ export function AgentTree({ root, title, status, seconds, collapsed, defaultColl
 .dm-atr-nm{flex:0 0 auto;max-width:100%;overflow:hidden;text-overflow:ellipsis;font-weight:500}
 .dm-atr-tg{align-self:center;width:16px;height:16px;margin-left:-6px;flex:none;display:grid;place-items:center;border-radius:calc(4px * var(--dm-rk-s,var(--dm-rk)));color:var(--dm-muted);cursor:pointer;transition:background var(--dm-t-fast),color var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.dm-atr-tg:hover{background:color-mix(in srgb,var(--dm-fg) 9%,transparent);color:var(--dm-fg)}}
+/* its motion pieces (core&#39;s &quot;motion pieces&quot;, 26 Nov): one highlight glides from row to row in Soft and Blueprint too (.mx-glide),
+   in the rows&#39; own hover fill; a press on a branch&#39;s chevron shows at once (.mx-press) */
+.dm-atr-tree.dm-mx-glide{--dm-hg-bg:color-mix(in srgb,var(--dm-fg) 5%,transparent)}
+:root[data-style=&quot;clean&quot;] .dm-atr-tree.dm-mx-glide,:root [data-style=&quot;clean&quot;] .dm-atr-tree.dm-mx-glide,:root [data-style=&quot;clean&quot;].dm-atr-tree.dm-mx-glide{--dm-hg-bg:var(--dm-row)}
 .dm-atr-tg svg{width:12px;height:12px;transition:transform .32s var(--dm-ease)}
 .dm-atr-n[aria-expanded=&quot;false&quot;]&gt;.dm-atr-b .dm-atr-tg svg{transform:rotate(-90deg)}
 .dm-atr-sub{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;font-size:12px;color:var(--dm-muted)}
@@ -1053,7 +1061,7 @@ export function AgentTree({ root, title, status, seconds, collapsed, defaultColl
 /* the tree grows with its rows (grow(), owner 17 Nov): each new row already opens its own height smoothly, so the panel
    follows its content frame by frame, with nothing cut off and no room left over; the way on under a row (a fix, Approve and
    Hold) opens its height the same way. Where a browser can&#39;t ease a height to auto, it appears at once */
-.dm-atr.dm-growing{transition:none;interpolate-size:allow-keywords}
+.dm-atr.dm-growing{--dm-grow-t:0s;interpolate-size:allow-keywords}
 .dm-atr-ask{overflow:clip;overflow-clip-margin:4px;animation:dm-atrask .42s var(--dm-atr-ez) backwards}
 @keyframes dm-atrask{from{height:0;padding-bottom:0;opacity:0}}
 .dm-atr .dm-atr-n[data-ph=&quot;in&quot;]&gt;.dm-atr-b&gt;.dm-atr-ask{animation:dm-atrask .42s var(--dm-atr-ez) backwards,dm-atrin .56s var(--dm-atr-ez) backwards}
@@ -1150,7 +1158,7 @@ const { class: className, ...rest } = Astro.props;
   &lt;div class=&quot;stage-in&quot;&gt;&lt;Fragment is:raw&gt;
 &lt;div class=&quot;atr panel&quot; data-s=&quot;run&quot;&gt;
   &lt;div class=&quot;atr-h&quot;&gt;&lt;div class=&quot;atr-hd&quot;&gt;&lt;b class=&quot;atr-t&quot;&gt;Redesign the pricing page&lt;/b&gt;&lt;span class=&quot;atr-s&quot;&gt;&lt;span class=&quot;atr-dot&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;span class=&quot;atr-m&quot;&gt;Starting&lt;/span&gt;&lt;span aria-hidden=&quot;true&quot;&gt;·&lt;/span&gt;&lt;span class=&quot;atr-time num&quot;&gt;0:00&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;&lt;span class=&quot;atr-tot num&quot;&gt;$0.00&lt;/span&gt;&lt;/div&gt;
-  &lt;div class=&quot;atr-tree&quot; role=&quot;tree&quot; aria-label=&quot;Agents&quot;&gt;&lt;svg class=&quot;atr-ln&quot; aria-hidden=&quot;true&quot;&gt;&lt;/svg&gt;&lt;/div&gt;
+  &lt;div class=&quot;atr-tree mx-glide&quot; role=&quot;tree&quot; aria-label=&quot;Agents&quot;&gt;&lt;svg class=&quot;atr-ln&quot; aria-hidden=&quot;true&quot;&gt;&lt;/svg&gt;&lt;/div&gt;
   &lt;p class=&quot;atr-f&quot;&gt;&lt;/p&gt;
   &lt;p class=&quot;atr-sr&quot; role=&quot;status&quot;&gt;&lt;/p&gt;
 &lt;/div&gt;
@@ -1163,13 +1171,13 @@ const { class: className, ...rest } = Astro.props;
   &lt;div class=&quot;stage-in&quot;&gt;
     &lt;div class=&quot;atr panel&quot; data-s=&quot;run&quot;&gt;
       &lt;div class=&quot;atr-h&quot;&gt;&lt;div class=&quot;atr-hd&quot;&gt;&lt;b class=&quot;atr-t&quot;&gt;Redesign the pricing page&lt;/b&gt;&lt;span class=&quot;atr-s&quot;&gt;&lt;span class=&quot;atr-dot&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;span class=&quot;atr-m&quot;&gt;Starting&lt;/span&gt;&lt;span aria-hidden=&quot;true&quot;&gt;·&lt;/span&gt;&lt;span class=&quot;atr-time num&quot;&gt;0:00&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;&lt;span class=&quot;atr-tot num&quot;&gt;$0.00&lt;/span&gt;&lt;/div&gt;
-      &lt;div class=&quot;atr-tree&quot; role=&quot;tree&quot; aria-label=&quot;Agents&quot;&gt;&lt;svg class=&quot;atr-ln&quot; aria-hidden=&quot;true&quot;&gt;&lt;/svg&gt;&lt;/div&gt;
+      &lt;div class=&quot;atr-tree mx-glide&quot; role=&quot;tree&quot; aria-label=&quot;Agents&quot;&gt;&lt;svg class=&quot;atr-ln&quot; aria-hidden=&quot;true&quot;&gt;&lt;/svg&gt;&lt;/div&gt;
       &lt;p class=&quot;atr-f&quot;&gt;&lt;/p&gt;
       &lt;p class=&quot;atr-sr&quot; role=&quot;status&quot;&gt;&lt;/p&gt;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>agent-tree.css<span class="l">HTML · 167 lines</span></summary><pre class="cp-pre" data-name="agent-tree.css"><code>/* ---------- Agent tree ---------- */
+</code></pre></details><details class="cp-file"><summary>agent-tree.css<span class="l">HTML · 171 lines</span></summary><pre class="cp-pre" data-name="agent-tree.css"><code>/* ---------- Agent tree ---------- */
 /* an orchestrator and the agents it hands work to, as a tree that grows while the run plays: a header with the run&#39;s title,
    its status, the time and the total cost, then the tree. A parent&#39;s line runs down from its mark and each child branches
    off it; Soft turns each corner with a curve, Blueprint cuts it at 45 degrees. A line is one tint (the accent mixed into
@@ -1240,6 +1248,10 @@ const { class: className, ...rest } = Astro.props;
 .atr-nm{flex:0 0 auto;max-width:100%;overflow:hidden;text-overflow:ellipsis;font-weight:500}
 .atr-tg{align-self:center;width:16px;height:16px;margin-left:-6px;flex:none;display:grid;place-items:center;border-radius:calc(4px * var(--dm-rk-s,var(--dm-rk)));color:var(--dm-muted);cursor:pointer;transition:background var(--dm-t-fast),color var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.atr-tg:hover{background:color-mix(in srgb,var(--dm-fg) 9%,transparent);color:var(--dm-fg)}}
+/* its motion pieces (core&#39;s &quot;motion pieces&quot;, 26 Nov): one highlight glides from row to row in Soft and Blueprint too (.mx-glide),
+   in the rows&#39; own hover fill; a press on a branch&#39;s chevron shows at once (.mx-press) */
+.atr-tree.mx-glide{--dm-hg-bg:color-mix(in srgb,var(--dm-fg) 5%,transparent)}
+:root[data-style=&quot;clean&quot;] .atr-tree.mx-glide,:root [data-style=&quot;clean&quot;] .atr-tree.mx-glide,:root [data-style=&quot;clean&quot;].atr-tree.mx-glide{--dm-hg-bg:var(--dm-row)}
 .atr-tg svg{width:12px;height:12px;transition:transform .32s var(--dm-ease)}
 .atr-n[aria-expanded=&quot;false&quot;]&gt;.atr-b .atr-tg svg{transform:rotate(-90deg)}
 .atr-sub{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;font-size:12px;color:var(--dm-muted)}
@@ -1257,7 +1269,7 @@ const { class: className, ...rest } = Astro.props;
 /* the tree grows with its rows (grow(), owner 17 Nov): each new row already opens its own height smoothly, so the panel
    follows its content frame by frame, with nothing cut off and no room left over; the way on under a row (a fix, Approve and
    Hold) opens its height the same way. Where a browser can&#39;t ease a height to auto, it appears at once */
-.atr.growing{transition:none;interpolate-size:allow-keywords}
+.atr.growing{--dm-grow-t:0s;interpolate-size:allow-keywords}
 .atr-ask{overflow:clip;overflow-clip-margin:4px;animation:atrask .42s var(--dm-atr-ez) backwards}
 @keyframes atrask{from{height:0;padding-bottom:0;opacity:0}}
 .atr .atr-n[data-ph=&quot;in&quot;]&gt;.atr-b&gt;.atr-ask{animation:atrask .42s var(--dm-atr-ez) backwards,atrin .56s var(--dm-atr-ez) backwards}
@@ -1528,7 +1540,7 @@ DM.def(&#39;agent-tree&#39;, (r, c) =&gt; {
   const build = n =&gt; {
     const who = n.app ? `&lt;span class=&quot;atr-av app&quot; aria-hidden=&quot;true&quot;&gt;${BRAND[n.app]}&lt;/span&gt;` : `&lt;span class=&quot;atr-av${n.av || !n.lv ? &#39;&#39; : &#39; app&#39;}&quot; aria-hidden=&quot;true&quot;${n.av ? ` style=&quot;--dm-a:var(--dm-av-${n.av});--dm-ai:var(--dm-av-${n.av}-ink)&quot;` : &#39;&#39;}&gt;${I(n.ic, &#39;xs&#39;)}&lt;/span&gt;`;
     const m = n.lv ? n.s : &#39;src&#39;;
-    n.el = html(`&lt;div class=&quot;atr-n&quot; role=&quot;treeitem&quot; aria-level=&quot;${n.lv + 1}&quot; aria-selected=&quot;false&quot; tabindex=&quot;${n.lv ? -1 : 0}&quot; data-id=&quot;${n.id}&quot; data-s=&quot;${n.s}&quot; style=&quot;--dm-lv:${n.lv}&quot;&gt;&lt;div class=&quot;atr-b&quot;&gt;&lt;div class=&quot;atr-r&quot;&gt;&lt;span class=&quot;atr-g&quot; data-m=&quot;${m}&quot; aria-hidden=&quot;true&quot;&gt;${atrMark(m)}&lt;/span&gt;${who}&lt;span class=&quot;atr-w&quot;&gt;&lt;span class=&quot;atr-tx&quot;&gt;&lt;span class=&quot;atr-nm&quot;&gt;&lt;/span&gt;${n.kids.length ? `&lt;span class=&quot;atr-tg&quot; aria-hidden=&quot;true&quot;&gt;${I(&#39;chev-d&#39;, &#39;xs&#39;)}&lt;/span&gt;` : &#39;&#39;}&lt;span class=&quot;atr-sub&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;atr-q num&quot;&gt;&lt;span class=&quot;atr-c&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;`);
+    n.el = html(`&lt;div class=&quot;atr-n&quot; role=&quot;treeitem&quot; aria-level=&quot;${n.lv + 1}&quot; aria-selected=&quot;false&quot; tabindex=&quot;${n.lv ? -1 : 0}&quot; data-id=&quot;${n.id}&quot; data-s=&quot;${n.s}&quot; style=&quot;--dm-lv:${n.lv}&quot;&gt;&lt;div class=&quot;atr-b&quot;&gt;&lt;div class=&quot;atr-r&quot;&gt;&lt;span class=&quot;atr-g&quot; data-m=&quot;${m}&quot; aria-hidden=&quot;true&quot;&gt;${atrMark(m)}&lt;/span&gt;${who}&lt;span class=&quot;atr-w&quot;&gt;&lt;span class=&quot;atr-tx&quot;&gt;&lt;span class=&quot;atr-nm&quot;&gt;&lt;/span&gt;${n.kids.length ? `&lt;span class=&quot;atr-tg mx-press&quot; aria-hidden=&quot;true&quot;&gt;${I(&#39;chev-d&#39;, &#39;xs&#39;)}&lt;/span&gt;` : &#39;&#39;}&lt;span class=&quot;atr-sub&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;atr-q num&quot;&gt;&lt;span class=&quot;atr-c&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;`);
     $(&#39;.atr-nm&#39;, n.el).textContent = n.n; $(&#39;.atr-sub&#39;, n.el).textContent = n.t;
     n.tg = $(&#39;.atr-tg&#39;, n.el); if (n.tg) n.tg.hidden = true;
     if (n.kids.length){ n.fold = html(&#39;&lt;div class=&quot;fold atr-kids&quot;&gt;&lt;div role=&quot;group&quot;&gt;&lt;/div&gt;&lt;/div&gt;&#39;); n.kids.forEach(k =&gt; n.fold.firstElementChild.appendChild(build(k))); n.el.appendChild(n.fold); }
@@ -2213,7 +2225,7 @@ DM.def('agent-tree', (r, c) => {
   const build = n => {
     const who = n.app ? `<span class="atr-av app" aria-hidden="true">${BRAND[n.app]}</span>` : `<span class="atr-av${n.av || !n.lv ? '' : ' app'}" aria-hidden="true"${n.av ? ` style="--dm-a:var(--dm-av-${n.av});--dm-ai:var(--dm-av-${n.av}-ink)"` : ''}>${I(n.ic, 'xs')}</span>`;
     const m = n.lv ? n.s : 'src';
-    n.el = html(`<div class="atr-n" role="treeitem" aria-level="${n.lv + 1}" aria-selected="false" tabindex="${n.lv ? -1 : 0}" data-id="${n.id}" data-s="${n.s}" style="--dm-lv:${n.lv}"><div class="atr-b"><div class="atr-r"><span class="atr-g" data-m="${m}" aria-hidden="true">${atrMark(m)}</span>${who}<span class="atr-w"><span class="atr-tx"><span class="atr-nm"></span>${n.kids.length ? `<span class="atr-tg" aria-hidden="true">${I('chev-d', 'xs')}</span>` : ''}<span class="atr-sub"></span></span><span class="atr-q num"><span class="atr-c"></span></span></span></div></div></div>`);
+    n.el = html(`<div class="atr-n" role="treeitem" aria-level="${n.lv + 1}" aria-selected="false" tabindex="${n.lv ? -1 : 0}" data-id="${n.id}" data-s="${n.s}" style="--dm-lv:${n.lv}"><div class="atr-b"><div class="atr-r"><span class="atr-g" data-m="${m}" aria-hidden="true">${atrMark(m)}</span>${who}<span class="atr-w"><span class="atr-tx"><span class="atr-nm"></span>${n.kids.length ? `<span class="atr-tg mx-press" aria-hidden="true">${I('chev-d', 'xs')}</span>` : ''}<span class="atr-sub"></span></span><span class="atr-q num"><span class="atr-c"></span></span></span></div></div></div>`);
     $('.atr-nm', n.el).textContent = n.n; $('.atr-sub', n.el).textContent = n.t;
     n.tg = $('.atr-tg', n.el); if (n.tg) n.tg.hidden = true;
     if (n.kids.length){ n.fold = html('<div class="fold atr-kids"><div role="group"></div></div>'); n.kids.forEach(k => n.fold.firstElementChild.appendChild(build(k))); n.el.appendChild(n.fold); }
@@ -2451,7 +2463,7 @@ DM.def('agent-tree', (r, c) => {
   const ATR_COST = `<div class="atr atr-ct panel" data-s="run">
     ${ATR_HEAD('<b class="atr-t">Redesign the pricing page</b>')}
     <div class="atr-ct-mix" aria-hidden="true"></div>
-    <div class="atr-tree" role="tree" aria-label="Agents"><svg class="atr-ln" aria-hidden="true"></svg></div>
+    <div class="atr-tree mx-glide" role="tree" aria-label="Agents"><svg class="atr-ln" aria-hidden="true"></svg></div>
     <p class="atr-sr" role="status"></p>
   </div>`;
   function atrCost(r, c){
@@ -2460,7 +2472,7 @@ DM.def('agent-tree', (r, c) => {
     let M, L, head;
     const here = n => !n.late, under = n => n.kids.filter(here);
     function build(n){
-      n.el = html(`<div class="atr-n" role="treeitem" aria-level="${n.lv + 1}" aria-selected="false" tabindex="${n.lv ? -1 : 0}" data-id="${n.id}" data-s="${n.s}" style="--dm-lv:${n.lv};--dm-k:var(--dm-k${n.k})"><div class="atr-b"><div class="atr-r">${atrG(atrM(n))}${atrWho(n)}<span class="atr-w"><span class="atr-tx"><span class="atr-nm"></span>${n.kids.length ? `<span class="atr-tg" aria-hidden="true">${I('chev-d', 'xs')}</span>` : ''}<span class="atr-sub"></span></span><span class="atr-q num"><span class="atr-c"></span><i class="atr-ct-bar" aria-hidden="true"><span></span></i></span></span></div></div></div>`);
+      n.el = html(`<div class="atr-n" role="treeitem" aria-level="${n.lv + 1}" aria-selected="false" tabindex="${n.lv ? -1 : 0}" data-id="${n.id}" data-s="${n.s}" style="--dm-lv:${n.lv};--dm-k:var(--dm-k${n.k})"><div class="atr-b"><div class="atr-r">${atrG(atrM(n))}${atrWho(n)}<span class="atr-w"><span class="atr-tx"><span class="atr-nm"></span>${n.kids.length ? `<span class="atr-tg mx-press" aria-hidden="true">${I('chev-d', 'xs')}</span>` : ''}<span class="atr-sub"></span></span><span class="atr-q num"><span class="atr-c"></span><i class="atr-ct-bar" aria-hidden="true"><span></span></i></span></span></div></div></div>`);
       $('.atr-nm', n.el).textContent = n.n; $('.atr-sub', n.el).textContent = n.t;
       if (n.kids.length){ n.el.setAttribute('aria-expanded', 'true'); n.fold = html('<div class="fold atr-kids"><div role="group"></div></div>'); n.kids.forEach(k => n.fold.firstElementChild.appendChild(build(k))); n.el.appendChild(n.fold); }
       if (n.late) n.el.hidden = true;

@@ -231,7 +231,7 @@ export function RunCost({ used, budget, capAt = 90, capOn, defaultCapOn = true, 
     <div data-dm="" className={cx('dm-rc', !bare && 'dm-panel', className)} style={bare ? { paddingInline: 0 } : undefined}>
       <div className="dm-rc-h">
         <span className="dm-muted">{title}</span>
-        <span className={cx('dm-rc-st dm-tag', TONE[status])}><span className="dm-dot" /><Swap className="dm-rc-stt">{label}</Swap></span>
+        <span className={cx('dm-rc-st dm-tag', TONE[status])}><span className="dm-dot" /><Swap className="dm-rc-stt dm-mx-w">{label}</Swap></span>
       </div>
       <div className="dm-rc-big"><span className="dm-rc-n dm-num">{fmt(used)}</span><span className="dm-muted"> / {fmt(budget)}</span></div>
       <div className="dm-rc-track" role="meter" aria-label={title} aria-valuemin={0} aria-valuemax={budget} aria-valuenow={Math.round(used)}>

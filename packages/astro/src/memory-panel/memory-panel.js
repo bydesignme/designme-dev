@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, BRAND, DM, I, REDUCE, enter, grow, hoverGlide, html, seg, stagger, swap } from '../core/core.js';
+import { $, $$, BRAND, DM, I, REDUCE, enter, grow, hoverGlide, html, iconSwap, reflow, seg, stagger, swap } from '../core/core.js';
 DM.def('memory-panel', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{book}', I('book')).replace('{spark}', I('spark','xs'));
   // where a memory came from: an app's own mark, or an icon for something said in chat or an edit
@@ -23,7 +23,7 @@ DM.def('memory-panel', (r, c) => {
   const meta = m => `<span class="k">${KIND[m.k][0]}</span><span aria-hidden="true">·</span><span class="s">${m.s}</span>${m.isNew ? '<span class="tag nw">New</span>' : ''}${m.used ? '<span class="tag nw">Used</span>' : ''}`;
   const rowOf = m => $(`.mmx-m[data-id="${m.id}"]`, list);
   function item(m){
-    const el = html(`<div class="mmx-m${m.learn ? ' learn' : ''}" data-id="${m.id}" style="--dm-k:${KIND[m.k][1]}"><span class="mmx-src" aria-hidden="true">${m.learn ? '<span class="spin"></span>' : mark(m.from)}</span><span class="mmx-b"><span class="t${m.learn ? ' shim' : ''}" spellcheck="false">${m.t}</span><span class="mmx-meta">${meta(m)}</span></span><span class="acts"><button class="ib ed" aria-label="Edit" data-tip="Edit">${I('edit','xs')}</button><button class="ib rm" aria-label="Forget" data-tip="Forget">${I('trash','xs')}</button></span></div>`);
+    const el = html(`<div class="mmx-m${m.learn ? ' learn' : ''}" data-id="${m.id}" style="--dm-k:${KIND[m.k][1]}"><span class="mmx-src" aria-hidden="true">${m.learn ? '<span class="spin"></span>' : mark(m.from)}</span><span class="mmx-b"><span class="t${m.learn ? ' shim' : ''}" spellcheck="false">${m.t}</span><span class="mmx-meta">${meta(m)}</span></span><span class="acts"><button class="ib ed mx-press" aria-label="Edit" data-tip="Edit">${I('edit','xs')}</button><button class="ib rm mx-press" aria-label="Forget" data-tip="Forget">${I('trash','xs')}</button></span></div>`);
     const t = $('.t', el);
     $('.ed', el).onclick = () => { t.contentEditable = 'true'; t.focus({ preventScroll:true }); const s = document.getSelection(); s.selectAllChildren(t); s.collapseToEnd();
       const done = () => { t.contentEditable = 'false'; m.t = t.textContent.trim() || m.t; m.s = 'Edited by you, just now'; m.from = 'edit'; t.textContent = m.t; update(m); count(); };
@@ -38,16 +38,19 @@ DM.def('memory-panel', (r, c) => {
   function update(m, pulse){
     const el = rowOf(m); if (!el) return;
     const src = $('.mmx-src', el), t = $('.t', el);
-    if (!m.learn && el.classList.contains('learn')){ el.classList.remove('learn'); t.classList.remove('shim'); swap(t, m.t); src.innerHTML = mark(m.from); enter(src.firstElementChild); }
+    if (!m.learn && el.classList.contains('learn')){ el.classList.remove('learn'); t.classList.remove('shim'); swap(t, m.t); iconSwap(src, () => { src.innerHTML = mark(m.from); }, { inner:true }); }
     else if (t.contentEditable !== 'true') src.innerHTML = mark(m.from);
     $('.mmx-meta', el).innerHTML = meta(m);
     if (pulse){ el.classList.remove('use'); void el.offsetWidth; el.classList.add('use'); }
   }
-  function paint(){ list.innerHTML = ''; M.filter(m => f === 'all' || m.k === f).forEach(m => list.appendChild(item(m))); stagger([...list.children], 40); }
+  const draw = () => { list.innerHTML = ''; M.filter(m => f === 'all' || m.k === f).forEach(m => list.appendChild(item(m))); };
+  function paint(){ draw(); stagger([...list.children], 40); }
   // a row that arrives opens its own height, so the panel grows smoothly instead of jumping
   const growRow = el => { if (REDUCE) return; const cs = getComputedStyle(el), gap = parseFloat(getComputedStyle(list).rowGap) || 0, ease = getComputedStyle(r).getPropertyValue('--dm-ease').trim() || 'ease', blur = getComputedStyle(r).getPropertyValue('--dm-motion').trim() === 'clean' ? 0 : 4;
     el.animate([{ height:'0px', paddingTop:'0px', paddingBottom:'0px', marginBottom:-gap + 'px', opacity:0, filter:`blur(${blur}px)`, overflow:'hidden' }, { height:cs.height, paddingTop:cs.paddingTop, paddingBottom:cs.paddingBottom, marginBottom:'0px', opacity:1, filter:'blur(0px)', overflow:'hidden' }], { duration:560, easing:ease }); };
-  seg($('.mmx-tab', r), v => { f = v; paint(); });
+  // a filter moves the rows: the memories that stay glide to their new places, new ones rise in out of a short blur and the
+  // ones that go fade where they were (reflow(), motion pieces), as the panel eases to its new height
+  seg($('.mmx-tab', r), v => { f = v; reflow(() => $$('.mmx-m', list), draw, { by:'data-id', root:list.closest('.mmx') || r, host:list, blur:true }); });
   count(); paint();
   // no room is kept for the memory still to come (owner, 17 Nov): the panel grows as the new one opens its row, and as a filter
   // or a forgotten memory changes the list (grow(), centred in its stage), once its entrance (which scales it) has ended
@@ -59,14 +62,14 @@ DM.def('memory-panel', (r, c) => {
     await c.step(2200);
     const m = { id:nid++, k:'brand', t:'Learning from your edit in Pricing v4', from:'figma', s:'Just now', learn:true };
     const learnt = () => Object.assign(m, { learn:false, t:'Use “Start free” instead of “Sign up” on CTAs', s:'Your edit in Pricing v4, just now' });
-    c.taken(() => { if (m.learn){ learnt(); update(m); } if (ft.classList.contains('shim')){ ft.classList.remove('shim'); fi.innerHTML = I('spark','xs'); swap(ft, 'Used in 14 answers this week'); } });
+    c.taken(() => { if (m.learn){ learnt(); update(m); } if (ft.classList.contains('shim')){ ft.classList.remove('shim'); iconSwap(fi, () => { fi.innerHTML = I('spark','xs'); }, { inner:true }); swap(ft, 'Used in 14 answers this week'); } });
     M.unshift(m); count(); if (f === 'brand' || f === 'all'){ const el = item(m); list.prepend(el); growRow(el); }
     await c.step(1500);
     learnt(); m.isNew = true; update(m);
     await c.step(2600);
     m.isNew = false; m.s = 'Your edit in Figma, today'; update(m);
     await c.step(1000);
-    fi.innerHTML = BRAND.gmail; enter(fi.firstElementChild);
+    iconSwap(fi, () => { fi.innerHTML = BRAND.gmail; }, { inner:true });
     ft.classList.add('shim'); swap(ft, 'Drafting the launch email in Gmail');
     await c.step(1100);
     let n = 0;

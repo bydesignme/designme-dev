@@ -233,6 +233,7 @@ import { cx } from '../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../lib/hooks';
 import { Icon, type IconName } from '../lib/icons';
 import { Seg, Spin, Tip } from '../lib/motion';
+import { hoverGlide, useHoverGlide } from '../lib/glide';
 import '../designme.css';
 import './run-drawer.css';
 
@@ -371,6 +372,10 @@ export function RunDrawer({ runId, label = 'Test run', state, time, tokens, cost
   const lines = log.filter(l => l.at <= time + 1e-6).sort((a, b) => a.at - b.at), seen = lines.filter(l => lvl === 'all' || l.level === lvl);
   const done = steps.filter(x => shown.some(s => s.step === x.id && !s.level && s.end != null && s.end <= time + 1e-6 && (s.state ?? 'ok') === 'ok'));
   const cur = done.find(x => x.id === pick) ?? done[done.length - 1];
+  // its motion pieces: one highlight glides from step to step in both lists, in every style; the picked step keeps its own fill
+  const ds = useRef<HTMLDivElement>(null);
+  useHoverGlide(rows, '.dm-rdr-r', { keep: '[aria-pressed="true"]' });
+  useEffect(() => hoverGlide(ds.current, 'button', { keep: '[aria-pressed="true"]' }), [!!cur]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // the newest row stays in view while the run is followed
   useEffect(() => {
@@ -402,21 +407,21 @@ export function RunDrawer({ runId, label = 'Test run', state, time, tokens, cost
         onPointerUp={() => setDrag(null)} onPointerCancel={() => setDrag(null)}
         onKeyDown={e => { const d = ({ ArrowUp: 24, ArrowDown: -24 } as Record<string, number>)[e.key]; let v: number | null = d ? h + d : null; if (e.key === 'Home') v = 120; if (e.key === 'End') v = maxH(); if (v == null) return; e.preventDefault(); if (!open) fold(true); size(v); }}><i /></div>
       <div className="dm-rdr-h">
-        <button type="button" className="dm-rdr-tg" aria-expanded={open} aria-controls={uid + '-b'} onClick={() => fold(!open)}>
+        <button type="button" className="dm-rdr-tg dm-mx-press" aria-expanded={open} aria-controls={uid + '-b'} onClick={() => fold(!open)}>
           <Icon name="chev-u" size="xs" /><span><span className="dm-w">{label} </span><span className="dm-num">#{runId}</span></span>
           <span className={cx('dm-rdr-st dm-tag', tag[0])}>{state === 'running' && <Spin />}{tag[1]}</span>
         </button>
         <span className="dm-rdr-meta dm-num">{meta}</span>
         <span className="dm-rdr-sp" />
         <Seg className="dm-rdr-tabs" label="Show" value={view} onChange={setView} options={[{ value: 'steps', label: 'Steps' }, { value: 'log', label: 'Log' }, { value: 'data', label: 'Data' }]} />
-        {live && onStop && <Tip label="Stop the run"><button type="button" className="dm-pill dm-ghost dm-sm dm-rdr-stop" aria-label="Stop the run" onClick={onStop}><Icon name="stop" size="xs" /><span>Stop</span></button></Tip>}
-        {!live && onRunAgain && <Tip label="Run again"><button type="button" className="dm-pill dm-ghost dm-sm dm-rdr-again" aria-label="Run again" onClick={onRunAgain}><Icon name="refresh" size="xs" /><span>Run again</span></button></Tip>}
-        <Tip label={fol ? 'Follow the run' : 'Stay put'}><button type="button" className="dm-ib dm-rdr-follow" aria-pressed={fol} aria-label="Follow the run" onClick={() => setFol(!fol)}><Icon name="target" /></button></Tip>
+        {live && onStop && <Tip label="Stop the run"><button type="button" className="dm-pill dm-ghost dm-sm dm-rdr-stop dm-mx-press" aria-label="Stop the run" onClick={onStop}><Icon name="stop" size="xs" /><span>Stop</span></button></Tip>}
+        {!live && onRunAgain && <Tip label="Run again"><button type="button" className="dm-pill dm-ghost dm-sm dm-rdr-again dm-mx-press" aria-label="Run again" onClick={onRunAgain}><Icon name="refresh" size="xs" /><span>Run again</span></button></Tip>}
+        <Tip label={fol ? 'Follow the run' : 'Stay put'}><button type="button" className="dm-ib dm-rdr-follow dm-mx-press" aria-pressed={fol} aria-label="Follow the run" onClick={() => setFol(!fol)}><Icon name="target" /></button></Tip>
       </div>
       <div className="dm-rdr-b" id={uid + '-b'} ref={body}>
         <div className="dm-rdr-v" data-v="steps" hidden={view !== 'steps'}>
           <div className="dm-rdr-ax" aria-hidden="true"><span>Step</span><span className="dm-rdr-sc" ref={axis}>{Array.from({ length: Math.floor(span / tick) }, (_, i) => <span key={i} style={{ left: `${i * tick / span * 100}%` }}>{i * tick}s</span>)}</span><span className="dm-ms">Time</span></div>
-          <div className="dm-rdr-rows" role="group" aria-label="Steps of the run" ref={rows} style={{ ['--dm-rdr-g' as string]: `${tick / span * 100}%` }}>
+          <div className="dm-rdr-rows dm-mx-glide" role="group" aria-label="Steps of the run" ref={rows} style={{ ['--dm-rdr-g' as string]: `${tick / span * 100}%` }}>
             {shown.map(s => {
               const st = stOf(s), e = s.end == null ? time : Math.min(s.end, time);
               return [
@@ -453,7 +458,7 @@ export function RunDrawer({ runId, label = 'Test run', state, time, tokens, cost
         </div>
         <div className="dm-rdr-v" data-v="data" hidden={view !== 'data'}>
           {cur ? <div className="dm-rdr-data">
-            <div className="dm-rdr-ds" role="group" aria-label="Steps">
+            <div ref={ds} className="dm-rdr-ds dm-mx-glide" role="group" aria-label="Steps">
               {done.map(x => <button type="button" key={x.id} aria-pressed={x === cur} onClick={() => setPick(x.id)}><Tile kind={x.kind} icon={x.icon} /><span>{x.title}</span></button>)}
             </div>
             <div className="dm-rdr-io"><h4>Input</h4><Json value={cur.input} label={`${cur.title} input`} /><h4>Output</h4><Json value={cur.output} label={`${cur.title} output`} /></div>

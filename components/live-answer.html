@@ -167,6 +167,10 @@
    --dm-row matches the stage in light mode and would not show); every hover box reaches out round its glyph or chip, which line
    up with the answer's words (owner, 18 Nov) */
 .lva{display:flex;flex-direction:column;gap:14px;--dm-row:color-mix(in srgb,var(--dm-fg) 5%,transparent)}
+/* its motion (the core's motion pieces, owner, 26 Nov): a press on an action shows at once, a step deeper than its hover
+   (.mx-press); Copy's icon and its tick crossfade (.mx-ic); the turn grows on the spring as the answer streams in (.mx-grow) */
+.lva{--dm-row-press:color-mix(in srgb,var(--dm-fg) 9%,transparent)}
+:root[data-style="clean"] .lva,:root [data-style="clean"] .lva,:root [data-style="clean"].lva{--dm-row-press:var(--dm-row-on)}
 /* grow() keeps the hover boxes that reach out past the answer's edge */
 .lva.growing{overflow-clip-margin:12px}
 .lva-q{display:flex;justify-content:flex-end}
@@ -243,7 +247,7 @@
     <p class="side-cta-d">Expert design and dev support for startups and enterprises, from Astro sites to React apps and AI products.</p>
     <a class="hire-btn" href="https://www.designme.agency/intro?utm_source=designme.dev&utm_medium=referral&utm_campaign=book_a_call" target="_blank" rel="noopener">Book a call<span class="ms"><svg class="sh" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></span></a></div></div></details><nav class="pg-crumbs" aria-label="Breadcrumb"><a href="/library">Library</a><span>/</span><a href="/library#s-conversation">Conversation</a></nav><h1 class="pg-h1" id="content" tabindex="-1">Live answer</h1><p class="pg-lead">Answers that stream in with numbered sources and next steps. Free and MIT licensed, as HTML, a typed React component or an Astro component, in three styles with light and dark mode.</p><div class="pg-installs"><div class="pg-cmd"><span class="d">$</span><span class="c"><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">live-answer</span></span><button type="button" data-copy="npx designme add live-answer" aria-label="Copy install command"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg></button></div><div class="pg-cmd"><span class="d">$</span><span class="c"><span class="cp-w">npx</span> <span class="cp-w">shadcn@latest</span> <span class="cp-w">add</span> https:/<wbr>/<wbr>designme.dev/<wbr>r/<wbr>shadcn/<wbr>live-answer.json</span><button type="button" data-copy="npx shadcn@latest add https://designme.dev/r/shadcn/live-answer.json" aria-label="Copy the shadcn command"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg></button></div></div><button class="cp-copy cp-copy-top" type="button" id="cp-copy-code">Copy code</button><p class="cp-studio">Need this designed into your product? <a href="https://www.designme.agency/intro?utm_source=designme.dev&amp;utm_medium=referral&amp;utm_campaign=book_a_call" target="_blank" rel="noopener">Book a call</a></p><section class="cp-demo" aria-label="Live answer demo"><button type="button" class="cp-anim" id="cp-replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg>Animate</button><div class="pg-demo stage-inner" style="--h-a:420px;--h-j:429px;--h-k:472px;--h-l:496px;--h-m:496px"><div class="card bare" data-c="live-answer">
   <div class="stage-in">
-    <div class="lva">
+    <div class="lva mx-grow">
       <div class="lva-q"><div class="bub">Where are people dropping off in onboarding?</div></div>
       <div class="lva-a"></div>
     </div>
@@ -359,7 +363,7 @@ import { Fragment, useState, type CSSProperties } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useCopied, useSeconds } from &#39;../lib/hooks&#39;;
 import { Icon } from &#39;../lib/icons&#39;;
-import { avatarInk, enter, Fold, Think, Tip, useGrow } from &#39;../lib/motion&#39;;
+import { avatarInk, enter, Fold, SwapIcon, Think, Tip, useGrow } from &#39;../lib/motion&#39;;
 import &#39;../designme.css&#39;;
 import &#39;./live-answer.css&#39;;
 
@@ -498,17 +502,17 @@ function Turn({ turn, followUps, onFollowUp, onRetry, onRate, onCopy, onSourceCl
       {done &amp;&amp; (
         &lt;&gt;
           &lt;div className=&quot;dm-lva-src dm-enter&quot;&gt;
-            &lt;span className=&quot;dm-lva-acts&quot;&gt;
+            &lt;span className=&quot;dm-lva-acts dm-mx-ic&quot;&gt;
               &lt;Tip label={copied ? &#39;Copied to clipboard&#39; : &#39;Copy&#39;} open={copied || undefined}&gt;
-                &lt;button type=&quot;button&quot; className={cx(&#39;dm-ib&#39;, copied &amp;&amp; &#39;dm-copied&#39;)} aria-label=&quot;Copy&quot; onClick={copy}&gt;&lt;Icon name={copied ? &#39;check&#39; : &#39;copy&#39;} /&gt;&lt;/button&gt;
+                &lt;button type=&quot;button&quot; className={cx(&#39;dm-ib dm-mx-press&#39;, copied &amp;&amp; &#39;dm-copied&#39;)} aria-label=&quot;Copy&quot; onClick={copy}&gt;&lt;SwapIcon id={copied ? &#39;check&#39; : &#39;copy&#39;}&gt;&lt;Icon name={copied ? &#39;check&#39; : &#39;copy&#39;} /&gt;&lt;/SwapIcon&gt;&lt;/button&gt;
               &lt;/Tip&gt;
               &lt;Tip label=&quot;Good answer&quot;&gt;
-                &lt;button type=&quot;button&quot; className={cx(&#39;dm-ib&#39;, rating === &#39;good&#39; &amp;&amp; &#39;dm-on&#39;)} aria-label=&quot;Good answer&quot; aria-pressed={rating === &#39;good&#39;} onClick={() =&gt; rate(&#39;good&#39;)}&gt;&lt;Icon name=&quot;up-thumb&quot; /&gt;&lt;/button&gt;
+                &lt;button type=&quot;button&quot; className={cx(&#39;dm-ib dm-mx-press&#39;, rating === &#39;good&#39; &amp;&amp; &#39;dm-on&#39;)} aria-label=&quot;Good answer&quot; aria-pressed={rating === &#39;good&#39;} onClick={() =&gt; rate(&#39;good&#39;)}&gt;&lt;Icon name=&quot;up-thumb&quot; /&gt;&lt;/button&gt;
               &lt;/Tip&gt;
               &lt;Tip label=&quot;Bad answer&quot;&gt;
-                &lt;button type=&quot;button&quot; className={cx(&#39;dm-ib&#39;, rating === &#39;bad&#39; &amp;&amp; &#39;dm-on&#39;)} aria-label=&quot;Bad answer&quot; aria-pressed={rating === &#39;bad&#39;} onClick={() =&gt; rate(&#39;bad&#39;)}&gt;&lt;Icon name=&quot;down-thumb&quot; /&gt;&lt;/button&gt;
+                &lt;button type=&quot;button&quot; className={cx(&#39;dm-ib dm-mx-press&#39;, rating === &#39;bad&#39; &amp;&amp; &#39;dm-on&#39;)} aria-label=&quot;Bad answer&quot; aria-pressed={rating === &#39;bad&#39;} onClick={() =&gt; rate(&#39;bad&#39;)}&gt;&lt;Icon name=&quot;down-thumb&quot; /&gt;&lt;/button&gt;
               &lt;/Tip&gt;
-              {onRetry &amp;&amp; &lt;Tip label=&quot;Try again&quot;&gt;&lt;button type=&quot;button&quot; className=&quot;dm-ib&quot; aria-label=&quot;Try again&quot; onClick={onRetry}&gt;&lt;Icon name=&quot;refresh&quot; /&gt;&lt;/button&gt;&lt;/Tip&gt;}
+              {onRetry &amp;&amp; &lt;Tip label=&quot;Try again&quot;&gt;&lt;button type=&quot;button&quot; className=&quot;dm-ib dm-mx-press&quot; aria-label=&quot;Try again&quot; onClick={onRetry}&gt;&lt;Icon name=&quot;refresh&quot; /&gt;&lt;/button&gt;&lt;/Tip&gt;}
             &lt;/span&gt;
             {sources.length &gt; 0 &amp;&amp; (
               &lt;button type=&quot;button&quot; className=&quot;dm-lva-sb&quot; aria-expanded={listOpen} onClick={() =&gt; setListOpen(!listOpen)}&gt;
@@ -559,7 +563,7 @@ export function LiveAnswer({ turns, followUps, onFollowUp, onRetry, onRate, onCo
   // grow() on the site)
   const [root, inner] = useGrow();
   return (
-    &lt;div data-dm=&quot;&quot; ref={root} className={cx(&#39;dm-lva dm-growing&#39;, className)}&gt;
+    &lt;div data-dm=&quot;&quot; ref={root} className={cx(&#39;dm-lva dm-growing dm-mx-grow&#39;, className)}&gt;
       &lt;div ref={inner} className=&quot;dm-grow&quot;&gt;
       {turns.length &gt; 0 &amp;&amp; turns[0].question &amp;&amp; &lt;div className=&quot;dm-lva-q&quot;&gt;&lt;div className=&quot;dm-bub&quot;&gt;{turns[0].question}&lt;/div&gt;&lt;/div&gt;}
       &lt;div className=&quot;dm-lva-a&quot;&gt;
@@ -575,12 +579,16 @@ export function LiveAnswer({ turns, followUps, onFollowUp, onRetry, onRate, onCo
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>live-answer.css<span class="l">React · 66 lines</span></summary><pre class="cp-pre" data-name="live-answer.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>live-answer.css<span class="l">React · 70 lines</span></summary><pre class="cp-pre" data-name="live-answer.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Live answer ---------- */
 /* it sits on the stage, not on a card, so its hover fill is a quiet step darker than whatever is under it (the surface&#39;s own
    --dm-row matches the stage in light mode and would not show); every hover box reaches out round its glyph or chip, which line
    up with the answer&#39;s words (owner, 18 Nov) */
 .dm-lva{display:flex;flex-direction:column;gap:14px;--dm-row:color-mix(in srgb,var(--dm-fg) 5%,transparent)}
+/* its motion (the core&#39;s motion pieces, owner, 26 Nov): a press on an action shows at once, a step deeper than its hover
+   (.mx-press); Copy&#39;s icon and its tick crossfade (.mx-ic); the turn grows on the spring as the answer streams in (.mx-grow) */
+.dm-lva{--dm-row-press:color-mix(in srgb,var(--dm-fg) 9%,transparent)}
+:root[data-style=&quot;clean&quot;] .dm-lva,:root [data-style=&quot;clean&quot;] .dm-lva,:root [data-style=&quot;clean&quot;].dm-lva{--dm-row-press:var(--dm-row-on)}
 /* grow() keeps the hover boxes that reach out past the answer&#39;s edge */
 .dm-lva.dm-growing{overflow-clip-margin:12px}
 .dm-lva-q{display:flex;justify-content:flex-end}
@@ -657,7 +665,7 @@ const { class: className, ...rest } = Astro.props;
 ---
 &lt;div class:list={[&#39;card&#39;, &#39;bare&#39;, className]} data-c=&quot;live-answer&quot; {...rest}&gt;
   &lt;div class=&quot;stage-in&quot;&gt;&lt;Fragment is:raw&gt;
-&lt;div class=&quot;lva&quot;&gt;
+&lt;div class=&quot;lva mx-grow&quot;&gt;
   &lt;div class=&quot;lva-q&quot;&gt;&lt;div class=&quot;bub&quot;&gt;Where are people dropping off in onboarding?&lt;/div&gt;&lt;/div&gt;
   &lt;div class=&quot;lva-a&quot;&gt;&lt;/div&gt;
 &lt;/div&gt;
@@ -668,17 +676,21 @@ const { class: className, ...rest } = Astro.props;
 &lt;/script&gt;
 </code></pre></details><details class="cp-file"><summary>live-answer.html<span class="l">HTML · 9 lines</span></summary><pre class="cp-pre" data-name="live-answer.html"><code>&lt;div class=&quot;card bare&quot; data-c=&quot;live-answer&quot;&gt;
   &lt;div class=&quot;stage-in&quot;&gt;
-    &lt;div class=&quot;lva&quot;&gt;
+    &lt;div class=&quot;lva mx-grow&quot;&gt;
       &lt;div class=&quot;lva-q&quot;&gt;&lt;div class=&quot;bub&quot;&gt;Where are people dropping off in onboarding?&lt;/div&gt;&lt;/div&gt;
       &lt;div class=&quot;lva-a&quot;&gt;&lt;/div&gt;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>live-answer.css<span class="l">HTML · 65 lines</span></summary><pre class="cp-pre" data-name="live-answer.css"><code>/* ---------- Live answer ---------- */
+</code></pre></details><details class="cp-file"><summary>live-answer.css<span class="l">HTML · 69 lines</span></summary><pre class="cp-pre" data-name="live-answer.css"><code>/* ---------- Live answer ---------- */
 /* it sits on the stage, not on a card, so its hover fill is a quiet step darker than whatever is under it (the surface&#39;s own
    --dm-row matches the stage in light mode and would not show); every hover box reaches out round its glyph or chip, which line
    up with the answer&#39;s words (owner, 18 Nov) */
 .lva{display:flex;flex-direction:column;gap:14px;--dm-row:color-mix(in srgb,var(--dm-fg) 5%,transparent)}
+/* its motion (the core&#39;s motion pieces, owner, 26 Nov): a press on an action shows at once, a step deeper than its hover
+   (.mx-press); Copy&#39;s icon and its tick crossfade (.mx-ic); the turn grows on the spring as the answer streams in (.mx-grow) */
+.lva{--dm-row-press:color-mix(in srgb,var(--dm-fg) 9%,transparent)}
+:root[data-style=&quot;clean&quot;] .lva,:root [data-style=&quot;clean&quot;] .lva,:root [data-style=&quot;clean&quot;].lva{--dm-row-press:var(--dm-row-on)}
 /* grow() keeps the hover boxes that reach out past the answer&#39;s edge */
 .lva.growing{overflow-clip-margin:12px}
 .lva-q{display:flex;justify-content:flex-end}
@@ -771,7 +783,7 @@ const { class: className, ...rest } = Astro.props;
       else p.insertAdjacentHTML(&#39;beforeend&#39;, `&lt;span class=&quot;w&quot;&gt;${tok} &lt;/span&gt;`);
       await c.wait(55 + Math.random() * 45);
     }
-    const src = html(`&lt;div class=&quot;lva-src&quot;&gt;&lt;span class=&quot;lva-acts&quot;&gt;&lt;button class=&quot;ib&quot; aria-label=&quot;Copy&quot; data-tip=&quot;Copy&quot;&gt;${I(&#39;copy&#39;)}&lt;/button&gt;&lt;button class=&quot;ib&quot; aria-label=&quot;Good answer&quot; data-tip=&quot;Good answer&quot;&gt;${I(&#39;up-thumb&#39;)}&lt;/button&gt;&lt;button class=&quot;ib&quot; aria-label=&quot;Bad answer&quot; data-tip=&quot;Bad answer&quot;&gt;${I(&#39;down-thumb&#39;)}&lt;/button&gt;&lt;button class=&quot;ib&quot; aria-label=&quot;Try again&quot; data-tip=&quot;Try again&quot;&gt;${I(&#39;refresh&#39;)}&lt;/button&gt;&lt;/span&gt;&lt;button class=&quot;lva-sb&quot; aria-expanded=&quot;false&quot;&gt;&lt;span class=&quot;lva-fav&quot;&gt;${S.map(x =&gt; `&lt;span class=&quot;vivid&quot; style=&quot;background-color:${x[2]}&quot;&gt;${x[1]}&lt;/span&gt;`).join(&#39;&#39;)}&lt;/span&gt;3 sources${I(&#39;chev-d&#39;,&#39;xs&#39;)}&lt;/button&gt;&lt;/div&gt;`);
+    const src = html(`&lt;div class=&quot;lva-src&quot;&gt;&lt;span class=&quot;lva-acts mx-ic&quot;&gt;&lt;button class=&quot;ib mx-press&quot; aria-label=&quot;Copy&quot; data-tip=&quot;Copy&quot;&gt;${I(&#39;copy&#39;)}&lt;/button&gt;&lt;button class=&quot;ib mx-press&quot; aria-label=&quot;Good answer&quot; data-tip=&quot;Good answer&quot;&gt;${I(&#39;up-thumb&#39;)}&lt;/button&gt;&lt;button class=&quot;ib mx-press&quot; aria-label=&quot;Bad answer&quot; data-tip=&quot;Bad answer&quot;&gt;${I(&#39;down-thumb&#39;)}&lt;/button&gt;&lt;button class=&quot;ib mx-press&quot; aria-label=&quot;Try again&quot; data-tip=&quot;Try again&quot;&gt;${I(&#39;refresh&#39;)}&lt;/button&gt;&lt;/span&gt;&lt;button class=&quot;lva-sb&quot; aria-expanded=&quot;false&quot;&gt;&lt;span class=&quot;lva-fav&quot;&gt;${S.map(x =&gt; `&lt;span class=&quot;vivid&quot; style=&quot;background-color:${x[2]}&quot;&gt;${x[1]}&lt;/span&gt;`).join(&#39;&#39;)}&lt;/span&gt;3 sources${I(&#39;chev-d&#39;,&#39;xs&#39;)}&lt;/button&gt;&lt;/div&gt;`);
     const ls = html(`&lt;div class=&quot;fold shut lva-ls&quot;&gt;&lt;div&gt;&lt;div class=&quot;lva-ll&quot;&gt;${S.map(x =&gt; `&lt;button class=&quot;lva-s&quot; data-n=&quot;${x[0]}&quot;&gt;&lt;span class=&quot;n&quot;&gt;${x[0]}&lt;/span&gt;&lt;span class=&quot;t&quot;&gt;${x[3]}&lt;/span&gt;&lt;span class=&quot;d&quot;&gt;${x[4]}&lt;/span&gt;${I(&#39;ext&#39;,&#39;xs&#39;)}&lt;/button&gt;`).join(&#39;&#39;)}&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;`);
     turn.appendChild(src); turn.appendChild(ls); enter(src);
     const sb = $(&#39;.lva-sb&#39;, src), open = o =&gt; { ls.classList.toggle(&#39;shut&#39;, !o); sb.setAttribute(&#39;aria-expanded&#39;, o); };
@@ -1170,7 +1182,7 @@ const fitHits = window.dmFitHits || (() => {
       else p.insertAdjacentHTML('beforeend', `<span class="w">${tok} </span>`);
       await c.wait(55 + Math.random() * 45);
     }
-    const src = html(`<div class="lva-src"><span class="lva-acts"><button class="ib" aria-label="Copy" data-tip="Copy">${I('copy')}</button><button class="ib" aria-label="Good answer" data-tip="Good answer">${I('up-thumb')}</button><button class="ib" aria-label="Bad answer" data-tip="Bad answer">${I('down-thumb')}</button><button class="ib" aria-label="Try again" data-tip="Try again">${I('refresh')}</button></span><button class="lva-sb" aria-expanded="false"><span class="lva-fav">${S.map(x => `<span class="vivid" style="background-color:${x[2]}">${x[1]}</span>`).join('')}</span>3 sources${I('chev-d','xs')}</button></div>`);
+    const src = html(`<div class="lva-src"><span class="lva-acts mx-ic"><button class="ib mx-press" aria-label="Copy" data-tip="Copy">${I('copy')}</button><button class="ib mx-press" aria-label="Good answer" data-tip="Good answer">${I('up-thumb')}</button><button class="ib mx-press" aria-label="Bad answer" data-tip="Bad answer">${I('down-thumb')}</button><button class="ib mx-press" aria-label="Try again" data-tip="Try again">${I('refresh')}</button></span><button class="lva-sb" aria-expanded="false"><span class="lva-fav">${S.map(x => `<span class="vivid" style="background-color:${x[2]}">${x[1]}</span>`).join('')}</span>3 sources${I('chev-d','xs')}</button></div>`);
     const ls = html(`<div class="fold shut lva-ls"><div><div class="lva-ll">${S.map(x => `<button class="lva-s" data-n="${x[0]}"><span class="n">${x[0]}</span><span class="t">${x[3]}</span><span class="d">${x[4]}</span>${I('ext','xs')}</button>`).join('')}</div></div></div>`);
     turn.appendChild(src); turn.appendChild(ls); enter(src);
     const sb = $('.lva-sb', src), open = o => { ls.classList.toggle('shut', !o); sb.setAttribute('aria-expanded', o); };

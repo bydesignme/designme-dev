@@ -1,10 +1,13 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, REDUCE, html, seg } from '../core/core.js';
+import { $, $$, DM, I, REDUCE, hoverGlide, html, seg } from '../core/core.js';
 DM.def('run-drawer', (r, c) => {
   r.innerHTML = r.innerHTML.replace(/\{([\w-]+)(?:\.(xs))?\}/g, (m, k, z) => I(k, z || 's'));
   const uid = 'rdr' + Math.random().toString(36).slice(2, 7);
   const frame = $('.rdr', r), dw = $('.rdr-dw', r), flow = $('.rdr-flow', r), tg = $('.rdr-tg', r), stT = $('.rdr-st', r), idT = $('.rdr-id', r), meta = $('.rdr-meta', r);
   const bd = $('.rdr-b', r), rowsEl = $('.rdr-rows', r), sc = $('.rdr-sc', r), logEl = $('.rdr-log', r), cnt = $('.rdr-lf .n', r), ds = $('.rdr-ds', r), io = $('.rdr-io', r);
+  // its motion pieces (26 Nov): one highlight glides from step to step in both lists, in every style; the picked step keeps its
+  // own fill
+  if (!r.closest('.ahx')) ['.rdr-rows', '.rdr-ds'].forEach(s => c.offs.push(hoverGlide($(s, r), s === '.rdr-rows' ? '.rdr-r' : 'button', { keep:'[aria-pressed="true"]' })));
   const stopB = $('.rdr-stop', r), againB = $('.rdr-again', r), followB = $('.rdr-follow', r), grip = $('.rdr-grip', r), live = $('.rdr-live', r);
   bd.id = uid + '-b'; tg.setAttribute('aria-controls', bd.id);
   // the workflow: each step with what it took in and handed on; an AI step's model and tool calls are its kids, as

@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, DM, REDUCE, seg, swap } from '../core/core.js';
+import { $, DM, REDUCE, iconSwap, seg, swap } from '../core/core.js';
 DM.def('thinking-states', (r, c) => {
   const steps = ['Thinking', 'Reading 3 files', 'Searching the docs', 'Comparing 2 options', 'Drafting the answer'];
   const box = $('.ths', r), mk = $('.ths-mk', r), tx = $('.ths-tx', r), car = $('.ths-car', r), time = $('.ths-t', r), sr = $('.ths-sr', r);
@@ -54,7 +54,8 @@ DM.def('thinking-states', (r, c) => {
     // a screen reader hears each new step once, never the letters as they type
     if (fresh) sr.textContent = t;
   };
-  const pick = x => { v = x; box.dataset.v = x; mk.innerHTML = MARKS[x]; show(steps[at], false); };
+  // (a new state's mark crossfades in for the last one, iconSwap())
+  const pick = x => { v = x; box.dataset.v = x; if (mk.firstChild) iconSwap(mk, () => { mk.innerHTML = MARKS[x]; }); else mk.innerHTML = MARKS[x]; show(steps[at], false); };
   seg($('.seg2', r), pick);
   pick(v);
   c.every(1000, () => { secs++; time.textContent = secs + 's'; });

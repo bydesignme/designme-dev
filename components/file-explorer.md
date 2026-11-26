@@ -35,7 +35,7 @@ A project file tree that marks every file the agent changed with M, A or D for m
 
 - Renders `tree` as nested folders and files; a node with `children` is a folder that opens and closes on click. Each level steps in 14px, and the top level's chevrons sit under the filter's search glyph.
 - Letters each changed file by its `status` ('M', 'A' or 'D') in its status colour, and puts a dot on folders with a changed file inside, in the same column.
-- The filter box keeps names that contain the typed text, along with the folders that lead to them, and opens those folders. When nothing matches it shows an empty state with Clear filter.
+- The filter box keeps names that contain the typed text, along with the folders that lead to them, and opens those folders. When nothing matches it shows an empty state with Clear filter. As the filter or Only changed changes the tree, the rows that stay glide to their new places, new ones rise in and the ones that go fade where they were.
 - The "Only changed" button hides every file the agent did not change, and the footer then reads how many files changed, worded by `summary`.
 - Clicking a file selects it, shows its path in the footer and calls `onSelectedChange`.
 - Picks a file icon from the extension, or from your own `fileIcon` function.
@@ -142,7 +142,7 @@ import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react';
 import { cx } from '../lib/cx';
 import { useControllable } from '../lib/hooks';
 import { Icon, type IconName } from '../lib/icons';
-import { enter, Swap, Tip, useGrow } from '../lib/motion';
+import { enter, Swap, Tip, useGrow, useReflow } from '../lib/motion';
 import { useHoverGlide } from '../lib/glide';
 import '../designme.css';
 import './file-explorer.css';
@@ -217,19 +217,20 @@ export function FileExplorer({
     return () => { ro.disconnect(); t.removeEventListener('scroll', edge); t.removeEventListener('transitionend', edge); t.removeEventListener('animationend', edge); };
   }, []);
 
-  // the tree is drawn afresh when the filter starts or ends and when only changed files show, as on the site;
-  // it staggers in when it first appears and when that switch flips
-  const [round, setRound] = useState({ only, q: !!q, n: 0, stagger: true });
-  if (round.only !== only || round.q !== !!q) setRound({ only, q: !!q, n: round.n + 1, stagger: round.only !== only });
+  // the rows stagger in when the tree first appears; after that a filter or Only changed moves them: the ones that stay glide
+  // to their new places, new ones rise in out of a short blur and the ones that go fade where they were (motion pieces)
+  const first = useRef(true);
+  useEffect(() => { first.current = false; }, []);
+  useReflow(root, '.dm-fxp-n', { blur: true, host: treeRef });
 
   let index = 0;
   const branch = (nodes: FileExplorerNode[], path: string, depth: number): ReactNode[] => nodes
     .filter(k => matches(k, q) && (!only || changed(k)))
     .map(k => {
       const p = path ? path + '/' + k.name : k.name, folder = !!k.children, isOpen = folder && (opened.includes(p) || !!q || only);
-      const anim = round.stagger ? enter(index++ * 25) : undefined;
+      const anim = first.current ? enter(index++ * 25) : undefined;
       const row = (
-        <button type="button" role="treeitem" aria-expanded={folder ? isOpen : undefined} aria-selected={folder ? undefined : p === sel}
+        <button type="button" role="treeitem" data-key={p} aria-expanded={folder ? isOpen : undefined} aria-selected={folder ? undefined : p === sel}
           className={cx('dm-fxp-n', isOpen && 'dm-open', p === sel && 'dm-sel', k.status && 'dm-' + k.status, anim?.className)}
           style={{ paddingLeft: 9 + depth * 14, ...anim?.style }}
           onClick={() => {
@@ -252,7 +253,7 @@ export function FileExplorer({
 
   const rows = branch(tree, '', 0);
   return (
-    <div data-dm="" ref={root} className={cx('dm-fxp dm-panel dm-growing', className)}>
+    <div data-dm="" ref={root} className={cx('dm-fxp dm-panel dm-growing dm-mx-grow', className)}>
       <div ref={inner} className="dm-grow">
         <div className="dm-fxp-h">
           <div className="dm-fxp-s">
@@ -260,15 +261,15 @@ export function FileExplorer({
             <input placeholder={placeholder} aria-label="Filter files" spellCheck={false} value={text} onChange={e => setText(e.target.value)} />
           </div>
           <Tip label="Only changed files">
-            <button type="button" className="dm-ib dm-fxp-ch" aria-label="Only changed" aria-pressed={only}
+            <button type="button" className="dm-ib dm-fxp-ch dm-mx-press" aria-label="Only changed" aria-pressed={only}
               onClick={() => { setOnly(!only); setFoot(only ? 'selected' : 'summary'); }}><Icon name="filter" size="xs" /></button>
           </Tip>
         </div>
-        <div ref={treeRef} className={cx('dm-fxp-tree', more && 'dm-more')} role="tree" aria-label="Files" hidden={!rows.length}><Fragment key={round.n}>{rows}</Fragment></div>
+        <div ref={treeRef} className={cx('dm-fxp-tree dm-mx-glide', more && 'dm-more')} role="tree" aria-label="Files" hidden={!rows.length}>{rows}</div>
         {/* nothing matches the filter: the empty state, and Clear filter brings the tree back */}
         {!rows.length && (
           <div className="dm-fxp-em"><span className="dm-fxp-em-art" aria-hidden="true" /><b>No matching files</b><span>Nothing in the project is called “{text.trim()}”.</span>
-            <button type="button" className="dm-pill dm-line dm-sm" onClick={() => setText('')}>Clear filter</button></div>
+            <button type="button" className="dm-pill dm-line dm-sm dm-mx-press" onClick={() => setText('')}>Clear filter</button></div>
         )}
         <div className="dm-fxp-f dm-muted"><Swap className="dm-fxp-st">{foot === 'summary' ? summary(count(tree)) : sel}</Swap></div>
       </div>

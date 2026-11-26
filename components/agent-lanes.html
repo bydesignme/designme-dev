@@ -628,7 +628,7 @@
     <a class="hire-btn" href="https://www.designme.agency/intro?utm_source=designme.dev&utm_medium=referral&utm_campaign=book_a_call" target="_blank" rel="noopener">Book a call<span class="ms"><svg class="sh" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></span></a></div></div></details><nav class="pg-crumbs" aria-label="Breadcrumb"><a href="/library">Library</a><span>/</span><a href="/library#s-status">Agent status</a></nav><h1 class="pg-h1" id="content" tabindex="-1">Agent lanes</h1><p class="pg-lead">Several agents working in parallel, each with its own lane and hand-offs. Free and MIT licensed, as HTML, a typed React component or an Astro component, in three styles with light and dark mode.</p><div class="pg-installs"><div class="pg-cmd"><span class="d">$</span><span class="c"><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">agent-lanes</span></span><button type="button" data-copy="npx designme add agent-lanes" aria-label="Copy install command"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg></button></div><div class="pg-cmd"><span class="d">$</span><span class="c"><span class="cp-w">npx</span> <span class="cp-w">shadcn@latest</span> <span class="cp-w">add</span> https:/<wbr>/<wbr>designme.dev/<wbr>r/<wbr>shadcn/<wbr>agent-lanes.json</span><button type="button" data-copy="npx shadcn@latest add https://designme.dev/r/shadcn/agent-lanes.json" aria-label="Copy the shadcn command"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg></button></div></div><button class="cp-copy cp-copy-top" type="button" id="cp-copy-code">Copy code</button><p class="cp-studio">Need this designed into your product? <a href="https://www.designme.agency/intro?utm_source=designme.dev&amp;utm_medium=referral&amp;utm_campaign=book_a_call" target="_blank" rel="noopener">Book a call</a></p><section class="cp-demo" aria-label="Agent lanes demo"><button type="button" class="cp-anim" id="cp-replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg>Animate</button><div class="pg-demo stage-inner" style="--h-a:632px;--h-j:600px;--h-k:600px;--h-l:600px;--h-m:600px"><div class="card wide" data-c="agent-lanes">
   <div class="stage-in">
     <div class="dm aln-dm" data-designs="card"><div class="dm-main"><div class="aln panel">
-      <div class="aln-h"><span class="aln-ic"><svg class="i s"><use href="#i-users"/></svg></span><span class="aln-tx"><span class="aln-t">3 agents working</span><span class="aln-m muted num">0:00</span><span class="aln-ct num">0 of 9 steps</span></span><button class="pill line sm aln-pause"><svg class="i xs"><use href="#i-pause"/></svg>Pause all</button></div>
+      <div class="aln-h"><span class="aln-ic"><svg class="i s"><use href="#i-users"/></svg></span><span class="aln-tx"><span class="aln-t">3 agents working</span><span class="aln-m muted num">0:00</span><span class="aln-ct num">0 of 9 steps</span></span><button class="pill line sm aln-pause mx-ic"><span class="mx-icon"><svg class="i xs"><use href="#i-pause"/></svg></span><span class="aln-pl mx-w">Pause all</span></button></div>
       <div class="aln-rows"></div>
       <div class="aln-say" aria-live="polite">3 agents queued</div>
     </div></div>
@@ -749,7 +749,7 @@ import { Fragment, useEffect, useLayoutEffect, useRef, useState, type CSSPropert
 import { cx } from &#39;../lib/cx&#39;;
 import { useControllable, useReducedMotion, useSeconds } from &#39;../lib/hooks&#39;;
 import { Icon, type IconName } from &#39;../lib/icons&#39;;
-import { enter, Fold, Swap } from &#39;../lib/motion&#39;;
+import { enter, Fold, Swap, SwapIcon } from &#39;../lib/motion&#39;;
 import &#39;../designme.css&#39;;
 import &#39;./agent-lanes.css&#39;;
 
@@ -859,7 +859,7 @@ function Lane({ lane, paused, open, sent, got, ping, onToggle }: { lane: AgentLa
   const live = status === &#39;working&#39; || status === &#39;paused&#39;;
   return (
     &lt;div className={cx(&#39;dm-aln-lane&#39;, sent &amp;&amp; &#39;dm-sent&#39;, got &amp;&amp; &#39;dm-got&#39;)} data-s={status} data-lane={lane.key} style={{ &#39;--dm-c&#39;: `var(--dm-${tone})`, &#39;--dm-cb&#39;: `var(--dm-${tone}-bg)`, &#39;--dm-cm&#39;: `var(--dm-aln-${tone},var(--dm-${tone}))` } as CSSProperties}&gt;
-      &lt;button type=&quot;button&quot; className=&quot;dm-aln-row&quot; aria-expanded={open} onClick={onToggle}&gt;
+      &lt;button type=&quot;button&quot; className=&quot;dm-aln-row dm-mx-press&quot; aria-expanded={open} onClick={onToggle}&gt;
         &lt;span className={cx(&#39;dm-aln-av&#39;, ping &amp;&amp; &#39;dm-ping&#39;)}&gt;
           &lt;Icon name={lane.icon} /&gt;
         &lt;/span&gt;
@@ -962,8 +962,8 @@ export function AgentLanes({ lanes, title, seconds, paused, defaultPaused = fals
           &lt;Swap className=&quot;dm-aln-ct dm-num&quot;&gt;{`${stepsDone} of ${total} steps`}&lt;/Swap&gt;
         &lt;/span&gt;
         {onPausedChange &amp;&amp; !finished &amp;&amp; (
-          &lt;button type=&quot;button&quot; className=&quot;dm-pill dm-line dm-sm dm-aln-pause&quot; onClick={() =&gt; setPaused(!isPaused)}&gt;
-            &lt;Icon name={isPaused ? &#39;play&#39; : &#39;pause&#39;} size=&quot;xs&quot; /&gt;{isPaused ? &#39;Resume&#39; : &#39;Pause all&#39;}
+          &lt;button type=&quot;button&quot; className=&quot;dm-pill dm-line dm-sm dm-aln-pause dm-mx-ic&quot; onClick={() =&gt; setPaused(!isPaused)}&gt;
+            &lt;SwapIcon id={isPaused ? &#39;play&#39; : &#39;pause&#39;}&gt;&lt;Icon name={isPaused ? &#39;play&#39; : &#39;pause&#39;} size=&quot;xs&quot; /&gt;&lt;/SwapIcon&gt;&lt;Swap className=&quot;dm-mx-w&quot;&gt;{isPaused ? &#39;Resume&#39; : &#39;Pause all&#39;}&lt;/Swap&gt;
           &lt;/button&gt;
         )}
       &lt;/div&gt;
@@ -1183,7 +1183,7 @@ const { class: className, ...rest } = Astro.props;
 &lt;div class:list={[&#39;card&#39;, &#39;wide&#39;, className]} data-c=&quot;agent-lanes&quot; {...rest}&gt;
   &lt;div class=&quot;stage-in&quot;&gt;&lt;Fragment is:raw&gt;
 &lt;div class=&quot;aln panel&quot;&gt;
-  &lt;div class=&quot;aln-h&quot;&gt;&lt;span class=&quot;aln-ic&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-users&quot;/&gt;&lt;/svg&gt;&lt;/span&gt;&lt;span class=&quot;aln-tx&quot;&gt;&lt;span class=&quot;aln-t&quot;&gt;3 agents working&lt;/span&gt;&lt;span class=&quot;aln-m muted num&quot;&gt;0:00&lt;/span&gt;&lt;span class=&quot;aln-ct num&quot;&gt;0 of 9 steps&lt;/span&gt;&lt;/span&gt;&lt;button class=&quot;pill line sm aln-pause&quot;&gt;&lt;svg class=&quot;i xs&quot;&gt;&lt;use href=&quot;#i-pause&quot;/&gt;&lt;/svg&gt;Pause all&lt;/button&gt;&lt;/div&gt;
+  &lt;div class=&quot;aln-h&quot;&gt;&lt;span class=&quot;aln-ic&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-users&quot;/&gt;&lt;/svg&gt;&lt;/span&gt;&lt;span class=&quot;aln-tx&quot;&gt;&lt;span class=&quot;aln-t&quot;&gt;3 agents working&lt;/span&gt;&lt;span class=&quot;aln-m muted num&quot;&gt;0:00&lt;/span&gt;&lt;span class=&quot;aln-ct num&quot;&gt;0 of 9 steps&lt;/span&gt;&lt;/span&gt;&lt;button class=&quot;pill line sm aln-pause mx-ic&quot;&gt;&lt;span class=&quot;mx-icon&quot;&gt;&lt;svg class=&quot;i xs&quot;&gt;&lt;use href=&quot;#i-pause&quot;/&gt;&lt;/svg&gt;&lt;/span&gt;&lt;span class=&quot;aln-pl mx-w&quot;&gt;Pause all&lt;/span&gt;&lt;/button&gt;&lt;/div&gt;
   &lt;div class=&quot;aln-rows&quot;&gt;&lt;/div&gt;
   &lt;div class=&quot;aln-say&quot; aria-live=&quot;polite&quot;&gt;3 agents queued&lt;/div&gt;
 &lt;/div&gt;
@@ -1195,7 +1195,7 @@ const { class: className, ...rest } = Astro.props;
 </code></pre></details><details class="cp-file"><summary>agent-lanes.html<span class="l">HTML · 10 lines</span></summary><pre class="cp-pre" data-name="agent-lanes.html"><code>&lt;div class=&quot;card wide&quot; data-c=&quot;agent-lanes&quot;&gt;
   &lt;div class=&quot;stage-in&quot;&gt;
     &lt;div class=&quot;aln panel&quot;&gt;
-      &lt;div class=&quot;aln-h&quot;&gt;&lt;span class=&quot;aln-ic&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-users&quot;/&gt;&lt;/svg&gt;&lt;/span&gt;&lt;span class=&quot;aln-tx&quot;&gt;&lt;span class=&quot;aln-t&quot;&gt;3 agents working&lt;/span&gt;&lt;span class=&quot;aln-m muted num&quot;&gt;0:00&lt;/span&gt;&lt;span class=&quot;aln-ct num&quot;&gt;0 of 9 steps&lt;/span&gt;&lt;/span&gt;&lt;button class=&quot;pill line sm aln-pause&quot;&gt;&lt;svg class=&quot;i xs&quot;&gt;&lt;use href=&quot;#i-pause&quot;/&gt;&lt;/svg&gt;Pause all&lt;/button&gt;&lt;/div&gt;
+      &lt;div class=&quot;aln-h&quot;&gt;&lt;span class=&quot;aln-ic&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-users&quot;/&gt;&lt;/svg&gt;&lt;/span&gt;&lt;span class=&quot;aln-tx&quot;&gt;&lt;span class=&quot;aln-t&quot;&gt;3 agents working&lt;/span&gt;&lt;span class=&quot;aln-m muted num&quot;&gt;0:00&lt;/span&gt;&lt;span class=&quot;aln-ct num&quot;&gt;0 of 9 steps&lt;/span&gt;&lt;/span&gt;&lt;button class=&quot;pill line sm aln-pause mx-ic&quot;&gt;&lt;span class=&quot;mx-icon&quot;&gt;&lt;svg class=&quot;i xs&quot;&gt;&lt;use href=&quot;#i-pause&quot;/&gt;&lt;/svg&gt;&lt;/span&gt;&lt;span class=&quot;aln-pl mx-w&quot;&gt;Pause all&lt;/span&gt;&lt;/button&gt;&lt;/div&gt;
       &lt;div class=&quot;aln-rows&quot;&gt;&lt;/div&gt;
       &lt;div class=&quot;aln-say&quot; aria-live=&quot;polite&quot;&gt;3 agents queued&lt;/div&gt;
     &lt;/div&gt;
@@ -1376,7 +1376,13 @@ const { class: className, ...rest } = Astro.props;
 :root[data-style=&quot;clean&quot;] .aln-tr i,:root [data-style=&quot;clean&quot;] .aln-tr i,:root [data-style=&quot;clean&quot;].aln-tr i{transition:background-color var(--dm-t-fast) var(--dm-ease)}
 @media (hover:hover) and (pointer:fine){:root[data-style=&quot;clean&quot;] .aln-row:hover .aln-tr i:not(.on),:root [data-style=&quot;clean&quot;] .aln-row:hover .aln-tr i:not(.on),:root [data-style=&quot;clean&quot;].aln-row:hover .aln-tr i:not(.on){background:color-mix(in srgb,var(--dm-fg) 10%,transparent)}}
 @media (max-width:400px){:root[data-style=&quot;clean&quot;] .aln.panel .aln-t,:root [data-style=&quot;clean&quot;] .aln.panel .aln-t,:root [data-style=&quot;clean&quot;].aln.panel .aln-t{margin-left:16px}}
-</code></pre></details><details class="cp-file"><summary>agent-lanes.js<span class="l">HTML · 79 lines</span></summary><pre class="cp-pre" data-name="agent-lanes.js"><code>DM.def(&#39;agent-lanes&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>agent-lanes.js<span class="l">HTML · 85 lines</span></summary><pre class="cp-pre" data-name="agent-lanes.js"><code>// Pause and Resume: the icon crossfades and the words ease the pill to their width (motion pieces, 26 Nov)
+function alnPause(b, on, word){
+  const ic = $(&#39;.mx-icon&#39;, b), w = $(&#39;.aln-pl&#39;, b);
+  if (!ic || !w){ b.innerHTML = I(on ? &#39;play&#39; : &#39;pause&#39;,&#39;xs&#39;) + (on ? &#39;Resume&#39; : word); return; }
+  iconSwap(ic, () =&gt; { ic.innerHTML = I(on ? &#39;play&#39; : &#39;pause&#39;,&#39;xs&#39;); }, { inner:true }); swap(w, on ? &#39;Resume&#39; : word);
+}
+DM.def(&#39;agent-lanes&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(&#39;{users}&#39;, I(&#39;users&#39;)).replace(&#39;{pause}&#39;, I(&#39;pause&#39;,&#39;xs&#39;));
   // each agent has a hue of its own (t names the palette slot): its badge, its track, its tag and its stretch of the relay line
   const L = [
@@ -1386,7 +1392,7 @@ const { class: className, ...rest } = Astro.props;
   ];
   const root = $(&#39;.aln&#39;, r), rows = $(&#39;.aln-rows&#39;, r), ct = $(&#39;.aln-ct&#39;, r), say = $(&#39;.aln-say&#39;, r), STEPS = L.length * 3;
   L.forEach(l =&gt; {
-    l.el = html(`&lt;div class=&quot;aln-lane&quot; data-s=&quot;queued&quot; style=&quot;--dm-c:var(--dm-${l.t});--dm-cb:var(--dm-${l.t}-bg);--dm-cm:var(--dm-aln-${l.t},var(--dm-${l.t}))&quot;&gt;&lt;button class=&quot;aln-row&quot; aria-expanded=&quot;false&quot;&gt;&lt;span class=&quot;aln-av&quot;&gt;${I(l.ic)}&lt;/span&gt;&lt;span class=&quot;aln-who&quot;&gt;&lt;span class=&quot;aln-n&quot;&gt;${l.n}&lt;/span&gt;&lt;span class=&quot;aln-a&quot;&gt;${l.wait || &#39;Queued&#39;}&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;aln-tr&quot; aria-hidden=&quot;true&quot;&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;/span&gt;&lt;span class=&quot;aln-st&quot;&gt;&lt;span class=&quot;tag&quot;&gt;Queued&lt;/span&gt;&lt;/span&gt;&lt;/button&gt;&lt;div class=&quot;fold shut&quot;&gt;&lt;div&gt;&lt;div class=&quot;aln-det&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;`);
+    l.el = html(`&lt;div class=&quot;aln-lane&quot; data-s=&quot;queued&quot; style=&quot;--dm-c:var(--dm-${l.t});--dm-cb:var(--dm-${l.t}-bg);--dm-cm:var(--dm-aln-${l.t},var(--dm-${l.t}))&quot;&gt;&lt;button class=&quot;aln-row mx-press&quot; aria-expanded=&quot;false&quot;&gt;&lt;span class=&quot;aln-av&quot;&gt;${I(l.ic)}&lt;/span&gt;&lt;span class=&quot;aln-who&quot;&gt;&lt;span class=&quot;aln-n&quot;&gt;${l.n}&lt;/span&gt;&lt;span class=&quot;aln-a&quot;&gt;${l.wait || &#39;Queued&#39;}&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;aln-tr&quot; aria-hidden=&quot;true&quot;&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;/span&gt;&lt;span class=&quot;aln-st&quot;&gt;&lt;span class=&quot;tag&quot;&gt;Queued&lt;/span&gt;&lt;/span&gt;&lt;/button&gt;&lt;div class=&quot;fold shut&quot;&gt;&lt;div&gt;&lt;div class=&quot;aln-det&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;`);
     rows.appendChild(l.el); const b = $(&#39;.aln-row&#39;, l.el), f = $(&#39;.fold&#39;, l.el);
     b.onclick = () =&gt; { const s = f.classList.toggle(&#39;shut&#39;); b.setAttribute(&#39;aria-expanded&#39;, !s); };
   });
@@ -1407,7 +1413,7 @@ const { class: className, ...rest } = Astro.props;
   const pb = $(&#39;.aln-pause&#39;, r);
   // Pause all is the white outlined secondary (owner, 23 Nov); inside Agent harness (Phase II) it keeps its grey one for now
   if (r.closest(&#39;.ahx&#39;)) pb.classList.replace(&#39;line&#39;, &#39;soft&#39;);
-  pb.onclick = () =&gt; { paused = !paused; pb.innerHTML = I(paused ? &#39;play&#39; : &#39;pause&#39;,&#39;xs&#39;) + (paused ? &#39;Resume&#39; : &#39;Pause all&#39;); swap($(&#39;.aln-t&#39;, r), paused ? &#39;All agents paused&#39; : &#39;3 agents working&#39;);
+  pb.onclick = () =&gt; { paused = !paused; alnPause(pb, paused, &#39;Pause all&#39;); swap($(&#39;.aln-t&#39;, r), paused ? &#39;All agents paused&#39; : &#39;3 agents working&#39;);
     L.forEach(l =&gt; { if (l.running){ state(l, paused ? &#39;paused&#39; : &#39;working&#39;); $(&#39;.aln-a&#39;, l.el).classList.toggle(&#39;shim&#39;, !paused); } }); tell(); };
   c.every(1000, () =&gt; { if (!paused &amp;&amp; !finished){ secs++; $(&#39;.aln-m&#39;, r).textContent = clk(); } });
   // time only passes for the agents while they aren&#39;t paused; each() hears how far through the wait they are
@@ -1790,7 +1796,13 @@ const fitHits = window.dmFitHits || (() => {
   start(); if (coarse.addEventListener) coarse.addEventListener('change', start);
   window.dmFitHits = fit; return fit;
 })();
-})();</script><script src="/components/assets/core.js"></script><script>DM.def('agent-lanes', (r, c) => {
+})();</script><script src="/components/assets/core.js"></script><script>// Pause and Resume: the icon crossfades and the words ease the pill to their width (motion pieces, 26 Nov)
+function alnPause(b, on, word){
+  const ic = $('.mx-icon', b), w = $('.aln-pl', b);
+  if (!ic || !w){ b.innerHTML = I(on ? 'play' : 'pause','xs') + (on ? 'Resume' : word); return; }
+  iconSwap(ic, () => { ic.innerHTML = I(on ? 'play' : 'pause','xs'); }, { inner:true }); swap(w, on ? 'Resume' : word);
+}
+DM.def('agent-lanes', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{users}', I('users')).replace('{pause}', I('pause','xs'));
   // each agent has a hue of its own (t names the palette slot): its badge, its track, its tag and its stretch of the relay line
   const L = [
@@ -1800,7 +1812,7 @@ const fitHits = window.dmFitHits || (() => {
   ];
   const root = $('.aln', r), rows = $('.aln-rows', r), ct = $('.aln-ct', r), say = $('.aln-say', r), STEPS = L.length * 3;
   L.forEach(l => {
-    l.el = html(`<div class="aln-lane" data-s="queued" style="--dm-c:var(--dm-${l.t});--dm-cb:var(--dm-${l.t}-bg);--dm-cm:var(--dm-aln-${l.t},var(--dm-${l.t}))"><button class="aln-row" aria-expanded="false"><span class="aln-av">${I(l.ic)}</span><span class="aln-who"><span class="aln-n">${l.n}</span><span class="aln-a">${l.wait || 'Queued'}</span></span><span class="aln-tr" aria-hidden="true"><i></i><i></i><i></i></span><span class="aln-st"><span class="tag">Queued</span></span></button><div class="fold shut"><div><div class="aln-det"></div></div></div></div>`);
+    l.el = html(`<div class="aln-lane" data-s="queued" style="--dm-c:var(--dm-${l.t});--dm-cb:var(--dm-${l.t}-bg);--dm-cm:var(--dm-aln-${l.t},var(--dm-${l.t}))"><button class="aln-row mx-press" aria-expanded="false"><span class="aln-av">${I(l.ic)}</span><span class="aln-who"><span class="aln-n">${l.n}</span><span class="aln-a">${l.wait || 'Queued'}</span></span><span class="aln-tr" aria-hidden="true"><i></i><i></i><i></i></span><span class="aln-st"><span class="tag">Queued</span></span></button><div class="fold shut"><div><div class="aln-det"></div></div></div></div>`);
     rows.appendChild(l.el); const b = $('.aln-row', l.el), f = $('.fold', l.el);
     b.onclick = () => { const s = f.classList.toggle('shut'); b.setAttribute('aria-expanded', !s); };
   });
@@ -1821,7 +1833,7 @@ const fitHits = window.dmFitHits || (() => {
   const pb = $('.aln-pause', r);
   // Pause all is the white outlined secondary (owner, 23 Nov); inside Agent harness (Phase II) it keeps its grey one for now
   if (r.closest('.ahx')) pb.classList.replace('line', 'soft');
-  pb.onclick = () => { paused = !paused; pb.innerHTML = I(paused ? 'play' : 'pause','xs') + (paused ? 'Resume' : 'Pause all'); swap($('.aln-t', r), paused ? 'All agents paused' : '3 agents working');
+  pb.onclick = () => { paused = !paused; alnPause(pb, paused, 'Pause all'); swap($('.aln-t', r), paused ? 'All agents paused' : '3 agents working');
     L.forEach(l => { if (l.running){ state(l, paused ? 'paused' : 'working'); $('.aln-a', l.el).classList.toggle('shim', !paused); } }); tell(); };
   c.every(1000, () => { if (!paused && !finished){ secs++; $('.aln-m', r).textContent = clk(); } });
   // time only passes for the agents while they aren't paused; each() hears how far through the wait they are
@@ -1896,7 +1908,7 @@ const fitHits = window.dmFitHits || (() => {
   }
 
   const alnSwTpl = () => `<div class="aln-sw panel keep">
-    <div class="aln-sw-h"><div class="aln-sw-ht"><b class="aln-sw-tt">3 agents working</b><span class="aln-sw-st num">0:00 of 0:12</span></div><span class="aln-sw-key" aria-hidden="true"><span><i class="next"></i>Next</span><span><i class="run"></i>Working</span><span><i class="done"></i>Done</span><span><i class="wait"></i>Waiting</span></span><button class="pill line sm aln-sw-pause" type="button">${I('pause','xs')}Pause</button></div>
+    <div class="aln-sw-h"><div class="aln-sw-ht"><b class="aln-sw-tt">3 agents working</b><span class="aln-sw-st num">0:00 of 0:12</span></div><span class="aln-sw-key" aria-hidden="true"><span><i class="next"></i>Next</span><span><i class="run"></i>Working</span><span><i class="done"></i>Done</span><span><i class="wait"></i>Waiting</span></span><button class="pill line sm aln-sw-pause mx-ic" type="button"><span class="mx-icon">${I('pause','xs')}</span><span class="aln-pl mx-w">Pause</span></button></div>
     <div class="aln-sw-grid">
       <div class="aln-sw-ax num" aria-hidden="true"><span class="aln-sw-ticks"></span></div>
       <div class="aln-sw-rows"></div>
@@ -1961,7 +1973,7 @@ const fitHits = window.dmFitHits || (() => {
       T = Math.min(ALN_END, Math.round(T * 10 + 1) / 10); paint(); text(); fire();
       if (T >= ALN_END){ fin = true; clearInterval(iv); root.classList.add('fin'); swap(tt, 'All 3 agents finished'); pb.hidden = true; text(); }
     });
-    pb.onclick = () => { paused = !paused; root.classList.toggle('paused', paused); pb.innerHTML = I(paused ? 'play' : 'pause','xs') + (paused ? 'Resume' : 'Pause'); swap(tt, paused ? 'All agents paused' : '3 agents working'); text(); };
+    pb.onclick = () => { paused = !paused; root.classList.toggle('paused', paused); alnPause(pb, paused, 'Pause'); swap(tt, paused ? 'All agents paused' : '3 agents working'); text(); };
     // dragging the playhead's time, clicking a lane, or the arrow keys on the playhead look back through the run; Back to
     // now follows the run again
     const seek = v => { v = Math.max(0, Math.min(T, v)); V = v >= T - .05 ? null : v; live.hidden = V === null; paint(); text(); };
@@ -1993,14 +2005,14 @@ const fitHits = window.dmFitHits || (() => {
     let fin = false, ticks = 0;
     A.forEach((a, i) => {
       a.held = false; a.tk = 0; a.spent = 0; a.t = 0; const N = a.steps.length;
-      a.el = html(`<div class="aln-cw-c" data-s="idle" style="--dm-a:var(--dm-av-${a.av});--dm-ai:var(--dm-av-${a.av}-ink)"><div class="aln-cw-top"><span class="aln-cw-av" aria-hidden="true">${I(a.ic)}</span><span class="aln-cw-tx"><b>${a.n}</b><span>Starts soon</span></span><span class="tag aln-cw-tag">Up next</span><span class="aln-cw-acts"><button class="ib aln-cw-hold" type="button" aria-pressed="false" aria-label="Pause ${a.n}" data-tip="Pause this agent">${I('pause','xs')}</button><button class="ib aln-cw-sb" type="button" aria-expanded="false" aria-label="Steer ${a.n}" data-tip="Steer">${I('wand','xs')}</button></span></div><div class="aln-cw-meter"><span class="aln-cw-tr" role="progressbar" aria-label="${a.n}’s steps" aria-valuemin="0" aria-valuemax="${N}" aria-valuenow="0" style="--dm-n:${N}"><span class="aln-cw-ln"><i></i></span>${'<b></b>'.repeat(N)}</span><span class="aln-cw-num"><span><b class="aln-cw-sn">0</b> of ${N} steps</span><span class="aln-cw-tkn"><b class="aln-cw-tk">0</b> tokens</span><b class="aln-cw-cs">$0.00</b></span></div><div class="fold shut"><div><form class="aln-cw-steer"><input aria-label="A note for the ${a.n.toLowerCase()}" placeholder="Tell the ${a.n.toLowerCase()} what to change"><button class="ib aln-cw-go" type="submit" aria-label="Send" data-tip="Send" disabled>${I('send','xs')}</button></form></div></div><div class="aln-cw-nts"></div></div>`);
+      a.el = html(`<div class="aln-cw-c" data-s="idle" style="--dm-a:var(--dm-av-${a.av});--dm-ai:var(--dm-av-${a.av}-ink)"><div class="aln-cw-top"><span class="aln-cw-av" aria-hidden="true">${I(a.ic)}</span><span class="aln-cw-tx"><b>${a.n}</b><span>Starts soon</span></span><span class="tag aln-cw-tag">Up next</span><span class="aln-cw-acts"><button class="ib aln-cw-hold mx-ic mx-press" type="button" aria-pressed="false" aria-label="Pause ${a.n}" data-tip="Pause this agent">${I('pause','xs')}</button><button class="ib aln-cw-sb mx-press" type="button" aria-expanded="false" aria-label="Steer ${a.n}" data-tip="Steer">${I('wand','xs')}</button></span></div><div class="aln-cw-meter"><span class="aln-cw-tr" role="progressbar" aria-label="${a.n}’s steps" aria-valuemin="0" aria-valuemax="${N}" aria-valuenow="0" style="--dm-n:${N}"><span class="aln-cw-ln"><i></i></span>${'<b></b>'.repeat(N)}</span><span class="aln-cw-num"><span><b class="aln-cw-sn">0</b> of ${N} steps</span><span class="aln-cw-tkn"><b class="aln-cw-tk">0</b> tokens</span><b class="aln-cw-cs">$0.00</b></span></div><div class="fold shut"><div><form class="aln-cw-steer"><input aria-label="A note for the ${a.n.toLowerCase()}" placeholder="Tell the ${a.n.toLowerCase()} what to change"><button class="ib aln-cw-go" type="submit" aria-label="Send" data-tip="Send" disabled>${I('send','xs')}</button></form></div></div><div class="aln-cw-nts"></div></div>`);
       list.appendChild(a.el);
       a.tr = $('.aln-cw-tr', a.el); a.ln = $('.aln-cw-ln i', a.el); a.dots = $$('.aln-cw-tr b', a.el); a.sn = $('.aln-cw-sn', a.el); a.tkEl = $('.aln-cw-tk', a.el); a.csEl = $('.aln-cw-cs', a.el);
       // no hand-off row between the cards (owner, 18 Nov): each waiting card already says what it waits for
       const hold = $('.aln-cw-hold', a.el), sb = $('.aln-cw-sb', a.el), fold = $('.fold', a.el), form = $('.aln-cw-steer', a.el), inp = $('input', form), go = $('.aln-cw-go', form);
       inp.oninput = () => { go.disabled = !inp.value.trim(); };
       fold.inert = true;
-      hold.onclick = () => { a.held = !a.held; hold.setAttribute('aria-pressed', String(a.held)); hold.innerHTML = I(a.held ? 'play' : 'pause','xs'); hold.dataset.tip = a.held ? 'Resume this agent' : 'Pause this agent'; hold.setAttribute('aria-label', (a.held ? 'Resume ' : 'Pause ') + a.n); paint(a); };
+      hold.onclick = () => { a.held = !a.held; hold.setAttribute('aria-pressed', String(a.held)); iconSwap(hold, () => { hold.innerHTML = I(a.held ? 'play' : 'pause','xs'); }, { inner:true }); hold.dataset.tip = a.held ? 'Resume this agent' : 'Pause this agent'; hold.setAttribute('aria-label', (a.held ? 'Resume ' : 'Pause ') + a.n); paint(a); };
       // the note's field takes the focus only when you open it yourself; the demo never moves your focus
       sb.onclick = e => { const on = sb.getAttribute('aria-expanded') !== 'true'; sb.setAttribute('aria-expanded', String(on)); fold.classList.toggle('shut', !on); fold.inert = !on; if (on && e.isTrusted) requestAnimationFrame(() => inp.focus({ preventScroll:true })); };
       // the note shows once its field has shut, so the card never holds both at once

@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, DM, I, copied, enter, grow, html } from '../core/core.js';
+import { $, DM, I, copied, enter, grow, html, iconSwap } from '../core/core.js';
 DM.def('terminal-stream', (r, c) => {
   const IC = { term:I('term'), stop:I('stop','xs'), copy:I('copy') };
   r.innerHTML = r.innerHTML.replace(/\{(\w+)\}/g, (m, k) => IC[k] || m);
@@ -41,7 +41,7 @@ DM.def('terminal-stream', (r, c) => {
     $('.tmx-c', el).textContent = text; body.appendChild(el); enter(el); return el;
   }
   function lines(el){
-    const more = html(`<button class="tmx-more" aria-expanded="false" hidden>${I('chev-d','xs')}<span></span><i class="sp"></i></button>`), hid = html('<div class="fold shut"><code class="tmx-o"></code></div>'), tail = html('<code class="tmx-o"></code>');
+    const more = html(`<button class="tmx-more mx-press" aria-expanded="false" hidden>${I('chev-d','xs')}<span></span><i class="sp"></i></button>`), hid = html('<div class="fold shut"><code class="tmx-o"></code></div>'), tail = html('<code class="tmx-o"></code>');
     const inner = hid.firstElementChild; hid.inert = true; el.append(more, hid, tail);
     const label = () => { const n = inner.children.length, open = !hid.classList.contains('shut'); $('span', more).textContent = open ? 'Show fewer lines' : `Show ${n} more line${n > 1 ? 's' : ''}`; more.setAttribute('aria-expanded', open); };
     more.onclick = () => { hid.inert = hid.classList.toggle('shut'); label(); };
@@ -51,10 +51,11 @@ DM.def('terminal-stream', (r, c) => {
       if (inner.children.length){ more.hidden = false; label(); }
     };
   }
-  const halted = el => { $('.tmx-m .g', el).innerHTML = '<span class="tag">Stopped</span>'; el.dataset.s = 'stop'; };
+  // (a mark that changes, the spinner into its tick, Exit tag or Stopped, crossfades in place: iconSwap())
+  const halted = el => { const g = $('.tmx-m .g', el); iconSwap(g, () => { g.innerHTML = '<span class="tag">Stopped</span>'; }); el.dataset.s = 'stop'; };
   function finish(how){
     over = true; stop.hidden = true; root.classList.remove('live'); sv.classList.remove('shim');
-    st.classList.toggle('ok', how === 'passed'); st.classList.toggle('bad', how === 'failed'); $('.g', st).innerHTML = I(how === 'passed' ? 'check' : 'stop', 'xs'); sv.textContent = how === 'passed' ? 'Passed' : how === 'failed' ? 'Failed' : 'Stopped';
+    st.classList.toggle('ok', how === 'passed'); st.classList.toggle('bad', how === 'failed'); { const g = $('.g', st); iconSwap(g, () => { g.innerHTML = I(how === 'passed' ? 'check' : 'stop', 'xs'); }); } sv.textContent = how === 'passed' ? 'Passed' : how === 'failed' ? 'Failed' : 'Stopped';
     // each command counts once, however many times it ran; how it went is the header's tag, so the summary doesn't say it
     // again, and a finished line has no clock (owner, 18 Nov)
     const n = new Set(ran).size;
@@ -99,7 +100,7 @@ DM.def('terminal-stream', (r, c) => {
         const pair = Array.isArray(ln) ? ln : [ln, '']; add(pair); log.push(pair[0]);
       }
       t.textContent = sec(k.ms); last = k.exit || 0;
-      $('.tmx-m .g', el).innerHTML = k.exit ? `<span class="tag bad">Exit ${k.exit}</span>` : `<span class="ok">${I('check','xs')}</span>`; el.dataset.s = k.exit ? 'bad' : 'ok';
+      { const g = $('.tmx-m .g', el); iconSwap(g, () => { g.innerHTML = k.exit ? `<span class="tag bad">Exit ${k.exit}</span>` : `<span class="ok">${I('check','xs')}</span>`; }); } el.dataset.s = k.exit ? 'bad' : 'ok';
     }
     finish(last ? 'failed' : 'passed');
   });

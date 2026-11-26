@@ -35,11 +35,11 @@ Context meter shows how full an agent's context window is and what fills it. A s
 ### What it does
 
 - `parts` are the kinds of thing in the context, each with a `label`, a `tokens` count, an optional `color` (by default the accent, violet, teal and a neutral grey, in order) and `items`, the list shown on hover. `limit` is the size of the window.
-- The pill shows the ring and the share used. From `warnAt` of the limit, 85% by default, the ring turns orange.
+- The pill shows the ring and the share used. As the share rises, the percentage counts up in place and the ring grows; each step sends a thin bright highlight once along the ring's filled arc and lifts the ring a touch. As the count passes `warnAt` of the limit, 85% by default, the warning orange wipes along the ring from its start (the two colours never blend) and the pill nudges once; when it drops back below, the orange wipes back the same way.
 - The bar and the numbers count to their new values whenever `parts` change, so a compaction counts down.
-- Hovering a legend row lights its share of the bar and shows its `items`.
-- `message` adds a line under the legend. With `messageTone: 'warn'` it is a warning notice: a faint warning tint, the filled warning sign and the words in the text colour, and Compact takes the warning tint as the action that resolves it. With `'ok'` it is a plain line with the green tick, like "Freed 41.2k tokens. 9 decisions kept". The line takes no room while empty and opens smoothly when a message comes.
-- Compact calls `onCompact`. Return a promise and, until it settles, the button gives way to a status in its place, a spinner and "Compacting…" with a moving highlight (nothing to press while it runs), while the line beside it says `busyHint` with the same highlight; the row keeps its height. Set `compacted` and the button becomes Undo, which calls `onUndo`.
+- Hovering a legend row lights its share of the bar and shows its `items`, and one highlight glides from row to row.
+- `message` adds a line under the legend. With `messageTone: 'warn'` it is a warning notice: a faint warning tint, the filled warning sign and the words in the text colour, and Compact takes the warning tint as the action that resolves it. With `'ok'` it is a plain line with the green tick, like "Freed 120.0k tokens. 9 decisions kept". The line takes no room while empty and opens smoothly when a message comes.
+- Compact calls `onCompact`. Return a promise and, until it settles, the button gives way to a status in its place, a spinner and "Compacting…" with a moving highlight (nothing to press while it runs), while the line beside it says `busyHint` with the same highlight; the row keeps its height. Set `compacted` and the button becomes Undo, which calls `onUndo`. The button eases to the width of its new words.
 - The pill opens and shuts the panel, and `open`, `defaultOpen` and `onOpenChange` let you control it. The panel opens above the pill, as it would under a chat composer, and the pill's chevron points up while it is shut. `placement` (`'top'` by default, or `'bottom'`) picks the side; when the window, or a box round the meter that clips it, has no room on that side and more on the other, it opens there instead. The panel grows out of the pill and folds back into it when shut.
 - Ships in Clean too (`data-style="clean"`): the pill is a flat secondary control (a hairline and a light fill), the panel is a round card with off-white head and foot strips and its content 16px in from every edge, the bar and its parts keep their colours on round tracks, Compact is a 28px secondary pill 16px from the foot strip's top and bottom and 16px in from the side, on the content's column, and the panel fades and scales a little from the pill as it opens and shuts.
 
@@ -49,6 +49,7 @@ Context meter shows how full an agent's context window is and what fills it. A s
 - The panel is a region labelled "What fills the context", and it is inert while shut so its controls can't be reached.
 - Escape shuts the panel while the pointer or the focus is on the meter, and moves the focus back to the pill if it was inside.
 - The message line is an `aria-live="polite"` region, so a warning or the compaction result is announced.
+- With reduced motion the ring and its colour change at once, with no highlight, lift, nudge or wipe.
 
 ## Usage in React
 
@@ -65,16 +66,23 @@ import { useEffect, useRef, useState } from 'react';
 import { ContextMeter, type ContextPart } from './ContextMeter';
 import { useStory, useWait } from '../lib/useScript';
 
-/* ---------- Context meter: what fills it, new tool output takes it close to the limit, Compact frees room ---------- */
+/* ---------- Context meter: what fills it, the chat takes it step by step past 85%, Compact frees room ---------- */
 const START: ContextPart[] = [
-  { key: 'files', label: 'Files', tokens: 56200, items: 'Pricing.fig export 31.9k, PricingCard.tsx 18.2k, tokens.css 6.1k' },
-  { key: 'tools', label: 'Tool output', tokens: 41800, items: 'Contrast check 17.4k, Figma frames 15.6k, grid audit 8.8k' },
-  { key: 'chat', label: 'Chat', tokens: 32100, items: '48 turns with Maya Kim since 09:12' },
-  { key: 'sys', label: 'Instructions', tokens: 6300, items: 'Studio guidelines 4.1k, pricing brief 2.2k' }
+  { key: 'files', label: 'Files', tokens: 32000, items: 'Pricing.fig export 19.8k, PricingCard.tsx 8.1k, tokens.css 4.1k' },
+  { key: 'tools', label: 'Tool output', tokens: 24000, items: 'Contrast check 11.2k, Figma frames 8.6k, grid audit 4.2k' },
+  { key: 'chat', label: 'Chat', tokens: 26000, items: 'Turns with Maya Kim since 09:12' },
+  { key: 'sys', label: 'Instructions', tokens: 6000, items: 'Studio guidelines 3.9k, pricing brief 2.1k' }
 ];
+// what the chat adds, one step at a time: [part, tokens, what it is]. The third takes it past 85%
+const STEPS: [string, number, string][] = [['files', 22000, 'brand-guide.pdf'], ['tools', 36000, 'web search'], ['chat', 28000, ''], ['files', 10000, 'checkout.fig']];
+// compacting leaves a summary in place of older turns, reads and output
+const AFTER: Record<string, [number, string]> = {
+  files: [26000, 'Pricing.fig export 19.8k, summary of older reads 6.2k'], tools: [24000, 'Contrast check 11.2k, summary of older output 12.8k'],
+  chat: [8000, 'Summary of 48 turns, 9 decisions kept'], sys: [6000, 'Studio guidelines 3.9k, pricing brief 2.1k']
+};
 const LIMIT = 200000;
 const sum = (ps: ContextPart[]) => ps.reduce((t, p) => t + p.tokens, 0);
-const set = (ps: ContextPart[], key: string, tokens: number) => ps.map(p => p.key === key ? { ...p, tokens } : p);
+const add = (ps: ContextPart[], [key, tokens, what]: [string, number, string]) => ps.map(p => p.key === key ? { ...p, tokens: p.tokens + tokens, items: what ? `${p.items}, ${what} ${(tokens / 1000).toFixed(1)}k` : p.items } : p);
 
 export default function ContextMeterDemo() {
   const ref = useRef<HTMLDivElement>(null);
@@ -85,21 +93,25 @@ export default function ContextMeterDemo() {
   const [open, setOpen] = useState(true);
   const live = useRef(parts);
   useEffect(() => { live.current = parts; });
-  const at = (ps: ContextPart[], key: string) => ps.find(p => p.key === key)!.tokens;
-  // Compact turns older turns into a summary and trims old tool output
+  // Compact turns older turns, reads and tool output into a summary
   const compact = async () => {
     await wait(1000);
-    const next = set(set(parts, 'chat', 4600), 'tools', at(parts, 'tools') - 13700);
+    const next = parts.map(p => AFTER[p.key] ? { ...p, tokens: AFTER[p.key][0], items: AFTER[p.key][1] } : p);
     setBefore(parts); setParts(next);
     setMessage({ text: `Freed ${((sum(parts) - sum(next)) / 1000).toFixed(1)}k tokens. 9 decisions kept`, tone: 'ok' });
   };
   const undo = () => { if (before) setParts(before); setBefore(null); setMessage(undefined); };
-  // the preview's story: new tool output lands and takes it close to the limit, the person compacts, then shuts the panel
+  // the preview's story: the chat goes on, step by step, past 85% (the warning shows as the count passes it), the person
+  // compacts, then shuts the panel
   useStory(ref, async ({ wait, press }) => {
-    await wait(8000);
-    const next = set(live.current, 'tools', at(live.current, 'tools') + 38500);
-    setParts(next); setMessage({ text: `${Math.round(sum(next) / LIMIT * 100)}% full. Older turns start to drop at 200k`, tone: 'warn' });
-    await wait(2000); press('.dm-ctm-go');
+    await wait(6000);
+    for (const [i, st] of STEPS.entries()) {
+      const next = add(live.current, st), pct = Math.round(sum(next) / LIMIT * 100), was = Math.round(sum(live.current) / LIMIT * 100);
+      setParts(next);
+      if (pct >= 85) { if (was < 85) await wait(300); setMessage({ text: `${pct}% full. Older turns start to drop at 200k`, tone: 'warn' }); }
+      await wait(i === 2 ? 1700 : 1200);
+    }
+    await wait(500); press('.dm-ctm-go');
     await wait(3500); setOpen(false);
   });
   return (
@@ -166,7 +178,8 @@ import { useEffect, useRef, useState, type CSSProperties, type RefObject } from 
 import { cx } from '../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion, useTween } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { Spin, Swap, Tip } from '../lib/motion';
+import { mxT, Spin, Swap, Tip } from '../lib/motion';
+import { useHoverGlide } from '../lib/glide';
 import '../designme.css';
 import './context-meter.css';
 
@@ -224,7 +237,8 @@ function roomOf(el: HTMLElement) {
 }
 
 
-/** A button as wide as its words: when they change it eases to its new width, keeping no room for a longer word */
+/** A button as wide as its words: when they change it eases to its new width on the motion pieces' spring, keeping no room
+    for a longer word */
 function useEaseWidth(ref: RefObject<HTMLElement | null>) {
   const reduce = useReducedMotion();
   useEffect(() => {
@@ -234,7 +248,7 @@ function useEaseWidth(ref: RefObject<HTMLElement | null>) {
       if (busy) return;
       const w1 = el.getBoundingClientRect().width;
       if (w && Math.abs(w1 - w) > .5) {
-        busy = el.animate([{ width: w + 'px' }, { width: w1 + 'px' }], { duration: 340, easing: 'cubic-bezier(.23,1,.32,1)' });
+        busy = el.animate([{ width: w + 'px' }, { width: w1 + 'px' }], { duration: mxT(el, 't-in', 360), easing: mxT(el, 'ease-spring', 'ease') });
         busy.finished.catch(() => {}).then(() => { busy = null; w = el.getBoundingClientRect().width; });
       }
       w = w1;
@@ -263,6 +277,41 @@ export function ContextMeter({ parts, limit, warnAt = .85, message, messageTone 
   const ready = true;
   const total = parts.reduce((t, p) => t + p.tokens, 0), share = ready ? total / limit : 0, pct = Math.round(share * 100);
   const root = useRef<HTMLDivElement>(null), tg = useRef<HTMLButtonElement>(null), go = useRef<HTMLButtonElement>(null), pop = useRef<HTMLDivElement>(null);
+  const leg = useRef<HTMLDivElement>(null);
+  useHoverGlide(leg, '.dm-ctm-l');
+  // the ring's moments (designme.dev, 26 Nov): a step up (or the drop after compacting) sends a thin bright highlight once along
+  // the filled arc and lifts the ring a touch; as the count passes warnAt, the warning mark wipes along the arc (and back once
+  // it drops below), never blending the two colours, and the pill nudges once. No halo or glow. Reduced motion: none of it
+  const reduce = useReducedMotion();
+  const ring = useRef<SVGSVGElement>(null), warc = useRef<SVGCircleElement>(null), shine = useRef<SVGCircleElement>(null);
+  const counted = useTween(total, 900), hot = Math.round(counted / limit * 100) >= Math.round(warnAt * 100);
+  const last = useRef(total);
+  useEffect(() => {
+    const was = last.current; last.current = total;
+    const sv = ring.current, sh = shine.current; if (reduce || !sv || !sh || typeof sh.animate !== 'function' || Math.abs(total - was) < 50) return;
+    const seg = Math.min(9, pct); sh.style.strokeDasharray = seg + ' 200';
+    sh.animate([{ strokeDashoffset: 0, opacity: 0 }, { opacity: .9, offset: .5 }, { strokeDashoffset: -(pct - seg), opacity: 0 }], { duration: 450, easing: 'cubic-bezier(.65,0,.35,1)' });
+    sv.animate([{ scale: 1 }, { scale: 1.06, offset: .2 }, { scale: 1 }], { duration: 350, easing: 'cubic-bezier(.23,1,.32,1)' });
+  }, [total]); // eslint-disable-line react-hooks/exhaustive-deps
+  const wasHot = useRef(hot);
+  useIsoLayoutEffect(() => {
+    const w = warc.current, was = wasHot.current; wasHot.current = hot; if (!w) return;
+    if (hot === was) { if (hot) w.style.strokeDasharray = pct + ' 100'; return; }
+    const ease = 'cubic-bezier(.65,0,.35,1)', from = parseFloat(w.style.strokeDasharray) || 0;
+    w.style.transition = 'none';
+    if (hot) {
+      w.style.opacity = '1'; w.style.strokeDasharray = pct + ' 100';
+      if (!reduce && typeof w.animate === 'function') {
+        w.animate([{ strokeDasharray: '0 100' }, { strokeDasharray: pct + ' 100' }], { duration: 200, easing: ease });
+        tg.current?.animate([{ translate: '0 0' }, { translate: '3px 0', offset: .22 }, { translate: '-1.4px 0', offset: .6 }, { translate: '0 0' }], { duration: 380, easing: 'ease-out' });
+      }
+    } else {
+      w.style.strokeDasharray = '0 100';
+      if (reduce || typeof w.animate !== 'function') w.style.opacity = '0';
+      else w.animate([{ strokeDasharray: from + ' 100' }, { strokeDasharray: '0 100' }], { duration: 200, easing: ease }).onfinish = () => { if (!wasHot.current) w.style.opacity = '0'; };
+    }
+    void w.getBoundingClientRect(); w.style.transition = '';
+  }, [hot, pct]);
   useEaseWidth(go);
   // the side it opens on is chosen as it opens: the placement's side, or the other one when that side has no room for the
   // panel (its height, its padding while it is still easing in, and the gap) and the other has more
@@ -295,10 +344,11 @@ export function ContextMeter({ parts, limit, warnAt = .85, message, messageTone 
   };
 
   return (
-    <div ref={root} data-dm="" className={cx('dm-ctm', share >= warnAt && 'dm-hot', className)} data-open={isOpen ? '1' : '0'} data-pos={side === 'top' ? 'up' : 'down'}>
+    <div ref={root} data-dm="" className={cx('dm-ctm', hot && 'dm-hot', className)} data-open={isOpen ? '1' : '0'} data-pos={side === 'top' ? 'up' : 'down'}>
       <button ref={tg} type="button" className="dm-ctm-tg" aria-expanded={isOpen} aria-label={`Context, ${pct}% used`} onClick={() => setOpen(!isOpen)}>
         <span className="dm-ctm-ring" aria-hidden="true">
-          <svg viewBox="0 0 20 20"><circle className="dm-tr" cx="10" cy="10" r="7.5" /><circle className="dm-fl" cx="10" cy="10" r="7.5" pathLength={100} style={{ strokeDasharray: `${pct} 100` }} /></svg>
+          <svg ref={ring} viewBox="0 0 20 20"><circle className="dm-tr" cx="10" cy="10" r="7.5" /><circle className="dm-fl" cx="10" cy="10" r="7.5" pathLength={100} style={{ strokeDasharray: `${pct} 100` }} />
+            <circle ref={warc} className="dm-fw" cx="10" cy="10" r="7.5" pathLength={100} /><circle ref={shine} className="dm-hl" cx="10" cy="10" r="7.5" pathLength={100} /></svg>
         </span>
         <span><span className="dm-ctm-pc dm-num"><Count value={ready ? total : 0} format={n => Math.round(n / limit * 100) + '%'} /></span> of context used</span>
         <Icon name="chev-d" size="xs" />
@@ -308,7 +358,8 @@ export function ContextMeter({ parts, limit, warnAt = .85, message, messageTone 
         <div className={cx('dm-ctm-bar', lit && 'dm-hl')} aria-hidden="true">
           {parts.map((p, i) => <i key={p.key} className={lit === p.key ? 'dm-on' : undefined} style={{ width: (ready ? p.tokens / limit * 100 : 0) + '%', '--dm-c': p.color ?? PALETTE[i % PALETTE.length] } as CSSProperties} />)}
         </div>
-        <div className="dm-ctm-leg" onPointerLeave={() => setLit(null)}>
+        {/* one highlight glides from part to part (motion pieces) */}
+        <div ref={leg} className="dm-ctm-leg dm-mx-glide" onPointerLeave={() => setLit(null)}>
           {parts.map((p, i) => {
             const row = (
               <div key={p.key} className="dm-ctm-l" style={{ '--dm-c': p.color ?? PALETTE[i % PALETTE.length] } as CSSProperties}
@@ -331,7 +382,7 @@ export function ContextMeter({ parts, limit, warnAt = .85, message, messageTone 
                 comes back as Undo once it is done */}
             {busy
               ? <span className="dm-ctm-run" role="status"><Spin /><span className="dm-shim">Compacting…</span></span>
-              : <button ref={go} type="button" className={cx('dm-pill dm-sm dm-ctm-go', message && messageTone === 'warn' ? 'dm-warn' : 'dm-line')} onClick={compact}>{compacted ? 'Undo' : 'Compact'}</button>}
+              : <button ref={go} type="button" className={cx('dm-pill dm-sm dm-ctm-go dm-mx-press', message && messageTone === 'warn' ? 'dm-warn' : 'dm-line')} onClick={compact}>{compacted ? 'Undo' : 'Compact'}</button>}
           </div>
         )}
       </div>

@@ -41,6 +41,10 @@
 .ctm-leg{display:flex;flex-direction:column;margin:0 calc(-1 * var(--dm-s-2))}
 .ctm-l{display:flex;align-items:center;gap:var(--dm-s-2);padding:5px var(--dm-s-2);border-radius:var(--dm-r-sm);font-size:13px;line-height:18px;color:var(--dm-fg2);cursor:default;transition:background var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.ctm-l:hover{background:color-mix(in srgb,var(--dm-fg) 5%,transparent)}}
+/* its motion (the core's motion pieces, owner, 26 Nov): one highlight glides from part to part in the legend, in the hover's
+   own grey (.mx-glide); a press on Compact shows at once; its box eases to its new words' width on the spring (mxWidth()) */
+.ctm-leg{--dm-hg-bg:color-mix(in srgb,var(--dm-fg) 5%,transparent)}
+:root[data-style="clean"] .ctm-leg,:root [data-style="clean"] .ctm-leg,:root [data-style="clean"].ctm-leg{--dm-hg-bg:var(--dm-row)}
 /* the swatch is centred in a 16px column, the column of the message's sign and tick below, so their words line up */
 .ctm-l .sw{width:8px;height:8px;margin:0 4px 0 0;border-radius:var(--dm-r-tiny,2px);flex:none;background:var(--dm-c)}
 .ctm-l .v{margin-left:auto;color:var(--dm-fg)}
@@ -51,6 +55,8 @@
 .ctm-msg{display:grid;grid-template-rows:0fr;margin-top:calc(-1 * var(--dm-s-3));font-size:13px;line-height:18px;color:var(--dm-fg);opacity:0;transition:grid-template-rows .32s var(--dm-ease),margin .32s var(--dm-ease),opacity .24s var(--dm-ease)}
 .ctm-msg.on{grid-template-rows:1fr;margin-top:0;opacity:1}
 .ctm-msg>span{display:flex;align-items:flex-start;gap:var(--dm-s-2);min-height:0;overflow:hidden}
+/* (the warning's tint and padding ease away as it turns into the result, so the panel eases to its new height in one motion) */
+.ctm-msg>span{transition:padding .32s var(--dm-ease),background-color .32s var(--dm-ease)}
 .ctm-msg>span>svg,.ctm-msg>span>svg.i{flex:none;width:16px;height:16px;margin-top:1px}
 /* the notice reaches out as far as the legend's hover, with the legend's padding, so its sign sits in the swatches' column
    and its words on the legend's words */
@@ -82,7 +88,13 @@
 .ctm-ring circle{fill:none;stroke-width:2.6}
 .ctm-ring .tr{stroke:var(--dm-rail)}
 .ctm-ring .fl{stroke:var(--dm-accent-mark,var(--dm-accent));stroke-linecap:round;stroke-dasharray:0 100;transition:stroke-dasharray .42s var(--dm-ease),stroke .32s}
-.ctm.hot .ctm-ring .fl{stroke:var(--dm-warn-mark)}
+/* near the limit the ring turns to the warning mark by a wipe, never a blend (owner, 26 Nov, from its showcase): a second arc in
+   the warning mark (.fw) draws along the accent's from its start in 200ms, and draws back the same way once it is compacted, so
+   no frame shows a mix of the two colours. Each step up sends a thin bright highlight once along the filled arc (.hl, 0.45s)
+   and lifts the ring a touch (1.06, 0.35s); crossing the limit nudges the pill once. No halo or glow round it. With reduced
+   motion the ring and its colour change at once, with no highlight, lift or nudge */
+.ctm-ring .fw{stroke:var(--dm-warn-mark);stroke-linecap:round;stroke-dasharray:0 100;opacity:0;transition:stroke-dasharray .42s var(--dm-ease)}
+.ctm-ring .hl{stroke:#fff;stroke-width:2;stroke-linecap:butt;stroke-dasharray:0 200;opacity:0}
 
 /* Clean (owner, 17 and 18 Nov): the pill is the flat secondary control (a hairline and a light fill, no press); the ring is
    the accent's mark on a grey rail. The panel is a 22px card with an off-white head strip and foot strip, opening and

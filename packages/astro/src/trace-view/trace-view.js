@@ -96,13 +96,14 @@ DM.def('trace-view', (r, c) => {
     if (!x) return;
     x.el.setAttribute('aria-expanded', 'true');
     const [kind, icon, col] = K[x.k];
-    dc.innerHTML = `<div class="trv-dh"><span class="trv-k" style="--dm-k:${col}">${I(icon,'xs')}</span><b>${x.n}</b>${x.slow ? '<span class="tag warn">slow</span>' : ''}<button class="ib trv-x" aria-label="Close details" data-tip="Close">${I('x')}</button></div>
+    dc.innerHTML = `<div class="trv-dh"><span class="trv-k" style="--dm-k:${col}">${I(icon,'xs')}</span><b>${x.n}</b>${x.slow ? '<span class="tag warn">slow</span>' : ''}<button class="ib trv-x mx-press" aria-label="Close details" data-tip="Close">${I('x')}</button></div>
       <div class="trv-pos" aria-hidden="true" style="--dm-k:${col}"><i style="left:${x.s / SPAN * 100}%"></i></div>
       <div class="trv-kv"><div><span>Kind</span><b>${kind}</b></div><div><span>Starts at</span><b class="num">${sec(x.s)}</b></div><div><span>Latency</span><b class="num trv-lt"></b></div><div><span>Tokens</span><b class="num trv-tn"></b></div></div>
       <div class="trv-io"><span>Input</span><code>${x.in}</code><span>Output</span><code class="out"></code></div>`;
     // closing hands focus back to the span, if it was inside the details
     $('.trv-x', dc).onclick = () => { const el = sel.el, back = dc.contains(document.activeElement); open(null); if (back) el.focus({ preventScroll:true }); };
-    fill(); enter(dc);
+    // (its parts settle one after another as it opens: .mx-rows on the card, motion pieces)
+    fill();
   }
   function fill(){
     const x = sel, done = T >= x.s + x.d;

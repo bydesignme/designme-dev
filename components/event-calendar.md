@@ -34,7 +34,7 @@ A work-week calendar where people drag events to a new time or day, click free t
 ### What it does
 
 - Shows `days` columns from `week` (5 by default) and `hours` rows from `startHour` (9am to 5pm by default), with a today mark and a now line when `now` is set.
-- Dragging an event moves it to another time or day in 15-minute steps; a click without moving opens its details card.
+- Dragging an event moves it to another time or day in 15-minute steps; a click without moving opens its details card. The card grows out of the event's side.
 - Every event keeps its colour at full strength. Under the pointer an event deepens in its own colour, and the one whose card is open is a step deeper with a faint ring in its colour (in Clean, a neutral grey ring, and every event has a 3px rail in its colour down its left edge).
 - Hovering free time shows a "+ New event" slot, and clicking it adds an event, from `newEvent`, with a box to name it; Save keeps it and Discard removes it.
 - The details card shows the time and the people invited, plus Prep notes when `onPrepNotes` is set and Join when `onJoin` is set (in Clean, the title in a head strip and the buttons in a foot strip). "Writing" shimmers until a returned promise settles; then the notes show above the buttons and Prep notes keeps its place with a green tick.
@@ -187,11 +187,11 @@ Yes. Set `days` to 7 for a full week, and `startHour` and `hours` for the time r
 
 ```tsx
 'use client';
-import { useEffect, useId, useRef, useState, type CSSProperties, type KeyboardEvent, type MouseEvent, type PointerEvent, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, type CSSProperties, type KeyboardEvent, type MouseEvent, type PointerEvent, type ReactNode, type RefObject } from 'react';
 import { cx } from '../lib/cx';
-import { useControllable, useIsoLayoutEffect } from '../lib/hooks';
+import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { Avatar, enter, Swap, Think, Tip } from '../lib/motion';
+import { Avatar, enter, mxT, Swap, Think, Tip } from '../lib/motion';
 import '../designme.css';
 import './event-calendar.css';
 
@@ -298,6 +298,8 @@ function Details({ event, onClose, onSave, onDiscard, onPrepNotes, onJoin }: {
 }) {
   const fresh = !event.title;
   const input = useRef<HTMLInputElement>(null);
+  const prepBtn = useRef<HTMLButtonElement>(null);
+  useEaseWidth(prepBtn);
   const [prep, setPrep] = useState<'idle' | 'writing' | 'done'>('idle');
   const [note, setNote] = useState<ReactNode>(null);
   useEffect(() => { if (fresh) input.current?.focus({ preventScroll: true }); }, [fresh]);
@@ -314,7 +316,7 @@ function Details({ event, onClose, onSave, onDiscard, onPrepNotes, onJoin }: {
       <div className="dm-ecx-ph">
         <i style={{ background: `var(--dm-${TONE[event.tone ?? 'blue']})` }} />
         {fresh ? <input ref={input} className="dm-ecx-ti" placeholder="Add a title" aria-label="Event title" onKeyDown={key} /> : <b>{event.title}</b>}
-        <Tip label="Close"><button type="button" className="dm-ib" aria-label="Close" onClick={onClose}><Icon name="x" size="xs" /></button></Tip>
+        <Tip label="Close"><button type="button" className="dm-ib dm-mx-press" aria-label="Close" onClick={onClose}><Icon name="x" size="xs" /></button></Tip>
       </div>
       <div className="dm-ecx-pt">{DAYN[event.start.getDay()]} {event.start.getDate()} {MONTHS[event.start.getMonth()]} · {tm(h)} – {tm(end)}</div>
       {people.length > 0 && (
@@ -326,12 +328,12 @@ function Details({ event, onClose, onSave, onDiscard, onPrepNotes, onJoin }: {
       {prep === 'done' && <div className={cx('dm-ecx-note', enter().className)}><Icon name="spark" size="xs" /><span>{note}</span></div>}
       {fresh ? (
         <div className="dm-ecx-pa">
-          <button type="button" className="dm-pill dm-line dm-sm" onClick={onDiscard}>Discard</button>
+          <button type="button" className="dm-pill dm-line dm-sm dm-mx-press" onClick={onDiscard}>Discard</button>
           <button type="button" className="dm-pill dm-primary dm-sm" onClick={() => onSave(input.current?.value ?? '')}>Save</button>
         </div>
       ) : (onPrepNotes || onJoin) && (
         <div className="dm-ecx-pa">
-          {onPrepNotes && <button type="button" className={cx('dm-pill dm-line dm-sm dm-ecx-prep', prep === 'done' && 'dm-done')} aria-disabled={prep === 'done' || undefined} onClick={write}>
+          {onPrepNotes && <button type="button" ref={prepBtn} className={cx('dm-pill dm-line dm-sm dm-ecx-prep dm-mx-press', prep === 'done' && 'dm-done')} aria-disabled={prep === 'done' || undefined} onClick={write}>
             {prep === 'writing' ? <><Think /><span className="dm-shim">Writing</span></> : <><Icon name={prep === 'done' ? 'check' : 'spark'} size="xs" />Prep notes</>}
           </button>}
           {onJoin && <button type="button" className="dm-pill dm-primary dm-sm" onClick={() => onJoin(event)}>Join</button>}
@@ -343,6 +345,27 @@ function Details({ event, onClose, onSave, onDiscard, onPrepNotes, onJoin }: {
 
 /** A work week of events you can drag to another time or day, add to by clicking free time, and open for details.
     The agent can look for a free slot and suggest it. */
+/** A button as wide as its words: when they change it eases to its new width on the motion pieces' spring */
+function useEaseWidth(ref: RefObject<HTMLElement | null>) {
+  const reduce = useReducedMotion();
+  useEffect(() => {
+    const el = ref.current; if (!el || reduce || typeof ResizeObserver === 'undefined') return;
+    let w = 0, busy: Animation | null = null;
+    const ro = new ResizeObserver(() => {
+      if (busy) return;
+      const w1 = el.getBoundingClientRect().width;
+      if (w && Math.abs(w1 - w) > .5) {
+        el.style.overflow = 'clip';
+        busy = el.animate([{ width: w + 'px' }, { width: w1 + 'px' }], { duration: mxT(el, 't-in', 360), easing: mxT(el, 'ease-spring', 'ease') });
+        busy.finished.catch(() => {}).then(() => { busy = null; el.style.overflow = ''; w = el.getBoundingClientRect().width; });
+      }
+      w = w1;
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [ref, reduce]);
+}
+
 export function EventCalendar({
   events, defaultEvents = [], onEventsChange, week, days = 5, startHour = 9, hours = 8, title, now,
   selected, defaultSelected = null, onSelectedChange, newEvent, onPrepNotes, onJoin,
@@ -470,6 +493,8 @@ export function EventCalendar({
   /* ---------- a narrow calendar: one day at a time ---------- */
   const [shownDay, setShownDay] = useControllable(day, defaultDay ?? Math.max(0, today), onDayChange);
   const daysRow = useRef<HTMLDivElement>(null);
+  const askBtn = useRef<HTMLButtonElement>(null);
+  useEaseWidth(askBtn);
   const narrow = () => !!daysRow.current?.getClientRects().length;
   const [turns, setTurns] = useState(0);
   const pickDay = (d: number) => { if (d === shownDay) return; if (narrow()) { close(); setTurns(n => n + 1); } setShownDay(d); };
@@ -484,7 +509,7 @@ export function EventCalendar({
       <div className="dm-ecx-h">
         <b>{heading}</b><span className="dm-ecx-sp" />
         <Swap className="dm-ecx-msg dm-muted">{status ?? msg}</Swap>
-        {onAsk && <button type="button" className="dm-pill dm-soft dm-sm dm-ecx-ask" onClick={onAsk}>{finding ? <Think /> : <Icon name="spark" size="xs" />}<Swap key={finding ? 'f' : 'i'} className={finding ? 'dm-shim' : undefined}>{askLabel}</Swap></button>}
+        {onAsk && <button ref={askBtn} type="button" className="dm-pill dm-soft dm-sm dm-ecx-ask" onClick={onAsk}>{finding ? <Think /> : <Icon name="spark" size="xs" />}<Swap key={finding ? 'f' : 'i'} className={finding ? 'dm-shim' : undefined}>{askLabel}</Swap></button>}
       </div>
       <div ref={daysRow} className="dm-ecx-days" role="group" aria-label="Day">
         {Array.from({ length: days }, (_, d) => {
@@ -547,7 +572,7 @@ export function EventCalendar({
           <div key={scans} className={cx('dm-ecx-scan', scans > 0 && 'dm-go')} />
         </div>
       </div>
-      <div ref={pop} className={cx('dm-ecx-pop', open && 'dm-open')} role="dialog" aria-label="Event" inert={!open} style={place}
+      <div ref={pop} className={cx('dm-ecx-pop dm-mx-pop', open && 'dm-open')} role="dialog" aria-label="Event" inert={!open} style={place}
         onFocus={() => { inPop.current = true; }} onBlur={f => { if (!pop.current?.contains(f.relatedTarget as Node)) inPop.current = false; }}>
         {card && <Details key={`${card.id}:${runs}`} event={card} onClose={close} onSave={v => save(card, v)} onDiscard={() => remove(card.id)} onPrepNotes={onPrepNotes} onJoin={onJoin} />}
       </div>

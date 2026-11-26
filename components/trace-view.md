@@ -305,7 +305,7 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
         <span className="dm-trv-sc">{labels.map(v => <span key={v} style={{ left: `${(v / span) * 100}%` }}>{v}s</span>)}</span>
         <span className="dm-trv-tk">Tokens</span><span className="dm-trv-ms">Time</span>
       </div>
-      <div ref={rows} className={cx('dm-trv-rows', sel && 'dm-sel')} role="group" aria-label="Spans" onKeyDown={onKey}>
+      <div ref={rows} className={cx('dm-trv-rows dm-mx-glide', sel && 'dm-sel')} role="group" aria-label="Spans" onKeyDown={onKey}>
         {shown.map(row => {
           const { s, lv } = row;
           const [kind, icon, col] = KIND[s.kind], w = took(s), tk = tokensOf(s), run = running(s), sl = slow(s);
@@ -330,11 +330,11 @@ export function TraceView({ title, spans, time, axis, slowAfter = 2, status, sel
       </div>
       <Fold open={!!sel} className="dm-trv-dt">
         {cur && (
-          <div key={cur.id} className="dm-trv-dc dm-enter" role="region" aria-label="Span details">
+          <div key={cur.id} className="dm-trv-dc dm-mx-rows dm-mx-play" role="region" aria-label="Span details">
             <div className="dm-trv-dh">
               <span className="dm-trv-k" style={{ '--dm-k': KIND[cur.kind][2] } as CSSProperties}><Icon name={KIND[cur.kind][1]} size="xs" /></span>
               <b>{cur.name}</b>{slow(cur) && <span className="dm-tag dm-warn">slow</span>}
-              <Tip label="Close"><button type="button" className="dm-ib dm-trv-x" aria-label="Close details" onClick={e => close(e.currentTarget.contains(document.activeElement))}><Icon name="x" /></button></Tip>
+              <Tip label="Close"><button type="button" className="dm-ib dm-trv-x dm-mx-press" aria-label="Close details" onClick={e => close(e.currentTarget.contains(document.activeElement))}><Icon name="x" /></button></Tip>
             </div>
             <div className="dm-trv-pos" aria-hidden="true" style={{ '--dm-k': KIND[cur.kind][2] } as CSSProperties}>
               <i style={{ left: `${(cur.start / span) * 100}%`, width: `${(took(cur) / span) * 100}%` }} />

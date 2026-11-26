@@ -255,14 +255,63 @@ function grow(el){
   const w = document.createElement('div'); w.className = 'dm-grow';
   while (el.firstChild) w.appendChild(el.firstChild);
   el.appendChild(w); el.classList.add('growing');
+  const stop = growFit(el, w);
+  return el._grow = () => { stop(); el._grow = null; el.classList.remove('growing'); };
+}
+/* growFit(): how a grow() box keeps its height, in one smooth motion (owner, 26 Nov: "no jittering and jagged motion when the
+   components jump up and down"). The box is always as tall as its content (the wrapper w) plus an offset that springs to
+   nothing, set in the same frame the content changes, so the box's edges, the content and its place in the stage (which
+   centres it) move together:
+   - content that eases its own height (a fold opening, a row opening its height, a status line's max-height: a running
+     transition or animation of a size inside it) is followed frame by frame, on the content's own curve. A box that eased
+     after it instead lagged behind and restarted its ease every frame, so the rows under a fold went down and then back up as
+     the stage re-centred the card, and spilled past its edge
+   - content that changes at once (rows drawn, a question swapped) keeps the height on screen and springs to the new one: a
+     critically damped spring, which never overshoots and carries its speed into a change that lands mid-way, so quick
+     changes never stutter or start over
+   Heights are the wrapper's layout box (the ResizeObserver's border box), unrounded and untouched by an entrance's scale.
+   Timing: --grow-t (.55s; an .mx-grow box takes the motion pieces' --t-in × 1.4); 0s only follows, as reduced motion does.
+   The offset is --grow-d on the box, which a foot marked .mx-foot rides, so it stays on the box's bottom edge */
+const GROW_SIZING = /^(all|height|min-height|max-height|block-size|min-block-size|max-block-size|grid-template-rows|grid-auto-rows|margin|margin-top|margin-bottom|margin-block(-start|-end)?|padding|padding-top|padding-bottom|padding-block(-start|-end)?|gap|row-gap|line-height|font-size|flex|flex-basis|flex-grow|border-width|border-top-width|border-bottom-width)$/;
+function sizingIn(w){
+  for (const a of w.getAnimations({ subtree:true })){
+    if (a.playState === 'finished' || a.playState === 'idle' || !a.effect || a.effect.pseudoElement) continue;
+    const ps = typeof a.transitionProperty === 'string' ? [a.transitionProperty] : a.effect.getKeyframes ? a.effect.getKeyframes().flatMap(k => Object.keys(k)) : [];
+    if (ps.some(p => GROW_SIZING.test(p.replace(/[A-Z]/g, ch => '-' + ch.toLowerCase())))) return true;
+  }
+  return false;
+}
+function growFit(el, w){
+  let H = null, d = 0, v = 0, raf = 0, last = 0;
   const box = () => { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
-  let first = true;
-  // the wrapper's layout height (offsetHeight), not its box on screen, so an entrance that scales the card (.98 in Clean)
-  // never leaves it short
-  const fit = () => { const h = Math.ceil(w.offsetHeight + box());
-    if (first){ el.style.transition = 'none'; el.style.height = h + 'px'; void el.offsetHeight; el.style.transition = ''; first = false; } else el.style.height = h + 'px'; };
-  const ro = new ResizeObserver(fit); ro.observe(w); fit();
-  return el._grow = () => { ro.disconnect(); el._grow = null; el.style.height = ''; el.classList.remove('growing'); };
+  const dur = () => REDUCE ? 0 : el.classList.contains('mx-grow') && !el.closest('.ahx') ? mxT(el, '--t-in', 360) * 1.4 : mxT(el, '--grow-t', 550);
+  const put = () => { el.style.height = Math.max(0, H + box() + d) + 'px'; el.style.setProperty('--grow-d', d.toFixed(2) + 'px'); };
+  // the spring, solved exactly for each frame's step (stiffness from the duration: settled within it, 92% there halfway)
+  const step = now => {
+    raf = 0; const T = dur() / 1000, dt = Math.min(.064, Math.max(0, (now - last) / 1000)); last = now;
+    if (!T || !el.isConnected){ d = v = 0; put(); return; }
+    const k = 8.4 / T, e = Math.exp(-k * dt), c = v + k * d;
+    d = (d + c * dt) * e; v = (v - k * c * dt) * e;
+    if (Math.abs(d) < .05 && Math.abs(v) < 2){ d = v = 0; put(); return; }
+    put(); raf = requestAnimationFrame(step);
+  };
+  // (vc: the content's own speed while it eases, in px a ms, and tc when it was last measured; a pause of more than three
+  // frames starts a new easing)
+  let vc = null, tc = 0;
+  const ro = new ResizeObserver(es => {
+    const b = es[es.length - 1].borderBoxSize, h = b && b[0] ? b[0].blockSize : w.offsetHeight, t = performance.now();
+    if (H === null || !dur()){ H = h; d = v = 0; vc = null; put(); return; }
+    const dh = h - H, dt = Math.max(1, t - tc); if (Math.abs(dh) < .01) return; H = h; tc = t;
+    // a change made at once keeps the height on screen and springs from it; a content's own easing is followed as it goes.
+    // While it eases, a step far from its speed (a line emptied at once as a fold opens) is a change made at once on top of it
+    let jump = dh; if (dt > 50) vc = null;
+    if (sizingIn(w)){ const e = vc === null ? 0 : dh - vc * dt; jump = Math.abs(e) > Math.max(4, Math.abs(vc * dt)) ? e : 0; vc = (dh - jump) / (vc === null ? 1000 / 60 : dt); }
+    else vc = null;
+    if (jump){ d -= jump; if (!raf){ last = t; raf = requestAnimationFrame(step); } }
+    put();
+  });
+  ro.observe(w);
+  return () => { ro.disconnect(); cancelAnimationFrame(raf); el.style.height = ''; el.style.removeProperty('--grow-d'); };
 }
 /* hoverGlide(): Clean's one hover in a menu or a list (owner, 21 Nov): a single highlight that glides from row to row as the
    pointer moves, and fades in as the pointer enters the list and out as it leaves. It follows the keyboard too: the row with
@@ -597,7 +646,7 @@ document.addEventListener('click', e => { const b = e.target.closest && e.target
 const DM = {
   defs:{},
   // agents at work: their demos keep playing while a mouse rests on them, instead of holding (see mount)
-  PLAYS:new Set(['status-pill','toast','step-loader','thinking','reasoning-trail','agent-lanes','agent-run-timeline','trace-view','agent-tree','terminal-stream','browser-session','attachment-tray','progress','web-search','thinking-states','run-drawer','live-answer','harness','response-versions','memory-panel','tool-connections','knowledge-sources','scheduled-runs','event-calendar','form','comments']),
+  PLAYS:new Set(['status-pill','toast','toast-stack','step-loader','thinking','reasoning-trail','agent-lanes','agent-run-timeline','trace-view','agent-tree','terminal-stream','browser-session','attachment-tray','progress','web-search','thinking-states','run-drawer','live-answer','harness','response-versions','memory-panel','tool-connections','knowledge-sources','scheduled-runs','event-calendar','form','comments']),
   def(id, fn){ this.defs[id] = fn; },
   /* the markup a card starts from: its <template>, or, when the markup is written out in its stage, what the stage holds
      before it first mounts, kept as a template so Replay starts from it again */
@@ -1081,7 +1130,7 @@ DM.def('agent-tree', (r, c) => {
   const build = n => {
     const who = n.app ? `<span class="atr-av app" aria-hidden="true">${BRAND[n.app]}</span>` : `<span class="atr-av${n.av || !n.lv ? '' : ' app'}" aria-hidden="true"${n.av ? ` style="--a:var(--av-${n.av});--ai:var(--av-${n.av}-ink)"` : ''}>${I(n.ic, 'xs')}</span>`;
     const m = n.lv ? n.s : 'src';
-    n.el = html(`<div class="atr-n" role="treeitem" aria-level="${n.lv + 1}" aria-selected="false" tabindex="${n.lv ? -1 : 0}" data-id="${n.id}" data-s="${n.s}" style="--lv:${n.lv}"><div class="atr-b"><div class="atr-r"><span class="atr-g" data-m="${m}" aria-hidden="true">${atrMark(m)}</span>${who}<span class="atr-w"><span class="atr-tx"><span class="atr-nm"></span>${n.kids.length ? `<span class="atr-tg" aria-hidden="true">${I('chev-d', 'xs')}</span>` : ''}<span class="atr-sub"></span></span><span class="atr-q num"><span class="atr-c"></span></span></span></div></div></div>`);
+    n.el = html(`<div class="atr-n" role="treeitem" aria-level="${n.lv + 1}" aria-selected="false" tabindex="${n.lv ? -1 : 0}" data-id="${n.id}" data-s="${n.s}" style="--lv:${n.lv}"><div class="atr-b"><div class="atr-r"><span class="atr-g" data-m="${m}" aria-hidden="true">${atrMark(m)}</span>${who}<span class="atr-w"><span class="atr-tx"><span class="atr-nm"></span>${n.kids.length ? `<span class="atr-tg mx-press" aria-hidden="true">${I('chev-d', 'xs')}</span>` : ''}<span class="atr-sub"></span></span><span class="atr-q num"><span class="atr-c"></span></span></span></div></div></div>`);
     $('.atr-nm', n.el).textContent = n.n; $('.atr-sub', n.el).textContent = n.t;
     n.tg = $('.atr-tg', n.el); if (n.tg) n.tg.hidden = true;
     if (n.kids.length){ n.fold = html('<div class="fold atr-kids"><div role="group"></div></div>'); n.kids.forEach(k => n.fold.firstElementChild.appendChild(build(k))); n.el.appendChild(n.fold); }
@@ -1322,7 +1371,7 @@ DM.def('agent-tree', (r, c) => {
   const ATR_COST = `<div class="atr atr-ct panel" data-s="run">
     ${ATR_HEAD('<b class="atr-t">Redesign the pricing page</b>')}
     <div class="atr-ct-mix" aria-hidden="true"></div>
-    <div class="atr-tree" role="tree" aria-label="Agents"><svg class="atr-ln" aria-hidden="true"></svg></div>
+    <div class="atr-tree mx-glide" role="tree" aria-label="Agents"><svg class="atr-ln" aria-hidden="true"></svg></div>
     <p class="atr-sr" role="status"></p>
   </div>`;
   function atrCost(r, c){
@@ -1331,7 +1380,7 @@ DM.def('agent-tree', (r, c) => {
     let M, L, head;
     const here = n => !n.late, under = n => n.kids.filter(here);
     function build(n){
-      n.el = html(`<div class="atr-n" role="treeitem" aria-level="${n.lv + 1}" aria-selected="false" tabindex="${n.lv ? -1 : 0}" data-id="${n.id}" data-s="${n.s}" style="--lv:${n.lv};--k:var(--k${n.k})"><div class="atr-b"><div class="atr-r">${atrG(atrM(n))}${atrWho(n)}<span class="atr-w"><span class="atr-tx"><span class="atr-nm"></span>${n.kids.length ? `<span class="atr-tg" aria-hidden="true">${I('chev-d', 'xs')}</span>` : ''}<span class="atr-sub"></span></span><span class="atr-q num"><span class="atr-c"></span><i class="atr-ct-bar" aria-hidden="true"><span></span></i></span></span></div></div></div>`);
+      n.el = html(`<div class="atr-n" role="treeitem" aria-level="${n.lv + 1}" aria-selected="false" tabindex="${n.lv ? -1 : 0}" data-id="${n.id}" data-s="${n.s}" style="--lv:${n.lv};--k:var(--k${n.k})"><div class="atr-b"><div class="atr-r">${atrG(atrM(n))}${atrWho(n)}<span class="atr-w"><span class="atr-tx"><span class="atr-nm"></span>${n.kids.length ? `<span class="atr-tg mx-press" aria-hidden="true">${I('chev-d', 'xs')}</span>` : ''}<span class="atr-sub"></span></span><span class="atr-q num"><span class="atr-c"></span><i class="atr-ct-bar" aria-hidden="true"><span></span></i></span></span></div></div></div>`);
       $('.atr-nm', n.el).textContent = n.n; $('.atr-sub', n.el).textContent = n.t;
       if (n.kids.length){ n.el.setAttribute('aria-expanded', 'true'); n.fold = html('<div class="fold atr-kids"><div role="group"></div></div>'); n.kids.forEach(k => n.fold.firstElementChild.appendChild(build(k))); n.el.appendChild(n.fold); }
       if (n.late) n.el.hidden = true;
@@ -1715,13 +1764,14 @@ DM.def('trace-view', (r, c) => {
     if (!x) return;
     x.el.setAttribute('aria-expanded', 'true');
     const [kind, icon, col] = K[x.k];
-    dc.innerHTML = `<div class="trv-dh"><span class="trv-k" style="--k:${col}">${I(icon,'xs')}</span><b>${x.n}</b>${x.slow ? '<span class="tag warn">slow</span>' : ''}<button class="ib trv-x" aria-label="Close details" data-tip="Close">${I('x')}</button></div>
+    dc.innerHTML = `<div class="trv-dh"><span class="trv-k" style="--k:${col}">${I(icon,'xs')}</span><b>${x.n}</b>${x.slow ? '<span class="tag warn">slow</span>' : ''}<button class="ib trv-x mx-press" aria-label="Close details" data-tip="Close">${I('x')}</button></div>
       <div class="trv-pos" aria-hidden="true" style="--k:${col}"><i style="left:${x.s / SPAN * 100}%"></i></div>
       <div class="trv-kv"><div><span>Kind</span><b>${kind}</b></div><div><span>Starts at</span><b class="num">${sec(x.s)}</b></div><div><span>Latency</span><b class="num trv-lt"></b></div><div><span>Tokens</span><b class="num trv-tn"></b></div></div>
       <div class="trv-io"><span>Input</span><code>${x.in}</code><span>Output</span><code class="out"></code></div>`;
     // closing hands focus back to the span, if it was inside the details
     $('.trv-x', dc).onclick = () => { const el = sel.el, back = dc.contains(document.activeElement); open(null); if (back) el.focus({ preventScroll:true }); };
-    fill(); enter(dc);
+    // (its parts settle one after another as it opens: .mx-rows on the card, motion pieces)
+    fill();
   }
   function fill(){
     const x = sel, done = T >= x.s + x.d;
@@ -1788,6 +1838,12 @@ DM.def('run-cost', (r, c) => {
   c.auto(1500, () => { if (!running && !used) go.click(); });
 });
 /* ---------- Agent lanes ---------- */
+// Pause and Resume: the icon crossfades and the words ease the pill to their width (motion pieces, 26 Nov)
+function alnPause(b, on, word){
+  const ic = $('.mx-icon', b), w = $('.aln-pl', b);
+  if (!ic || !w){ b.innerHTML = I(on ? 'play' : 'pause','xs') + (on ? 'Resume' : word); return; }
+  iconSwap(ic, () => { ic.innerHTML = I(on ? 'play' : 'pause','xs'); }, { inner:true }); swap(w, on ? 'Resume' : word);
+}
 DM.def('agent-lanes', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{users}', I('users')).replace('{pause}', I('pause','xs'));
   // each agent has a hue of its own (t names the palette slot): its badge, its track, its tag and its stretch of the relay line
@@ -1798,7 +1854,7 @@ DM.def('agent-lanes', (r, c) => {
   ];
   const root = $('.aln', r), rows = $('.aln-rows', r), ct = $('.aln-ct', r), say = $('.aln-say', r), STEPS = L.length * 3;
   L.forEach(l => {
-    l.el = html(`<div class="aln-lane" data-s="queued" style="--c:var(--${l.t});--cb:var(--${l.t}-bg);--cm:var(--aln-${l.t},var(--${l.t}))"><button class="aln-row" aria-expanded="false"><span class="aln-av">${I(l.ic)}</span><span class="aln-who"><span class="aln-n">${l.n}</span><span class="aln-a">${l.wait || 'Queued'}</span></span><span class="aln-tr" aria-hidden="true"><i></i><i></i><i></i></span><span class="aln-st"><span class="tag">Queued</span></span></button><div class="fold shut"><div><div class="aln-det"></div></div></div></div>`);
+    l.el = html(`<div class="aln-lane" data-s="queued" style="--c:var(--${l.t});--cb:var(--${l.t}-bg);--cm:var(--aln-${l.t},var(--${l.t}))"><button class="aln-row mx-press" aria-expanded="false"><span class="aln-av">${I(l.ic)}</span><span class="aln-who"><span class="aln-n">${l.n}</span><span class="aln-a">${l.wait || 'Queued'}</span></span><span class="aln-tr" aria-hidden="true"><i></i><i></i><i></i></span><span class="aln-st"><span class="tag">Queued</span></span></button><div class="fold shut"><div><div class="aln-det"></div></div></div></div>`);
     rows.appendChild(l.el); const b = $('.aln-row', l.el), f = $('.fold', l.el);
     b.onclick = () => { const s = f.classList.toggle('shut'); b.setAttribute('aria-expanded', !s); };
   });
@@ -1819,7 +1875,7 @@ DM.def('agent-lanes', (r, c) => {
   const pb = $('.aln-pause', r);
   // Pause all is the white outlined secondary (owner, 23 Nov); inside Agent harness (Phase II) it keeps its grey one for now
   if (r.closest('.ahx')) pb.classList.replace('line', 'soft');
-  pb.onclick = () => { paused = !paused; pb.innerHTML = I(paused ? 'play' : 'pause','xs') + (paused ? 'Resume' : 'Pause all'); swap($('.aln-t', r), paused ? 'All agents paused' : '3 agents working');
+  pb.onclick = () => { paused = !paused; alnPause(pb, paused, 'Pause all'); swap($('.aln-t', r), paused ? 'All agents paused' : '3 agents working');
     L.forEach(l => { if (l.running){ state(l, paused ? 'paused' : 'working'); $('.aln-a', l.el).classList.toggle('shim', !paused); } }); tell(); };
   c.every(1000, () => { if (!paused && !finished){ secs++; $('.aln-m', r).textContent = clk(); } });
   // time only passes for the agents while they aren't paused; each() hears how far through the wait they are
@@ -1900,7 +1956,7 @@ DM.def('agent-lanes', (r, c) => {
   }
 
   const alnSwTpl = () => `<div class="aln-sw panel keep">
-    <div class="aln-sw-h"><div class="aln-sw-ht"><b class="aln-sw-tt">3 agents working</b><span class="aln-sw-st num">0:00 of 0:12</span></div><span class="aln-sw-key" aria-hidden="true"><span><i class="next"></i>Next</span><span><i class="run"></i>Working</span><span><i class="done"></i>Done</span><span><i class="wait"></i>Waiting</span></span><button class="pill line sm aln-sw-pause" type="button">${I('pause','xs')}Pause</button></div>
+    <div class="aln-sw-h"><div class="aln-sw-ht"><b class="aln-sw-tt">3 agents working</b><span class="aln-sw-st num">0:00 of 0:12</span></div><span class="aln-sw-key" aria-hidden="true"><span><i class="next"></i>Next</span><span><i class="run"></i>Working</span><span><i class="done"></i>Done</span><span><i class="wait"></i>Waiting</span></span><button class="pill line sm aln-sw-pause mx-ic" type="button"><span class="mx-icon">${I('pause','xs')}</span><span class="aln-pl mx-w">Pause</span></button></div>
     <div class="aln-sw-grid">
       <div class="aln-sw-ax num" aria-hidden="true"><span class="aln-sw-ticks"></span></div>
       <div class="aln-sw-rows"></div>
@@ -1965,7 +2021,7 @@ DM.def('agent-lanes', (r, c) => {
       T = Math.min(ALN_END, Math.round(T * 10 + 1) / 10); paint(); text(); fire();
       if (T >= ALN_END){ fin = true; clearInterval(iv); root.classList.add('fin'); swap(tt, 'All 3 agents finished'); pb.hidden = true; text(); }
     });
-    pb.onclick = () => { paused = !paused; root.classList.toggle('paused', paused); pb.innerHTML = I(paused ? 'play' : 'pause','xs') + (paused ? 'Resume' : 'Pause'); swap(tt, paused ? 'All agents paused' : '3 agents working'); text(); };
+    pb.onclick = () => { paused = !paused; root.classList.toggle('paused', paused); alnPause(pb, paused, 'Pause'); swap(tt, paused ? 'All agents paused' : '3 agents working'); text(); };
     // dragging the playhead's time, clicking a lane, or the arrow keys on the playhead look back through the run; Back to
     // now follows the run again
     const seek = v => { v = Math.max(0, Math.min(T, v)); V = v >= T - .05 ? null : v; live.hidden = V === null; paint(); text(); };
@@ -1997,14 +2053,14 @@ DM.def('agent-lanes', (r, c) => {
     let fin = false, ticks = 0;
     A.forEach((a, i) => {
       a.held = false; a.tk = 0; a.spent = 0; a.t = 0; const N = a.steps.length;
-      a.el = html(`<div class="aln-cw-c" data-s="idle" style="--a:var(--av-${a.av});--ai:var(--av-${a.av}-ink)"><div class="aln-cw-top"><span class="aln-cw-av" aria-hidden="true">${I(a.ic)}</span><span class="aln-cw-tx"><b>${a.n}</b><span>Starts soon</span></span><span class="tag aln-cw-tag">Up next</span><span class="aln-cw-acts"><button class="ib aln-cw-hold" type="button" aria-pressed="false" aria-label="Pause ${a.n}" data-tip="Pause this agent">${I('pause','xs')}</button><button class="ib aln-cw-sb" type="button" aria-expanded="false" aria-label="Steer ${a.n}" data-tip="Steer">${I('wand','xs')}</button></span></div><div class="aln-cw-meter"><span class="aln-cw-tr" role="progressbar" aria-label="${a.n}’s steps" aria-valuemin="0" aria-valuemax="${N}" aria-valuenow="0" style="--n:${N}"><span class="aln-cw-ln"><i></i></span>${'<b></b>'.repeat(N)}</span><span class="aln-cw-num"><span><b class="aln-cw-sn">0</b> of ${N} steps</span><span class="aln-cw-tkn"><b class="aln-cw-tk">0</b> tokens</span><b class="aln-cw-cs">$0.00</b></span></div><div class="fold shut"><div><form class="aln-cw-steer"><input aria-label="A note for the ${a.n.toLowerCase()}" placeholder="Tell the ${a.n.toLowerCase()} what to change"><button class="ib aln-cw-go" type="submit" aria-label="Send" data-tip="Send" disabled>${I('send','xs')}</button></form></div></div><div class="aln-cw-nts"></div></div>`);
+      a.el = html(`<div class="aln-cw-c" data-s="idle" style="--a:var(--av-${a.av});--ai:var(--av-${a.av}-ink)"><div class="aln-cw-top"><span class="aln-cw-av" aria-hidden="true">${I(a.ic)}</span><span class="aln-cw-tx"><b>${a.n}</b><span>Starts soon</span></span><span class="tag aln-cw-tag">Up next</span><span class="aln-cw-acts"><button class="ib aln-cw-hold mx-ic mx-press" type="button" aria-pressed="false" aria-label="Pause ${a.n}" data-tip="Pause this agent">${I('pause','xs')}</button><button class="ib aln-cw-sb mx-press" type="button" aria-expanded="false" aria-label="Steer ${a.n}" data-tip="Steer">${I('wand','xs')}</button></span></div><div class="aln-cw-meter"><span class="aln-cw-tr" role="progressbar" aria-label="${a.n}’s steps" aria-valuemin="0" aria-valuemax="${N}" aria-valuenow="0" style="--n:${N}"><span class="aln-cw-ln"><i></i></span>${'<b></b>'.repeat(N)}</span><span class="aln-cw-num"><span><b class="aln-cw-sn">0</b> of ${N} steps</span><span class="aln-cw-tkn"><b class="aln-cw-tk">0</b> tokens</span><b class="aln-cw-cs">$0.00</b></span></div><div class="fold shut"><div><form class="aln-cw-steer"><input aria-label="A note for the ${a.n.toLowerCase()}" placeholder="Tell the ${a.n.toLowerCase()} what to change"><button class="ib aln-cw-go" type="submit" aria-label="Send" data-tip="Send" disabled>${I('send','xs')}</button></form></div></div><div class="aln-cw-nts"></div></div>`);
       list.appendChild(a.el);
       a.tr = $('.aln-cw-tr', a.el); a.ln = $('.aln-cw-ln i', a.el); a.dots = $$('.aln-cw-tr b', a.el); a.sn = $('.aln-cw-sn', a.el); a.tkEl = $('.aln-cw-tk', a.el); a.csEl = $('.aln-cw-cs', a.el);
       // no hand-off row between the cards (owner, 18 Nov): each waiting card already says what it waits for
       const hold = $('.aln-cw-hold', a.el), sb = $('.aln-cw-sb', a.el), fold = $('.fold', a.el), form = $('.aln-cw-steer', a.el), inp = $('input', form), go = $('.aln-cw-go', form);
       inp.oninput = () => { go.disabled = !inp.value.trim(); };
       fold.inert = true;
-      hold.onclick = () => { a.held = !a.held; hold.setAttribute('aria-pressed', String(a.held)); hold.innerHTML = I(a.held ? 'play' : 'pause','xs'); hold.dataset.tip = a.held ? 'Resume this agent' : 'Pause this agent'; hold.setAttribute('aria-label', (a.held ? 'Resume ' : 'Pause ') + a.n); paint(a); };
+      hold.onclick = () => { a.held = !a.held; hold.setAttribute('aria-pressed', String(a.held)); iconSwap(hold, () => { hold.innerHTML = I(a.held ? 'play' : 'pause','xs'); }, { inner:true }); hold.dataset.tip = a.held ? 'Resume this agent' : 'Pause this agent'; hold.setAttribute('aria-label', (a.held ? 'Resume ' : 'Pause ') + a.n); paint(a); };
       // the note's field takes the focus only when you open it yourself; the demo never moves your focus
       sb.onclick = e => { const on = sb.getAttribute('aria-expanded') !== 'true'; sb.setAttribute('aria-expanded', String(on)); fold.classList.toggle('shut', !on); fold.inert = !on; if (on && e.isTrusted) requestAnimationFrame(() => inp.focus({ preventScroll:true })); };
       // the note shows once its field has shut, so the card never holds both at once
@@ -2104,7 +2160,7 @@ DM.def('live-answer', (r, c) => {
       else p.insertAdjacentHTML('beforeend', `<span class="w">${tok} </span>`);
       await c.wait(55 + Math.random() * 45);
     }
-    const src = html(`<div class="lva-src"><span class="lva-acts"><button class="ib" aria-label="Copy" data-tip="Copy">${I('copy')}</button><button class="ib" aria-label="Good answer" data-tip="Good answer">${I('up-thumb')}</button><button class="ib" aria-label="Bad answer" data-tip="Bad answer">${I('down-thumb')}</button><button class="ib" aria-label="Try again" data-tip="Try again">${I('refresh')}</button></span><button class="lva-sb" aria-expanded="false"><span class="lva-fav">${S.map(x => `<span class="vivid" style="background-color:${x[2]}">${x[1]}</span>`).join('')}</span>3 sources${I('chev-d','xs')}</button></div>`);
+    const src = html(`<div class="lva-src"><span class="lva-acts mx-ic"><button class="ib mx-press" aria-label="Copy" data-tip="Copy">${I('copy')}</button><button class="ib mx-press" aria-label="Good answer" data-tip="Good answer">${I('up-thumb')}</button><button class="ib mx-press" aria-label="Bad answer" data-tip="Bad answer">${I('down-thumb')}</button><button class="ib mx-press" aria-label="Try again" data-tip="Try again">${I('refresh')}</button></span><button class="lva-sb" aria-expanded="false"><span class="lva-fav">${S.map(x => `<span class="vivid" style="background-color:${x[2]}">${x[1]}</span>`).join('')}</span>3 sources${I('chev-d','xs')}</button></div>`);
     const ls = html(`<div class="fold shut lva-ls"><div><div class="lva-ll">${S.map(x => `<button class="lva-s" data-n="${x[0]}"><span class="n">${x[0]}</span><span class="t">${x[3]}</span><span class="d">${x[4]}</span>${I('ext','xs')}</button>`).join('')}</div></div></div>`);
     turn.appendChild(src); turn.appendChild(ls); enter(src);
     const sb = $('.lva-sb', src), open = o => { ls.classList.toggle('shut', !o); sb.setAttribute('aria-expanded', o); };
@@ -2152,16 +2208,18 @@ DM.def('composer', (r, c) => {
   const ATT = { file:['file-text','Spacing notes.pdf'], figma:['figma','Pricing / Desktop'], shot:['image','Screenshot 10.42'] };
   let figmaTries = 0;
   function load(ch, kind){
-    const a = ATT[kind]; ch.className = 'fchip ld'; $('.ic', ch).innerHTML = '<span class="spin"></span>'; swap($('.n', ch), a[1]); const rt = $('.rt', ch); if (rt) rt.remove(); sync();
+    const a = ATT[kind], ic0 = $('.ic', ch), sp = () => { ic0.innerHTML = '<span class="spin"></span>'; }; ch.className = 'fchip ld'; if (ic0.firstElementChild) iconSwap(ic0, sp, { inner:true }); else sp(); swap($('.n', ch), a[1]); const rt = $('.rt', ch); if (rt) rt.remove(); sync();
     const fail = kind === 'figma' && figmaTries++ === 0;
     c.later(1000, () => { if (!ch.isConnected) return;
-      if (fail){ ch.className = 'fchip err'; $('.ic', ch).innerHTML = I('alert','xs'); swap($('.n', ch), a[1] + " can't be opened");
+      // (the spinner and the file's icon, or the alert, crossfade: iconSwap(), motion pieces)
+      const ic = $('.ic', ch);
+      if (fail){ ch.className = 'fchip err'; iconSwap(ic, () => { ic.innerHTML = I('alert','xs'); }, { inner:true }); swap($('.n', ch), a[1] + " can't be opened");
         const b = html(`<button class="rt" aria-label="Try again" data-tip="Try again">${I('refresh','xs')}</button>`); $('.x', ch).before(b); b.onclick = () => load(ch, kind); }
-      else { ch.className = 'fchip'; $('.ic', ch).innerHTML = I(a[0],'xs'); enter($('.ic', ch).firstElementChild); }
+      else { ch.className = 'fchip'; iconSwap(ic, () => { ic.innerHTML = I(a[0],'xs'); }, { inner:true }); }
       sync(); });
   }
   function add(kind){
-    const a = ATT[kind], ch = html(`<span class="fchip"><span class="ic" style="display:grid"></span><span class="n">${a[1]}</span><button class="x" aria-label="Remove ${a[1]}">${I('x','xs')}</button></span>`);
+    const a = ATT[kind], ch = html(`<span class="fchip"><span class="ic" style="display:grid"></span><span class="n mx-w">${a[1]}</span><button class="x" aria-label="Remove ${a[1]}">${I('x','xs')}</button></span>`);
     att.appendChild(ch); enter(ch);
     $('.x', ch).onclick = () => { ch.classList.add('leave'); c.later(300, () => { ch.remove(); sync(); }); };
     load(ch, kind);
@@ -2170,7 +2228,8 @@ DM.def('composer', (r, c) => {
   /* what the agent works on, and what it may do: a menu each, the chip shows the pick */
   const pick = (menu, chip, name, key) => $$(menu + ' .mi', r).forEach(b => b.onclick = () => {
     $$(menu + ' .mi', r).forEach(x => x.setAttribute('aria-checked', x === b));
-    const ch = $(chip, r); ch.firstElementChild.outerHTML = I(b.dataset.ic); swap($(name, ch), b.dataset[key]);
+    // (the chip's icon crossfades to the new one, iconSwap(), and its box eases to the new words' width, .mx-w: motion pieces)
+    const ch = $(chip, r), ic = ch.firstElementChild, u = $('use', ic); if (u){ const h = $('use', html(I(b.dataset.ic))).getAttribute('href'); iconSwap(ic, () => u.setAttribute('href', h)); } else ic.outerHTML = I(b.dataset.ic); swap($(name, ch), b.dataset[key]);
   });
   pick('.pp-ctx', '.cpx-ctx', '.cpx-ctx-n', 'ctx');
   pick('.pp-mode', '.cpx-mode', '.cpx-mode-n', 'mode');
@@ -2241,7 +2300,7 @@ DM.def('attachment-tray', (r, c) => {
   // a file uploads (its row fills with its hue and its ring closes), then the agent reads it and says what it found
   function add(name, bytes, i = 0, found){
     const k = kind(name), sz = size(bytes);
-    const it = html(`<div class="atx-it" style="--c:${k[1]};--cb:${k[2]}"><span class="atx-ti">${k[0]}</span><span class="atx-n"><span class="atx-nm">${esc(name)}</span><span class="atx-m"><span>${sz} · <span class="num pc">0%</span></span></span></span><svg class="atx-ring" viewBox="0 0 22 22" role="progressbar" aria-label="Uploading ${esc(name).replace(/"/g, '&quot;')}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><circle cx="11" cy="11" r="8" fill="none" stroke="var(--line)" stroke-width="2"/><circle cx="11" cy="11" r="8" fill="none" stroke="${k[1]}" stroke-width="2" stroke-linecap="round" stroke-dasharray="50.3" stroke-dashoffset="50.3" transform="rotate(-90 11 11)"/></svg><button class="ib" aria-label="Remove ${esc(name).replace(/"/g, '&quot;')}" data-tip="Remove">${I('x','xs')}</button>${clean ? '<span class="atx-ln" aria-hidden="true"><i></i></span>' : ''}</div>`);
+    const it = html(`<div class="atx-it" style="--c:${k[1]};--cb:${k[2]}"><span class="atx-ti">${k[0]}</span><span class="atx-n"><span class="atx-nm">${esc(name)}</span><span class="atx-m"><span>${sz} · <span class="num pc">0%</span></span></span></span><svg class="atx-ring" viewBox="0 0 22 22" role="progressbar" aria-label="Uploading ${esc(name).replace(/"/g, '&quot;')}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><circle cx="11" cy="11" r="8" fill="none" stroke="var(--line)" stroke-width="2"/><circle cx="11" cy="11" r="8" fill="none" stroke="${k[1]}" stroke-width="2" stroke-linecap="round" stroke-dasharray="50.3" stroke-dashoffset="50.3" transform="rotate(-90 11 11)"/></svg><button class="ib mx-press" aria-label="Remove ${esc(name).replace(/"/g, '&quot;')}" data-tip="Remove">${I('x','xs')}</button>${clean ? '<span class="atx-ln" aria-hidden="true"><i></i></span>' : ''}</div>`);
     list.appendChild(it); enter(it, i * 80);
     $('.ib', it).onclick = () => { it.classList.add('leave'); setTimeout(() => it.remove(), 320); };
     const svg = $('.atx-ring', it), ring = $$('circle', it)[1], m = $('.atx-m', it); let p = 0;
@@ -2539,7 +2598,7 @@ DM.def('response-versions', (r, c) => {
   // no room kept for a longer answer, in every style (owner, 18 Nov). The component grows with its words (grow(), once its
   // entrance has settled), and a version streaming in keeps the height of the one it replaces, then eases to its own
   const rvx = $('.rvx', r);
-  Promise.resolve().then(() => Promise.all(rvx.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && rvx.isConnected) c.offs.push(grow(rvx)); });
+  const growing = Promise.resolve().then(() => Promise.all(rvx.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && rvx.isConnected) c.offs.push(grow(rvx)); });
   const keep = () => { if (t.textContent.trim()) t.style.minHeight = t.offsetHeight + 'px'; };
   const fit = () => { if (!t.style.minHeight) return; const was = t.offsetHeight; t.style.minHeight = ''; const h = t.offsetHeight; if (h >= was || REDUCE) return;
     t.style.minHeight = was + 'px'; void t.offsetHeight; t.style.transition = 'min-height var(--t) var(--ease)'; t.style.minHeight = h + 'px';
@@ -2558,7 +2617,8 @@ DM.def('response-versions', (r, c) => {
       await stream(s); busy = false; nav(); st.classList.remove('shim'); swap(st, ''); }); };
   const cp = $('.rvx-cp', r);
   cp.onclick = () => copied(cp, vers[cur]);
-  c.run(async () => { busy = true; nav(); await c.wait(300); await stream(vers[0]); busy = false; nav();
+  // (the first version starts once grow() has the component, so its first lines ease it open rather than jump it, motion pieces)
+  c.run(async () => { busy = true; nav(); await c.wait(300); await growing; await stream(vers[0]); busy = false; nav();
     // then one regenerate plays by itself, so the version count and arrows show what they do, unless you have taken over
     await c.step(1900); if (vers.length === 1) re.click(); });
 });
@@ -2575,13 +2635,13 @@ DM.def('feedback-sheet', (r, c) => {
   ta.oninput = ready;
   up.onclick = () => { const on = !up.classList.contains('on'); up.classList.toggle('on', on); dn.classList.remove('on'); box.classList.add('shut'); swap(st, on ? 'Thanks, noted' : ''); };
   // the demo opens the sheet without taking the focus from wherever you are on the page
-  const down = focus => { const on = !dn.classList.contains('on'); dn.classList.toggle('on', on); up.classList.remove('on'); box.classList.toggle('shut', !on); swap(st, ''); if (on && focus) c.later(350, () => ta.focus({ preventScroll:true })); };
+  // (as the sheet opens, its question, its reasons and the box rise in one after another: mxIn(), motion pieces)
+  const down = focus => { const on = !dn.classList.contains('on'); dn.classList.toggle('on', on); up.classList.remove('on'); box.classList.toggle('shut', !on); swap(st, ''); if (on) mxIn([$('.fbx-q', r), ...chips, ta], { base:60 }); if (on && focus) c.later(350, () => ta.focus({ preventScroll:true })); };
   dn.onclick = e => down(e.isTrusted);
   $('.fbx-x', r).onclick = () => { box.classList.add('shut'); dn.classList.remove('on'); };
   go.onclick = () => c.run(async () => {
     // the button is as wide as what it shows, and eases to the spinner's width
-    const w0 = go.offsetWidth; go.innerHTML = '<span class="spin"></span>'; const w1 = go.offsetWidth;
-    if (!REDUCE && w0 !== w1) go.animate([{ width:w0 + 'px' }, { width:w1 + 'px' }], { duration:220, easing:'cubic-bezier(.23,1,.32,1)' });
+    const w0 = go.offsetWidth; go.innerHTML = '<span class="spin"></span>'; if (!REDUCE) mxWidth(go, w0);
     await c.wait(800);
     box.classList.add('shut'); await c.wait(300);
     const n = chips.filter(x => x.classList.contains('on')).length;
@@ -2705,9 +2765,17 @@ DM.def('answer-action-bar', (r, c) => {
     const s = (i ? `<span${inner ? ' class="nw"' : ''}> </span>` : '') + `<span class="w${on ? ' nw' : ''}">${w.replace(/\[\[|\]\]/g, '')}</span>`; if (b) on = false; return s; }); };
   // the tone changes with the words: the words fading out keep their colour, and the new ones arrive in theirs (swap()
   // writes them 170ms on)
-  const status = (text, tone) => { clearTimeout(st._tone); const set = () => { st.classList.toggle('warn', tone === 'warn'); st.classList.toggle('ok', tone === 'ok'); };
+  // The line opens and closes on its own height at the same moment as the reasons (owner, 26 Nov: no jumping up and down): an
+  // empty line takes its words at once rather than after swap()'s fade, and a line that empties eases shut with its words still
+  // in it, then lets them go
+  const status = (text, tone) => { clearTimeout(st._tone); clearTimeout(st._off); const set = () => { st.classList.toggle('warn', tone === 'warn'); st.classList.toggle('ok', tone === 'ok'); };
+    const had = !!st.textContent.trim() && !st.classList.contains('off');
+    if (st._sw && (!text || !had)){ clearTimeout(st._sw.t); st._sw = null; st.classList.remove('out'); }
+    if (!text){ if (!st.textContent.trim()){ st.classList.remove('off'); return; } st.classList.add('off'); st._off = setTimeout(() => { st.textContent = ''; st.classList.remove('off', 'warn', 'ok'); }, REDUCE ? 0 : mxT(st, '--t', 450)); return; }
+    st.classList.remove('off');
     if (tone === 'ok') { set(); st.innerHTML = `${I('ok','xs')}<span>${text}</span>`; enter(st); return; }
-    const lag = !REDUCE && !!st.textContent.trim() && st.textContent !== text; swap(st, text); if (lag) st._tone = setTimeout(set, 170); else set(); };
+    if (!had){ set(); st.textContent = text; mxIn(st); return; }
+    const lag = !REDUCE && st.textContent !== text; swap(st, text); if (lag) st._tone = setTimeout(set, 170); else set(); };
   function nav(){
     n.textContent = (cur + 1) + ' / ' + vers.length; pg.classList.toggle('on', vers.length > 1); pg.inert = vers.length < 2;
     pv.disabled = cur === 0 || busy; nx.disabled = cur === vers.length - 1 || busy; re.disabled = busy;
@@ -2842,7 +2910,7 @@ DM.def('permission-gate', (r, c) => {
   const F = ['Hero', 'Plan cards', 'Compare table', 'FAQ', 'Plan toggle', 'Checkout summary'], LIB = 4;
   let granted = 0, publish = false, skip = false, done = 0, run = 0, panel = null;
   function row(){
-    panel = html(`<div class="pgx-done run"><span class="g"><span class="spin"></span></span><span class="t"><b class="pgx-a"></b><span class="pgx-d"></span></span><button class="pill line sm">Revoke</button></div>`);
+    panel = html(`<div class="pgx-done run"><span class="g"><span class="spin"></span></span><span class="t"><b class="pgx-a"></b><span class="pgx-d"></span></span><button class="pill line sm mx-press">Revoke</button></div>`);
     sum(panel, names.join(', '), `${names.length} ${word(names.length)} allowed`);
     into().appendChild(panel); enter(panel); $('button', panel).onclick = revoke;
   }
@@ -2858,7 +2926,8 @@ DM.def('permission-gate', (r, c) => {
         await c.wait(900); if (run !== id) return;
         done++;
       }
-      panel.classList.replace('run', 'ok'); const g = $('.g', panel); g.innerHTML = clean ? I('check') : I('ok'); enter(g);
+      // (the spinner crossfades to the done mark: iconSwap(), motion pieces)
+      panel.classList.replace('run', 'ok'); const g = $('.g', panel); iconSwap(g, () => { g.innerHTML = clean ? I('check') : I('ok'); }, { inner:true });
       swap(a, skip ? `Done. ${F.length - 1} frames edited` : `Done. ${F.length} frames edited`);
       swap(d, skip ? 'On a new page. Plan toggle skipped' : 'On a new page. Plan toggle published');
     });
@@ -2884,14 +2953,14 @@ DM.def('permission-gate', (r, c) => {
     const picked = one() ? [one()] : boxes().filter(b => b.checked).map(b => b.closest('.pgx-o')); if (!picked.length) return;
     granted += picked.length; if (picked.some(o => o.dataset.k === 'publish')) publish = true;
     names.push(...picked.map(o => $('.t', o).firstChild.textContent));
-    ok.innerHTML = '<span class="spin"></span>'; await c.wait(500);
+    { const w0 = ok.offsetWidth; ok.innerHTML = '<span class="spin"></span>'; if (!REDUCE) mxWidth(ok, w0); } await c.wait(500);
     // Clean: the scopes fade up and out before the card eases to the result row's height
     if (clean){ sc.classList.add('leave'); await c.wait(180); sc.classList.remove('leave'); }
     show(false);
     if (root.classList.contains('esc')){ root.classList.remove('esc'); swap(title, first.title); swap(sub, first.sub); }
     // placed inside another component (Agent harness), it reports back without the run
     if (!c.card){ row(); swap($('.pgx-a', panel), `Allowed ${granted} ${granted > 1 ? 'scopes' : 'scope'} ${span()}`); swap($('.pgx-d', panel), 'Applying the pricing fixes now');
-      c.later(1400, () => { if (!panel) return; panel.classList.replace('run', 'ok'); $('.g', panel).innerHTML = clean ? I('check') : I('ok'); swap($('.pgx-d', panel), 'Done. 6 frames edited on a new page'); }); return; }
+      c.later(1400, () => { if (!panel) return; panel.classList.replace('run', 'ok'); const g = $('.g', panel); iconSwap(g, () => { g.innerHTML = clean ? I('check') : I('ok'); }, { inner:true }); swap($('.pgx-d', panel), 'Done. 6 frames edited on a new page'); }); return; }
     work();
   });
   no.onclick = () => {
@@ -2922,7 +2991,7 @@ DM.def('permission-gate', (r, c) => {
   });
 });
 /* ---------- the sections' components, loaded the first time a section comes near (DEF_PARTS in build.js) ---------- */
-const PARTS = {"files":{"s-status":"/assets/v2-status.137a2bfd94.js","s-review":"/assets/v2-review.b963359538.js","s-data":"/assets/v2-data.ad1e3b1e05.js","s-workspace":"/assets/v2-workspace.8b65a1ba4c.js","s-dates":"/assets/v2-dates.b832d0e139.js"},"of":{"status-pill":"s-status","step-loader":"s-status","thinking-states":"s-status","reasoning-trail":"s-status","thinking":"s-status","context-meter":"s-status","toast":"s-status","toast-stack":"s-status","agent-run-timeline":"s-status","decision-prompt":"s-review","plan-review":"s-review","inline-text-diff":"s-review","source-stack":"s-data","terminal-stream":"s-data","citation-hover":"s-data","command-palette":"s-workspace","file-explorer":"s-workspace","run-drawer":"s-workspace","memory-panel":"s-workspace","tool-connections":"s-workspace","knowledge-sources":"s-workspace","scheduled-runs":"s-workspace","event-calendar":"s-dates","web-search":"s-status"},"all":[]};
+const PARTS = {"files":{"s-status":"/assets/v2-status.fd9efe7c91.js","s-review":"/assets/v2-review.bc0956cfd6.js","s-data":"/assets/v2-data.dfd10576d6.js","s-workspace":"/assets/v2-workspace.bfe41fa668.js","s-dates":"/assets/v2-dates.ca471b0cff.js"},"of":{"status-pill":"s-status","step-loader":"s-status","thinking-states":"s-status","reasoning-trail":"s-status","thinking":"s-status","context-meter":"s-status","toast":"s-status","toast-stack":"s-status","agent-run-timeline":"s-status","decision-prompt":"s-review","plan-review":"s-review","inline-text-diff":"s-review","source-stack":"s-data","terminal-stream":"s-data","citation-hover":"s-data","command-palette":"s-workspace","file-explorer":"s-workspace","run-drawer":"s-workspace","memory-panel":"s-workspace","tool-connections":"s-workspace","knowledge-sources":"s-workspace","scheduled-runs":"s-workspace","event-calendar":"s-dates","web-search":"s-status"},"all":[]};
 const partRun = src => eval(src);
 // the markup of the cards whose section has a file of its own comes with that file
 const TPLS = {};

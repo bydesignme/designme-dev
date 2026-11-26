@@ -39,7 +39,7 @@ A search box with a list of commands under it, grouped by heading, where a perso
 - A grey highlight glides to the row the arrows or the pointer are on, and the keyboard chips on it turn white. The footer's key hints dip as you press ↑, ↓, Enter and Escape.
 - Adds an "Ask the agent" row at the end whenever the box has text, with the text in quotes and Enter shown while it is highlighted, which calls `onAsk` with that text.
 - Runs the highlighted command on click or Enter and calls `onRun` with it. The command's tile spins for a beat, then the footer says what ran on its left, beside the keys, or shows your own `status` text.
-- The list is as tall as the rows it shows, up to about six, and scrolls beyond that, its last row fading at the edge. The palette eases to its new height as a search narrows or widens it.
+- The list is as tall as the rows it shows, up to about six, and scrolls beyond that, its last row fading at the edge. The palette eases to its new height as a search narrows or widens it, its footer staying on its bottom edge as it goes.
 - Works controlled through `query` and `onQueryChange`, or holds its own text with `defaultQuery`.
 
 ### Accessibility
@@ -312,7 +312,7 @@ export function CommandPalette({ items, query, defaultQuery = '', onQueryChange,
         })}
       </div>
       {/* what ran last on the left, the keys on the right */}
-      <div className="dm-cpl-f dm-muted">
+      <div className="dm-cpl-f dm-muted dm-mx-foot">
         <span className="dm-cpl-st">{(status ?? ran) && <span key={status ?? ran} className="dm-enter"><span className="dm-dot" aria-hidden="true" />{status ?? ran}</span>}</span>
         <span><span className={cx('dm-kbd', kp === 'ArrowUp' && 'dm-kp')}>↑</span><span className={cx('dm-kbd', kp === 'ArrowDown' && 'dm-kp')}>↓</span> move</span>
         <span><span className={cx('dm-kbd', kp === 'Enter' && 'dm-kp')}>↵</span> run</span>

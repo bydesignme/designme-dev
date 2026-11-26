@@ -220,8 +220,11 @@
 .aab-ch .chip{background:var(--dm-hover)}
 @media (hover:hover) and (pointer:fine){.aab-ch .chip:hover{background:var(--dm-press)}}
 .aab-ch .chip.on{background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent));box-shadow:none}
-.aab-st{margin:0;max-height:20px;font-size:12.5px;display:flex;align-items:center;gap:6px;transition:max-height var(--dm-t) var(--dm-ease),margin-top var(--dm-t) var(--dm-ease)}
+/* (the status line opens and closes on its own height at the moment the reasons fold does, so the card moves once, in one
+   direction: owner, 26 Nov. A line about to empty eases shut and fades with its words still in it; .off) */
+.aab-st{margin:0;max-height:20px;font-size:12.5px;display:flex;align-items:center;gap:6px;overflow:clip;overflow-clip-margin:2px;transition:max-height var(--dm-t) var(--dm-ease),margin-top var(--dm-t) var(--dm-ease),opacity var(--dm-t-fast) var(--dm-ease)}
 .aab-st:is(:empty,.off){max-height:0;margin-top:calc(-1 * var(--dm-s-3))}
+.aab-st.off{opacity:0}
 .aab-st.warn{color:var(--dm-warn)}
 .aab-st.ok svg{color:var(--dm-ok);flex:none}
 .aab-rd.on .aab-pr{width:40px}
@@ -410,12 +413,12 @@ export default function AnswerActionBarDemo() {
 import AnswerActionBar from &#39;../components/designme/answer-action-bar/AnswerActionBar.astro&#39;;
 ---
 &lt;AnswerActionBar /&gt;
-&lt;AnswerActionBar data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything AnswerActionBar takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>question</code></td><td><code>ReactNode</code></td><td>The person&#39;s message the answer replies to, shown as a bubble above it</td></tr><tr><td><code>versions</code><span class="opt">required</span></td><td><code>AnswerVersion[]</code></td><td>Every version of the answer so far, oldest first</td></tr><tr><td><code>version</code></td><td><code>number</code></td><td>Which version is showing. Leave it out to let the arrows page through them</td></tr><tr><td><code>defaultVersion</code></td><td><code>number</code></td><td></td></tr><tr><td><code>onVersionChange</code></td><td><code>(index: number) =&gt; void</code></td><td></td></tr><tr><td><code>streaming</code></td><td><code>boolean</code></td><td>The newest version is still being written: new words fade in as they arrive, and paging and reading wait</td></tr><tr><td><code>onRegenerate</code></td><td><code>() =&gt; void</code></td><td>Called by the regenerate button. Add a version and show it to answer it</td></tr><tr><td><code>onCopy</code></td><td><code>(text: string) =&gt; void</code></td><td>Called with the plain text after it is copied</td></tr><tr><td><code>onRate</code></td><td><code>(index: number, rating: AnswerBarRating) =&gt; void</code></td><td>Called when a thumb is pressed or pressed again to clear it</td></tr><tr><td><code>reasons</code></td><td><code>string[]</code></td><td>The reasons a thumbs down offers. Defaults to Wrong numbers, Too long, Not our tone and Missed the brief</td></tr><tr><td><code>onReason</code></td><td><code>(index: number, reason: string) =&gt; void</code></td><td>Called with the reason picked after a thumbs down</td></tr><tr><td><code>status</code></td><td><code>string</code></td><td>The quiet line under the bar, like &quot;Writing a new version&quot;. It shimmers while streaming</td></tr><tr><td><code>statusTone</code></td><td><code>&#39;warn&#39; | &#39;ok&#39;</code></td><td>warn turns the status amber; ok gives it a green check</td></tr><tr><td><code>reading</code></td><td><code>ReadingState</code></td><td>Read aloud: playing lights each word in turn, paused keeps the place. Leave it out to let the button play and pause</td></tr><tr><td><code>defaultReading</code></td><td><code>ReadingState</code></td><td></td></tr><tr><td><code>onReadingChange</code></td><td><code>(state: ReadingState) =&gt; void</code></td><td></td></tr><tr><td><code>secondsPerWord</code></td><td><code>number</code></td><td>How long the built-in reading clock gives each word. Defaults to 0.28s</td></tr><tr><td><code>bare</code></td><td><code>boolean</code></td><td>Sits flat in a chat thread (the default, as on designme.dev). Set false to give it a card of its own</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>AnswerActionBar.tsx<span class="l">React · 200 lines</span></summary><pre class="cp-pre" data-name="AnswerActionBar.tsx"><code>&#39;use client&#39;;
+&lt;AnswerActionBar data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything AnswerActionBar takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>question</code></td><td><code>ReactNode</code></td><td>The person&#39;s message the answer replies to, shown as a bubble above it</td></tr><tr><td><code>versions</code><span class="opt">required</span></td><td><code>AnswerVersion[]</code></td><td>Every version of the answer so far, oldest first</td></tr><tr><td><code>version</code></td><td><code>number</code></td><td>Which version is showing. Leave it out to let the arrows page through them</td></tr><tr><td><code>defaultVersion</code></td><td><code>number</code></td><td></td></tr><tr><td><code>onVersionChange</code></td><td><code>(index: number) =&gt; void</code></td><td></td></tr><tr><td><code>streaming</code></td><td><code>boolean</code></td><td>The newest version is still being written: new words fade in as they arrive, and paging and reading wait</td></tr><tr><td><code>onRegenerate</code></td><td><code>() =&gt; void</code></td><td>Called by the regenerate button. Add a version and show it to answer it</td></tr><tr><td><code>onCopy</code></td><td><code>(text: string) =&gt; void</code></td><td>Called with the plain text after it is copied</td></tr><tr><td><code>onRate</code></td><td><code>(index: number, rating: AnswerBarRating) =&gt; void</code></td><td>Called when a thumb is pressed or pressed again to clear it</td></tr><tr><td><code>reasons</code></td><td><code>string[]</code></td><td>The reasons a thumbs down offers. Defaults to Wrong numbers, Too long, Not our tone and Missed the brief</td></tr><tr><td><code>onReason</code></td><td><code>(index: number, reason: string) =&gt; void</code></td><td>Called with the reason picked after a thumbs down</td></tr><tr><td><code>status</code></td><td><code>string</code></td><td>The quiet line under the bar, like &quot;Writing a new version&quot;. It shimmers while streaming</td></tr><tr><td><code>statusTone</code></td><td><code>&#39;warn&#39; | &#39;ok&#39;</code></td><td>warn turns the status amber; ok gives it a green check</td></tr><tr><td><code>reading</code></td><td><code>ReadingState</code></td><td>Read aloud: playing lights each word in turn, paused keeps the place. Leave it out to let the button play and pause</td></tr><tr><td><code>defaultReading</code></td><td><code>ReadingState</code></td><td></td></tr><tr><td><code>onReadingChange</code></td><td><code>(state: ReadingState) =&gt; void</code></td><td></td></tr><tr><td><code>secondsPerWord</code></td><td><code>number</code></td><td>How long the built-in reading clock gives each word. Defaults to 0.28s</td></tr><tr><td><code>bare</code></td><td><code>boolean</code></td><td>Sits flat in a chat thread (the default, as on designme.dev). Set false to give it a card of its own</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>AnswerActionBar.tsx<span class="l">React · 202 lines</span></summary><pre class="cp-pre" data-name="AnswerActionBar.tsx"><code>&#39;use client&#39;;
 import { useEffect, useRef, useState, type ReactNode } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useControllable, useCopied, useIsoLayoutEffect, useReducedMotion } from &#39;../lib/hooks&#39;;
 import { Icon } from &#39;../lib/icons&#39;;
-import { enter, Fold, mxIn, Swap, SwapIcon, Tip } from &#39;../lib/motion&#39;;
+import { enter, Fold, growFit, mxIn, mxT, Swap, SwapIcon, Tip } from &#39;../lib/motion&#39;;
 import &#39;../designme.css&#39;;
 import &#39;./answer-action-bar.css&#39;;
 
@@ -496,6 +499,20 @@ export function AnswerActionBar({
     return () =&gt; clearTimeout(t);
   }, [status, statusTone, reduce]);
   const shownTone = statusTone === &#39;ok&#39; ? &#39;ok&#39; : tone;
+  // the status line opens and closes on its own height at the moment the reasons fold does, so the card moves once (owner,
+  // 26 Nov): a line that empties eases shut with its words still in it, then lets them go; an empty line takes its words at
+  // once (they rise in) rather than after Swap&#39;s fade
+  const stRef = useRef&lt;HTMLParagraphElement&gt;(null);
+  const [kept, setKept] = useState(status);
+  useEffect(() =&gt; {
+    if (status) { setKept(status); return; }
+    const t = setTimeout(() =&gt; setKept(&#39;&#39;), reduce || !stRef.current ? 0 : mxT(stRef.current, &#39;t&#39;, 450));
+    return () =&gt; clearTimeout(t);
+  }, [status, reduce]);
+  const line = status || kept;
+  const fresh = useRef(0), was = useRef(line);
+  if (was.current !== line) { if (!was.current.trim() &amp;&amp; line.trim()) fresh.current++; was.current = line; }
+  useIsoLayoutEffect(() =&gt; { if (fresh.current &amp;&amp; stRef.current) mxIn([stRef.current]); }, [fresh.current]);
 
   // the words, with the changed phrase marked
   const text = v?.text ?? &#39;&#39;;
@@ -525,19 +542,7 @@ export function AnswerActionBar({
   // the container grows with what it holds, eased (grow() on the site), and stays centred wherever it is centred, in every
   // style (owner, 18 Nov)
   const root = useRef&lt;HTMLDivElement&gt;(null), inner = useRef&lt;HTMLDivElement&gt;(null);
-  useIsoLayoutEffect(() =&gt; {
-    const el = root.current, w = inner.current;
-    if (!el || !w || typeof ResizeObserver === &#39;undefined&#39;) return;
-    let first = true;
-    const box = () =&gt; { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
-    const fit = () =&gt; {
-      const h = Math.ceil(w.offsetHeight + box());
-      if (first) { el.style.transition = &#39;none&#39;; el.style.height = h + &#39;px&#39;; void el.offsetHeight; el.style.transition = &#39;&#39;; first = false; }
-      else el.style.height = h + &#39;px&#39;;
-    };
-    const ro = new ResizeObserver(fit); ro.observe(w); fit();
-    return () =&gt; { ro.disconnect(); el.style.height = &#39;&#39;; };
-  }, []);
+  useIsoLayoutEffect(() =&gt; { const el = root.current, w = inner.current; if (el &amp;&amp; w) return growFit(el, w); }, []);
   // while a new version streams in, the answer keeps the height of the one it replaces, then eases to its own
   const tRef = useRef&lt;HTMLParagraphElement&gt;(null), prevT = useRef({ at: -1, h: 0 });
   useIsoLayoutEffect(() =&gt; {
@@ -602,14 +607,14 @@ export function AnswerActionBar({
           &lt;/div&gt;
         &lt;/div&gt;
       &lt;/Fold&gt;
-      &lt;p className={cx(&#39;dm-aab-st dm-muted&#39;, shownTone &amp;&amp; &#39;dm-&#39; + shownTone, !status &amp;&amp; &#39;dm-off&#39;)} aria-live=&quot;polite&quot;&gt;
-        {statusTone === &#39;ok&#39; &amp;&amp; status ? &lt;&gt;&lt;Icon name=&quot;ok&quot; size=&quot;xs&quot; /&gt;&lt;span key={status} {...enter()}&gt;{status}&lt;/span&gt;&lt;/&gt; : &lt;Swap className={streaming &amp;&amp; status &amp;&amp; statusTone !== &#39;warn&#39; ? &#39;dm-shim&#39; : undefined}&gt;{status}&lt;/Swap&gt;}
+      &lt;p ref={stRef} className={cx(&#39;dm-aab-st dm-muted&#39;, shownTone &amp;&amp; &#39;dm-&#39; + shownTone, !status &amp;&amp; &#39;dm-off&#39;)} aria-live=&quot;polite&quot;&gt;
+        {statusTone === &#39;ok&#39; &amp;&amp; status ? &lt;&gt;&lt;Icon name=&quot;ok&quot; size=&quot;xs&quot; /&gt;&lt;span key={status} {...enter()}&gt;{status}&lt;/span&gt;&lt;/&gt; : &lt;Swap key={fresh.current} className={streaming &amp;&amp; status &amp;&amp; statusTone !== &#39;warn&#39; ? &#39;dm-shim&#39; : undefined}&gt;{line}&lt;/Swap&gt;}
       &lt;/p&gt;
       &lt;/div&gt;
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>answer-action-bar.css<span class="l">React · 95 lines</span></summary><pre class="cp-pre" data-name="answer-action-bar.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>answer-action-bar.css<span class="l">React · 98 lines</span></summary><pre class="cp-pre" data-name="answer-action-bar.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Answer action bar ---------- */
 /* every action on an answer in one raised rail under it: copy, regenerate with its versions, thumbs, and read aloud, which
    widens into a progress bar and a clock and lights each word as it reads it */
@@ -668,8 +673,11 @@ export function AnswerActionBar({
 .dm-aab-ch .dm-chip{background:var(--dm-hover)}
 @media (hover:hover) and (pointer:fine){.dm-aab-ch .dm-chip:hover{background:var(--dm-press)}}
 .dm-aab-ch .dm-chip.dm-on{background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent));box-shadow:none}
-.dm-aab-st{margin:0;max-height:20px;font-size:12.5px;display:flex;align-items:center;gap:6px;transition:max-height var(--dm-t) var(--dm-ease),margin-top var(--dm-t) var(--dm-ease)}
+/* (the status line opens and closes on its own height at the moment the reasons fold does, so the card moves once, in one
+   direction: owner, 26 Nov. A line about to empty eases shut and fades with its words still in it; .off) */
+.dm-aab-st{margin:0;max-height:20px;font-size:12.5px;display:flex;align-items:center;gap:6px;overflow:clip;overflow-clip-margin:2px;transition:max-height var(--dm-t) var(--dm-ease),margin-top var(--dm-t) var(--dm-ease),opacity var(--dm-t-fast) var(--dm-ease)}
 .dm-aab-st:is(:empty,.dm-off){max-height:0;margin-top:calc(-1 * var(--dm-s-3))}
+.dm-aab-st.dm-off{opacity:0}
 .dm-aab-st.dm-warn{color:var(--dm-warn)}
 .dm-aab-st.dm-ok svg{color:var(--dm-ok);flex:none}
 .dm-aab-rd.dm-on .dm-aab-pr{width:40px}
@@ -773,7 +781,7 @@ const { class: className, ...rest } = Astro.props;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>answer-action-bar.css<span class="l">HTML · 94 lines</span></summary><pre class="cp-pre" data-name="answer-action-bar.css"><code>/* ---------- Answer action bar ---------- */
+</code></pre></details><details class="cp-file"><summary>answer-action-bar.css<span class="l">HTML · 97 lines</span></summary><pre class="cp-pre" data-name="answer-action-bar.css"><code>/* ---------- Answer action bar ---------- */
 /* every action on an answer in one raised rail under it: copy, regenerate with its versions, thumbs, and read aloud, which
    widens into a progress bar and a clock and lights each word as it reads it */
 .aab{display:flex;flex-direction:column;gap:var(--dm-s-3)}
@@ -831,8 +839,11 @@ const { class: className, ...rest } = Astro.props;
 .aab-ch .chip{background:var(--dm-hover)}
 @media (hover:hover) and (pointer:fine){.aab-ch .chip:hover{background:var(--dm-press)}}
 .aab-ch .chip.on{background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent));box-shadow:none}
-.aab-st{margin:0;max-height:20px;font-size:12.5px;display:flex;align-items:center;gap:6px;transition:max-height var(--dm-t) var(--dm-ease),margin-top var(--dm-t) var(--dm-ease)}
+/* (the status line opens and closes on its own height at the moment the reasons fold does, so the card moves once, in one
+   direction: owner, 26 Nov. A line about to empty eases shut and fades with its words still in it; .off) */
+.aab-st{margin:0;max-height:20px;font-size:12.5px;display:flex;align-items:center;gap:6px;overflow:clip;overflow-clip-margin:2px;transition:max-height var(--dm-t) var(--dm-ease),margin-top var(--dm-t) var(--dm-ease),opacity var(--dm-t-fast) var(--dm-ease)}
 .aab-st:is(:empty,.off){max-height:0;margin-top:calc(-1 * var(--dm-s-3))}
+.aab-st.off{opacity:0}
 .aab-st.warn{color:var(--dm-warn)}
 .aab-st.ok svg{color:var(--dm-ok);flex:none}
 .aab-rd.on .aab-pr{width:40px}
@@ -866,7 +877,7 @@ const { class: className, ...rest } = Astro.props;
 .aab-bar :is(.aab-up,.aab-dn) svg{transition:transform calc(var(--dm-t-in) * 1.4) var(--dm-ease-pop)}
 :root[data-style=&quot;clean&quot;] .aab-bar :is(.aab-up,.aab-dn) svg,:root [data-style=&quot;clean&quot;] .aab-bar :is(.aab-up,.aab-dn) svg,:root [data-style=&quot;clean&quot;].aab-bar :is(.aab-up,.aab-dn) svg{fill:currentColor;fill-opacity:0;transition:fill-opacity var(--dm-t-fast) var(--dm-ease)}
 :root[data-style=&quot;clean&quot;] .aab-bar :is(.aab-up,.aab-dn)[aria-pressed=&quot;true&quot;] svg,:root [data-style=&quot;clean&quot;] .aab-bar :is(.aab-up,.aab-dn)[aria-pressed=&quot;true&quot;] svg,:root [data-style=&quot;clean&quot;].aab-bar :is(.aab-up,.aab-dn)[aria-pressed=&quot;true&quot;] svg{fill-opacity:1}
-</code></pre></details><details class="cp-file"><summary>answer-action-bar.js<span class="l">HTML · 111 lines</span></summary><pre class="cp-pre" data-name="answer-action-bar.js"><code>DM.def(&#39;answer-action-bar&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>answer-action-bar.js<span class="l">HTML · 119 lines</span></summary><pre class="cp-pre" data-name="answer-action-bar.js"><code>DM.def(&#39;answer-action-bar&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(&#39;{copy}&#39;, I(&#39;copy&#39;)).replace(&#39;{re}&#39;, I(&#39;refresh&#39;)).replace(&#39;{l}&#39;, I(&#39;chev-l&#39;,&#39;xs&#39;)).replace(&#39;{rr}&#39;, I(&#39;chev-r&#39;,&#39;xs&#39;))
     .replace(&#39;{up}&#39;, I(&#39;up-thumb&#39;)).replace(&#39;{dn}&#39;, I(&#39;down-thumb&#39;)).replace(&#39;{vol}&#39;, I(&#39;vol&#39;,&#39;xs&#39;));
   // the versions a regenerate writes, in turn. [[…]] marks what changed from the version before; $24 to $19 a month saves 21%
@@ -885,9 +896,17 @@ const { class: className, ...rest } = Astro.props;
     const s = (i ? `&lt;span${inner ? &#39; class=&quot;nw&quot;&#39; : &#39;&#39;}&gt; &lt;/span&gt;` : &#39;&#39;) + `&lt;span class=&quot;w${on ? &#39; nw&#39; : &#39;&#39;}&quot;&gt;${w.replace(/\[\[|\]\]/g, &#39;&#39;)}&lt;/span&gt;`; if (b) on = false; return s; }); };
   // the tone changes with the words: the words fading out keep their colour, and the new ones arrive in theirs (swap()
   // writes them 170ms on)
-  const status = (text, tone) =&gt; { clearTimeout(st._tone); const set = () =&gt; { st.classList.toggle(&#39;warn&#39;, tone === &#39;warn&#39;); st.classList.toggle(&#39;ok&#39;, tone === &#39;ok&#39;); };
+  // The line opens and closes on its own height at the same moment as the reasons (owner, 26 Nov: no jumping up and down): an
+  // empty line takes its words at once rather than after swap()&#39;s fade, and a line that empties eases shut with its words still
+  // in it, then lets them go
+  const status = (text, tone) =&gt; { clearTimeout(st._tone); clearTimeout(st._off); const set = () =&gt; { st.classList.toggle(&#39;warn&#39;, tone === &#39;warn&#39;); st.classList.toggle(&#39;ok&#39;, tone === &#39;ok&#39;); };
+    const had = !!st.textContent.trim() &amp;&amp; !st.classList.contains(&#39;off&#39;);
+    if (st._sw &amp;&amp; (!text || !had)){ clearTimeout(st._sw.t); st._sw = null; st.classList.remove(&#39;out&#39;); }
+    if (!text){ if (!st.textContent.trim()){ st.classList.remove(&#39;off&#39;); return; } st.classList.add(&#39;off&#39;); st._off = setTimeout(() =&gt; { st.textContent = &#39;&#39;; st.classList.remove(&#39;off&#39;, &#39;warn&#39;, &#39;ok&#39;); }, REDUCE ? 0 : mxT(st, &#39;--dm-t&#39;, 450)); return; }
+    st.classList.remove(&#39;off&#39;);
     if (tone === &#39;ok&#39;) { set(); st.innerHTML = `${I(&#39;ok&#39;,&#39;xs&#39;)}&lt;span&gt;${text}&lt;/span&gt;`; enter(st); return; }
-    const lag = !REDUCE &amp;&amp; !!st.textContent.trim() &amp;&amp; st.textContent !== text; swap(st, text); if (lag) st._tone = setTimeout(set, 170); else set(); };
+    if (!had){ set(); st.textContent = text; mxIn(st); return; }
+    const lag = !REDUCE &amp;&amp; st.textContent !== text; swap(st, text); if (lag) st._tone = setTimeout(set, 170); else set(); };
   function nav(){
     n.textContent = (cur + 1) + &#39; / &#39; + vers.length; pg.classList.toggle(&#39;on&#39;, vers.length &gt; 1); pg.inert = vers.length &lt; 2;
     pv.disabled = cur === 0 || busy; nx.disabled = cur === vers.length - 1 || busy; re.disabled = busy;
@@ -1331,9 +1350,17 @@ const fitHits = window.dmFitHits || (() => {
     const s = (i ? `<span${inner ? ' class="nw"' : ''}> </span>` : '') + `<span class="w${on ? ' nw' : ''}">${w.replace(/\[\[|\]\]/g, '')}</span>`; if (b) on = false; return s; }); };
   // the tone changes with the words: the words fading out keep their colour, and the new ones arrive in theirs (swap()
   // writes them 170ms on)
-  const status = (text, tone) => { clearTimeout(st._tone); const set = () => { st.classList.toggle('warn', tone === 'warn'); st.classList.toggle('ok', tone === 'ok'); };
+  // The line opens and closes on its own height at the same moment as the reasons (owner, 26 Nov: no jumping up and down): an
+  // empty line takes its words at once rather than after swap()'s fade, and a line that empties eases shut with its words still
+  // in it, then lets them go
+  const status = (text, tone) => { clearTimeout(st._tone); clearTimeout(st._off); const set = () => { st.classList.toggle('warn', tone === 'warn'); st.classList.toggle('ok', tone === 'ok'); };
+    const had = !!st.textContent.trim() && !st.classList.contains('off');
+    if (st._sw && (!text || !had)){ clearTimeout(st._sw.t); st._sw = null; st.classList.remove('out'); }
+    if (!text){ if (!st.textContent.trim()){ st.classList.remove('off'); return; } st.classList.add('off'); st._off = setTimeout(() => { st.textContent = ''; st.classList.remove('off', 'warn', 'ok'); }, REDUCE ? 0 : mxT(st, '--dm-t', 450)); return; }
+    st.classList.remove('off');
     if (tone === 'ok') { set(); st.innerHTML = `${I('ok','xs')}<span>${text}</span>`; enter(st); return; }
-    const lag = !REDUCE && !!st.textContent.trim() && st.textContent !== text; swap(st, text); if (lag) st._tone = setTimeout(set, 170); else set(); };
+    if (!had){ set(); st.textContent = text; mxIn(st); return; }
+    const lag = !REDUCE && st.textContent !== text; swap(st, text); if (lag) st._tone = setTimeout(set, 170); else set(); };
   function nav(){
     n.textContent = (cur + 1) + ' / ' + vers.length; pg.classList.toggle('on', vers.length > 1); pg.inert = vers.length < 2;
     pv.disabled = cur === 0 || busy; nx.disabled = cur === vers.length - 1 || busy; re.disabled = busy;

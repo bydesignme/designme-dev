@@ -36,6 +36,13 @@
 .itd-bar{position:absolute;left:0;top:0;z-index:5;display:flex;flex-direction:column;gap:var(--dm-s-2);padding:var(--dm-s-2);width:max-content;max-width:260px;border-radius:var(--dm-r-in);background:var(--dm-raised);box-shadow:var(--dm-shadow-pop);opacity:0;transform:translateY(-4px);visibility:hidden;pointer-events:none;transition:opacity .16s,transform .32s var(--dm-ease),visibility 0s .32s}
 .itd-bar.up{transform:translateY(4px)}
 .itd-bar.open{opacity:1;transform:none;visibility:visible;pointer-events:auto;transition-delay:0s}
+/* its motion (the core's motion pieces, owner, 26 Nov): the toolbar grows out of the edit's corner (.mx-pop) and goes back
+   quicker; a press on Reject all shows at once (.mx-press); the card eases to each new height on the spring (.mx-grow). Clean
+   keeps its own scale and fade below */
+.itd-bar.mx-pop{transform:scale(.95);filter:blur(var(--dm-blur-in));transform-origin:top left;transition:opacity var(--dm-t-out) var(--dm-ease-io),transform var(--dm-t-out) var(--dm-ease-io),filter var(--dm-t-out) var(--dm-ease-io),visibility 0s var(--dm-t-out)}
+.itd-bar.mx-pop.up{transform-origin:bottom left}
+.itd-bar.mx-pop.open{transform:none;filter:none;transition:opacity calc(var(--dm-t-in) * .6) var(--dm-ease),transform var(--dm-t-in) var(--dm-ease-pop),filter calc(var(--dm-t-in) * .7) var(--dm-ease),visibility 0s}
+@media (prefers-reduced-motion:reduce){.itd-bar.mx-pop{filter:none}}
 /* an edit the agent isn't sure of: its toolbar is a warning notice (owner, 18 Nov): a faint warning tint, the filled warning
    sign in the bright orange, the words in the text colour, and the answer that settles it, Reject, as .pill.warn, with Accept
    the white button beside it */

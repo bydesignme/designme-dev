@@ -174,7 +174,7 @@ import { Fragment, useEffect, useLayoutEffect, useRef, useState, type CSSPropert
 import { cx } from '../lib/cx';
 import { useControllable, useReducedMotion, useSeconds } from '../lib/hooks';
 import { Icon, type IconName } from '../lib/icons';
-import { enter, Fold, Swap } from '../lib/motion';
+import { enter, Fold, Swap, SwapIcon } from '../lib/motion';
 import '../designme.css';
 import './agent-lanes.css';
 
@@ -284,7 +284,7 @@ function Lane({ lane, paused, open, sent, got, ping, onToggle }: { lane: AgentLa
   const live = status === 'working' || status === 'paused';
   return (
     <div className={cx('dm-aln-lane', sent && 'dm-sent', got && 'dm-got')} data-s={status} data-lane={lane.key} style={{ '--dm-c': `var(--dm-${tone})`, '--dm-cb': `var(--dm-${tone}-bg)`, '--dm-cm': `var(--dm-aln-${tone},var(--dm-${tone}))` } as CSSProperties}>
-      <button type="button" className="dm-aln-row" aria-expanded={open} onClick={onToggle}>
+      <button type="button" className="dm-aln-row dm-mx-press" aria-expanded={open} onClick={onToggle}>
         <span className={cx('dm-aln-av', ping && 'dm-ping')}>
           <Icon name={lane.icon} />
         </span>
@@ -387,8 +387,8 @@ export function AgentLanes({ lanes, title, seconds, paused, defaultPaused = fals
           <Swap className="dm-aln-ct dm-num">{`${stepsDone} of ${total} steps`}</Swap>
         </span>
         {onPausedChange && !finished && (
-          <button type="button" className="dm-pill dm-line dm-sm dm-aln-pause" onClick={() => setPaused(!isPaused)}>
-            <Icon name={isPaused ? 'play' : 'pause'} size="xs" />{isPaused ? 'Resume' : 'Pause all'}
+          <button type="button" className="dm-pill dm-line dm-sm dm-aln-pause dm-mx-ic" onClick={() => setPaused(!isPaused)}>
+            <SwapIcon id={isPaused ? 'play' : 'pause'}><Icon name={isPaused ? 'play' : 'pause'} size="xs" /></SwapIcon><Swap className="dm-mx-w">{isPaused ? 'Resume' : 'Pause all'}</Swap>
           </button>
         )}
       </div>

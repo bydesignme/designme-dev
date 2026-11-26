@@ -33,7 +33,7 @@ Feedback sheet puts thumbs up and thumbs down under an agent's answer. A thumbs 
 
 ### What it does
 
-- Thumbs up marks the answer as good and shows "Thanks, noted". Thumbs down opens the sheet and moves the cursor to the comment box once it has opened.
+- Thumbs up marks the answer as good and shows "Thanks, noted". Thumbs down opens the sheet and moves the cursor to the comment box once it has opened. As the sheet opens, its question, its reasons and the box rise in one after another.
 - The sheet shows a `question` heading, toggleable `reasons` chips, a comment box and a `note` about who sees the feedback.
 - Send stays disabled until a reason is picked or something is written. `onSubmit` receives `{ reasons, comment }`, and if it returns a promise the button shows a spinner until it settles.
 - If `onSubmit` throws, the sheet stays open so the person can try again. On success it closes and a thank-you line appears, which you can change with `thanks`. That line is the only confirmation: nothing beside the thumbs says it again. In Clean a rated thumb fills in, without a colour.
@@ -165,7 +165,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { cx } from '../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { Fold, Spin, Swap, Tip } from '../lib/motion';
+import { Fold, mxIn, mxT, Spin, Swap, Tip } from '../lib/motion';
 import '../designme.css';
 import './feedback-sheet.css';
 
@@ -248,9 +248,15 @@ export function FeedbackSheet({ children, rating, defaultRating = null, onRating
   const go = useRef<HTMLButtonElement>(null), goW = useRef(0), reduce = useReducedMotion();
   useIsoLayoutEffect(() => {
     const b = go.current; if (!b) return; const w = b.offsetWidth;
-    if (goW.current && w && goW.current !== w && !reduce) b.animate([{ width: goW.current + 'px' }, { width: w + 'px' }], { duration: 220, easing: 'cubic-bezier(.23,1,.32,1)' });
+    if (goW.current && w && goW.current !== w && !reduce) b.animate([{ width: goW.current + 'px' }, { width: w + 'px' }], { duration: mxT(b, 't-in', 360), easing: mxT(b, 'ease-spring', 'ease') });
     goW.current = w;
   }, [sending]);
+  // as the sheet opens, its question, its reasons and the box rise in one after another (motion pieces)
+  const sheet = useRef<HTMLDivElement>(null), wasOpen = useRef(open);
+  useIsoLayoutEffect(() => {
+    const el = sheet.current, was = wasOpen.current; wasOpen.current = open; if (!open || was || !el) return;
+    mxIn([el.querySelector('.dm-fbx-q'), ...el.querySelectorAll('.dm-fbx-ch .dm-chip'), el.querySelector('.dm-fbx-ta')], { base: 60 });
+  }, [open]);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   const later = (ms: number, fn: () => void) => { timers.current.push(setTimeout(fn, ms)); };
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
@@ -272,16 +278,16 @@ export function FeedbackSheet({ children, rating, defaultRating = null, onRating
   };
 
   return (
-    <div data-dm="" ref={root} className={cx('dm-fbx', !bare && 'dm-panel', 'dm-growing', className)} style={bare ? undefined : { padding: 16 }}>
+    <div data-dm="" ref={root} className={cx('dm-fbx', !bare && 'dm-panel', 'dm-growing dm-mx-grow', className)} style={bare ? undefined : { padding: 16 }}>
       <div ref={inner} className="dm-grow">
       {children && <div className="dm-msg">{children}</div>}
       <div className="dm-fbx-bar">
-        <Tip label="Good answer"><button type="button" className={cx('dm-ib dm-fbx-up', rate === 'up' && 'dm-on')} aria-label="Good answer" aria-pressed={rate === 'up'} onClick={up}><Icon name="up-thumb" /></button></Tip>
-        <Tip label="Bad answer"><button type="button" className={cx('dm-ib dm-fbx-dn', rate === 'down' && 'dm-on')} aria-label="Bad answer" aria-pressed={rate === 'down'} onClick={down}><Icon name="down-thumb" /></button></Tip>
+        <Tip label="Good answer"><button type="button" className={cx('dm-ib dm-fbx-up dm-mx-press', rate === 'up' && 'dm-on')} aria-label="Good answer" aria-pressed={rate === 'up'} onClick={up}><Icon name="up-thumb" /></button></Tip>
+        <Tip label="Bad answer"><button type="button" className={cx('dm-ib dm-fbx-dn dm-mx-press', rate === 'down' && 'dm-on')} aria-label="Bad answer" aria-pressed={rate === 'down'} onClick={down}><Icon name="down-thumb" /></button></Tip>
         <Swap className="dm-fbx-st dm-muted">{status}</Swap>
       </div>
       <Fold open={open} className="dm-fbx-box">
-        <div className="dm-fbx-in dm-panel">
+        <div ref={sheet} className="dm-fbx-in dm-panel">
           <div className="dm-fbx-q">{question}</div>
           {reasons.length > 0 && (
             <div className="dm-fbx-ch">
@@ -294,7 +300,7 @@ export function FeedbackSheet({ children, rating, defaultRating = null, onRating
           <textarea ref={box} className="dm-fbx-ta" rows={2} placeholder={placeholder} value={comment} onChange={e => setComment(e.target.value)} />
           <div className="dm-fbx-f">
             <span className="dm-muted dm-fbx-n">{note}</span>
-            <button type="button" className="dm-pill dm-ghost dm-sm dm-fbx-x" onClick={() => { setOpen(false); setRate(null); }}>Cancel</button>
+            <button type="button" className="dm-pill dm-ghost dm-sm dm-fbx-x dm-mx-press" onClick={() => { setOpen(false); setRate(null); }}>Cancel</button>
             <button ref={go} type="button" className="dm-pill dm-primary dm-sm dm-fbx-go" disabled={!(picked.length || comment.trim())} aria-busy={sending} onClick={send}>{sending ? <Spin /> : 'Send'}</button>
           </div>
         </div>

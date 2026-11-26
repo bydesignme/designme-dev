@@ -204,6 +204,10 @@
 .ctm-leg{display:flex;flex-direction:column;margin:0 calc(-1 * var(--dm-s-2))}
 .ctm-l{display:flex;align-items:center;gap:var(--dm-s-2);padding:5px var(--dm-s-2);border-radius:var(--dm-r-sm);font-size:13px;line-height:18px;color:var(--dm-fg2);cursor:default;transition:background var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.ctm-l:hover{background:color-mix(in srgb,var(--dm-fg) 5%,transparent)}}
+/* its motion (the core's motion pieces, owner, 26 Nov): one highlight glides from part to part in the legend, in the hover's
+   own grey (.mx-glide); a press on Compact shows at once; its box eases to its new words' width on the spring (mxWidth()) */
+.ctm-leg{--dm-hg-bg:color-mix(in srgb,var(--dm-fg) 5%,transparent)}
+:root[data-style="clean"] .ctm-leg,:root [data-style="clean"] .ctm-leg,:root [data-style="clean"].ctm-leg{--dm-hg-bg:var(--dm-row)}
 /* the swatch is centred in a 16px column, the column of the message's sign and tick below, so their words line up */
 .ctm-l .sw{width:8px;height:8px;margin:0 4px 0 0;border-radius:var(--dm-r-tiny,2px);flex:none;background:var(--dm-c)}
 .ctm-l .v{margin-left:auto;color:var(--dm-fg)}
@@ -214,6 +218,8 @@
 .ctm-msg{display:grid;grid-template-rows:0fr;margin-top:calc(-1 * var(--dm-s-3));font-size:13px;line-height:18px;color:var(--dm-fg);opacity:0;transition:grid-template-rows .32s var(--dm-ease),margin .32s var(--dm-ease),opacity .24s var(--dm-ease)}
 .ctm-msg.on{grid-template-rows:1fr;margin-top:0;opacity:1}
 .ctm-msg>span{display:flex;align-items:flex-start;gap:var(--dm-s-2);min-height:0;overflow:hidden}
+/* (the warning's tint and padding ease away as it turns into the result, so the panel eases to its new height in one motion) */
+.ctm-msg>span{transition:padding .32s var(--dm-ease),background-color .32s var(--dm-ease)}
 .ctm-msg>span>svg,.ctm-msg>span>svg.i{flex:none;width:16px;height:16px;margin-top:1px}
 /* the notice reaches out as far as the legend's hover, with the legend's padding, so its sign sits in the swatches' column
    and its words on the legend's words */
@@ -245,7 +251,13 @@
 .ctm-ring circle{fill:none;stroke-width:2.6}
 .ctm-ring .tr{stroke:var(--dm-rail)}
 .ctm-ring .fl{stroke:var(--dm-accent-mark,var(--dm-accent));stroke-linecap:round;stroke-dasharray:0 100;transition:stroke-dasharray .42s var(--dm-ease),stroke .32s}
-.ctm.hot .ctm-ring .fl{stroke:var(--dm-warn-mark)}
+/* near the limit the ring turns to the warning mark by a wipe, never a blend (owner, 26 Nov, from its showcase): a second arc in
+   the warning mark (.fw) draws along the accent's from its start in 200ms, and draws back the same way once it is compacted, so
+   no frame shows a mix of the two colours. Each step up sends a thin bright highlight once along the filled arc (.hl, 0.45s)
+   and lifts the ring a touch (1.06, 0.35s); crossing the limit nudges the pill once. No halo or glow round it. With reduced
+   motion the ring and its colour change at once, with no highlight, lift or nudge */
+.ctm-ring .fw{stroke:var(--dm-warn-mark);stroke-linecap:round;stroke-dasharray:0 100;opacity:0;transition:stroke-dasharray .42s var(--dm-ease)}
+.ctm-ring .hl{stroke:#fff;stroke-width:2;stroke-linecap:butt;stroke-dasharray:0 200;opacity:0}
 
 /* Clean (owner, 17 and 18 Nov): the pill is the flat secondary control (a hairline and a light fill, no press); the ring is
    the accent's mark on a grey rail. The panel is a 22px card with an off-white head strip and foot strip, opening and
@@ -295,13 +307,13 @@
     <a class="hire-btn" href="https://www.designme.agency/intro?utm_source=designme.dev&utm_medium=referral&utm_campaign=book_a_call" target="_blank" rel="noopener">Book a call<span class="ms"><svg class="sh" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></span></a></div></div></details><nav class="pg-crumbs" aria-label="Breadcrumb"><a href="/library">Library</a><span>/</span><a href="/library#s-status">Agent status</a></nav><h1 class="pg-h1" id="content" tabindex="-1">Context meter</h1><p class="pg-lead">How full the context is and what fills it, with Compact to free room. Free and MIT licensed, as HTML, a typed React component or an Astro component, in three styles with light and dark mode.</p><div class="pg-installs"><div class="pg-cmd"><span class="d">$</span><span class="c"><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">context-meter</span></span><button type="button" data-copy="npx designme add context-meter" aria-label="Copy install command"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg></button></div><div class="pg-cmd"><span class="d">$</span><span class="c"><span class="cp-w">npx</span> <span class="cp-w">shadcn@latest</span> <span class="cp-w">add</span> https:/<wbr>/<wbr>designme.dev/<wbr>r/<wbr>shadcn/<wbr>context-meter.json</span><button type="button" data-copy="npx shadcn@latest add https://designme.dev/r/shadcn/context-meter.json" aria-label="Copy the shadcn command"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg></button></div></div><button class="cp-copy cp-copy-top" type="button" id="cp-copy-code">Copy code</button><p class="cp-studio">Need this designed into your product? <a href="https://www.designme.agency/intro?utm_source=designme.dev&amp;utm_medium=referral&amp;utm_campaign=book_a_call" target="_blank" rel="noopener">Book a call</a></p><section class="cp-demo" aria-label="Context meter demo"><button type="button" class="cp-anim" id="cp-replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg>Animate</button><div class="pg-demo stage-inner" style="--h-a:474px;--h-j:442px;--h-k:442px;--h-l:460px;--h-m:460px"><div class="card" data-c="context-meter">
   <div class="stage-in">
     <div class="ctm" data-open="1" data-pos="up">
-      <button class="ctm-tg" aria-expanded="true" aria-label="Context"><span class="ctm-ring" aria-hidden="true"><svg viewBox="0 0 20 20"><circle class="tr" cx="10" cy="10" r="7.5"/><circle class="fl" cx="10" cy="10" r="7.5" pathLength="100"/></svg></span><span><span class="ctm-pc num">0%</span> of context used</span><svg class="i xs"><use href="#i-chev-d"/></svg></button>
+      <button class="ctm-tg" aria-expanded="true" aria-label="Context"><span class="ctm-ring" aria-hidden="true"><svg viewBox="0 0 20 20"><circle class="tr" cx="10" cy="10" r="7.5"/><circle class="fl" cx="10" cy="10" r="7.5" pathLength="100"/><circle class="fw" cx="10" cy="10" r="7.5" pathLength="100"/><circle class="hl" cx="10" cy="10" r="7.5" pathLength="100"/></svg></span><span><span class="ctm-pc num">0%</span> of context used</span><svg class="i xs"><use href="#i-chev-d"/></svg></button>
       <div class="ctm-pop panel" role="region" aria-label="What fills the context">
         <div class="ctm-ph"><span>In context</span><span class="num"><b class="ctm-tot">0k</b> of 200k tokens</span></div>
         <div class="ctm-bar" aria-hidden="true"></div>
-        <div class="ctm-leg"></div>
+        <div class="ctm-leg mx-glide"></div>
         <div class="ctm-msg" aria-live="polite"><span></span></div>
-        <div class="ctm-f"><span class="ctm-hint">Summarises older turns</span><button class="pill line sm ctm-go">Compact</button></div>
+        <div class="ctm-f"><span class="ctm-hint">Summarises older turns</span><button class="pill line sm ctm-go mx-press">Compact</button></div>
       </div>
     </div>
   </div>
@@ -348,22 +360,29 @@
   addEventListener('resize', function(){ cur = -2; mark(); });
   mark();
 })();
-</script><div class="dc-bar"><nav aria-label="On this page"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a><a href="#more">More</a></nav></div><section class="cp-sec" id="install"><div class="pg-sh"><span class="n">01</span><h2>Install</h2><p>Add it to your project with the CLI.</p></div><div class="cp-ins"><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="#e34f26" d="M1.5 0h21l-1.91 21.563L11.977 24l-8.564-2.438L1.5 0z"/><path fill="#fff" d="M8.531 9.75l-.232-2.718 10.059.003.23-2.622L5.412 4.41l.698 8.01h9.126l-.326 3.426-2.91.804-2.955-.81-.188-2.11H6.248l.33 4.171L12 19.351l5.379-1.443.744-8.157H8.531z"/></svg>HTML, CSS and JS</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">context-meter</span></code><button class="cp-copy" type="button" data-copy="npx designme add context-meter" data-label="Copy" aria-label="Copy the HTML install command">Copy</button></div></div><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--pg-react)" d="M14.23 12.004a2.236 2.236 0 0 1-2.235 2.236 2.236 2.236 0 0 1-2.236-2.236 2.236 2.236 0 0 1 2.235-2.236 2.236 2.236 0 0 1 2.236 2.236zm2.648-10.69c-1.346 0-3.107.96-4.888 2.622-1.78-1.653-3.542-2.602-4.887-2.602-.41 0-.783.093-1.106.278-1.375.793-1.683 3.264-.973 6.365C1.98 8.917 0 10.42 0 12.004c0 1.59 1.99 3.097 5.043 4.03-.704 3.113-.39 5.588.988 6.38.32.187.69.275 1.102.275 1.345 0 3.107-.96 4.888-2.624 1.78 1.654 3.542 2.603 4.887 2.603.41 0 .783-.09 1.106-.275 1.374-.792 1.683-3.263.973-6.365C22.02 15.096 24 13.59 24 12.004c0-1.59-1.99-3.097-5.043-4.032.704-3.11.39-5.587-.988-6.38-.318-.184-.688-.277-1.092-.278zm-.005 1.09v.006c.225 0 .406.044.558.127.666.382.955 1.835.73 3.704-.054.46-.142.945-.25 1.44-.96-.236-2.006-.417-3.107-.534-.66-.905-1.345-1.727-2.035-2.447 1.592-1.48 3.087-2.292 4.105-2.295zm-9.77.02c1.012 0 2.514.808 4.11 2.28-.686.72-1.37 1.537-2.02 2.442-1.107.117-2.154.298-3.113.538-.112-.49-.195-.964-.254-1.42-.23-1.868.054-3.32.714-3.707.19-.09.4-.127.563-.132zm4.882 3.05c.455.468.91.992 1.36 1.564-.44-.02-.89-.034-1.345-.034-.46 0-.915.01-1.36.034.44-.572.895-1.096 1.345-1.565zM12 8.1c.74 0 1.477.034 2.202.093.406.582.802 1.203 1.183 1.86.372.64.71 1.29 1.018 1.946-.308.655-.646 1.31-1.013 1.95-.38.66-.773 1.288-1.18 1.87-.728.063-1.466.098-2.21.098-.74 0-1.477-.035-2.202-.093-.406-.582-.802-1.204-1.183-1.86-.372-.64-.71-1.29-1.018-1.946.303-.657.646-1.313 1.013-1.954.38-.66.773-1.286 1.18-1.868.728-.064 1.466-.098 2.21-.098zm-3.635.254c-.24.377-.48.763-.704 1.16-.225.39-.435.782-.635 1.174-.265-.656-.49-1.31-.676-1.947.64-.15 1.315-.283 2.015-.386zm7.26 0c.695.103 1.365.23 2.006.387-.18.632-.405 1.282-.66 1.933-.2-.39-.41-.783-.64-1.174-.225-.392-.465-.774-.705-1.146zm3.063.675c.484.15.944.317 1.375.498 1.732.74 2.852 1.708 2.852 2.476-.005.768-1.125 1.74-2.857 2.475-.42.18-.88.342-1.355.493-.28-.958-.646-1.956-1.1-2.98.45-1.017.81-2.01 1.085-2.964zm-13.395.004c.278.96.645 1.957 1.1 2.98-.45 1.017-.812 2.01-1.086 2.964-.484-.15-.944-.318-1.37-.5-1.732-.737-2.852-1.706-2.852-2.474 0-.768 1.12-1.742 2.852-2.476.42-.18.88-.342 1.356-.494zm11.678 4.28c.265.657.49 1.312.676 1.948-.64.157-1.316.29-2.016.39.24-.375.48-.762.705-1.158.225-.39.435-.788.636-1.18zm-9.945.02c.2.392.41.783.64 1.175.23.39.465.772.705 1.143-.695-.102-1.365-.23-2.006-.386.18-.63.406-1.282.66-1.933zM17.92 16.32c.112.493.2.968.254 1.423.23 1.868-.054 3.32-.714 3.708-.147.09-.338.128-.563.128-1.012 0-2.514-.807-4.11-2.28.686-.72 1.37-1.536 2.02-2.44 1.107-.118 2.154-.3 3.113-.54zm-11.83.01c.96.234 2.006.415 3.107.532.66.905 1.345 1.727 2.035 2.446-1.595 1.483-3.092 2.295-4.11 2.295-.22-.005-.406-.05-.553-.132-.666-.38-.955-1.834-.73-3.703.054-.46.142-.944.25-1.438zm4.56.64c.44.02.89.034 1.345.034.46 0 .915-.01 1.36-.034-.44.572-.895 1.095-1.345 1.565-.455-.47-.91-.993-1.36-1.565z"/></svg>React</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">context-meter</span> <span class="cp-w">--react</span></code><button class="cp-copy" type="button" data-copy="npx designme add context-meter --react" data-label="Copy" aria-label="Copy the React install command">Copy</button></div></div><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="#bc52ee" d="M8.358 20.162c-1.186-1.07-1.532-3.316-1.038-4.944.856 1.026 2.043 1.352 3.272 1.535 1.897.283 3.76.177 5.522-.678.202-.098.388-.229.608-.36.166.473.209.95.151 1.437-.14 1.185-.738 2.1-1.688 2.794-.38.277-.782.525-1.175.787-1.205.804-1.531 1.747-1.078 3.119l.044.148a3.158 3.158 0 0 1-1.407-1.188 3.31 3.31 0 0 1-.544-1.815c-.004-.32-.004-.642-.048-.958-.106-.769-.472-1.113-1.161-1.133-.707-.02-1.267.411-1.415 1.09-.012.053-.028.104-.045.165h.002zm-5.961-4.445s3.24-1.575 6.49-1.575l2.451-7.565c.092-.366.36-.614.662-.614.302 0 .57.248.662.614l2.45 7.565c3.85 0 6.491 1.575 6.491 1.575L16.088.727C15.93.285 15.663 0 15.303 0H8.697c-.36 0-.615.285-.784.727l-5.516 14.99z"/></svg>Astro</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">context-meter</span> <span class="cp-w">--astro</span></code><button class="cp-copy" type="button" data-copy="npx designme add context-meter --astro" data-label="Copy" aria-label="Copy the Astro install command">Copy</button></div></div><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--pg-react)" d="M14.23 12.004a2.236 2.236 0 0 1-2.235 2.236 2.236 2.236 0 0 1-2.236-2.236 2.236 2.236 0 0 1 2.235-2.236 2.236 2.236 0 0 1 2.236 2.236zm2.648-10.69c-1.346 0-3.107.96-4.888 2.622-1.78-1.653-3.542-2.602-4.887-2.602-.41 0-.783.093-1.106.278-1.375.793-1.683 3.264-.973 6.365C1.98 8.917 0 10.42 0 12.004c0 1.59 1.99 3.097 5.043 4.03-.704 3.113-.39 5.588.988 6.38.32.187.69.275 1.102.275 1.345 0 3.107-.96 4.888-2.624 1.78 1.654 3.542 2.603 4.887 2.603.41 0 .783-.09 1.106-.275 1.374-.792 1.683-3.263.973-6.365C22.02 15.096 24 13.59 24 12.004c0-1.59-1.99-3.097-5.043-4.032.704-3.11.39-5.587-.988-6.38-.318-.184-.688-.277-1.092-.278zm-.005 1.09v.006c.225 0 .406.044.558.127.666.382.955 1.835.73 3.704-.054.46-.142.945-.25 1.44-.96-.236-2.006-.417-3.107-.534-.66-.905-1.345-1.727-2.035-2.447 1.592-1.48 3.087-2.292 4.105-2.295zm-9.77.02c1.012 0 2.514.808 4.11 2.28-.686.72-1.37 1.537-2.02 2.442-1.107.117-2.154.298-3.113.538-.112-.49-.195-.964-.254-1.42-.23-1.868.054-3.32.714-3.707.19-.09.4-.127.563-.132zm4.882 3.05c.455.468.91.992 1.36 1.564-.44-.02-.89-.034-1.345-.034-.46 0-.915.01-1.36.034.44-.572.895-1.096 1.345-1.565zM12 8.1c.74 0 1.477.034 2.202.093.406.582.802 1.203 1.183 1.86.372.64.71 1.29 1.018 1.946-.308.655-.646 1.31-1.013 1.95-.38.66-.773 1.288-1.18 1.87-.728.063-1.466.098-2.21.098-.74 0-1.477-.035-2.202-.093-.406-.582-.802-1.204-1.183-1.86-.372-.64-.71-1.29-1.018-1.946.303-.657.646-1.313 1.013-1.954.38-.66.773-1.286 1.18-1.868.728-.064 1.466-.098 2.21-.098zm-3.635.254c-.24.377-.48.763-.704 1.16-.225.39-.435.782-.635 1.174-.265-.656-.49-1.31-.676-1.947.64-.15 1.315-.283 2.015-.386zm7.26 0c.695.103 1.365.23 2.006.387-.18.632-.405 1.282-.66 1.933-.2-.39-.41-.783-.64-1.174-.225-.392-.465-.774-.705-1.146zm3.063.675c.484.15.944.317 1.375.498 1.732.74 2.852 1.708 2.852 2.476-.005.768-1.125 1.74-2.857 2.475-.42.18-.88.342-1.355.493-.28-.958-.646-1.956-1.1-2.98.45-1.017.81-2.01 1.085-2.964zm-13.395.004c.278.96.645 1.957 1.1 2.98-.45 1.017-.812 2.01-1.086 2.964-.484-.15-.944-.318-1.37-.5-1.732-.737-2.852-1.706-2.852-2.474 0-.768 1.12-1.742 2.852-2.476.42-.18.88-.342 1.356-.494zm11.678 4.28c.265.657.49 1.312.676 1.948-.64.157-1.316.29-2.016.39.24-.375.48-.762.705-1.158.225-.39.435-.788.636-1.18zm-9.945.02c.2.392.41.783.64 1.175.23.39.465.772.705 1.143-.695-.102-1.365-.23-2.006-.386.18-.63.406-1.282.66-1.933zM17.92 16.32c.112.493.2.968.254 1.423.23 1.868-.054 3.32-.714 3.708-.147.09-.338.128-.563.128-1.012 0-2.514-.807-4.11-2.28.686-.72 1.37-1.536 2.02-2.44 1.107-.118 2.154-.3 3.113-.54zm-11.83.01c.96.234 2.006.415 3.107.532.66.905 1.345 1.727 2.035 2.446-1.595 1.483-3.092 2.295-4.11 2.295-.22-.005-.406-.05-.553-.132-.666-.38-.955-1.834-.73-3.703.054-.46.142-.944.25-1.438zm4.56.64c.44.02.89.034 1.345.034.46 0 .915-.01 1.36-.034-.44.572-.895 1.095-1.345 1.565-.455-.47-.91-.993-1.36-1.565z"/></svg>shadcn, React</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">shadcn@latest</span> <span class="cp-w">add</span> https:/<wbr>/<wbr>designme.dev/<wbr>r/<wbr>shadcn/<wbr>context-meter.json</code><button class="cp-copy" type="button" data-copy="npx shadcn@latest add https://designme.dev/r/shadcn/context-meter.json" data-label="Copy" aria-label="Copy the shadcn command for React">Copy</button></div></div><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="#bc52ee" d="M8.358 20.162c-1.186-1.07-1.532-3.316-1.038-4.944.856 1.026 2.043 1.352 3.272 1.535 1.897.283 3.76.177 5.522-.678.202-.098.388-.229.608-.36.166.473.209.95.151 1.437-.14 1.185-.738 2.1-1.688 2.794-.38.277-.782.525-1.175.787-1.205.804-1.531 1.747-1.078 3.119l.044.148a3.158 3.158 0 0 1-1.407-1.188 3.31 3.31 0 0 1-.544-1.815c-.004-.32-.004-.642-.048-.958-.106-.769-.472-1.113-1.161-1.133-.707-.02-1.267.411-1.415 1.09-.012.053-.028.104-.045.165h.002zm-5.961-4.445s3.24-1.575 6.49-1.575l2.451-7.565c.092-.366.36-.614.662-.614.302 0 .57.248.662.614l2.45 7.565c3.85 0 6.491 1.575 6.491 1.575L16.088.727C15.93.285 15.663 0 15.303 0H8.697c-.36 0-.615.285-.784.727l-5.516 14.99z"/></svg>shadcn, Astro</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">shadcn@latest</span> <span class="cp-w">add</span> https:/<wbr>/<wbr>designme.dev/<wbr>r/<wbr>shadcn/<wbr>astro/<wbr>context-meter.json</code><button class="cp-copy" type="button" data-copy="npx shadcn@latest add https://designme.dev/r/shadcn/astro/context-meter.json" data-label="Copy" aria-label="Copy the shadcn command for Astro">Copy</button></div></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. Where each version lands, what it needs and the shadcn theme bridge: <a href="/docs/installation">Installation</a>.</p></section><section class="cp-sec" id="about"><div class="pg-sh"><span class="n">02</span><h2>About</h2><p>What it is for and what it does.</p></div><p class="cp-sum">Context meter shows how full an agent's context window is and what fills it. A small pill with a ring and a percentage opens a panel above it with one bar split by kind (files, tool output, chat, instructions), a legend whose rows list what is in them on hover, and a Compact button that frees room and says how much.</p><div class="cp-gap"><div class="cp-tl" role="tablist" aria-label="About"><button type="button" role="tab" id="ab-t0" aria-controls="ab-p0" aria-selected="true" tabindex="0">When to use it</button><button type="button" role="tab" id="ab-t1" aria-controls="ab-p1" aria-selected="false" tabindex="-1">What it does</button><button type="button" role="tab" id="ab-t2" aria-controls="ab-p2" aria-selected="false" tabindex="-1">Accessibility</button></div><div class="cp-tp" role="tabpanel" id="ab-p0" aria-labelledby="ab-t0"><ul><li>When long agent sessions run close to the context limit and people should see it coming.</li><li>When people want to know why the context is full, not only how full it is.</li><li>When your agent can compact a session, and people should decide when and see what it freed.</li><li>When a new tool result can suddenly take a large share and you want to warn about it.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p1" aria-labelledby="ab-t1" hidden><ul><li><code>parts</code> are the kinds of thing in the context, each with a <code>label</code>, a <code>tokens</code> count, an optional <code>color</code> (by default the accent, violet, teal and a neutral grey, in order) and <code>items</code>, the list shown on hover. <code>limit</code> is the size of the window.</li><li>The pill shows the ring and the share used. From <code>warnAt</code> of the limit, 85% by default, the ring turns orange.</li><li>The bar and the numbers count to their new values whenever <code>parts</code> change, so a compaction counts down.</li><li>Hovering a legend row lights its share of the bar and shows its <code>items</code>.</li><li><code>message</code> adds a line under the legend. With <code>messageTone: 'warn'</code> it is a warning notice: a faint warning tint, the filled warning sign and the words in the text colour, and Compact takes the warning tint as the action that resolves it. With <code>'ok'</code> it is a plain line with the green tick, like "Freed 41.2k tokens. 9 decisions kept". The line takes no room while empty and opens smoothly when a message comes.</li><li>Compact calls <code>onCompact</code>. Return a promise and, until it settles, the button gives way to a status in its place, a spinner and "Compacting…" with a moving highlight (nothing to press while it runs), while the line beside it says <code>busyHint</code> with the same highlight; the row keeps its height. Set <code>compacted</code> and the button becomes Undo, which calls <code>onUndo</code>.</li><li>The pill opens and shuts the panel, and <code>open</code>, <code>defaultOpen</code> and <code>onOpenChange</code> let you control it. The panel opens above the pill, as it would under a chat composer, and the pill's chevron points up while it is shut. <code>placement</code> (<code>'top'</code> by default, or <code>'bottom'</code>) picks the side; when the window, or a box round the meter that clips it, has no room on that side and more on the other, it opens there instead. The panel grows out of the pill and folds back into it when shut.</li><li>Ships in Clean too (<code>data-style="clean"</code>): the pill is a flat secondary control (a hairline and a light fill), the panel is a round card with off-white head and foot strips and its content 16px in from every edge, the bar and its parts keep their colours on round tracks, Compact is a 28px secondary pill 16px from the foot strip's top and bottom and 16px in from the side, on the content's column, and the panel fades and scales a little from the pill as it opens and shuts.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p2" aria-labelledby="ab-t2" hidden><ul><li>The pill is a button with <code>aria-expanded</code> and a label that includes the share used, like "Context, 68% used".</li><li>The panel is a region labelled "What fills the context", and it is inert while shut so its controls can't be reached.</li><li>Escape shuts the panel while the pointer or the focus is on the meter, and moves the focus back to the pill if it was inside.</li><li>The message line is an <code>aria-live="polite"</code> region, so a warning or the compaction result is announced.</li></ul></div></div></section><section class="cp-sec" id="usage"><div class="pg-sh"><span class="n">03</span><h2>Usage</h2><p>Import it in React and drive it from your own state, or place it in an Astro page.</p></div><div class="cp-box"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--pg-react)" d="M14.23 12.004a2.236 2.236 0 0 1-2.235 2.236 2.236 2.236 0 0 1-2.236-2.236 2.236 2.236 0 0 1 2.235-2.236 2.236 2.236 0 0 1 2.236 2.236zm2.648-10.69c-1.346 0-3.107.96-4.888 2.622-1.78-1.653-3.542-2.602-4.887-2.602-.41 0-.783.093-1.106.278-1.375.793-1.683 3.264-.973 6.365C1.98 8.917 0 10.42 0 12.004c0 1.59 1.99 3.097 5.043 4.03-.704 3.113-.39 5.588.988 6.38.32.187.69.275 1.102.275 1.345 0 3.107-.96 4.888-2.624 1.78 1.654 3.542 2.603 4.887 2.603.41 0 .783-.09 1.106-.275 1.374-.792 1.683-3.263.973-6.365C22.02 15.096 24 13.59 24 12.004c0-1.59-1.99-3.097-5.043-4.032.704-3.11.39-5.587-.988-6.38-.318-.184-.688-.277-1.092-.278zm-.005 1.09v.006c.225 0 .406.044.558.127.666.382.955 1.835.73 3.704-.054.46-.142.945-.25 1.44-.96-.236-2.006-.417-3.107-.534-.66-.905-1.345-1.727-2.035-2.447 1.592-1.48 3.087-2.292 4.105-2.295zm-9.77.02c1.012 0 2.514.808 4.11 2.28-.686.72-1.37 1.537-2.02 2.442-1.107.117-2.154.298-3.113.538-.112-.49-.195-.964-.254-1.42-.23-1.868.054-3.32.714-3.707.19-.09.4-.127.563-.132zm4.882 3.05c.455.468.91.992 1.36 1.564-.44-.02-.89-.034-1.345-.034-.46 0-.915.01-1.36.034.44-.572.895-1.096 1.345-1.565zM12 8.1c.74 0 1.477.034 2.202.093.406.582.802 1.203 1.183 1.86.372.64.71 1.29 1.018 1.946-.308.655-.646 1.31-1.013 1.95-.38.66-.773 1.288-1.18 1.87-.728.063-1.466.098-2.21.098-.74 0-1.477-.035-2.202-.093-.406-.582-.802-1.204-1.183-1.86-.372-.64-.71-1.29-1.018-1.946.303-.657.646-1.313 1.013-1.954.38-.66.773-1.286 1.18-1.868.728-.064 1.466-.098 2.21-.098zm-3.635.254c-.24.377-.48.763-.704 1.16-.225.39-.435.782-.635 1.174-.265-.656-.49-1.31-.676-1.947.64-.15 1.315-.283 2.015-.386zm7.26 0c.695.103 1.365.23 2.006.387-.18.632-.405 1.282-.66 1.933-.2-.39-.41-.783-.64-1.174-.225-.392-.465-.774-.705-1.146zm3.063.675c.484.15.944.317 1.375.498 1.732.74 2.852 1.708 2.852 2.476-.005.768-1.125 1.74-2.857 2.475-.42.18-.88.342-1.355.493-.28-.958-.646-1.956-1.1-2.98.45-1.017.81-2.01 1.085-2.964zm-13.395.004c.278.96.645 1.957 1.1 2.98-.45 1.017-.812 2.01-1.086 2.964-.484-.15-.944-.318-1.37-.5-1.732-.737-2.852-1.706-2.852-2.474 0-.768 1.12-1.742 2.852-2.476.42-.18.88-.342 1.356-.494zm11.678 4.28c.265.657.49 1.312.676 1.948-.64.157-1.316.29-2.016.39.24-.375.48-.762.705-1.158.225-.39.435-.788.636-1.18zm-9.945.02c.2.392.41.783.64 1.175.23.39.465.772.705 1.143-.695-.102-1.365-.23-2.006-.386.18-.63.406-1.282.66-1.933zM17.92 16.32c.112.493.2.968.254 1.423.23 1.868-.054 3.32-.714 3.708-.147.09-.338.128-.563.128-1.012 0-2.514-.807-4.11-2.28.686-.72 1.37-1.536 2.02-2.44 1.107-.118 2.154-.3 3.113-.54zm-11.83.01c.96.234 2.006.415 3.107.532.66.905 1.345 1.727 2.035 2.446-1.595 1.483-3.092 2.295-4.11 2.295-.22-.005-.406-.05-.553-.132-.666-.38-.955-1.834-.73-3.703.054-.46.142-.944.25-1.438zm4.56.64c.44.02.89.034 1.345.034.46 0 .915-.01 1.36-.034-.44.572-.895 1.095-1.345 1.565-.455-.47-.91-.993-1.36-1.565z"/></svg>React</h3><pre class="cp-pre" data-name="React import"><code>import { ContextMeter } from &#39;@/components/designme/context-meter/ContextMeter&#39;;</code></pre></div><div class="cp-box cp-gap"><h3 class="pg-t">React example</h3><p class="pg-d">The demo above as a React component, 51 lines you can copy.</p><pre class="cp-pre" data-name="React example"><code>&#39;use client&#39;;
+</script><div class="dc-bar"><nav aria-label="On this page"><a href="#install">Install</a><a href="#about">About</a><a href="#usage">Usage</a><a href="#props">Props</a><a href="#code">Code</a><a href="#questions">Questions</a><a href="#more">More</a></nav></div><section class="cp-sec" id="install"><div class="pg-sh"><span class="n">01</span><h2>Install</h2><p>Add it to your project with the CLI.</p></div><div class="cp-ins"><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="#e34f26" d="M1.5 0h21l-1.91 21.563L11.977 24l-8.564-2.438L1.5 0z"/><path fill="#fff" d="M8.531 9.75l-.232-2.718 10.059.003.23-2.622L5.412 4.41l.698 8.01h9.126l-.326 3.426-2.91.804-2.955-.81-.188-2.11H6.248l.33 4.171L12 19.351l5.379-1.443.744-8.157H8.531z"/></svg>HTML, CSS and JS</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">context-meter</span></code><button class="cp-copy" type="button" data-copy="npx designme add context-meter" data-label="Copy" aria-label="Copy the HTML install command">Copy</button></div></div><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--pg-react)" d="M14.23 12.004a2.236 2.236 0 0 1-2.235 2.236 2.236 2.236 0 0 1-2.236-2.236 2.236 2.236 0 0 1 2.235-2.236 2.236 2.236 0 0 1 2.236 2.236zm2.648-10.69c-1.346 0-3.107.96-4.888 2.622-1.78-1.653-3.542-2.602-4.887-2.602-.41 0-.783.093-1.106.278-1.375.793-1.683 3.264-.973 6.365C1.98 8.917 0 10.42 0 12.004c0 1.59 1.99 3.097 5.043 4.03-.704 3.113-.39 5.588.988 6.38.32.187.69.275 1.102.275 1.345 0 3.107-.96 4.888-2.624 1.78 1.654 3.542 2.603 4.887 2.603.41 0 .783-.09 1.106-.275 1.374-.792 1.683-3.263.973-6.365C22.02 15.096 24 13.59 24 12.004c0-1.59-1.99-3.097-5.043-4.032.704-3.11.39-5.587-.988-6.38-.318-.184-.688-.277-1.092-.278zm-.005 1.09v.006c.225 0 .406.044.558.127.666.382.955 1.835.73 3.704-.054.46-.142.945-.25 1.44-.96-.236-2.006-.417-3.107-.534-.66-.905-1.345-1.727-2.035-2.447 1.592-1.48 3.087-2.292 4.105-2.295zm-9.77.02c1.012 0 2.514.808 4.11 2.28-.686.72-1.37 1.537-2.02 2.442-1.107.117-2.154.298-3.113.538-.112-.49-.195-.964-.254-1.42-.23-1.868.054-3.32.714-3.707.19-.09.4-.127.563-.132zm4.882 3.05c.455.468.91.992 1.36 1.564-.44-.02-.89-.034-1.345-.034-.46 0-.915.01-1.36.034.44-.572.895-1.096 1.345-1.565zM12 8.1c.74 0 1.477.034 2.202.093.406.582.802 1.203 1.183 1.86.372.64.71 1.29 1.018 1.946-.308.655-.646 1.31-1.013 1.95-.38.66-.773 1.288-1.18 1.87-.728.063-1.466.098-2.21.098-.74 0-1.477-.035-2.202-.093-.406-.582-.802-1.204-1.183-1.86-.372-.64-.71-1.29-1.018-1.946.303-.657.646-1.313 1.013-1.954.38-.66.773-1.286 1.18-1.868.728-.064 1.466-.098 2.21-.098zm-3.635.254c-.24.377-.48.763-.704 1.16-.225.39-.435.782-.635 1.174-.265-.656-.49-1.31-.676-1.947.64-.15 1.315-.283 2.015-.386zm7.26 0c.695.103 1.365.23 2.006.387-.18.632-.405 1.282-.66 1.933-.2-.39-.41-.783-.64-1.174-.225-.392-.465-.774-.705-1.146zm3.063.675c.484.15.944.317 1.375.498 1.732.74 2.852 1.708 2.852 2.476-.005.768-1.125 1.74-2.857 2.475-.42.18-.88.342-1.355.493-.28-.958-.646-1.956-1.1-2.98.45-1.017.81-2.01 1.085-2.964zm-13.395.004c.278.96.645 1.957 1.1 2.98-.45 1.017-.812 2.01-1.086 2.964-.484-.15-.944-.318-1.37-.5-1.732-.737-2.852-1.706-2.852-2.474 0-.768 1.12-1.742 2.852-2.476.42-.18.88-.342 1.356-.494zm11.678 4.28c.265.657.49 1.312.676 1.948-.64.157-1.316.29-2.016.39.24-.375.48-.762.705-1.158.225-.39.435-.788.636-1.18zm-9.945.02c.2.392.41.783.64 1.175.23.39.465.772.705 1.143-.695-.102-1.365-.23-2.006-.386.18-.63.406-1.282.66-1.933zM17.92 16.32c.112.493.2.968.254 1.423.23 1.868-.054 3.32-.714 3.708-.147.09-.338.128-.563.128-1.012 0-2.514-.807-4.11-2.28.686-.72 1.37-1.536 2.02-2.44 1.107-.118 2.154-.3 3.113-.54zm-11.83.01c.96.234 2.006.415 3.107.532.66.905 1.345 1.727 2.035 2.446-1.595 1.483-3.092 2.295-4.11 2.295-.22-.005-.406-.05-.553-.132-.666-.38-.955-1.834-.73-3.703.054-.46.142-.944.25-1.438zm4.56.64c.44.02.89.034 1.345.034.46 0 .915-.01 1.36-.034-.44.572-.895 1.095-1.345 1.565-.455-.47-.91-.993-1.36-1.565z"/></svg>React</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">context-meter</span> <span class="cp-w">--react</span></code><button class="cp-copy" type="button" data-copy="npx designme add context-meter --react" data-label="Copy" aria-label="Copy the React install command">Copy</button></div></div><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="#bc52ee" d="M8.358 20.162c-1.186-1.07-1.532-3.316-1.038-4.944.856 1.026 2.043 1.352 3.272 1.535 1.897.283 3.76.177 5.522-.678.202-.098.388-.229.608-.36.166.473.209.95.151 1.437-.14 1.185-.738 2.1-1.688 2.794-.38.277-.782.525-1.175.787-1.205.804-1.531 1.747-1.078 3.119l.044.148a3.158 3.158 0 0 1-1.407-1.188 3.31 3.31 0 0 1-.544-1.815c-.004-.32-.004-.642-.048-.958-.106-.769-.472-1.113-1.161-1.133-.707-.02-1.267.411-1.415 1.09-.012.053-.028.104-.045.165h.002zm-5.961-4.445s3.24-1.575 6.49-1.575l2.451-7.565c.092-.366.36-.614.662-.614.302 0 .57.248.662.614l2.45 7.565c3.85 0 6.491 1.575 6.491 1.575L16.088.727C15.93.285 15.663 0 15.303 0H8.697c-.36 0-.615.285-.784.727l-5.516 14.99z"/></svg>Astro</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">context-meter</span> <span class="cp-w">--astro</span></code><button class="cp-copy" type="button" data-copy="npx designme add context-meter --astro" data-label="Copy" aria-label="Copy the Astro install command">Copy</button></div></div><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--pg-react)" d="M14.23 12.004a2.236 2.236 0 0 1-2.235 2.236 2.236 2.236 0 0 1-2.236-2.236 2.236 2.236 0 0 1 2.235-2.236 2.236 2.236 0 0 1 2.236 2.236zm2.648-10.69c-1.346 0-3.107.96-4.888 2.622-1.78-1.653-3.542-2.602-4.887-2.602-.41 0-.783.093-1.106.278-1.375.793-1.683 3.264-.973 6.365C1.98 8.917 0 10.42 0 12.004c0 1.59 1.99 3.097 5.043 4.03-.704 3.113-.39 5.588.988 6.38.32.187.69.275 1.102.275 1.345 0 3.107-.96 4.888-2.624 1.78 1.654 3.542 2.603 4.887 2.603.41 0 .783-.09 1.106-.275 1.374-.792 1.683-3.263.973-6.365C22.02 15.096 24 13.59 24 12.004c0-1.59-1.99-3.097-5.043-4.032.704-3.11.39-5.587-.988-6.38-.318-.184-.688-.277-1.092-.278zm-.005 1.09v.006c.225 0 .406.044.558.127.666.382.955 1.835.73 3.704-.054.46-.142.945-.25 1.44-.96-.236-2.006-.417-3.107-.534-.66-.905-1.345-1.727-2.035-2.447 1.592-1.48 3.087-2.292 4.105-2.295zm-9.77.02c1.012 0 2.514.808 4.11 2.28-.686.72-1.37 1.537-2.02 2.442-1.107.117-2.154.298-3.113.538-.112-.49-.195-.964-.254-1.42-.23-1.868.054-3.32.714-3.707.19-.09.4-.127.563-.132zm4.882 3.05c.455.468.91.992 1.36 1.564-.44-.02-.89-.034-1.345-.034-.46 0-.915.01-1.36.034.44-.572.895-1.096 1.345-1.565zM12 8.1c.74 0 1.477.034 2.202.093.406.582.802 1.203 1.183 1.86.372.64.71 1.29 1.018 1.946-.308.655-.646 1.31-1.013 1.95-.38.66-.773 1.288-1.18 1.87-.728.063-1.466.098-2.21.098-.74 0-1.477-.035-2.202-.093-.406-.582-.802-1.204-1.183-1.86-.372-.64-.71-1.29-1.018-1.946.303-.657.646-1.313 1.013-1.954.38-.66.773-1.286 1.18-1.868.728-.064 1.466-.098 2.21-.098zm-3.635.254c-.24.377-.48.763-.704 1.16-.225.39-.435.782-.635 1.174-.265-.656-.49-1.31-.676-1.947.64-.15 1.315-.283 2.015-.386zm7.26 0c.695.103 1.365.23 2.006.387-.18.632-.405 1.282-.66 1.933-.2-.39-.41-.783-.64-1.174-.225-.392-.465-.774-.705-1.146zm3.063.675c.484.15.944.317 1.375.498 1.732.74 2.852 1.708 2.852 2.476-.005.768-1.125 1.74-2.857 2.475-.42.18-.88.342-1.355.493-.28-.958-.646-1.956-1.1-2.98.45-1.017.81-2.01 1.085-2.964zm-13.395.004c.278.96.645 1.957 1.1 2.98-.45 1.017-.812 2.01-1.086 2.964-.484-.15-.944-.318-1.37-.5-1.732-.737-2.852-1.706-2.852-2.474 0-.768 1.12-1.742 2.852-2.476.42-.18.88-.342 1.356-.494zm11.678 4.28c.265.657.49 1.312.676 1.948-.64.157-1.316.29-2.016.39.24-.375.48-.762.705-1.158.225-.39.435-.788.636-1.18zm-9.945.02c.2.392.41.783.64 1.175.23.39.465.772.705 1.143-.695-.102-1.365-.23-2.006-.386.18-.63.406-1.282.66-1.933zM17.92 16.32c.112.493.2.968.254 1.423.23 1.868-.054 3.32-.714 3.708-.147.09-.338.128-.563.128-1.012 0-2.514-.807-4.11-2.28.686-.72 1.37-1.536 2.02-2.44 1.107-.118 2.154-.3 3.113-.54zm-11.83.01c.96.234 2.006.415 3.107.532.66.905 1.345 1.727 2.035 2.446-1.595 1.483-3.092 2.295-4.11 2.295-.22-.005-.406-.05-.553-.132-.666-.38-.955-1.834-.73-3.703.054-.46.142-.944.25-1.438zm4.56.64c.44.02.89.034 1.345.034.46 0 .915-.01 1.36-.034-.44.572-.895 1.095-1.345 1.565-.455-.47-.91-.993-1.36-1.565z"/></svg>shadcn, React</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">shadcn@latest</span> <span class="cp-w">add</span> https:/<wbr>/<wbr>designme.dev/<wbr>r/<wbr>shadcn/<wbr>context-meter.json</code><button class="cp-copy" type="button" data-copy="npx shadcn@latest add https://designme.dev/r/shadcn/context-meter.json" data-label="Copy" aria-label="Copy the shadcn command for React">Copy</button></div></div><div class="cp-row"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="#bc52ee" d="M8.358 20.162c-1.186-1.07-1.532-3.316-1.038-4.944.856 1.026 2.043 1.352 3.272 1.535 1.897.283 3.76.177 5.522-.678.202-.098.388-.229.608-.36.166.473.209.95.151 1.437-.14 1.185-.738 2.1-1.688 2.794-.38.277-.782.525-1.175.787-1.205.804-1.531 1.747-1.078 3.119l.044.148a3.158 3.158 0 0 1-1.407-1.188 3.31 3.31 0 0 1-.544-1.815c-.004-.32-.004-.642-.048-.958-.106-.769-.472-1.113-1.161-1.133-.707-.02-1.267.411-1.415 1.09-.012.053-.028.104-.045.165h.002zm-5.961-4.445s3.24-1.575 6.49-1.575l2.451-7.565c.092-.366.36-.614.662-.614.302 0 .57.248.662.614l2.45 7.565c3.85 0 6.491 1.575 6.491 1.575L16.088.727C15.93.285 15.663 0 15.303 0H8.697c-.36 0-.615.285-.784.727l-5.516 14.99z"/></svg>shadcn, Astro</h3><div class="cp-line"><span class="d">$</span><code><span class="cp-w">npx</span> <span class="cp-w">shadcn@latest</span> <span class="cp-w">add</span> https:/<wbr>/<wbr>designme.dev/<wbr>r/<wbr>shadcn/<wbr>astro/<wbr>context-meter.json</code><button class="cp-copy" type="button" data-copy="npx shadcn@latest add https://designme.dev/r/shadcn/astro/context-meter.json" data-label="Copy" aria-label="Copy the shadcn command for Astro">Copy</button></div></div></div><p class="cp-note">The CLI copies the source into your project, so you own it and can change anything. Where each version lands, what it needs and the shadcn theme bridge: <a href="/docs/installation">Installation</a>.</p></section><section class="cp-sec" id="about"><div class="pg-sh"><span class="n">02</span><h2>About</h2><p>What it is for and what it does.</p></div><p class="cp-sum">Context meter shows how full an agent's context window is and what fills it. A small pill with a ring and a percentage opens a panel above it with one bar split by kind (files, tool output, chat, instructions), a legend whose rows list what is in them on hover, and a Compact button that frees room and says how much.</p><div class="cp-gap"><div class="cp-tl" role="tablist" aria-label="About"><button type="button" role="tab" id="ab-t0" aria-controls="ab-p0" aria-selected="true" tabindex="0">When to use it</button><button type="button" role="tab" id="ab-t1" aria-controls="ab-p1" aria-selected="false" tabindex="-1">What it does</button><button type="button" role="tab" id="ab-t2" aria-controls="ab-p2" aria-selected="false" tabindex="-1">Accessibility</button></div><div class="cp-tp" role="tabpanel" id="ab-p0" aria-labelledby="ab-t0"><ul><li>When long agent sessions run close to the context limit and people should see it coming.</li><li>When people want to know why the context is full, not only how full it is.</li><li>When your agent can compact a session, and people should decide when and see what it freed.</li><li>When a new tool result can suddenly take a large share and you want to warn about it.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p1" aria-labelledby="ab-t1" hidden><ul><li><code>parts</code> are the kinds of thing in the context, each with a <code>label</code>, a <code>tokens</code> count, an optional <code>color</code> (by default the accent, violet, teal and a neutral grey, in order) and <code>items</code>, the list shown on hover. <code>limit</code> is the size of the window.</li><li>The pill shows the ring and the share used. As the share rises, the percentage counts up in place and the ring grows; each step sends a thin bright highlight once along the ring's filled arc and lifts the ring a touch. As the count passes <code>warnAt</code> of the limit, 85% by default, the warning orange wipes along the ring from its start (the two colours never blend) and the pill nudges once; when it drops back below, the orange wipes back the same way.</li><li>The bar and the numbers count to their new values whenever <code>parts</code> change, so a compaction counts down.</li><li>Hovering a legend row lights its share of the bar and shows its <code>items</code>, and one highlight glides from row to row.</li><li><code>message</code> adds a line under the legend. With <code>messageTone: 'warn'</code> it is a warning notice: a faint warning tint, the filled warning sign and the words in the text colour, and Compact takes the warning tint as the action that resolves it. With <code>'ok'</code> it is a plain line with the green tick, like "Freed 120.0k tokens. 9 decisions kept". The line takes no room while empty and opens smoothly when a message comes.</li><li>Compact calls <code>onCompact</code>. Return a promise and, until it settles, the button gives way to a status in its place, a spinner and "Compacting…" with a moving highlight (nothing to press while it runs), while the line beside it says <code>busyHint</code> with the same highlight; the row keeps its height. Set <code>compacted</code> and the button becomes Undo, which calls <code>onUndo</code>. The button eases to the width of its new words.</li><li>The pill opens and shuts the panel, and <code>open</code>, <code>defaultOpen</code> and <code>onOpenChange</code> let you control it. The panel opens above the pill, as it would under a chat composer, and the pill's chevron points up while it is shut. <code>placement</code> (<code>'top'</code> by default, or <code>'bottom'</code>) picks the side; when the window, or a box round the meter that clips it, has no room on that side and more on the other, it opens there instead. The panel grows out of the pill and folds back into it when shut.</li><li>Ships in Clean too (<code>data-style="clean"</code>): the pill is a flat secondary control (a hairline and a light fill), the panel is a round card with off-white head and foot strips and its content 16px in from every edge, the bar and its parts keep their colours on round tracks, Compact is a 28px secondary pill 16px from the foot strip's top and bottom and 16px in from the side, on the content's column, and the panel fades and scales a little from the pill as it opens and shuts.</li></ul></div><div class="cp-tp" role="tabpanel" id="ab-p2" aria-labelledby="ab-t2" hidden><ul><li>The pill is a button with <code>aria-expanded</code> and a label that includes the share used, like "Context, 68% used".</li><li>The panel is a region labelled "What fills the context", and it is inert while shut so its controls can't be reached.</li><li>Escape shuts the panel while the pointer or the focus is on the meter, and moves the focus back to the pill if it was inside.</li><li>The message line is an <code>aria-live="polite"</code> region, so a warning or the compaction result is announced.</li><li>With reduced motion the ring and its colour change at once, with no highlight, lift, nudge or wipe.</li></ul></div></div></section><section class="cp-sec" id="usage"><div class="pg-sh"><span class="n">03</span><h2>Usage</h2><p>Import it in React and drive it from your own state, or place it in an Astro page.</p></div><div class="cp-box"><h3 class="pg-t cp-mt"><svg class="cp-mk" viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--pg-react)" d="M14.23 12.004a2.236 2.236 0 0 1-2.235 2.236 2.236 2.236 0 0 1-2.236-2.236 2.236 2.236 0 0 1 2.235-2.236 2.236 2.236 0 0 1 2.236 2.236zm2.648-10.69c-1.346 0-3.107.96-4.888 2.622-1.78-1.653-3.542-2.602-4.887-2.602-.41 0-.783.093-1.106.278-1.375.793-1.683 3.264-.973 6.365C1.98 8.917 0 10.42 0 12.004c0 1.59 1.99 3.097 5.043 4.03-.704 3.113-.39 5.588.988 6.38.32.187.69.275 1.102.275 1.345 0 3.107-.96 4.888-2.624 1.78 1.654 3.542 2.603 4.887 2.603.41 0 .783-.09 1.106-.275 1.374-.792 1.683-3.263.973-6.365C22.02 15.096 24 13.59 24 12.004c0-1.59-1.99-3.097-5.043-4.032.704-3.11.39-5.587-.988-6.38-.318-.184-.688-.277-1.092-.278zm-.005 1.09v.006c.225 0 .406.044.558.127.666.382.955 1.835.73 3.704-.054.46-.142.945-.25 1.44-.96-.236-2.006-.417-3.107-.534-.66-.905-1.345-1.727-2.035-2.447 1.592-1.48 3.087-2.292 4.105-2.295zm-9.77.02c1.012 0 2.514.808 4.11 2.28-.686.72-1.37 1.537-2.02 2.442-1.107.117-2.154.298-3.113.538-.112-.49-.195-.964-.254-1.42-.23-1.868.054-3.32.714-3.707.19-.09.4-.127.563-.132zm4.882 3.05c.455.468.91.992 1.36 1.564-.44-.02-.89-.034-1.345-.034-.46 0-.915.01-1.36.034.44-.572.895-1.096 1.345-1.565zM12 8.1c.74 0 1.477.034 2.202.093.406.582.802 1.203 1.183 1.86.372.64.71 1.29 1.018 1.946-.308.655-.646 1.31-1.013 1.95-.38.66-.773 1.288-1.18 1.87-.728.063-1.466.098-2.21.098-.74 0-1.477-.035-2.202-.093-.406-.582-.802-1.204-1.183-1.86-.372-.64-.71-1.29-1.018-1.946.303-.657.646-1.313 1.013-1.954.38-.66.773-1.286 1.18-1.868.728-.064 1.466-.098 2.21-.098zm-3.635.254c-.24.377-.48.763-.704 1.16-.225.39-.435.782-.635 1.174-.265-.656-.49-1.31-.676-1.947.64-.15 1.315-.283 2.015-.386zm7.26 0c.695.103 1.365.23 2.006.387-.18.632-.405 1.282-.66 1.933-.2-.39-.41-.783-.64-1.174-.225-.392-.465-.774-.705-1.146zm3.063.675c.484.15.944.317 1.375.498 1.732.74 2.852 1.708 2.852 2.476-.005.768-1.125 1.74-2.857 2.475-.42.18-.88.342-1.355.493-.28-.958-.646-1.956-1.1-2.98.45-1.017.81-2.01 1.085-2.964zm-13.395.004c.278.96.645 1.957 1.1 2.98-.45 1.017-.812 2.01-1.086 2.964-.484-.15-.944-.318-1.37-.5-1.732-.737-2.852-1.706-2.852-2.474 0-.768 1.12-1.742 2.852-2.476.42-.18.88-.342 1.356-.494zm11.678 4.28c.265.657.49 1.312.676 1.948-.64.157-1.316.29-2.016.39.24-.375.48-.762.705-1.158.225-.39.435-.788.636-1.18zm-9.945.02c.2.392.41.783.64 1.175.23.39.465.772.705 1.143-.695-.102-1.365-.23-2.006-.386.18-.63.406-1.282.66-1.933zM17.92 16.32c.112.493.2.968.254 1.423.23 1.868-.054 3.32-.714 3.708-.147.09-.338.128-.563.128-1.012 0-2.514-.807-4.11-2.28.686-.72 1.37-1.536 2.02-2.44 1.107-.118 2.154-.3 3.113-.54zm-11.83.01c.96.234 2.006.415 3.107.532.66.905 1.345 1.727 2.035 2.446-1.595 1.483-3.092 2.295-4.11 2.295-.22-.005-.406-.05-.553-.132-.666-.38-.955-1.834-.73-3.703.054-.46.142-.944.25-1.438zm4.56.64c.44.02.89.034 1.345.034.46 0 .915-.01 1.36-.034-.44.572-.895 1.095-1.345 1.565-.455-.47-.91-.993-1.36-1.565z"/></svg>React</h3><pre class="cp-pre" data-name="React import"><code>import { ContextMeter } from &#39;@/components/designme/context-meter/ContextMeter&#39;;</code></pre></div><div class="cp-box cp-gap"><h3 class="pg-t">React example</h3><p class="pg-d">The demo above as a React component, 62 lines you can copy.</p><pre class="cp-pre" data-name="React example"><code>&#39;use client&#39;;
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
 import { useEffect, useRef, useState } from &#39;react&#39;;
 import { ContextMeter, type ContextPart } from &#39;./ContextMeter&#39;;
 import { useStory, useWait } from &#39;../lib/useScript&#39;;
 
-/* ---------- Context meter: what fills it, new tool output takes it close to the limit, Compact frees room ---------- */
+/* ---------- Context meter: what fills it, the chat takes it step by step past 85%, Compact frees room ---------- */
 const START: ContextPart[] = [
-  { key: &#39;files&#39;, label: &#39;Files&#39;, tokens: 56200, items: &#39;Pricing.fig export 31.9k, PricingCard.tsx 18.2k, tokens.css 6.1k&#39; },
-  { key: &#39;tools&#39;, label: &#39;Tool output&#39;, tokens: 41800, items: &#39;Contrast check 17.4k, Figma frames 15.6k, grid audit 8.8k&#39; },
-  { key: &#39;chat&#39;, label: &#39;Chat&#39;, tokens: 32100, items: &#39;48 turns with Maya Kim since 09:12&#39; },
-  { key: &#39;sys&#39;, label: &#39;Instructions&#39;, tokens: 6300, items: &#39;Studio guidelines 4.1k, pricing brief 2.2k&#39; }
+  { key: &#39;files&#39;, label: &#39;Files&#39;, tokens: 32000, items: &#39;Pricing.fig export 19.8k, PricingCard.tsx 8.1k, tokens.css 4.1k&#39; },
+  { key: &#39;tools&#39;, label: &#39;Tool output&#39;, tokens: 24000, items: &#39;Contrast check 11.2k, Figma frames 8.6k, grid audit 4.2k&#39; },
+  { key: &#39;chat&#39;, label: &#39;Chat&#39;, tokens: 26000, items: &#39;Turns with Maya Kim since 09:12&#39; },
+  { key: &#39;sys&#39;, label: &#39;Instructions&#39;, tokens: 6000, items: &#39;Studio guidelines 3.9k, pricing brief 2.1k&#39; }
 ];
+// what the chat adds, one step at a time: [part, tokens, what it is]. The third takes it past 85%
+const STEPS: [string, number, string][] = [[&#39;files&#39;, 22000, &#39;brand-guide.pdf&#39;], [&#39;tools&#39;, 36000, &#39;web search&#39;], [&#39;chat&#39;, 28000, &#39;&#39;], [&#39;files&#39;, 10000, &#39;checkout.fig&#39;]];
+// compacting leaves a summary in place of older turns, reads and output
+const AFTER: Record&lt;string, [number, string]&gt; = {
+  files: [26000, &#39;Pricing.fig export 19.8k, summary of older reads 6.2k&#39;], tools: [24000, &#39;Contrast check 11.2k, summary of older output 12.8k&#39;],
+  chat: [8000, &#39;Summary of 48 turns, 9 decisions kept&#39;], sys: [6000, &#39;Studio guidelines 3.9k, pricing brief 2.1k&#39;]
+};
 const LIMIT = 200000;
 const sum = (ps: ContextPart[]) =&gt; ps.reduce((t, p) =&gt; t + p.tokens, 0);
-const set = (ps: ContextPart[], key: string, tokens: number) =&gt; ps.map(p =&gt; p.key === key ? { ...p, tokens } : p);
+const add = (ps: ContextPart[], [key, tokens, what]: [string, number, string]) =&gt; ps.map(p =&gt; p.key === key ? { ...p, tokens: p.tokens + tokens, items: what ? `${p.items}, ${what} ${(tokens / 1000).toFixed(1)}k` : p.items } : p);
 
 export default function ContextMeterDemo() {
   const ref = useRef&lt;HTMLDivElement&gt;(null);
@@ -374,21 +393,25 @@ export default function ContextMeterDemo() {
   const [open, setOpen] = useState(true);
   const live = useRef(parts);
   useEffect(() =&gt; { live.current = parts; });
-  const at = (ps: ContextPart[], key: string) =&gt; ps.find(p =&gt; p.key === key)!.tokens;
-  // Compact turns older turns into a summary and trims old tool output
+  // Compact turns older turns, reads and tool output into a summary
   const compact = async () =&gt; {
     await wait(1000);
-    const next = set(set(parts, &#39;chat&#39;, 4600), &#39;tools&#39;, at(parts, &#39;tools&#39;) - 13700);
+    const next = parts.map(p =&gt; AFTER[p.key] ? { ...p, tokens: AFTER[p.key][0], items: AFTER[p.key][1] } : p);
     setBefore(parts); setParts(next);
     setMessage({ text: `Freed ${((sum(parts) - sum(next)) / 1000).toFixed(1)}k tokens. 9 decisions kept`, tone: &#39;ok&#39; });
   };
   const undo = () =&gt; { if (before) setParts(before); setBefore(null); setMessage(undefined); };
-  // the preview&#39;s story: new tool output lands and takes it close to the limit, the person compacts, then shuts the panel
+  // the preview&#39;s story: the chat goes on, step by step, past 85% (the warning shows as the count passes it), the person
+  // compacts, then shuts the panel
   useStory(ref, async ({ wait, press }) =&gt; {
-    await wait(8000);
-    const next = set(live.current, &#39;tools&#39;, at(live.current, &#39;tools&#39;) + 38500);
-    setParts(next); setMessage({ text: `${Math.round(sum(next) / LIMIT * 100)}% full. Older turns start to drop at 200k`, tone: &#39;warn&#39; });
-    await wait(2000); press(&#39;.dm-ctm-go&#39;);
+    await wait(6000);
+    for (const [i, st] of STEPS.entries()) {
+      const next = add(live.current, st), pct = Math.round(sum(next) / LIMIT * 100), was = Math.round(sum(live.current) / LIMIT * 100);
+      setParts(next);
+      if (pct &gt;= 85) { if (was &lt; 85) await wait(300); setMessage({ text: `${pct}% full. Older turns start to drop at 200k`, tone: &#39;warn&#39; }); }
+      await wait(i === 2 ? 1700 : 1200);
+    }
+    await wait(500); press(&#39;.dm-ctm-go&#39;);
     await wait(3500); setOpen(false);
   });
   return (
@@ -402,12 +425,13 @@ export default function ContextMeterDemo() {
 import ContextMeter from &#39;../components/designme/context-meter/ContextMeter.astro&#39;;
 ---
 &lt;ContextMeter /&gt;
-&lt;ContextMeter data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything ContextMeter takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>parts</code><span class="opt">required</span></td><td><code>ContextPart[]</code></td><td></td></tr><tr><td><code>limit</code><span class="opt">required</span></td><td><code>number</code></td><td>The size of the context window, in tokens, like 200000</td></tr><tr><td><code>warnAt</code></td><td><code>number</code></td><td>From this share of the limit (0 to 1) the ring turns orange. Defaults to 0.85</td></tr><tr><td><code>message</code></td><td><code>string</code></td><td>A line under the legend, like &quot;Freed 41.2k tokens. 9 decisions kept&quot;. Crossfades when it changes</td></tr><tr><td><code>messageTone</code></td><td><code>&#39;warn&#39; | &#39;ok&#39;</code></td><td>warn shows the message as a warning notice (a faint warning tint, the filled warning sign, the words in the text colour) and puts Compact in the warning tint, as the action that resolves it; ok shows it as a plain line with the green tick</td></tr><tr><td><code>onCompact</code></td><td><code>() =&gt; void | Promise&lt;void&gt;</code></td><td>Called by Compact. Return a promise and, until it settles, the button gives way to a &quot;Compacting…&quot; status line with a spinner</td></tr><tr><td><code>compacted</code></td><td><code>boolean</code></td><td>Set once the context is compacted: the button turns into Undo, which calls onUndo</td></tr><tr><td><code>onUndo</code></td><td><code>() =&gt; void</code></td><td></td></tr><tr><td><code>hint</code></td><td><code>string</code></td><td>The quiet line beside the button. Defaults to what Compact does</td></tr><tr><td><code>busyHint</code></td><td><code>string</code></td><td>The line beside the button while Compact runs, with a moving highlight. Defaults to &quot;Summarising older turns&quot;</td></tr><tr><td><code>open</code></td><td><code>boolean</code></td><td>Whether the panel is open. Leave it out to let the pill toggle it</td></tr><tr><td><code>defaultOpen</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onOpenChange</code></td><td><code>(open: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>placement</code></td><td><code>&#39;top&#39; | &#39;bottom&#39;</code></td><td>Which side of the pill the panel opens on. Defaults to top, above the pill, as it sits under a chat composer. When the window, or a box round the meter that clips it, has no room on that side and more on the other, it opens there instead</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>ContextMeter.tsx<span class="l">React · 178 lines</span></summary><pre class="cp-pre" data-name="ContextMeter.tsx"><code>&#39;use client&#39;;
+&lt;ContextMeter data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything ContextMeter takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>parts</code><span class="opt">required</span></td><td><code>ContextPart[]</code></td><td></td></tr><tr><td><code>limit</code><span class="opt">required</span></td><td><code>number</code></td><td>The size of the context window, in tokens, like 200000</td></tr><tr><td><code>warnAt</code></td><td><code>number</code></td><td>From this share of the limit (0 to 1) the ring turns orange. Defaults to 0.85</td></tr><tr><td><code>message</code></td><td><code>string</code></td><td>A line under the legend, like &quot;Freed 41.2k tokens. 9 decisions kept&quot;. Crossfades when it changes</td></tr><tr><td><code>messageTone</code></td><td><code>&#39;warn&#39; | &#39;ok&#39;</code></td><td>warn shows the message as a warning notice (a faint warning tint, the filled warning sign, the words in the text colour) and puts Compact in the warning tint, as the action that resolves it; ok shows it as a plain line with the green tick</td></tr><tr><td><code>onCompact</code></td><td><code>() =&gt; void | Promise&lt;void&gt;</code></td><td>Called by Compact. Return a promise and, until it settles, the button gives way to a &quot;Compacting…&quot; status line with a spinner</td></tr><tr><td><code>compacted</code></td><td><code>boolean</code></td><td>Set once the context is compacted: the button turns into Undo, which calls onUndo</td></tr><tr><td><code>onUndo</code></td><td><code>() =&gt; void</code></td><td></td></tr><tr><td><code>hint</code></td><td><code>string</code></td><td>The quiet line beside the button. Defaults to what Compact does</td></tr><tr><td><code>busyHint</code></td><td><code>string</code></td><td>The line beside the button while Compact runs, with a moving highlight. Defaults to &quot;Summarising older turns&quot;</td></tr><tr><td><code>open</code></td><td><code>boolean</code></td><td>Whether the panel is open. Leave it out to let the pill toggle it</td></tr><tr><td><code>defaultOpen</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onOpenChange</code></td><td><code>(open: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>placement</code></td><td><code>&#39;top&#39; | &#39;bottom&#39;</code></td><td>Which side of the pill the panel opens on. Defaults to top, above the pill, as it sits under a chat composer. When the window, or a box round the meter that clips it, has no room on that side and more on the other, it opens there instead</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>ContextMeter.tsx<span class="l">React · 217 lines</span></summary><pre class="cp-pre" data-name="ContextMeter.tsx"><code>&#39;use client&#39;;
 import { useEffect, useRef, useState, type CSSProperties, type RefObject } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useControllable, useIsoLayoutEffect, useReducedMotion, useTween } from &#39;../lib/hooks&#39;;
 import { Icon } from &#39;../lib/icons&#39;;
-import { Spin, Swap, Tip } from &#39;../lib/motion&#39;;
+import { mxT, Spin, Swap, Tip } from &#39;../lib/motion&#39;;
+import { useHoverGlide } from &#39;../lib/glide&#39;;
 import &#39;../designme.css&#39;;
 import &#39;./context-meter.css&#39;;
 
@@ -465,7 +489,8 @@ function roomOf(el: HTMLElement) {
 }
 
 
-/** A button as wide as its words: when they change it eases to its new width, keeping no room for a longer word */
+/** A button as wide as its words: when they change it eases to its new width on the motion pieces&#39; spring, keeping no room
+    for a longer word */
 function useEaseWidth(ref: RefObject&lt;HTMLElement | null&gt;) {
   const reduce = useReducedMotion();
   useEffect(() =&gt; {
@@ -475,7 +500,7 @@ function useEaseWidth(ref: RefObject&lt;HTMLElement | null&gt;) {
       if (busy) return;
       const w1 = el.getBoundingClientRect().width;
       if (w &amp;&amp; Math.abs(w1 - w) &gt; .5) {
-        busy = el.animate([{ width: w + &#39;px&#39; }, { width: w1 + &#39;px&#39; }], { duration: 340, easing: &#39;cubic-bezier(.23,1,.32,1)&#39; });
+        busy = el.animate([{ width: w + &#39;px&#39; }, { width: w1 + &#39;px&#39; }], { duration: mxT(el, &#39;t-in&#39;, 360), easing: mxT(el, &#39;ease-spring&#39;, &#39;ease&#39;) });
         busy.finished.catch(() =&gt; {}).then(() =&gt; { busy = null; w = el.getBoundingClientRect().width; });
       }
       w = w1;
@@ -504,6 +529,41 @@ export function ContextMeter({ parts, limit, warnAt = .85, message, messageTone 
   const ready = true;
   const total = parts.reduce((t, p) =&gt; t + p.tokens, 0), share = ready ? total / limit : 0, pct = Math.round(share * 100);
   const root = useRef&lt;HTMLDivElement&gt;(null), tg = useRef&lt;HTMLButtonElement&gt;(null), go = useRef&lt;HTMLButtonElement&gt;(null), pop = useRef&lt;HTMLDivElement&gt;(null);
+  const leg = useRef&lt;HTMLDivElement&gt;(null);
+  useHoverGlide(leg, &#39;.dm-ctm-l&#39;);
+  // the ring&#39;s moments (designme.dev, 26 Nov): a step up (or the drop after compacting) sends a thin bright highlight once along
+  // the filled arc and lifts the ring a touch; as the count passes warnAt, the warning mark wipes along the arc (and back once
+  // it drops below), never blending the two colours, and the pill nudges once. No halo or glow. Reduced motion: none of it
+  const reduce = useReducedMotion();
+  const ring = useRef&lt;SVGSVGElement&gt;(null), warc = useRef&lt;SVGCircleElement&gt;(null), shine = useRef&lt;SVGCircleElement&gt;(null);
+  const counted = useTween(total, 900), hot = Math.round(counted / limit * 100) &gt;= Math.round(warnAt * 100);
+  const last = useRef(total);
+  useEffect(() =&gt; {
+    const was = last.current; last.current = total;
+    const sv = ring.current, sh = shine.current; if (reduce || !sv || !sh || typeof sh.animate !== &#39;function&#39; || Math.abs(total - was) &lt; 50) return;
+    const seg = Math.min(9, pct); sh.style.strokeDasharray = seg + &#39; 200&#39;;
+    sh.animate([{ strokeDashoffset: 0, opacity: 0 }, { opacity: .9, offset: .5 }, { strokeDashoffset: -(pct - seg), opacity: 0 }], { duration: 450, easing: &#39;cubic-bezier(.65,0,.35,1)&#39; });
+    sv.animate([{ scale: 1 }, { scale: 1.06, offset: .2 }, { scale: 1 }], { duration: 350, easing: &#39;cubic-bezier(.23,1,.32,1)&#39; });
+  }, [total]); // eslint-disable-line react-hooks/exhaustive-deps
+  const wasHot = useRef(hot);
+  useIsoLayoutEffect(() =&gt; {
+    const w = warc.current, was = wasHot.current; wasHot.current = hot; if (!w) return;
+    if (hot === was) { if (hot) w.style.strokeDasharray = pct + &#39; 100&#39;; return; }
+    const ease = &#39;cubic-bezier(.65,0,.35,1)&#39;, from = parseFloat(w.style.strokeDasharray) || 0;
+    w.style.transition = &#39;none&#39;;
+    if (hot) {
+      w.style.opacity = &#39;1&#39;; w.style.strokeDasharray = pct + &#39; 100&#39;;
+      if (!reduce &amp;&amp; typeof w.animate === &#39;function&#39;) {
+        w.animate([{ strokeDasharray: &#39;0 100&#39; }, { strokeDasharray: pct + &#39; 100&#39; }], { duration: 200, easing: ease });
+        tg.current?.animate([{ translate: &#39;0 0&#39; }, { translate: &#39;3px 0&#39;, offset: .22 }, { translate: &#39;-1.4px 0&#39;, offset: .6 }, { translate: &#39;0 0&#39; }], { duration: 380, easing: &#39;ease-out&#39; });
+      }
+    } else {
+      w.style.strokeDasharray = &#39;0 100&#39;;
+      if (reduce || typeof w.animate !== &#39;function&#39;) w.style.opacity = &#39;0&#39;;
+      else w.animate([{ strokeDasharray: from + &#39; 100&#39; }, { strokeDasharray: &#39;0 100&#39; }], { duration: 200, easing: ease }).onfinish = () =&gt; { if (!wasHot.current) w.style.opacity = &#39;0&#39;; };
+    }
+    void w.getBoundingClientRect(); w.style.transition = &#39;&#39;;
+  }, [hot, pct]);
   useEaseWidth(go);
   // the side it opens on is chosen as it opens: the placement&#39;s side, or the other one when that side has no room for the
   // panel (its height, its padding while it is still easing in, and the gap) and the other has more
@@ -536,10 +596,11 @@ export function ContextMeter({ parts, limit, warnAt = .85, message, messageTone 
   };
 
   return (
-    &lt;div ref={root} data-dm=&quot;&quot; className={cx(&#39;dm-ctm&#39;, share &gt;= warnAt &amp;&amp; &#39;dm-hot&#39;, className)} data-open={isOpen ? &#39;1&#39; : &#39;0&#39;} data-pos={side === &#39;top&#39; ? &#39;up&#39; : &#39;down&#39;}&gt;
+    &lt;div ref={root} data-dm=&quot;&quot; className={cx(&#39;dm-ctm&#39;, hot &amp;&amp; &#39;dm-hot&#39;, className)} data-open={isOpen ? &#39;1&#39; : &#39;0&#39;} data-pos={side === &#39;top&#39; ? &#39;up&#39; : &#39;down&#39;}&gt;
       &lt;button ref={tg} type=&quot;button&quot; className=&quot;dm-ctm-tg&quot; aria-expanded={isOpen} aria-label={`Context, ${pct}% used`} onClick={() =&gt; setOpen(!isOpen)}&gt;
         &lt;span className=&quot;dm-ctm-ring&quot; aria-hidden=&quot;true&quot;&gt;
-          &lt;svg viewBox=&quot;0 0 20 20&quot;&gt;&lt;circle className=&quot;dm-tr&quot; cx=&quot;10&quot; cy=&quot;10&quot; r=&quot;7.5&quot; /&gt;&lt;circle className=&quot;dm-fl&quot; cx=&quot;10&quot; cy=&quot;10&quot; r=&quot;7.5&quot; pathLength={100} style={{ strokeDasharray: `${pct} 100` }} /&gt;&lt;/svg&gt;
+          &lt;svg ref={ring} viewBox=&quot;0 0 20 20&quot;&gt;&lt;circle className=&quot;dm-tr&quot; cx=&quot;10&quot; cy=&quot;10&quot; r=&quot;7.5&quot; /&gt;&lt;circle className=&quot;dm-fl&quot; cx=&quot;10&quot; cy=&quot;10&quot; r=&quot;7.5&quot; pathLength={100} style={{ strokeDasharray: `${pct} 100` }} /&gt;
+            &lt;circle ref={warc} className=&quot;dm-fw&quot; cx=&quot;10&quot; cy=&quot;10&quot; r=&quot;7.5&quot; pathLength={100} /&gt;&lt;circle ref={shine} className=&quot;dm-hl&quot; cx=&quot;10&quot; cy=&quot;10&quot; r=&quot;7.5&quot; pathLength={100} /&gt;&lt;/svg&gt;
         &lt;/span&gt;
         &lt;span&gt;&lt;span className=&quot;dm-ctm-pc dm-num&quot;&gt;&lt;Count value={ready ? total : 0} format={n =&gt; Math.round(n / limit * 100) + &#39;%&#39;} /&gt;&lt;/span&gt; of context used&lt;/span&gt;
         &lt;Icon name=&quot;chev-d&quot; size=&quot;xs&quot; /&gt;
@@ -549,7 +610,8 @@ export function ContextMeter({ parts, limit, warnAt = .85, message, messageTone 
         &lt;div className={cx(&#39;dm-ctm-bar&#39;, lit &amp;&amp; &#39;dm-hl&#39;)} aria-hidden=&quot;true&quot;&gt;
           {parts.map((p, i) =&gt; &lt;i key={p.key} className={lit === p.key ? &#39;dm-on&#39; : undefined} style={{ width: (ready ? p.tokens / limit * 100 : 0) + &#39;%&#39;, &#39;--dm-c&#39;: p.color ?? PALETTE[i % PALETTE.length] } as CSSProperties} /&gt;)}
         &lt;/div&gt;
-        &lt;div className=&quot;dm-ctm-leg&quot; onPointerLeave={() =&gt; setLit(null)}&gt;
+        {/* one highlight glides from part to part (motion pieces) */}
+        &lt;div ref={leg} className=&quot;dm-ctm-leg dm-mx-glide&quot; onPointerLeave={() =&gt; setLit(null)}&gt;
           {parts.map((p, i) =&gt; {
             const row = (
               &lt;div key={p.key} className=&quot;dm-ctm-l&quot; style={{ &#39;--dm-c&#39;: p.color ?? PALETTE[i % PALETTE.length] } as CSSProperties}
@@ -572,14 +634,14 @@ export function ContextMeter({ parts, limit, warnAt = .85, message, messageTone 
                 comes back as Undo once it is done */}
             {busy
               ? &lt;span className=&quot;dm-ctm-run&quot; role=&quot;status&quot;&gt;&lt;Spin /&gt;&lt;span className=&quot;dm-shim&quot;&gt;Compacting…&lt;/span&gt;&lt;/span&gt;
-              : &lt;button ref={go} type=&quot;button&quot; className={cx(&#39;dm-pill dm-sm dm-ctm-go&#39;, message &amp;&amp; messageTone === &#39;warn&#39; ? &#39;dm-warn&#39; : &#39;dm-line&#39;)} onClick={compact}&gt;{compacted ? &#39;Undo&#39; : &#39;Compact&#39;}&lt;/button&gt;}
+              : &lt;button ref={go} type=&quot;button&quot; className={cx(&#39;dm-pill dm-sm dm-ctm-go dm-mx-press&#39;, message &amp;&amp; messageTone === &#39;warn&#39; ? &#39;dm-warn&#39; : &#39;dm-line&#39;)} onClick={compact}&gt;{compacted ? &#39;Undo&#39; : &#39;Compact&#39;}&lt;/button&gt;}
           &lt;/div&gt;
         )}
       &lt;/div&gt;
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>context-meter.css<span class="l">React · 117 lines</span></summary><pre class="cp-pre" data-name="context-meter.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>context-meter.css<span class="l">React · 129 lines</span></summary><pre class="cp-pre" data-name="context-meter.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Context meter ---------- */
 /* a pill with the ring opens what fills the context: one bar split by kind, a legend whose rows list their items, and Compact */
 /* it never anchors the page&#39;s scroll, so the page can&#39;t follow it as it changes; on a card it sits in the middle of its room */
@@ -622,6 +684,10 @@ export function ContextMeter({ parts, limit, warnAt = .85, message, messageTone 
 .dm-ctm-leg{display:flex;flex-direction:column;margin:0 calc(-1 * var(--dm-s-2))}
 .dm-ctm-l{display:flex;align-items:center;gap:var(--dm-s-2);padding:5px var(--dm-s-2);border-radius:var(--dm-r-sm);font-size:13px;line-height:18px;color:var(--dm-fg2);cursor:default;transition:background var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.dm-ctm-l:hover{background:color-mix(in srgb,var(--dm-fg) 5%,transparent)}}
+/* its motion (the core&#39;s motion pieces, owner, 26 Nov): one highlight glides from part to part in the legend, in the hover&#39;s
+   own grey (.mx-glide); a press on Compact shows at once; its box eases to its new words&#39; width on the spring (mxWidth()) */
+.dm-ctm-leg{--dm-hg-bg:color-mix(in srgb,var(--dm-fg) 5%,transparent)}
+:root[data-style=&quot;clean&quot;] .dm-ctm-leg,:root [data-style=&quot;clean&quot;] .dm-ctm-leg,:root [data-style=&quot;clean&quot;].dm-ctm-leg{--dm-hg-bg:var(--dm-row)}
 /* the swatch is centred in a 16px column, the column of the message&#39;s sign and tick below, so their words line up */
 .dm-ctm-l .dm-sw{width:8px;height:8px;margin:0 4px 0 0;border-radius:var(--dm-r-tiny,2px);flex:none;background:var(--dm-c)}
 .dm-ctm-l .dm-v{margin-left:auto;color:var(--dm-fg)}
@@ -632,6 +698,8 @@ export function ContextMeter({ parts, limit, warnAt = .85, message, messageTone 
 .dm-ctm-msg{display:grid;grid-template-rows:0fr;margin-top:calc(-1 * var(--dm-s-3));font-size:13px;line-height:18px;color:var(--dm-fg);opacity:0;transition:grid-template-rows .32s var(--dm-ease),margin .32s var(--dm-ease),opacity .24s var(--dm-ease)}
 .dm-ctm-msg.dm-on{grid-template-rows:1fr;margin-top:0;opacity:1}
 .dm-ctm-msg&gt;span{display:flex;align-items:flex-start;gap:var(--dm-s-2);min-height:0;overflow:hidden}
+/* (the warning&#39;s tint and padding ease away as it turns into the result, so the panel eases to its new height in one motion) */
+.dm-ctm-msg&gt;span{transition:padding .32s var(--dm-ease),background-color .32s var(--dm-ease)}
 .dm-ctm-msg&gt;span&gt;svg,.dm-ctm-msg&gt;span&gt;svg.dm-i{flex:none;width:16px;height:16px;margin-top:1px}
 /* the notice reaches out as far as the legend&#39;s hover, with the legend&#39;s padding, so its sign sits in the swatches&#39; column
    and its words on the legend&#39;s words */
@@ -663,7 +731,13 @@ export function ContextMeter({ parts, limit, warnAt = .85, message, messageTone 
 .dm-ctm-ring circle{fill:none;stroke-width:2.6}
 .dm-ctm-ring .dm-tr{stroke:var(--dm-rail)}
 .dm-ctm-ring .dm-fl{stroke:var(--dm-accent-mark,var(--dm-accent));stroke-linecap:round;stroke-dasharray:0 100;transition:stroke-dasharray .42s var(--dm-ease),stroke .32s}
-.dm-ctm.dm-hot .dm-ctm-ring .dm-fl{stroke:var(--dm-warn-mark)}
+/* near the limit the ring turns to the warning mark by a wipe, never a blend (owner, 26 Nov, from its showcase): a second arc in
+   the warning mark (.fw) draws along the accent&#39;s from its start in 200ms, and draws back the same way once it is compacted, so
+   no frame shows a mix of the two colours. Each step up sends a thin bright highlight once along the filled arc (.hl, 0.45s)
+   and lifts the ring a touch (1.06, 0.35s); crossing the limit nudges the pill once. No halo or glow round it. With reduced
+   motion the ring and its colour change at once, with no highlight, lift or nudge */
+.dm-ctm-ring .dm-fw{stroke:var(--dm-warn-mark);stroke-linecap:round;stroke-dasharray:0 100;opacity:0;transition:stroke-dasharray .42s var(--dm-ease)}
+.dm-ctm-ring .dm-hl{stroke:#fff;stroke-width:2;stroke-linecap:butt;stroke-dasharray:0 200;opacity:0}
 
 /* Clean (owner, 17 and 18 Nov): the pill is the flat secondary control (a hairline and a light fill, no press); the ring is
    the accent&#39;s mark on a grey rail. The panel is a 22px card with an off-white head strip and foot strip, opening and
@@ -713,13 +787,13 @@ const { class: className, ...rest } = Astro.props;
 &lt;div class:list={[&#39;card&#39;, className]} data-c=&quot;context-meter&quot; {...rest}&gt;
   &lt;div class=&quot;stage-in&quot;&gt;&lt;Fragment is:raw&gt;
 &lt;div class=&quot;ctm&quot; data-open=&quot;1&quot; data-pos=&quot;up&quot;&gt;
-  &lt;button class=&quot;ctm-tg&quot; aria-expanded=&quot;true&quot; aria-label=&quot;Context&quot;&gt;&lt;span class=&quot;ctm-ring&quot; aria-hidden=&quot;true&quot;&gt;&lt;svg viewBox=&quot;0 0 20 20&quot;&gt;&lt;circle class=&quot;tr&quot; cx=&quot;10&quot; cy=&quot;10&quot; r=&quot;7.5&quot;/&gt;&lt;circle class=&quot;fl&quot; cx=&quot;10&quot; cy=&quot;10&quot; r=&quot;7.5&quot; pathLength=&quot;100&quot;/&gt;&lt;/svg&gt;&lt;/span&gt;&lt;span&gt;&lt;span class=&quot;ctm-pc num&quot;&gt;0%&lt;/span&gt; of context used&lt;/span&gt;&lt;svg class=&quot;i xs&quot;&gt;&lt;use href=&quot;#i-chev-d&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;
+  &lt;button class=&quot;ctm-tg&quot; aria-expanded=&quot;true&quot; aria-label=&quot;Context&quot;&gt;&lt;span class=&quot;ctm-ring&quot; aria-hidden=&quot;true&quot;&gt;&lt;svg viewBox=&quot;0 0 20 20&quot;&gt;&lt;circle class=&quot;tr&quot; cx=&quot;10&quot; cy=&quot;10&quot; r=&quot;7.5&quot;/&gt;&lt;circle class=&quot;fl&quot; cx=&quot;10&quot; cy=&quot;10&quot; r=&quot;7.5&quot; pathLength=&quot;100&quot;/&gt;&lt;circle class=&quot;fw&quot; cx=&quot;10&quot; cy=&quot;10&quot; r=&quot;7.5&quot; pathLength=&quot;100&quot;/&gt;&lt;circle class=&quot;hl&quot; cx=&quot;10&quot; cy=&quot;10&quot; r=&quot;7.5&quot; pathLength=&quot;100&quot;/&gt;&lt;/svg&gt;&lt;/span&gt;&lt;span&gt;&lt;span class=&quot;ctm-pc num&quot;&gt;0%&lt;/span&gt; of context used&lt;/span&gt;&lt;svg class=&quot;i xs&quot;&gt;&lt;use href=&quot;#i-chev-d&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;
   &lt;div class=&quot;ctm-pop panel&quot; role=&quot;region&quot; aria-label=&quot;What fills the context&quot;&gt;
     &lt;div class=&quot;ctm-ph&quot;&gt;&lt;span&gt;In context&lt;/span&gt;&lt;span class=&quot;num&quot;&gt;&lt;b class=&quot;ctm-tot&quot;&gt;0k&lt;/b&gt; of 200k tokens&lt;/span&gt;&lt;/div&gt;
     &lt;div class=&quot;ctm-bar&quot; aria-hidden=&quot;true&quot;&gt;&lt;/div&gt;
-    &lt;div class=&quot;ctm-leg&quot;&gt;&lt;/div&gt;
+    &lt;div class=&quot;ctm-leg mx-glide&quot;&gt;&lt;/div&gt;
     &lt;div class=&quot;ctm-msg&quot; aria-live=&quot;polite&quot;&gt;&lt;span&gt;&lt;/span&gt;&lt;/div&gt;
-    &lt;div class=&quot;ctm-f&quot;&gt;&lt;span class=&quot;ctm-hint&quot;&gt;Summarises older turns&lt;/span&gt;&lt;button class=&quot;pill line sm ctm-go&quot;&gt;Compact&lt;/button&gt;&lt;/div&gt;
+    &lt;div class=&quot;ctm-f&quot;&gt;&lt;span class=&quot;ctm-hint&quot;&gt;Summarises older turns&lt;/span&gt;&lt;button class=&quot;pill line sm ctm-go mx-press&quot;&gt;Compact&lt;/button&gt;&lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
   &lt;/Fragment&gt;&lt;/div&gt;
@@ -730,18 +804,18 @@ const { class: className, ...rest } = Astro.props;
 </code></pre></details><details class="cp-file"><summary>context-meter.html<span class="l">HTML · 15 lines</span></summary><pre class="cp-pre" data-name="context-meter.html"><code>&lt;div class=&quot;card&quot; data-c=&quot;context-meter&quot;&gt;
   &lt;div class=&quot;stage-in&quot;&gt;
     &lt;div class=&quot;ctm&quot; data-open=&quot;1&quot; data-pos=&quot;up&quot;&gt;
-      &lt;button class=&quot;ctm-tg&quot; aria-expanded=&quot;true&quot; aria-label=&quot;Context&quot;&gt;&lt;span class=&quot;ctm-ring&quot; aria-hidden=&quot;true&quot;&gt;&lt;svg viewBox=&quot;0 0 20 20&quot;&gt;&lt;circle class=&quot;tr&quot; cx=&quot;10&quot; cy=&quot;10&quot; r=&quot;7.5&quot;/&gt;&lt;circle class=&quot;fl&quot; cx=&quot;10&quot; cy=&quot;10&quot; r=&quot;7.5&quot; pathLength=&quot;100&quot;/&gt;&lt;/svg&gt;&lt;/span&gt;&lt;span&gt;&lt;span class=&quot;ctm-pc num&quot;&gt;0%&lt;/span&gt; of context used&lt;/span&gt;&lt;svg class=&quot;i xs&quot;&gt;&lt;use href=&quot;#i-chev-d&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;
+      &lt;button class=&quot;ctm-tg&quot; aria-expanded=&quot;true&quot; aria-label=&quot;Context&quot;&gt;&lt;span class=&quot;ctm-ring&quot; aria-hidden=&quot;true&quot;&gt;&lt;svg viewBox=&quot;0 0 20 20&quot;&gt;&lt;circle class=&quot;tr&quot; cx=&quot;10&quot; cy=&quot;10&quot; r=&quot;7.5&quot;/&gt;&lt;circle class=&quot;fl&quot; cx=&quot;10&quot; cy=&quot;10&quot; r=&quot;7.5&quot; pathLength=&quot;100&quot;/&gt;&lt;circle class=&quot;fw&quot; cx=&quot;10&quot; cy=&quot;10&quot; r=&quot;7.5&quot; pathLength=&quot;100&quot;/&gt;&lt;circle class=&quot;hl&quot; cx=&quot;10&quot; cy=&quot;10&quot; r=&quot;7.5&quot; pathLength=&quot;100&quot;/&gt;&lt;/svg&gt;&lt;/span&gt;&lt;span&gt;&lt;span class=&quot;ctm-pc num&quot;&gt;0%&lt;/span&gt; of context used&lt;/span&gt;&lt;svg class=&quot;i xs&quot;&gt;&lt;use href=&quot;#i-chev-d&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;
       &lt;div class=&quot;ctm-pop panel&quot; role=&quot;region&quot; aria-label=&quot;What fills the context&quot;&gt;
         &lt;div class=&quot;ctm-ph&quot;&gt;&lt;span&gt;In context&lt;/span&gt;&lt;span class=&quot;num&quot;&gt;&lt;b class=&quot;ctm-tot&quot;&gt;0k&lt;/b&gt; of 200k tokens&lt;/span&gt;&lt;/div&gt;
         &lt;div class=&quot;ctm-bar&quot; aria-hidden=&quot;true&quot;&gt;&lt;/div&gt;
-        &lt;div class=&quot;ctm-leg&quot;&gt;&lt;/div&gt;
+        &lt;div class=&quot;ctm-leg mx-glide&quot;&gt;&lt;/div&gt;
         &lt;div class=&quot;ctm-msg&quot; aria-live=&quot;polite&quot;&gt;&lt;span&gt;&lt;/span&gt;&lt;/div&gt;
-        &lt;div class=&quot;ctm-f&quot;&gt;&lt;span class=&quot;ctm-hint&quot;&gt;Summarises older turns&lt;/span&gt;&lt;button class=&quot;pill line sm ctm-go&quot;&gt;Compact&lt;/button&gt;&lt;/div&gt;
+        &lt;div class=&quot;ctm-f&quot;&gt;&lt;span class=&quot;ctm-hint&quot;&gt;Summarises older turns&lt;/span&gt;&lt;button class=&quot;pill line sm ctm-go mx-press&quot;&gt;Compact&lt;/button&gt;&lt;/div&gt;
       &lt;/div&gt;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>context-meter.css<span class="l">HTML · 116 lines</span></summary><pre class="cp-pre" data-name="context-meter.css"><code>/* ---------- Context meter ---------- */
+</code></pre></details><details class="cp-file"><summary>context-meter.css<span class="l">HTML · 128 lines</span></summary><pre class="cp-pre" data-name="context-meter.css"><code>/* ---------- Context meter ---------- */
 /* a pill with the ring opens what fills the context: one bar split by kind, a legend whose rows list their items, and Compact */
 /* it never anchors the page&#39;s scroll, so the page can&#39;t follow it as it changes; on a card it sits in the middle of its room */
 /* the panel opens above the pill, as it does under a chat composer (owner, 26 Nov), and below it only where there is no room
@@ -783,6 +857,10 @@ const { class: className, ...rest } = Astro.props;
 .ctm-leg{display:flex;flex-direction:column;margin:0 calc(-1 * var(--dm-s-2))}
 .ctm-l{display:flex;align-items:center;gap:var(--dm-s-2);padding:5px var(--dm-s-2);border-radius:var(--dm-r-sm);font-size:13px;line-height:18px;color:var(--dm-fg2);cursor:default;transition:background var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.ctm-l:hover{background:color-mix(in srgb,var(--dm-fg) 5%,transparent)}}
+/* its motion (the core&#39;s motion pieces, owner, 26 Nov): one highlight glides from part to part in the legend, in the hover&#39;s
+   own grey (.mx-glide); a press on Compact shows at once; its box eases to its new words&#39; width on the spring (mxWidth()) */
+.ctm-leg{--dm-hg-bg:color-mix(in srgb,var(--dm-fg) 5%,transparent)}
+:root[data-style=&quot;clean&quot;] .ctm-leg,:root [data-style=&quot;clean&quot;] .ctm-leg,:root [data-style=&quot;clean&quot;].ctm-leg{--dm-hg-bg:var(--dm-row)}
 /* the swatch is centred in a 16px column, the column of the message&#39;s sign and tick below, so their words line up */
 .ctm-l .sw{width:8px;height:8px;margin:0 4px 0 0;border-radius:var(--dm-r-tiny,2px);flex:none;background:var(--dm-c)}
 .ctm-l .v{margin-left:auto;color:var(--dm-fg)}
@@ -793,6 +871,8 @@ const { class: className, ...rest } = Astro.props;
 .ctm-msg{display:grid;grid-template-rows:0fr;margin-top:calc(-1 * var(--dm-s-3));font-size:13px;line-height:18px;color:var(--dm-fg);opacity:0;transition:grid-template-rows .32s var(--dm-ease),margin .32s var(--dm-ease),opacity .24s var(--dm-ease)}
 .ctm-msg.on{grid-template-rows:1fr;margin-top:0;opacity:1}
 .ctm-msg&gt;span{display:flex;align-items:flex-start;gap:var(--dm-s-2);min-height:0;overflow:hidden}
+/* (the warning&#39;s tint and padding ease away as it turns into the result, so the panel eases to its new height in one motion) */
+.ctm-msg&gt;span{transition:padding .32s var(--dm-ease),background-color .32s var(--dm-ease)}
 .ctm-msg&gt;span&gt;svg,.ctm-msg&gt;span&gt;svg.i{flex:none;width:16px;height:16px;margin-top:1px}
 /* the notice reaches out as far as the legend&#39;s hover, with the legend&#39;s padding, so its sign sits in the swatches&#39; column
    and its words on the legend&#39;s words */
@@ -824,7 +904,13 @@ const { class: className, ...rest } = Astro.props;
 .ctm-ring circle{fill:none;stroke-width:2.6}
 .ctm-ring .tr{stroke:var(--dm-rail)}
 .ctm-ring .fl{stroke:var(--dm-accent-mark,var(--dm-accent));stroke-linecap:round;stroke-dasharray:0 100;transition:stroke-dasharray .42s var(--dm-ease),stroke .32s}
-.ctm.hot .ctm-ring .fl{stroke:var(--dm-warn-mark)}
+/* near the limit the ring turns to the warning mark by a wipe, never a blend (owner, 26 Nov, from its showcase): a second arc in
+   the warning mark (.fw) draws along the accent&#39;s from its start in 200ms, and draws back the same way once it is compacted, so
+   no frame shows a mix of the two colours. Each step up sends a thin bright highlight once along the filled arc (.hl, 0.45s)
+   and lifts the ring a touch (1.06, 0.35s); crossing the limit nudges the pill once. No halo or glow round it. With reduced
+   motion the ring and its colour change at once, with no highlight, lift or nudge */
+.ctm-ring .fw{stroke:var(--dm-warn-mark);stroke-linecap:round;stroke-dasharray:0 100;opacity:0;transition:stroke-dasharray .42s var(--dm-ease)}
+.ctm-ring .hl{stroke:#fff;stroke-width:2;stroke-linecap:butt;stroke-dasharray:0 200;opacity:0}
 
 /* Clean (owner, 17 and 18 Nov): the pill is the flat secondary control (a hairline and a light fill, no press); the ring is
    the accent&#39;s mark on a grey rail. The panel is a 22px card with an off-white head strip and foot strip, opening and
@@ -856,36 +942,62 @@ const { class: className, ...rest } = Astro.props;
 @media (hover:hover) and (pointer:fine){:root[data-style=&quot;clean&quot;] .ctm-go:not(.warn):hover,:root [data-style=&quot;clean&quot;] .ctm-go:not(.warn):hover,:root [data-style=&quot;clean&quot;].ctm-go:not(.warn):hover{background:linear-gradient(180deg,var(--dm-btn2-1),var(--dm-btn2-2));box-shadow:var(--dm-btn2-hover)}}
 :root[data-style=&quot;clean&quot;] .ctm-go:not(.warn):active,:root [data-style=&quot;clean&quot;] .ctm-go:not(.warn):active,:root [data-style=&quot;clean&quot;].ctm-go:not(.warn):active{box-shadow:var(--dm-btn2-press)}
 @media (prefers-reduced-motion:reduce){:root[data-style=&quot;clean&quot;] :is(.ctm-pop,.ctm-bar i,.ctm-tg),:root [data-style=&quot;clean&quot;] :is(.ctm-pop,.ctm-bar i,.ctm-tg),:root [data-style=&quot;clean&quot;]:is(.ctm-pop,.ctm-bar i,.ctm-tg){transition:none!important}}
-</code></pre></details><details class="cp-file"><summary>context-meter.js<span class="l">HTML · 81 lines</span></summary><pre class="cp-pre" data-name="context-meter.js"><code>DM.def(&#39;context-meter&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>context-meter.js<span class="l">HTML · 112 lines</span></summary><pre class="cp-pre" data-name="context-meter.js"><code>DM.def(&#39;context-meter&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(&#39;{chev}&#39;, I(&#39;chev-d&#39;,&#39;xs&#39;));
   const LIMIT = 200;
   // what fills the context, in thousands of tokens; each part lists what&#39;s in it on hover. The parts take the chart palette&#39;s
   // accent, violet and teal; the instructions, the quiet part, a neutral grey that keeps 3:1 (green would be Blueprint&#39;s
   // accent again, and orange the warning)
+  // (its tip lists what is in it; what arrives joins the list, and compacting leaves a summary in its place)
   const P = [
-    { k:&#39;files&#39;, l:&#39;Files&#39;, v:56.2, c:&#39;var(--dm-c1)&#39;, tip:&#39;Pricing.fig export 31.9k, PricingCard.tsx 18.2k, tokens.css 6.1k&#39; },
-    { k:&#39;tools&#39;, l:&#39;Tool output&#39;, v:41.8, c:&#39;var(--dm-c2)&#39;, tip:&#39;Contrast check 17.4k, Figma frames 15.6k, grid audit 8.8k&#39; },
-    { k:&#39;chat&#39;, l:&#39;Chat&#39;, v:32.1, c:&#39;var(--dm-c6)&#39;, tip:&#39;48 turns with Maya Kim since 09:12&#39; },
-    { k:&#39;sys&#39;, l:&#39;Instructions&#39;, v:6.3, c:&#39;var(--dm-muted)&#39;, tip:&#39;Studio guidelines 4.1k, pricing brief 2.2k&#39; }
+    { k:&#39;files&#39;, l:&#39;Files&#39;, v:32, c:&#39;var(--dm-c1)&#39;, tip:&#39;Pricing.fig export 19.8k, PricingCard.tsx 8.1k, tokens.css 4.1k&#39;, after:[26, &#39;Pricing.fig export 19.8k, summary of older reads 6.2k&#39;] },
+    { k:&#39;tools&#39;, l:&#39;Tool output&#39;, v:24, c:&#39;var(--dm-c2)&#39;, tip:&#39;Contrast check 11.2k, Figma frames 8.6k, grid audit 4.2k&#39;, after:[24, &#39;Contrast check 11.2k, summary of older output 12.8k&#39;] },
+    { k:&#39;chat&#39;, l:&#39;Chat&#39;, v:26, c:&#39;var(--dm-c6)&#39;, tip:&#39;Turns with Maya Kim since 09:12&#39;, after:[8, &#39;Summary of 48 turns, 9 decisions kept&#39;] },
+    { k:&#39;sys&#39;, l:&#39;Instructions&#39;, v:6, c:&#39;var(--dm-muted)&#39;, tip:&#39;Studio guidelines 3.9k, pricing brief 2.1k&#39;, after:[6, &#39;Studio guidelines 3.9k, pricing brief 2.1k&#39;] }
   ];
+  // what the chat adds as it goes on, one step at a time: [part, thousands of tokens, what it is]. The third takes it past 85%
+  const STEPS = [[0, 22, &#39;brand-guide.pdf&#39;], [1, 36, &#39;web search&#39;], [2, 28, &#39;&#39;], [0, 10, &#39;checkout.fig&#39;]];
   const root = $(&#39;.ctm&#39;, r), tg = $(&#39;.ctm-tg&#39;, r), pop = $(&#39;.ctm-pop&#39;, r), arc = $(&#39;.ctm-ring .fl&#39;, r), pc = $(&#39;.ctm-pc&#39;, r), tot = $(&#39;.ctm-tot&#39;, r);
+  const ring = $(&#39;.ctm-ring svg&#39;, r), warc = $(&#39;.ctm-ring .fw&#39;, r), shine = $(&#39;.ctm-ring .hl&#39;, r);
   const bar = $(&#39;.ctm-bar&#39;, r), leg = $(&#39;.ctm-leg&#39;, r), msg = $(&#39;.ctm-msg&#39;, r), go = $(&#39;.ctm-go&#39;, r), hint = $(&#39;.ctm-hint&#39;, r);
   bar.innerHTML = P.map(p =&gt; `&lt;i data-k=&quot;${p.k}&quot; style=&quot;--dm-c:${p.c}&quot;&gt;&lt;/i&gt;`).join(&#39;&#39;);
   leg.innerHTML = P.map(p =&gt; `&lt;div class=&quot;ctm-l&quot; data-k=&quot;${p.k}&quot; style=&quot;--dm-c:${p.c}&quot; data-tip=&quot;${p.tip}&quot;&gt;&lt;span class=&quot;sw&quot;&gt;&lt;/span&gt;${p.l}&lt;span class=&quot;v num&quot;&gt;0k&lt;/span&gt;&lt;/div&gt;`).join(&#39;&#39;);
+  const tips = () =&gt; P.forEach(p =&gt; { $(`.ctm-l[data-k=&quot;${p.k}&quot;]`, leg).dataset.tip = p.tip; });
   const fmt = v =&gt; v.toFixed(1) + &#39;k&#39;, sum = () =&gt; P.reduce((t, p) =&gt; t + p.v, 0);
   // the numbers count to their new values; the bar, the ring and the percentage follow
-  const shown = {}; let total = 0;
+  const shown = {}; let total = 0, hot = false, onHot = null;
+  // the ring&#39;s moments (owner, 26 Nov, from its showcase): a step up sends a thin bright highlight once along the filled arc and
+  // lifts the ring a touch; crossing 85% wipes the warning mark along the arc and nudges the pill; compacting wipes it back
+  const easeIO = &#39;cubic-bezier(.65,0,.35,1)&#39;;
+  const step = len =&gt; { if (REDUCE || !shine.animate) return;
+    const seg = Math.min(9, len); shine.style.strokeDasharray = seg + &#39; 200&#39;;
+    shine.animate([{ strokeDashoffset:0, opacity:0 }, { opacity:.9, offset:.5 }, { strokeDashoffset:-(len - seg), opacity:0 }], { duration:450, easing:easeIO });
+    ring.animate([{ scale:1 }, { scale:1.06, offset:.2 }, { scale:1 }], { duration:350, easing:&#39;cubic-bezier(.23,1,.32,1)&#39; }); };
+  const wipe = (on, len) =&gt; { (warc._a || { cancel(){} }).cancel(); warc.style.transition = &#39;none&#39;;
+    if (on){ warc.style.opacity = &#39;1&#39;; warc.style.strokeDasharray = len + &#39; 100&#39;; if (!REDUCE) warc._a = warc.animate([{ strokeDasharray:&#39;0 100&#39; }, { strokeDasharray:len + &#39; 100&#39; }], { duration:200, easing:easeIO });
+      if (!REDUCE) tg.animate([{ translate:&#39;0 0&#39; }, { translate:&#39;3px 0&#39;, offset:.22 }, { translate:&#39;-1.4px 0&#39;, offset:.6 }, { translate:&#39;0 0&#39; }], { duration:380, easing:&#39;ease-out&#39; }); }
+    else { const from = parseFloat(warc.style.strokeDasharray) || 0; warc.style.strokeDasharray = &#39;0 100&#39;;
+      if (REDUCE){ warc.style.opacity = &#39;0&#39;; } else { const a = warc._a = warc.animate([{ strokeDasharray:from + &#39; 100&#39; }, { strokeDasharray:&#39;0 100&#39; }], { duration:200, easing:easeIO }); a.onfinish = () =&gt; { if (!hot) warc.style.opacity = &#39;0&#39;; }; } }
+    void warc.offsetWidth; warc.style.transition = &#39;&#39;; };
   function paint(ms = 900){
-    const all = sum(), pct = Math.round(all / LIMIT * 100);
+    const all = sum(), pct = Math.round(all / LIMIT * 100), up = all &gt; total + .05 &amp;&amp; total &gt; 0, was = hot;
     P.forEach(p =&gt; { $(`i[data-k=&quot;${p.k}&quot;]`, bar).style.width = (p.v / LIMIT * 100) + &#39;%&#39;; const el = $(`.ctm-l[data-k=&quot;${p.k}&quot;] .v`, leg), from = shown[p.k] || 0; shown[p.k] = p.v; tween(from, p.v, ms, x =&gt; el.textContent = fmt(x)); });
-    const from = total; total = all; tween(from, all, ms, x =&gt; { tot.textContent = fmt(x); pc.textContent = Math.round(x / LIMIT * 100) + &#39;%&#39;; });
-    arc.style.strokeDasharray = pct + &#39; 100&#39;; root.classList.toggle(&#39;hot&#39;, pct &gt;= 85); tg.setAttribute(&#39;aria-label&#39;, `Context, ${pct}% used`);
+    // the ring turns to the warning mark (and back) as the count passes 85%, not before
+    const cross = x =&gt; { const h = Math.round(x / LIMIT * 100) &gt;= 85; if (h === hot) return; hot = h; root.classList.toggle(&#39;hot&#39;, h); wipe(h, pct); if (h &amp;&amp; onHot) onHot(); };
+    const from = total; total = all; tween(from, all, ms, x =&gt; { tot.textContent = fmt(x); pc.textContent = Math.round(x / LIMIT * 100) + &#39;%&#39;; cross(x); });
+    arc.style.strokeDasharray = pct + &#39; 100&#39;; tg.setAttribute(&#39;aria-label&#39;, `Context, ${pct}% used`);
+    if (hot &amp;&amp; was) warc.style.strokeDasharray = pct + &#39; 100&#39;;
+    if (up || from &gt; all + .05) step(pct);
   }
   // a warning is a warning notice with the filled sign, and Compact, the action that resolves it, takes the warning tint
   const WARN = &#39;&lt;svg class=&quot;ctm-wi&quot; viewBox=&quot;0 0 24 24&quot; aria-hidden=&quot;true&quot;&gt;&lt;path class=&quot;a&quot; d=&quot;M12 3.6 2.6 19.9h18.8z&quot;/&gt;&lt;path class=&quot;b&quot; d=&quot;M12 9.6v4.4M12 17v.01&quot;/&gt;&lt;/svg&gt;&#39;;
-  const say = (text, tone) =&gt; { msg.className = &#39;ctm-msg on &#39; + tone; swap(msg.firstElementChild, `${tone === &#39;warn&#39; ? WARN : I(&#39;ok&#39;,&#39;xs&#39;)}&lt;span&gt;${text}&lt;/span&gt;`, true); go.classList.toggle(&#39;warn&#39;, tone === &#39;warn&#39;); go.classList.toggle(&#39;line&#39;, tone !== &#39;warn&#39;); };
+  // (a warning already showing keeps its notice and only its words change)
+  const say = (text, tone) =&gt; { const same = msg.classList.contains(&#39;on&#39;) &amp;&amp; msg.classList.contains(tone) &amp;&amp; $(&#39;span&gt;span&#39;, msg);
+    const h = `${tone === &#39;warn&#39; ? WARN : I(&#39;ok&#39;,&#39;xs&#39;)}&lt;span&gt;${text}&lt;/span&gt;`, shut = !msg.classList.contains(&#39;on&#39;);
+    msg.className = &#39;ctm-msg on &#39; + tone; if (same) swap(same, text); else if (shut) msg.firstElementChild.innerHTML = h; else swap(msg.firstElementChild, h, true); go.classList.toggle(&#39;warn&#39;, tone === &#39;warn&#39;); go.classList.toggle(&#39;line&#39;, tone !== &#39;warn&#39;); };
   const hush = () =&gt; { msg.className = &#39;ctm-msg&#39;; go.classList.remove(&#39;warn&#39;); go.classList.add(&#39;line&#39;); };
-  // hovering a part lights its share of the bar
+  // hovering a part lights its share of the bar, and one highlight glides from part to part (hoverGlide(), .mx-glide)
+  c.offs.push(hoverGlide(leg, &#39;.ctm-l&#39;));
   c.on(leg, &#39;pointerover&#39;, e =&gt; { const l = e.target.closest(&#39;.ctm-l&#39;); if (!l) return; bar.classList.add(&#39;hl&#39;); $$(&#39;i&#39;, bar).forEach(i =&gt; i.classList.toggle(&#39;on&#39;, i.dataset.k === l.dataset.k)); });
   c.on(leg, &#39;pointerout&#39;, e =&gt; { if (!leg.contains(e.relatedTarget)) bar.classList.remove(&#39;hl&#39;); });
   // the pill opens and shuts the panel; Escape shuts it while the pointer or the focus is on the meter
@@ -901,25 +1013,29 @@ const { class: className, ...rest } = Astro.props;
   const setOpen = (o, back) =&gt; { if (o) root.dataset.pos = side(); root.dataset.open = o ? &#39;1&#39; : &#39;0&#39;; tg.setAttribute(&#39;aria-expanded&#39;, o); pop.inert = !o; if (back) tg.focus({ preventScroll:true }); };
   tg.onclick = () =&gt; setOpen(root.dataset.open !== &#39;1&#39;);
   c.on(document, &#39;keydown&#39;, e =&gt; { if (e.key === &#39;Escape&#39; &amp;&amp; root.dataset.open === &#39;1&#39; &amp;&amp; (root.contains(document.activeElement) || root.matches(&#39;:hover&#39;))) setOpen(false, root.contains(document.activeElement)); });
-  // new tool output lands and takes the context close to its limit
-  function arrive(){ P[1].v = +(P[1].v + 38.5).toFixed(1); paint(700); say(`${Math.round(sum() / LIMIT * 100)}% full. Older turns start to drop at 200k`, &#39;warn&#39;); }
+  // the chat goes on: each step adds to one part (and to its tip), the ring grows a step and the share counts up; past 85% the
+  // warning shows
+  let stepAt = 0;
+  function arrive(){ const st = STEPS[stepAt++]; if (!st) return; const p = P[st[0]]; p.v = +(p.v + st[1]).toFixed(1); if (st[2]) p.tip += `, ${st[2]} ${fmt(st[1])}`; tips(); paint(600);
+    const pct = Math.round(sum() / LIMIT * 100), warn = () =&gt; say(`${pct}% full. Older turns start to drop at 200k`, &#39;warn&#39;);
+    if (hot) warn(); else if (pct &gt;= 85) onHot = () =&gt; { onHot = null; warn(); }; }
   // Compact turns older turns into a summary and trims old tool output; Undo puts them back
   const before = {}; let state = &#39;full&#39;;
   const run = html(&#39;&lt;span class=&quot;ctm-run&quot; role=&quot;status&quot; hidden&gt;&lt;span class=&quot;spin&quot;&gt;&lt;/span&gt;&lt;span class=&quot;shim&quot;&gt;Compacting…&lt;/span&gt;&lt;/span&gt;&#39;); go.after(run);
-  // the button is as wide as its words and eases to its new width when they change (owner, 18 Nov)
-  const label = h =&gt; { const w0 = go.getBoundingClientRect().width; go.innerHTML = h; const w1 = go.getBoundingClientRect().width;
-    if (!REDUCE &amp;&amp; w0 &amp;&amp; Math.abs(w1 - w0) &gt; .5) go.animate([{ width:w0 + &#39;px&#39; }, { width:w1 + &#39;px&#39; }], { duration:340, easing:&#39;cubic-bezier(.23,1,.32,1)&#39; }); };
+  // the button is as wide as its words and eases to its new width when they change (owner, 18 Nov), on the motion pieces&#39;
+  // spring (mxWidth())
+  const label = h =&gt; { const w0 = go.offsetWidth; go.innerHTML = h; if (!REDUCE &amp;&amp; w0) mxWidth(go, w0); };
   go.onclick = () =&gt; c.run(async () =&gt; {
     if (go._busy) return; go._busy = true;
     if (state === &#39;full&#39;){
-      P.forEach(p =&gt; before[p.k] = p.v); const was = sum();
+      P.forEach(p =&gt; before[p.k] = [p.v, p.tip]); const was = sum();
       const had = document.activeElement === go; go.hidden = true; run.hidden = false;
       swap(hint, &#39;&lt;span class=&quot;shim&quot;&gt;Summarising 48 turns&lt;/span&gt;&#39;, true); await c.wait(1000);
-      P[2].v = 4.6; P[1].v = +(P[1].v - 13.7).toFixed(1); paint(1100);
+      P.forEach(p =&gt; { p.v = p.after[0]; p.tip = p.after[1]; }); tips(); paint(1100);
       say(`Freed ${fmt(was - sum())} tokens. 9 decisions kept`, &#39;ok&#39;); swap(hint, &#39;Older turns are now a summary&#39;);
       c.later(REDUCE ? 0 : 170, () =&gt; { run.hidden = true; go.innerHTML = &#39;Undo&#39;; go.hidden = false; enter(go); if (had) go.focus({ preventScroll:true }); }); state = &#39;compact&#39;;
     } else {
-      P.forEach(p =&gt; p.v = before[p.k]); paint(700); hush(); swap(hint, &#39;Summarises older turns&#39;); c.later(REDUCE ? 0 : 170, () =&gt; label(&#39;Compact&#39;)); state = &#39;full&#39;;
+      P.forEach(p =&gt; { [p.v, p.tip] = before[p.k]; }); tips(); paint(700); hush(); swap(hint, &#39;Summarises older turns&#39;); c.later(REDUCE ? 0 : 170, () =&gt; label(&#39;Compact&#39;)); state = &#39;full&#39;;
     }
     go._busy = false;
   });
@@ -931,7 +1047,8 @@ const { class: className, ...rest } = Astro.props;
     await s.point($(&#39;.ctm-l[data-k=&quot;tools&quot;]&#39;, leg)); await s.beat(3);
     await s.point($(&#39;.ctm-l[data-k=&quot;files&quot;]&#39;, leg)); await s.beat(3);
     s.away(); await s.beat(1);
-    arrive(); await s.beat(4);
+    for (let i = 0; i &lt; STEPS.length; i++){ arrive(); await s.beat(i === 2 ? 4 : 2.4); }
+    await s.beat(1);
     await s.tap(go); s.away(); await s.until(() =&gt; state === &#39;compact&#39;); await s.beat(4);
     await s.tap(tg); s.away(); await s.beat(2);
   });
@@ -1278,30 +1395,56 @@ const fitHits = window.dmFitHits || (() => {
   // what fills the context, in thousands of tokens; each part lists what's in it on hover. The parts take the chart palette's
   // accent, violet and teal; the instructions, the quiet part, a neutral grey that keeps 3:1 (green would be Blueprint's
   // accent again, and orange the warning)
+  // (its tip lists what is in it; what arrives joins the list, and compacting leaves a summary in its place)
   const P = [
-    { k:'files', l:'Files', v:56.2, c:'var(--dm-c1)', tip:'Pricing.fig export 31.9k, PricingCard.tsx 18.2k, tokens.css 6.1k' },
-    { k:'tools', l:'Tool output', v:41.8, c:'var(--dm-c2)', tip:'Contrast check 17.4k, Figma frames 15.6k, grid audit 8.8k' },
-    { k:'chat', l:'Chat', v:32.1, c:'var(--dm-c6)', tip:'48 turns with Maya Kim since 09:12' },
-    { k:'sys', l:'Instructions', v:6.3, c:'var(--dm-muted)', tip:'Studio guidelines 4.1k, pricing brief 2.2k' }
+    { k:'files', l:'Files', v:32, c:'var(--dm-c1)', tip:'Pricing.fig export 19.8k, PricingCard.tsx 8.1k, tokens.css 4.1k', after:[26, 'Pricing.fig export 19.8k, summary of older reads 6.2k'] },
+    { k:'tools', l:'Tool output', v:24, c:'var(--dm-c2)', tip:'Contrast check 11.2k, Figma frames 8.6k, grid audit 4.2k', after:[24, 'Contrast check 11.2k, summary of older output 12.8k'] },
+    { k:'chat', l:'Chat', v:26, c:'var(--dm-c6)', tip:'Turns with Maya Kim since 09:12', after:[8, 'Summary of 48 turns, 9 decisions kept'] },
+    { k:'sys', l:'Instructions', v:6, c:'var(--dm-muted)', tip:'Studio guidelines 3.9k, pricing brief 2.1k', after:[6, 'Studio guidelines 3.9k, pricing brief 2.1k'] }
   ];
+  // what the chat adds as it goes on, one step at a time: [part, thousands of tokens, what it is]. The third takes it past 85%
+  const STEPS = [[0, 22, 'brand-guide.pdf'], [1, 36, 'web search'], [2, 28, ''], [0, 10, 'checkout.fig']];
   const root = $('.ctm', r), tg = $('.ctm-tg', r), pop = $('.ctm-pop', r), arc = $('.ctm-ring .fl', r), pc = $('.ctm-pc', r), tot = $('.ctm-tot', r);
+  const ring = $('.ctm-ring svg', r), warc = $('.ctm-ring .fw', r), shine = $('.ctm-ring .hl', r);
   const bar = $('.ctm-bar', r), leg = $('.ctm-leg', r), msg = $('.ctm-msg', r), go = $('.ctm-go', r), hint = $('.ctm-hint', r);
   bar.innerHTML = P.map(p => `<i data-k="${p.k}" style="--dm-c:${p.c}"></i>`).join('');
   leg.innerHTML = P.map(p => `<div class="ctm-l" data-k="${p.k}" style="--dm-c:${p.c}" data-tip="${p.tip}"><span class="sw"></span>${p.l}<span class="v num">0k</span></div>`).join('');
+  const tips = () => P.forEach(p => { $(`.ctm-l[data-k="${p.k}"]`, leg).dataset.tip = p.tip; });
   const fmt = v => v.toFixed(1) + 'k', sum = () => P.reduce((t, p) => t + p.v, 0);
   // the numbers count to their new values; the bar, the ring and the percentage follow
-  const shown = {}; let total = 0;
+  const shown = {}; let total = 0, hot = false, onHot = null;
+  // the ring's moments (owner, 26 Nov, from its showcase): a step up sends a thin bright highlight once along the filled arc and
+  // lifts the ring a touch; crossing 85% wipes the warning mark along the arc and nudges the pill; compacting wipes it back
+  const easeIO = 'cubic-bezier(.65,0,.35,1)';
+  const step = len => { if (REDUCE || !shine.animate) return;
+    const seg = Math.min(9, len); shine.style.strokeDasharray = seg + ' 200';
+    shine.animate([{ strokeDashoffset:0, opacity:0 }, { opacity:.9, offset:.5 }, { strokeDashoffset:-(len - seg), opacity:0 }], { duration:450, easing:easeIO });
+    ring.animate([{ scale:1 }, { scale:1.06, offset:.2 }, { scale:1 }], { duration:350, easing:'cubic-bezier(.23,1,.32,1)' }); };
+  const wipe = (on, len) => { (warc._a || { cancel(){} }).cancel(); warc.style.transition = 'none';
+    if (on){ warc.style.opacity = '1'; warc.style.strokeDasharray = len + ' 100'; if (!REDUCE) warc._a = warc.animate([{ strokeDasharray:'0 100' }, { strokeDasharray:len + ' 100' }], { duration:200, easing:easeIO });
+      if (!REDUCE) tg.animate([{ translate:'0 0' }, { translate:'3px 0', offset:.22 }, { translate:'-1.4px 0', offset:.6 }, { translate:'0 0' }], { duration:380, easing:'ease-out' }); }
+    else { const from = parseFloat(warc.style.strokeDasharray) || 0; warc.style.strokeDasharray = '0 100';
+      if (REDUCE){ warc.style.opacity = '0'; } else { const a = warc._a = warc.animate([{ strokeDasharray:from + ' 100' }, { strokeDasharray:'0 100' }], { duration:200, easing:easeIO }); a.onfinish = () => { if (!hot) warc.style.opacity = '0'; }; } }
+    void warc.offsetWidth; warc.style.transition = ''; };
   function paint(ms = 900){
-    const all = sum(), pct = Math.round(all / LIMIT * 100);
+    const all = sum(), pct = Math.round(all / LIMIT * 100), up = all > total + .05 && total > 0, was = hot;
     P.forEach(p => { $(`i[data-k="${p.k}"]`, bar).style.width = (p.v / LIMIT * 100) + '%'; const el = $(`.ctm-l[data-k="${p.k}"] .v`, leg), from = shown[p.k] || 0; shown[p.k] = p.v; tween(from, p.v, ms, x => el.textContent = fmt(x)); });
-    const from = total; total = all; tween(from, all, ms, x => { tot.textContent = fmt(x); pc.textContent = Math.round(x / LIMIT * 100) + '%'; });
-    arc.style.strokeDasharray = pct + ' 100'; root.classList.toggle('hot', pct >= 85); tg.setAttribute('aria-label', `Context, ${pct}% used`);
+    // the ring turns to the warning mark (and back) as the count passes 85%, not before
+    const cross = x => { const h = Math.round(x / LIMIT * 100) >= 85; if (h === hot) return; hot = h; root.classList.toggle('hot', h); wipe(h, pct); if (h && onHot) onHot(); };
+    const from = total; total = all; tween(from, all, ms, x => { tot.textContent = fmt(x); pc.textContent = Math.round(x / LIMIT * 100) + '%'; cross(x); });
+    arc.style.strokeDasharray = pct + ' 100'; tg.setAttribute('aria-label', `Context, ${pct}% used`);
+    if (hot && was) warc.style.strokeDasharray = pct + ' 100';
+    if (up || from > all + .05) step(pct);
   }
   // a warning is a warning notice with the filled sign, and Compact, the action that resolves it, takes the warning tint
   const WARN = '<svg class="ctm-wi" viewBox="0 0 24 24" aria-hidden="true"><path class="a" d="M12 3.6 2.6 19.9h18.8z"/><path class="b" d="M12 9.6v4.4M12 17v.01"/></svg>';
-  const say = (text, tone) => { msg.className = 'ctm-msg on ' + tone; swap(msg.firstElementChild, `${tone === 'warn' ? WARN : I('ok','xs')}<span>${text}</span>`, true); go.classList.toggle('warn', tone === 'warn'); go.classList.toggle('line', tone !== 'warn'); };
+  // (a warning already showing keeps its notice and only its words change)
+  const say = (text, tone) => { const same = msg.classList.contains('on') && msg.classList.contains(tone) && $('span>span', msg);
+    const h = `${tone === 'warn' ? WARN : I('ok','xs')}<span>${text}</span>`, shut = !msg.classList.contains('on');
+    msg.className = 'ctm-msg on ' + tone; if (same) swap(same, text); else if (shut) msg.firstElementChild.innerHTML = h; else swap(msg.firstElementChild, h, true); go.classList.toggle('warn', tone === 'warn'); go.classList.toggle('line', tone !== 'warn'); };
   const hush = () => { msg.className = 'ctm-msg'; go.classList.remove('warn'); go.classList.add('line'); };
-  // hovering a part lights its share of the bar
+  // hovering a part lights its share of the bar, and one highlight glides from part to part (hoverGlide(), .mx-glide)
+  c.offs.push(hoverGlide(leg, '.ctm-l'));
   c.on(leg, 'pointerover', e => { const l = e.target.closest('.ctm-l'); if (!l) return; bar.classList.add('hl'); $$('i', bar).forEach(i => i.classList.toggle('on', i.dataset.k === l.dataset.k)); });
   c.on(leg, 'pointerout', e => { if (!leg.contains(e.relatedTarget)) bar.classList.remove('hl'); });
   // the pill opens and shuts the panel; Escape shuts it while the pointer or the focus is on the meter
@@ -1317,25 +1460,29 @@ const fitHits = window.dmFitHits || (() => {
   const setOpen = (o, back) => { if (o) root.dataset.pos = side(); root.dataset.open = o ? '1' : '0'; tg.setAttribute('aria-expanded', o); pop.inert = !o; if (back) tg.focus({ preventScroll:true }); };
   tg.onclick = () => setOpen(root.dataset.open !== '1');
   c.on(document, 'keydown', e => { if (e.key === 'Escape' && root.dataset.open === '1' && (root.contains(document.activeElement) || root.matches(':hover'))) setOpen(false, root.contains(document.activeElement)); });
-  // new tool output lands and takes the context close to its limit
-  function arrive(){ P[1].v = +(P[1].v + 38.5).toFixed(1); paint(700); say(`${Math.round(sum() / LIMIT * 100)}% full. Older turns start to drop at 200k`, 'warn'); }
+  // the chat goes on: each step adds to one part (and to its tip), the ring grows a step and the share counts up; past 85% the
+  // warning shows
+  let stepAt = 0;
+  function arrive(){ const st = STEPS[stepAt++]; if (!st) return; const p = P[st[0]]; p.v = +(p.v + st[1]).toFixed(1); if (st[2]) p.tip += `, ${st[2]} ${fmt(st[1])}`; tips(); paint(600);
+    const pct = Math.round(sum() / LIMIT * 100), warn = () => say(`${pct}% full. Older turns start to drop at 200k`, 'warn');
+    if (hot) warn(); else if (pct >= 85) onHot = () => { onHot = null; warn(); }; }
   // Compact turns older turns into a summary and trims old tool output; Undo puts them back
   const before = {}; let state = 'full';
   const run = html('<span class="ctm-run" role="status" hidden><span class="spin"></span><span class="shim">Compacting…</span></span>'); go.after(run);
-  // the button is as wide as its words and eases to its new width when they change (owner, 18 Nov)
-  const label = h => { const w0 = go.getBoundingClientRect().width; go.innerHTML = h; const w1 = go.getBoundingClientRect().width;
-    if (!REDUCE && w0 && Math.abs(w1 - w0) > .5) go.animate([{ width:w0 + 'px' }, { width:w1 + 'px' }], { duration:340, easing:'cubic-bezier(.23,1,.32,1)' }); };
+  // the button is as wide as its words and eases to its new width when they change (owner, 18 Nov), on the motion pieces'
+  // spring (mxWidth())
+  const label = h => { const w0 = go.offsetWidth; go.innerHTML = h; if (!REDUCE && w0) mxWidth(go, w0); };
   go.onclick = () => c.run(async () => {
     if (go._busy) return; go._busy = true;
     if (state === 'full'){
-      P.forEach(p => before[p.k] = p.v); const was = sum();
+      P.forEach(p => before[p.k] = [p.v, p.tip]); const was = sum();
       const had = document.activeElement === go; go.hidden = true; run.hidden = false;
       swap(hint, '<span class="shim">Summarising 48 turns</span>', true); await c.wait(1000);
-      P[2].v = 4.6; P[1].v = +(P[1].v - 13.7).toFixed(1); paint(1100);
+      P.forEach(p => { p.v = p.after[0]; p.tip = p.after[1]; }); tips(); paint(1100);
       say(`Freed ${fmt(was - sum())} tokens. 9 decisions kept`, 'ok'); swap(hint, 'Older turns are now a summary');
       c.later(REDUCE ? 0 : 170, () => { run.hidden = true; go.innerHTML = 'Undo'; go.hidden = false; enter(go); if (had) go.focus({ preventScroll:true }); }); state = 'compact';
     } else {
-      P.forEach(p => p.v = before[p.k]); paint(700); hush(); swap(hint, 'Summarises older turns'); c.later(REDUCE ? 0 : 170, () => label('Compact')); state = 'full';
+      P.forEach(p => { [p.v, p.tip] = before[p.k]; }); tips(); paint(700); hush(); swap(hint, 'Summarises older turns'); c.later(REDUCE ? 0 : 170, () => label('Compact')); state = 'full';
     }
     go._busy = false;
   });
@@ -1347,7 +1494,8 @@ const fitHits = window.dmFitHits || (() => {
     await s.point($('.ctm-l[data-k="tools"]', leg)); await s.beat(3);
     await s.point($('.ctm-l[data-k="files"]', leg)); await s.beat(3);
     s.away(); await s.beat(1);
-    arrive(); await s.beat(4);
+    for (let i = 0; i < STEPS.length; i++){ arrive(); await s.beat(i === 2 ? 4 : 2.4); }
+    await s.beat(1);
     await s.tap(go); s.away(); await s.until(() => state === 'compact'); await s.beat(4);
     await s.tap(tg); s.away(); await s.beat(2);
   });

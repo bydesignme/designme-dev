@@ -158,7 +158,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { cx } from '../lib/cx';
 import { useControllable, useCopied, useIsoLayoutEffect, useReducedMotion } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { Swap, Tip } from '../lib/motion';
+import { Swap, SwapIcon, Tip } from '../lib/motion';
 import '../designme.css';
 import './response-versions.css';
 
@@ -245,21 +245,21 @@ export function ResponseVersions({ prompt, versions, version, defaultVersion = 0
   const copy = () => { const t = versions[at] ?? ''; copyText(t); onCopy?.(t); };
 
   return (
-    <div data-dm="" ref={root} className={cx('dm-rvx', !bare && 'dm-panel', 'dm-growing', className)} style={bare ? undefined : { padding: 16 }}>
+    <div data-dm="" ref={root} className={cx('dm-rvx', !bare && 'dm-panel', 'dm-growing dm-mx-grow', className)} style={bare ? undefined : { padding: 16 }}>
       <div ref={inner} className="dm-grow">
       {prompt && <div className="dm-bub">{prompt}</div>}
       <div className="dm-rvx-a">
         <p ref={tRef} className={cx('dm-msg dm-rvx-t', out && 'dm-out')} aria-live="polite">
           {words.map((w, k) => <span key={shown + ':' + k} className="dm-w" style={jump ? { animationDelay: k * 12 + 'ms' } : undefined}>{w} </span>)}
         </p>
-        <div className="dm-rvx-bar">
+        <div className="dm-rvx-bar dm-mx-ic">
           <div className="dm-rvx-pg">
-            <Tip label="Previous"><button type="button" className="dm-ib" aria-label="Previous version" disabled={at === 0 || streaming} onClick={() => setCur(at - 1)}><Icon name="chev-l" /></button></Tip>
+            <Tip label="Previous"><button type="button" className="dm-ib dm-mx-press" aria-label="Previous version" disabled={at === 0 || streaming} onClick={() => setCur(at - 1)}><Icon name="chev-l" /></button></Tip>
             <span className="dm-rvx-n dm-num">{at + 1} / {Math.max(versions.length, 1)}</span>
-            <Tip label="Next"><button type="button" className="dm-ib" aria-label="Next version" disabled={at === last || streaming} onClick={() => setCur(at + 1)}><Icon name="chev-r" /></button></Tip>
+            <Tip label="Next"><button type="button" className="dm-ib dm-mx-press" aria-label="Next version" disabled={at === last || streaming} onClick={() => setCur(at + 1)}><Icon name="chev-r" /></button></Tip>
           </div>
-          {onRegenerate && <Tip label="Regenerate" kbd="⌘R"><button type="button" className={cx('dm-ib dm-rvx-re', spin && 'dm-go')} aria-label="Regenerate" onClick={regenerate}><Icon name="refresh" /></button></Tip>}
-          <Tip label={copied ? 'Copied to clipboard' : 'Copy'} open={copied || undefined}><button type="button" className={cx('dm-ib dm-rvx-cp', copied && 'dm-copied')} aria-label="Copy" onClick={copy}><Icon name={copied ? 'check' : 'copy'} /></button></Tip>
+          {onRegenerate && <Tip label="Regenerate" kbd="⌘R"><button type="button" className={cx('dm-ib dm-rvx-re dm-mx-press', spin && 'dm-go')} aria-label="Regenerate" onClick={regenerate}><Icon name="refresh" /></button></Tip>}
+          <Tip label={copied ? 'Copied to clipboard' : 'Copy'} open={copied || undefined}><button type="button" className={cx('dm-ib dm-rvx-cp dm-mx-press', copied && 'dm-copied')} aria-label="Copy" onClick={copy}><SwapIcon id={copied ? 'check' : 'copy'}><Icon name={copied ? 'check' : 'copy'} /></SwapIcon></button></Tip>
           <Swap className={cx('dm-rvx-st dm-muted', streaming && status && 'dm-shim')}>{status}</Swap>
         </div>
       </div>

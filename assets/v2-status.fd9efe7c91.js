@@ -1,13 +1,13 @@
-TPLS["thinking-states"] = "<div class=\"ths-dm dm\"><div class=\"dm-main\">\n  <div class=\"ths\" data-v=\"orbit\">\n    <div class=\"ths-row\">\n      <span class=\"ths-mk\" aria-hidden=\"true\"></span>\n      <span class=\"ths-w\"><span class=\"ths-l\" aria-hidden=\"true\"><span class=\"ths-tx shim\">Thinking</span><span class=\"ths-car\" hidden></span></span>\n      <span class=\"ths-t num\" aria-hidden=\"true\">0s</span></span>\n    </div>\n    <span class=\"ths-sr\" role=\"status\" aria-live=\"polite\">Thinking</span>\n  </div>\n  </div>\n  <div class=\"demo\"><div class=\"seg2\" role=\"group\" aria-label=\"Thinking state\"><button aria-pressed=\"true\" data-v=\"orbit\">Orbit</button><button aria-pressed=\"false\" data-v=\"morph\">Morph</button><button aria-pressed=\"false\" data-v=\"scan\">Scan</button><button aria-pressed=\"false\" data-v=\"stream\">Stream</button><button aria-pressed=\"false\" data-v=\"matrix\">Matrix</button><button aria-pressed=\"false\" data-v=\"stack\">Stack</button></div></div>\n</div>";
-TPLS["step-loader"] = "<div class=\"stl dm\"><div class=\"dm-main\">\n  <button class=\"stl-row\" aria-expanded=\"false\">\n    <span class=\"stl-g\"></span>\n    <span class=\"stl-t\"><span class=\"stl-lab shim\">Reading Figma frames</span></span>\n    <span class=\"stl-n num\">1/4</span>\n    <svg class=\"i xs stl-chev\"><use href=\"#v2i-chev-d\"/></svg>\n  </button>\n  <div class=\"stl-track\"><i></i><i></i><i></i><i></i></div>\n  <div class=\"fold shut stl-fold\"><div><ol class=\"stl-list\"></ol></div></div>\n  </div>\n  <div class=\"demo\"><div class=\"seg2\" role=\"group\" aria-label=\"Loader\"><button aria-pressed=\"true\" data-v=\"radar\">Radar</button><button aria-pressed=\"false\" data-v=\"think\">Dots</button><button aria-pressed=\"false\" data-v=\"spin\">Ring</button><button aria-pressed=\"false\" data-v=\"bars\">Bars</button></div></div>\n</div>";
+TPLS["thinking-states"] = "<div class=\"ths-dm dm\"><div class=\"dm-main\">\n  <div class=\"ths mx-ic\" data-v=\"orbit\">\n    <div class=\"ths-row\">\n      <span class=\"ths-mk\" aria-hidden=\"true\"></span>\n      <span class=\"ths-w\"><span class=\"ths-l\" aria-hidden=\"true\"><span class=\"ths-tx shim\">Thinking</span><span class=\"ths-car\" hidden></span></span>\n      <span class=\"ths-t num\" aria-hidden=\"true\">0s</span></span>\n    </div>\n    <span class=\"ths-sr\" role=\"status\" aria-live=\"polite\">Thinking</span>\n  </div>\n  </div>\n  <div class=\"demo\"><div class=\"seg2\" role=\"group\" aria-label=\"Thinking state\"><button aria-pressed=\"true\" data-v=\"orbit\">Orbit</button><button aria-pressed=\"false\" data-v=\"morph\">Morph</button><button aria-pressed=\"false\" data-v=\"scan\">Scan</button><button aria-pressed=\"false\" data-v=\"stream\">Stream</button><button aria-pressed=\"false\" data-v=\"matrix\">Matrix</button><button aria-pressed=\"false\" data-v=\"stack\">Stack</button></div></div>\n</div>";
+TPLS["step-loader"] = "<div class=\"stl dm mx-ic\"><div class=\"dm-main\">\n  <button class=\"stl-row mx-press\" aria-expanded=\"false\">\n    <span class=\"stl-g\"></span>\n    <span class=\"stl-t\"><span class=\"stl-lab shim\">Reading Figma frames</span></span>\n    <span class=\"stl-n num\">1/4</span>\n    <svg class=\"i xs stl-chev\"><use href=\"#v2i-chev-d\"/></svg>\n  </button>\n  <div class=\"stl-track\"><i></i><i></i><i></i><i></i></div>\n  <div class=\"fold shut stl-fold\"><div><ol class=\"stl-list mx-rows\"></ol></div></div>\n  </div>\n  <div class=\"demo\"><div class=\"seg2\" role=\"group\" aria-label=\"Loader\"><button aria-pressed=\"true\" data-v=\"radar\">Radar</button><button aria-pressed=\"false\" data-v=\"think\">Dots</button><button aria-pressed=\"false\" data-v=\"spin\">Ring</button><button aria-pressed=\"false\" data-v=\"bars\">Bars</button></div></div>\n</div>";
 TPLS["status-pill"] = "<div class=\"spl dm\">\n  <div class=\"spl-stage dm-main\">\n    <div class=\"spl-pill\" aria-live=\"polite\"><div class=\"spl-in\"></div></div>\n  </div>\n  <div class=\"demo\"><div class=\"seg2\" role=\"group\" aria-label=\"Variant\"><button aria-pressed=\"true\" data-v=\"pill\">Pill</button><button aria-pressed=\"false\" data-v=\"bar\">Bar</button></div></div>\n</div>";
 TPLS["toast"] = "<div class=\"tst dm\">\n  <div class=\"dm-main\"><div class=\"tst-slot\">\n    <button type=\"button\" class=\"pill line sm tst-make\"><svg class=\"i s\"><use href=\"#v2i-spark\"/></svg><span>Make slides</span></button>\n    <div class=\"tst-t\" hidden>\n      <div class=\"tst-hd\">\n        <span class=\"tst-dk idle\" aria-hidden=\"true\"><svg viewBox=\"0 0 64 40\"></svg></span>\n        <div class=\"tst-tx\"><span class=\"tst-ti\"></span><span class=\"tst-de\"></span></div>\n        <div class=\"tst-hb\">\n          <button type=\"button\" class=\"ib tst-more\" aria-expanded=\"false\" aria-label=\"Show the steps\" data-tip=\"Steps\"><svg class=\"i s\"><use href=\"#v2i-chev-d\"/></svg></button>\n          <button type=\"button\" class=\"ib tst-stop\" aria-label=\"Stop the job\" data-tip=\"Stop\"><svg class=\"i s\"><use href=\"#v2i-stop\"/></svg></button>\n          <button type=\"button\" class=\"ib tst-x\" aria-label=\"Close\" data-tip=\"Close\" hidden><svg class=\"tst-ring\" viewBox=\"0 0 28 28\" aria-hidden=\"true\" hidden><rect class=\"tst-tk\" x=\".75\" y=\".75\" width=\"26.5\" height=\"26.5\"/><rect class=\"tst-rn\" x=\".75\" y=\".75\" width=\"26.5\" height=\"26.5\" pathLength=\"100\"/></svg><svg class=\"i s\"><use href=\"#v2i-x\"/></svg></button>\n        </div>\n      </div>\n      <div class=\"fold shut tst-mf\"><div><ol class=\"tst-st\" aria-label=\"Steps\"></ol></div></div>\n      <div class=\"fold shut tst-ft\"><div><div class=\"tst-fi\"></div></div></div>\n    </div>\n    <div class=\"tst-sr\" role=\"status\" aria-live=\"polite\"></div>\n    <div class=\"tst-sr\" role=\"alert\" aria-live=\"assertive\"></div>\n  </div></div>\n</div>";
-TPLS["toast-stack"] = "<div class=\"tsk dm\">\n  <div class=\"dm-main\"><div class=\"tsk-stack\" aria-live=\"polite\"></div></div>\n  <div class=\"demo\"><button class=\"pill soft sm tsk-add\"><svg class=\"i s\"><use href=\"#v2i-bell\"/></svg>Send notification</button></div>\n</div>";
-TPLS["context-meter"] = "<div class=\"ctm\" data-open=\"1\" data-pos=\"up\">\n  <button class=\"ctm-tg\" aria-expanded=\"true\" aria-label=\"Context\"><span class=\"ctm-ring\" aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\"><circle class=\"tr\" cx=\"10\" cy=\"10\" r=\"7.5\"/><circle class=\"fl\" cx=\"10\" cy=\"10\" r=\"7.5\" pathLength=\"100\"/></svg></span><span><span class=\"ctm-pc num\">0%</span> of context used</span>{chev}</button>\n  <div class=\"ctm-pop panel\" role=\"region\" aria-label=\"What fills the context\">\n    <div class=\"ctm-ph\"><span>In context</span><span class=\"num\"><b class=\"ctm-tot\">0k</b> of 200k tokens</span></div>\n    <div class=\"ctm-bar\" aria-hidden=\"true\"></div>\n    <div class=\"ctm-leg\"></div>\n    <div class=\"ctm-msg\" aria-live=\"polite\"><span></span></div>\n    <div class=\"ctm-f\"><span class=\"ctm-hint\">Summarises older turns</span><button class=\"pill line sm ctm-go\">Compact</button></div>\n  </div>\n</div>";
+TPLS["toast-stack"] = "<div class=\"tsk dm\">\n  <div class=\"dm-main\"><div class=\"tsk-stack\" role=\"region\" aria-label=\"Notifications\"></div>\n    <div class=\"tst-sr\" role=\"status\" aria-live=\"polite\"></div>\n    <div class=\"tst-sr\" role=\"alert\" aria-live=\"assertive\"></div>\n  </div>\n  <div class=\"demo\"><button type=\"button\" class=\"pill line sm tsk-add\"><svg class=\"i s\"><use href=\"#v2i-bell\"/></svg>Send notification</button></div>\n</div>";
+TPLS["context-meter"] = "<div class=\"ctm\" data-open=\"1\" data-pos=\"up\">\n  <button class=\"ctm-tg\" aria-expanded=\"true\" aria-label=\"Context\"><span class=\"ctm-ring\" aria-hidden=\"true\"><svg viewBox=\"0 0 20 20\"><circle class=\"tr\" cx=\"10\" cy=\"10\" r=\"7.5\"/><circle class=\"fl\" cx=\"10\" cy=\"10\" r=\"7.5\" pathLength=\"100\"/><circle class=\"fw\" cx=\"10\" cy=\"10\" r=\"7.5\" pathLength=\"100\"/><circle class=\"hl\" cx=\"10\" cy=\"10\" r=\"7.5\" pathLength=\"100\"/></svg></span><span><span class=\"ctm-pc num\">0%</span> of context used</span>{chev}</button>\n  <div class=\"ctm-pop panel\" role=\"region\" aria-label=\"What fills the context\">\n    <div class=\"ctm-ph\"><span>In context</span><span class=\"num\"><b class=\"ctm-tot\">0k</b> of 200k tokens</span></div>\n    <div class=\"ctm-bar\" aria-hidden=\"true\"></div>\n    <div class=\"ctm-leg mx-glide\"></div>\n    <div class=\"ctm-msg\" aria-live=\"polite\"><span></span></div>\n    <div class=\"ctm-f\"><span class=\"ctm-hint\">Summarises older turns</span><button class=\"pill line sm ctm-go mx-press\">Compact</button></div>\n  </div>\n</div>";
 TPLS["agent-run-timeline"] = "<div class=\"art panel\">\n  <div class=\"art-h\"><span class=\"art-hi\" aria-hidden=\"true\"></span><div class=\"art-hd\"><div class=\"art-t\">Run 4821, update the pricing page</div><div class=\"art-s muted num\">Starting</div></div><span class=\"art-tag tag\"><span class=\"spin\" aria-hidden=\"true\"></span>Running</span></div>\n  <div class=\"art-key num\" role=\"list\" aria-label=\"Time by kind of step\"></div>\n  <div class=\"art-grid\">\n    <div class=\"art-axis\" aria-hidden=\"true\"><span></span><div class=\"art-ticks\"></div><span></span></div>\n    <div class=\"art-past\" aria-hidden=\"true\"></div>\n    <div class=\"art-rows\"></div>\n    <div class=\"art-head\" aria-hidden=\"true\"><i></i><span class=\"art-now num\">0.0s</span></div>\n  </div>\n  <div class=\"art-f muted num\"></div>\n</div>";
-TPLS["web-search"] = "<div class=\"wsx panel\">\n  <button class=\"wsx-h\" aria-expanded=\"true\"><span class=\"wsx-ic\"><span class=\"spin\"></span></span><span class=\"wsx-st shim\">Searching the web</span><span class=\"wsx-marks\" aria-hidden=\"true\"></span>{chev}</button>\n  <div class=\"fold wsx-fold\"><div><div class=\"wsx-list\"></div></div></div>\n  <div class=\"wsx-ans\"></div>\n  <p class=\"wsx-sr\" role=\"status\"></p>\n</div>";
-TPLS["reasoning-trail"] = "<div class=\"rtr-dm dm\"><div class=\"dm-main\"><div class=\"rtr panel\">\n  <button class=\"rtr-h\" aria-expanded=\"true\">\n    <span class=\"think on rtr-mark\"><i></i><i></i><i></i><i></i></span>\n    <span class=\"rtr-title shim\">Reasoning</span><span class=\"rtr-time num muted\">0s</span>\n    <svg class=\"i xs rtr-chev\"><use href=\"#v2i-chev-d\"/></svg>\n  </button>\n  <div class=\"fold rtr-fold\"><div>\n    <div class=\"rtr-body\"></div>\n    <div class=\"fold rtr-ff shut\"><div><p class=\"rtr-f\"><span class=\"rtr-fk\" aria-hidden=\"true\"><svg viewBox=\"0 0 24 24\"><path d=\"m5 12.5 4.5 4.5L19 7.5\"/></svg></span><span class=\"rtr-fd\"></span><span class=\"rtr-fs\"></span></p></div></div>\n  </div></div>\n</div></div>\n  <div class=\"demo\"><div class=\"seg2\" role=\"group\" aria-label=\"View\"><button aria-pressed=\"true\" data-v=\"plan\">Plan</button><button aria-pressed=\"false\" data-v=\"notes\">Notes</button><button aria-pressed=\"false\" data-v=\"sources\">Sources</button><button aria-pressed=\"false\" data-v=\"edits\">Edits</button></div></div>\n</div>";
-TPLS["thinking"] = "<div class=\"tk\" data-open=\"1\">\n  <button class=\"tk-h\" aria-expanded=\"true\">\n    <span class=\"tk-mark\"><span class=\"think on\"><i></i><i></i><i></i><i></i></span></span>\n    <span class=\"tk-title shim\">Checking the pricing page</span><span class=\"tk-time num\">0s</span>\n    <svg class=\"i xs tk-chev\"><use href=\"#v2i-chev-d\"/></svg>\n  </button>\n  <div class=\"fold tk-fold\"><div><ol class=\"tk-list\" aria-live=\"polite\"></ol></div></div>\n</div>";
+TPLS["web-search"] = "<div class=\"wsx panel mx-grow mx-ic\">\n  <button class=\"wsx-h mx-press\" aria-expanded=\"true\"><span class=\"wsx-ic\"><span class=\"spin\"></span></span><span class=\"wsx-st shim\">Searching the web</span><span class=\"wsx-marks\" aria-hidden=\"true\"></span>{chev}</button>\n  <div class=\"fold wsx-fold\"><div><div class=\"wsx-list\"></div></div></div>\n  <div class=\"wsx-ans\"></div>\n  <p class=\"wsx-sr\" role=\"status\"></p>\n</div>";
+TPLS["reasoning-trail"] = "<div class=\"rtr-dm dm\"><div class=\"dm-main\"><div class=\"rtr panel mx-grow\">\n  <button class=\"rtr-h mx-press\" aria-expanded=\"true\">\n    <span class=\"think on rtr-mark\"><i></i><i></i><i></i><i></i></span>\n    <span class=\"rtr-title shim\">Reasoning</span><span class=\"rtr-time num muted\">0s</span>\n    <svg class=\"i xs rtr-chev\"><use href=\"#v2i-chev-d\"/></svg>\n  </button>\n  <div class=\"fold rtr-fold\"><div>\n    <div class=\"rtr-body\"></div>\n    <div class=\"fold rtr-ff shut\"><div><p class=\"rtr-f\"><span class=\"rtr-fk\" aria-hidden=\"true\"><svg viewBox=\"0 0 24 24\"><path d=\"m5 12.5 4.5 4.5L19 7.5\"/></svg></span><span class=\"rtr-fd\"></span><span class=\"rtr-fs\"></span></p></div></div>\n  </div></div>\n</div></div>\n  <div class=\"demo\"><div class=\"seg2\" role=\"group\" aria-label=\"View\"><button aria-pressed=\"true\" data-v=\"plan\">Plan</button><button aria-pressed=\"false\" data-v=\"notes\">Notes</button><button aria-pressed=\"false\" data-v=\"sources\">Sources</button><button aria-pressed=\"false\" data-v=\"edits\">Edits</button></div></div>\n</div>";
+TPLS["thinking"] = "<div class=\"tk mx-grow mx-ic\" data-open=\"1\">\n  <button class=\"tk-h\" aria-expanded=\"true\">\n    <span class=\"tk-mark\"><span class=\"think on\"><i></i><i></i><i></i><i></i></span></span>\n    <span class=\"tk-title shim\">Checking the pricing page</span><span class=\"tk-time num\">0s</span>\n    <svg class=\"i xs tk-chev\"><use href=\"#v2i-chev-d\"/></svg>\n  </button>\n  <div class=\"fold tk-fold\"><div><ol class=\"tk-list\" aria-live=\"polite\"></ol></div></div>\n</div>";
 /* ---------- Status pill ---------- */
 DM.def('status-pill', (r, c) => {
   const pill = $('.spl-pill', r), box = $('.spl-in', r), root = $('.spl', r);
@@ -67,12 +67,19 @@ DM.def('step-loader', (r, c) => {
   const row = $('.stl-row', r), lab = $('.stl-lab', r), n = $('.stl-n', r), g = $('.stl-g', r), bars = $$('.stl-track i', r), list = $('.stl-list', r), fold = $('.stl-fold', r);
   let kind = 'radar', cur = 0, done = false;
   const glyph = () => kind === 'radar' ? '<span class="radar"></span>' : kind === 'think' ? '<span class="think on"><i></i><i></i><i></i><i></i></span>' : kind === 'spin' ? '<span class="spin"></span>' : '<span class="bars3"><i></i><i></i><i></i></span>';
+  // the rows stay and change in place: a mark that changes (the loader, the tick, the dot) crossfades (iconSwap()), and one
+  // that stays keeps playing where it is
+  const MARK = { ok:() => `<span class="stl-ok">${I('ok')}</span>`, check:() => `<span class="stl-ok">${I('check','xs')}</span>`, dot:() => '<span class="dot" style="color:var(--faint)"></span>' };
+  const mark = (el, k) => { if (el.dataset.k === k) return; const first = !el.dataset.k; el.dataset.k = k; const put = () => { el.innerHTML = (MARK[k] || glyph)(); }; first ? put() : iconSwap(el, put); };
+  list.innerHTML = steps.map(() => '<li><span class="g"></span> </li>').join('');
   const paint = () => {
-    g.innerHTML = done ? `<span class="stl-ok">${I('ok')}</span>` : glyph();
-    list.innerHTML = steps.map((s, i) => `<li class="${i < cur || done ? 'done' : i === cur ? 'run' : ''}"><span class="g">${i < cur || done ? `<span class="stl-ok">${I('check','xs')}</span>` : i === cur ? glyph() : '<span class="dot" style="color:var(--faint)"></span>'}</span>${i < cur || done ? s[1] : s[0]}</li>`).join('');
+    mark(g, done ? 'ok' : kind);
+    [...list.children].forEach((li, i) => { const fin = i < cur || done;
+      li.className = fin ? 'done' : i === cur ? 'run' : ''; mark(li.firstElementChild, fin ? 'check' : i === cur ? kind : 'dot'); li.lastChild.nodeValue = fin ? steps[i][1] : steps[i][0]; });
   };
   seg($('.seg2', r), v => { kind = v; paint(); });
-  row.onclick = () => { const o = fold.classList.toggle('shut'); row.setAttribute('aria-expanded', !o); };
+  // the list's rows settle one after another as it opens (.mx-rows)
+  row.onclick = () => { const o = fold.classList.toggle('shut'); row.setAttribute('aria-expanded', !o); list.classList.toggle('mx-play', !o); };
   paint();
   c.run(async () => {
     for (;;){
@@ -146,7 +153,8 @@ DM.def('thinking-states', (r, c) => {
     // a screen reader hears each new step once, never the letters as they type
     if (fresh) sr.textContent = t;
   };
-  const pick = x => { v = x; box.dataset.v = x; mk.innerHTML = MARKS[x]; show(steps[at], false); };
+  // (a new state's mark crossfades in for the last one, iconSwap())
+  const pick = x => { v = x; box.dataset.v = x; if (mk.firstChild) iconSwap(mk, () => { mk.innerHTML = MARKS[x]; }); else mk.innerHTML = MARKS[x]; show(steps[at], false); };
   seg($('.seg2', r), pick);
   pick(v);
   c.every(1000, () => { secs++; time.textContent = secs + 's'; });
@@ -311,7 +319,8 @@ DM.def('thinking', (r, c) => {
   // (the template's chevron names the sprite's icon directly, which the homepage renames, so it is drawn through I())
   $('.tk-chev', r).outerHTML = I('chev-d', 'xs tk-chev');
   // the header becomes what the work came to
-  const finish = () => { live = false; head.classList.add('tk-fin'); mark.innerHTML = clean ? I('check','xs') : I('ok'); enter(mark.firstElementChild); title.classList.remove('shim'); swap(title, '3 cards to fix, 2 changes planned'); };
+  // (the dots and the finished mark crossfade, iconSwap(); Clean draws its tick on its disc as before)
+  const finish = () => { live = false; head.classList.add('tk-fin'); if (clean){ mark.innerHTML = I('check','xs'); enter(mark.firstElementChild); } else iconSwap(mark, () => { mark.innerHTML = I('ok'); }); title.classList.remove('shim'); swap(title, '3 cards to fix, 2 changes planned'); };
   // the line under a step opens and then crossfades; what the step found writes itself in a word at a time, and a tip on it
   // holds the detail
   const words = t => t.split(' ').map((w, i, a) => `<span class="w" style="animation-delay:${i * 45}ms">${w}${i < a.length - 1 ? ' ' : ''}</span>`).join('');
@@ -320,7 +329,8 @@ DM.def('thinking', (r, c) => {
     clearTimeout(sp._tone); const set = () => sp.classList.toggle('warn', warn);
     if (found){ set(); sp._sw = null; sp.classList.remove('out'); sp.innerHTML = tip ? `<span data-tip="${tip}">${words(text)}</span>` : words(text); }
     else { const lag = !REDUCE && !!sp.textContent.trim() && sp.textContent !== text; swap(sp, text); if (lag) sp._tone = setTimeout(set, 170); else set(); } };
-  const glyph = (li, g) => { const mk = $('.mk', li); mk.innerHTML = g; enter(mk.firstElementChild); };
+  // (a step's mark crossfades on its tile, which keeps its fill: iconSwap(); Clean draws its disc and tick as before)
+  const glyph = (li, g) => { const mk = $('.mk', li), put = () => { mk.innerHTML = g; }; if (clean){ put(); enter(mk.firstElementChild); } else iconSwap(mk, put, { inner:true }); };
   let secs = 0, live = true; c.every(1000, () => { if (live){ secs++; time.textContent = secs + 's'; } });
   c.run(async () => {
     await c.wait(600);
@@ -356,30 +366,56 @@ DM.def('context-meter', (r, c) => {
   // what fills the context, in thousands of tokens; each part lists what's in it on hover. The parts take the chart palette's
   // accent, violet and teal; the instructions, the quiet part, a neutral grey that keeps 3:1 (green would be Blueprint's
   // accent again, and orange the warning)
+  // (its tip lists what is in it; what arrives joins the list, and compacting leaves a summary in its place)
   const P = [
-    { k:'files', l:'Files', v:56.2, c:'var(--c1)', tip:'Pricing.fig export 31.9k, PricingCard.tsx 18.2k, tokens.css 6.1k' },
-    { k:'tools', l:'Tool output', v:41.8, c:'var(--c2)', tip:'Contrast check 17.4k, Figma frames 15.6k, grid audit 8.8k' },
-    { k:'chat', l:'Chat', v:32.1, c:'var(--c6)', tip:'48 turns with Maya Kim since 09:12' },
-    { k:'sys', l:'Instructions', v:6.3, c:'var(--muted)', tip:'Studio guidelines 4.1k, pricing brief 2.2k' }
+    { k:'files', l:'Files', v:32, c:'var(--c1)', tip:'Pricing.fig export 19.8k, PricingCard.tsx 8.1k, tokens.css 4.1k', after:[26, 'Pricing.fig export 19.8k, summary of older reads 6.2k'] },
+    { k:'tools', l:'Tool output', v:24, c:'var(--c2)', tip:'Contrast check 11.2k, Figma frames 8.6k, grid audit 4.2k', after:[24, 'Contrast check 11.2k, summary of older output 12.8k'] },
+    { k:'chat', l:'Chat', v:26, c:'var(--c6)', tip:'Turns with Maya Kim since 09:12', after:[8, 'Summary of 48 turns, 9 decisions kept'] },
+    { k:'sys', l:'Instructions', v:6, c:'var(--muted)', tip:'Studio guidelines 3.9k, pricing brief 2.1k', after:[6, 'Studio guidelines 3.9k, pricing brief 2.1k'] }
   ];
+  // what the chat adds as it goes on, one step at a time: [part, thousands of tokens, what it is]. The third takes it past 85%
+  const STEPS = [[0, 22, 'brand-guide.pdf'], [1, 36, 'web search'], [2, 28, ''], [0, 10, 'checkout.fig']];
   const root = $('.ctm', r), tg = $('.ctm-tg', r), pop = $('.ctm-pop', r), arc = $('.ctm-ring .fl', r), pc = $('.ctm-pc', r), tot = $('.ctm-tot', r);
+  const ring = $('.ctm-ring svg', r), warc = $('.ctm-ring .fw', r), shine = $('.ctm-ring .hl', r);
   const bar = $('.ctm-bar', r), leg = $('.ctm-leg', r), msg = $('.ctm-msg', r), go = $('.ctm-go', r), hint = $('.ctm-hint', r);
   bar.innerHTML = P.map(p => `<i data-k="${p.k}" style="--c:${p.c}"></i>`).join('');
   leg.innerHTML = P.map(p => `<div class="ctm-l" data-k="${p.k}" style="--c:${p.c}" data-tip="${p.tip}"><span class="sw"></span>${p.l}<span class="v num">0k</span></div>`).join('');
+  const tips = () => P.forEach(p => { $(`.ctm-l[data-k="${p.k}"]`, leg).dataset.tip = p.tip; });
   const fmt = v => v.toFixed(1) + 'k', sum = () => P.reduce((t, p) => t + p.v, 0);
   // the numbers count to their new values; the bar, the ring and the percentage follow
-  const shown = {}; let total = 0;
+  const shown = {}; let total = 0, hot = false, onHot = null;
+  // the ring's moments (owner, 26 Nov, from its showcase): a step up sends a thin bright highlight once along the filled arc and
+  // lifts the ring a touch; crossing 85% wipes the warning mark along the arc and nudges the pill; compacting wipes it back
+  const easeIO = 'cubic-bezier(.65,0,.35,1)';
+  const step = len => { if (REDUCE || !shine.animate) return;
+    const seg = Math.min(9, len); shine.style.strokeDasharray = seg + ' 200';
+    shine.animate([{ strokeDashoffset:0, opacity:0 }, { opacity:.9, offset:.5 }, { strokeDashoffset:-(len - seg), opacity:0 }], { duration:450, easing:easeIO });
+    ring.animate([{ scale:1 }, { scale:1.06, offset:.2 }, { scale:1 }], { duration:350, easing:'cubic-bezier(.23,1,.32,1)' }); };
+  const wipe = (on, len) => { (warc._a || { cancel(){} }).cancel(); warc.style.transition = 'none';
+    if (on){ warc.style.opacity = '1'; warc.style.strokeDasharray = len + ' 100'; if (!REDUCE) warc._a = warc.animate([{ strokeDasharray:'0 100' }, { strokeDasharray:len + ' 100' }], { duration:200, easing:easeIO });
+      if (!REDUCE) tg.animate([{ translate:'0 0' }, { translate:'3px 0', offset:.22 }, { translate:'-1.4px 0', offset:.6 }, { translate:'0 0' }], { duration:380, easing:'ease-out' }); }
+    else { const from = parseFloat(warc.style.strokeDasharray) || 0; warc.style.strokeDasharray = '0 100';
+      if (REDUCE){ warc.style.opacity = '0'; } else { const a = warc._a = warc.animate([{ strokeDasharray:from + ' 100' }, { strokeDasharray:'0 100' }], { duration:200, easing:easeIO }); a.onfinish = () => { if (!hot) warc.style.opacity = '0'; }; } }
+    void warc.offsetWidth; warc.style.transition = ''; };
   function paint(ms = 900){
-    const all = sum(), pct = Math.round(all / LIMIT * 100);
+    const all = sum(), pct = Math.round(all / LIMIT * 100), up = all > total + .05 && total > 0, was = hot;
     P.forEach(p => { $(`i[data-k="${p.k}"]`, bar).style.width = (p.v / LIMIT * 100) + '%'; const el = $(`.ctm-l[data-k="${p.k}"] .v`, leg), from = shown[p.k] || 0; shown[p.k] = p.v; tween(from, p.v, ms, x => el.textContent = fmt(x)); });
-    const from = total; total = all; tween(from, all, ms, x => { tot.textContent = fmt(x); pc.textContent = Math.round(x / LIMIT * 100) + '%'; });
-    arc.style.strokeDasharray = pct + ' 100'; root.classList.toggle('hot', pct >= 85); tg.setAttribute('aria-label', `Context, ${pct}% used`);
+    // the ring turns to the warning mark (and back) as the count passes 85%, not before
+    const cross = x => { const h = Math.round(x / LIMIT * 100) >= 85; if (h === hot) return; hot = h; root.classList.toggle('hot', h); wipe(h, pct); if (h && onHot) onHot(); };
+    const from = total; total = all; tween(from, all, ms, x => { tot.textContent = fmt(x); pc.textContent = Math.round(x / LIMIT * 100) + '%'; cross(x); });
+    arc.style.strokeDasharray = pct + ' 100'; tg.setAttribute('aria-label', `Context, ${pct}% used`);
+    if (hot && was) warc.style.strokeDasharray = pct + ' 100';
+    if (up || from > all + .05) step(pct);
   }
   // a warning is a warning notice with the filled sign, and Compact, the action that resolves it, takes the warning tint
   const WARN = '<svg class="ctm-wi" viewBox="0 0 24 24" aria-hidden="true"><path class="a" d="M12 3.6 2.6 19.9h18.8z"/><path class="b" d="M12 9.6v4.4M12 17v.01"/></svg>';
-  const say = (text, tone) => { msg.className = 'ctm-msg on ' + tone; swap(msg.firstElementChild, `${tone === 'warn' ? WARN : I('ok','xs')}<span>${text}</span>`, true); go.classList.toggle('warn', tone === 'warn'); go.classList.toggle('line', tone !== 'warn'); };
+  // (a warning already showing keeps its notice and only its words change)
+  const say = (text, tone) => { const same = msg.classList.contains('on') && msg.classList.contains(tone) && $('span>span', msg);
+    const h = `${tone === 'warn' ? WARN : I('ok','xs')}<span>${text}</span>`, shut = !msg.classList.contains('on');
+    msg.className = 'ctm-msg on ' + tone; if (same) swap(same, text); else if (shut) msg.firstElementChild.innerHTML = h; else swap(msg.firstElementChild, h, true); go.classList.toggle('warn', tone === 'warn'); go.classList.toggle('line', tone !== 'warn'); };
   const hush = () => { msg.className = 'ctm-msg'; go.classList.remove('warn'); go.classList.add('line'); };
-  // hovering a part lights its share of the bar
+  // hovering a part lights its share of the bar, and one highlight glides from part to part (hoverGlide(), .mx-glide)
+  c.offs.push(hoverGlide(leg, '.ctm-l'));
   c.on(leg, 'pointerover', e => { const l = e.target.closest('.ctm-l'); if (!l) return; bar.classList.add('hl'); $$('i', bar).forEach(i => i.classList.toggle('on', i.dataset.k === l.dataset.k)); });
   c.on(leg, 'pointerout', e => { if (!leg.contains(e.relatedTarget)) bar.classList.remove('hl'); });
   // the pill opens and shuts the panel; Escape shuts it while the pointer or the focus is on the meter
@@ -395,25 +431,29 @@ DM.def('context-meter', (r, c) => {
   const setOpen = (o, back) => { if (o) root.dataset.pos = side(); root.dataset.open = o ? '1' : '0'; tg.setAttribute('aria-expanded', o); pop.inert = !o; if (back) tg.focus({ preventScroll:true }); };
   tg.onclick = () => setOpen(root.dataset.open !== '1');
   c.on(document, 'keydown', e => { if (e.key === 'Escape' && root.dataset.open === '1' && (root.contains(document.activeElement) || root.matches(':hover'))) setOpen(false, root.contains(document.activeElement)); });
-  // new tool output lands and takes the context close to its limit
-  function arrive(){ P[1].v = +(P[1].v + 38.5).toFixed(1); paint(700); say(`${Math.round(sum() / LIMIT * 100)}% full. Older turns start to drop at 200k`, 'warn'); }
+  // the chat goes on: each step adds to one part (and to its tip), the ring grows a step and the share counts up; past 85% the
+  // warning shows
+  let stepAt = 0;
+  function arrive(){ const st = STEPS[stepAt++]; if (!st) return; const p = P[st[0]]; p.v = +(p.v + st[1]).toFixed(1); if (st[2]) p.tip += `, ${st[2]} ${fmt(st[1])}`; tips(); paint(600);
+    const pct = Math.round(sum() / LIMIT * 100), warn = () => say(`${pct}% full. Older turns start to drop at 200k`, 'warn');
+    if (hot) warn(); else if (pct >= 85) onHot = () => { onHot = null; warn(); }; }
   // Compact turns older turns into a summary and trims old tool output; Undo puts them back
   const before = {}; let state = 'full';
   const run = html('<span class="ctm-run" role="status" hidden><span class="spin"></span><span class="shim">Compacting…</span></span>'); go.after(run);
-  // the button is as wide as its words and eases to its new width when they change (owner, 18 Nov)
-  const label = h => { const w0 = go.getBoundingClientRect().width; go.innerHTML = h; const w1 = go.getBoundingClientRect().width;
-    if (!REDUCE && w0 && Math.abs(w1 - w0) > .5) go.animate([{ width:w0 + 'px' }, { width:w1 + 'px' }], { duration:340, easing:'cubic-bezier(.23,1,.32,1)' }); };
+  // the button is as wide as its words and eases to its new width when they change (owner, 18 Nov), on the motion pieces'
+  // spring (mxWidth())
+  const label = h => { const w0 = go.offsetWidth; go.innerHTML = h; if (!REDUCE && w0) mxWidth(go, w0); };
   go.onclick = () => c.run(async () => {
     if (go._busy) return; go._busy = true;
     if (state === 'full'){
-      P.forEach(p => before[p.k] = p.v); const was = sum();
+      P.forEach(p => before[p.k] = [p.v, p.tip]); const was = sum();
       const had = document.activeElement === go; go.hidden = true; run.hidden = false;
       swap(hint, '<span class="shim">Summarising 48 turns</span>', true); await c.wait(1000);
-      P[2].v = 4.6; P[1].v = +(P[1].v - 13.7).toFixed(1); paint(1100);
+      P.forEach(p => { p.v = p.after[0]; p.tip = p.after[1]; }); tips(); paint(1100);
       say(`Freed ${fmt(was - sum())} tokens. 9 decisions kept`, 'ok'); swap(hint, 'Older turns are now a summary');
       c.later(REDUCE ? 0 : 170, () => { run.hidden = true; go.innerHTML = 'Undo'; go.hidden = false; enter(go); if (had) go.focus({ preventScroll:true }); }); state = 'compact';
     } else {
-      P.forEach(p => p.v = before[p.k]); paint(700); hush(); swap(hint, 'Summarises older turns'); c.later(REDUCE ? 0 : 170, () => label('Compact')); state = 'full';
+      P.forEach(p => { [p.v, p.tip] = before[p.k]; }); tips(); paint(700); hush(); swap(hint, 'Summarises older turns'); c.later(REDUCE ? 0 : 170, () => label('Compact')); state = 'full';
     }
     go._busy = false;
   });
@@ -425,7 +465,8 @@ DM.def('context-meter', (r, c) => {
     await s.point($('.ctm-l[data-k="tools"]', leg)); await s.beat(3);
     await s.point($('.ctm-l[data-k="files"]', leg)); await s.beat(3);
     s.away(); await s.beat(1);
-    arrive(); await s.beat(4);
+    for (let i = 0; i < STEPS.length; i++){ arrive(); await s.beat(i === 2 ? 4 : 2.4); }
+    await s.beat(1);
     await s.tap(go); s.away(); await s.until(() => state === 'compact'); await s.beat(4);
     await s.tap(tg); s.away(); await s.beat(2);
   });
@@ -666,55 +707,249 @@ DM.def('toast', (r, c) => {
   });
 });
 /* ---------- Toast stack ---------- */
+// each toast in the stack is a Toast card (owner, 26 Nov): its head (a live glyph or a status mark, the words, Close with its
+// countdown ring), its steps and its footer, swiped or Escaped away. The stack collapses into a deck and fans out under the
+// pointer or the keyboard's focus; it reads each card's own height, and the cards and the stack ease together on the motion
+// pieces' spring. Its demo is an agent's news as it comes, so it keeps playing under a resting pointer (DM.PLAYS): a job with
+// its glyph at work, a success, a problem that becomes its fix in place, and one swiped away. Its timing goes through the
+// controller (c.later, the story's beats), and what the visitor sets off keeps running once they take over
 DM.def('toast-stack', (r, c) => {
-  const stack = $('.tsk-stack', r);
-  // each with its tone (data-tone): Clean colours only the status ones, ok and warn, and shows the rest grey
-  const pool = [
-    ['ok','var(--ok)','var(--ok-bg)','Tests passed','42 of 42 in 38s','ok'],
-    ['pr','var(--merge)','var(--merge-bg)','PR #412 is ready','Use shared spacing tokens','merge'],
-    ['figma','var(--pl)','var(--pl-bg)','Frames synced','6 frames from Pricing.fig','purple'],
-    ['warn','var(--warn)','var(--warn-bg)','Budget at 80%','1,600 of 2,000 credits','warn'],
-    ['spark','var(--pb)','var(--pb-bg)','Draft written','Launch email, 2 subject lines','blue']
-  ];
-  // the stack fans out under the pointer, or while the focus is in it; a toast that can't be seen can't take the focus
-  let items = [], n = 0, hover = false, focused = false;
-  function layout(){
-    const fan = hover || focused; let y = 0;
-    // as a new toast starts to rise into place, the toasts it covers lose their words at once (Clean shows them through no
-    // blur): .tsk-under, until the stack fans out
-    const front = items[items.length - 1]; if (front && front._new){ front._new = false; if (!fan) items.forEach(it => it !== front && it.classList.add('tsk-under')); }
-    const hs = items.map(it => it.offsetHeight);
-    stack.style.setProperty('--fanh', (hs.slice(-4).reduce((a, b) => a + b + 8, 0) - 8 || 96) + 'px');
-    // the deck's own height: the front toast and the two that peek out above it (Clean sizes the stack to it)
-    stack.style.setProperty('--deckh', Math.ceil(items.slice(-3).reverse().reduce((m, it, k) => Math.max(m, it.offsetHeight * (1 - k * .05) + k * 10), 0)) + 'px');
-    stack.classList.toggle('fan', fan);
-    items.slice().reverse().forEach((it, i) => {
-      if (fan){ it.style.transform = `translateY(${-y}px)`; it.style.opacity = i > 3 ? 0 : 1; it.style.filter = 'none'; if (i < 3) y += hs[items.length - 1 - i] + 8; }
-      else { const k = Math.min(i, 3); it.style.transform = `translateY(${-k * 10}px) scale(${1 - k * .05})`; it.style.opacity = i > 2 ? 0 : 1 - k * .15; it.style.filter = i ? 'blur(.3px)' : 'none'; }
-      it.style.zIndex = 100 - i; it.inert = fan ? i > 3 : i > 0; if (fan || !i) it.classList.remove('tsk-under');
+  const stack = $('.tsk-stack', r), addB = $('.tsk-add', r), [polite, loud] = $$('.tst-sr', r);
+  const wait = ms => new Promise(res => c.later(REDUCE ? Math.min(ms, 400) : ms, res));
+  const motion = () => { const cs = getComputedStyle(r), s = v => parseFloat(cs.getPropertyValue(v)) * 1000 || 340; return { ease:cs.getPropertyValue('--ease').trim() || 'ease', t:s('--t'), fast:s('--t-fast'), tin:s('--t-in') }; };
+  // collapsed, the two cards behind the front one peek out 8px each; fanned out, the four in front show, 8px apart; six at most
+  const PEEK = 8, GAP = 8, FAN = 4, MAX = 6;
+  const MARK = { success:I('ok'), error:I('alert'), warning:I('warn'), info:I('info'), stopped:I('pause'), working:'<span class="spin"></span>' };
+  const STEP = { done:I('check'), now:'<span class="spin"></span>', bad:I('alert'), paused:I('pause'), wait:'<span class="tst-pend"></span>' };
+  // announcements, through the stack's two live regions: news politely, a problem at once
+  const tell = (text, now) => { const el = now ? loud : polite; el.textContent = ''; c.later(60, () => { el.textContent = text; }); };
+
+  /* the stack fans out under a mouse, while the keyboard's focus is in it, on a tap, or while the demo's pointer rests on it */
+  let cards = [], hover = false, focused = false, tapped = false, shown = false;
+  const fanned = () => hover || focused || tapped || shown;
+  const layout = () => {
+    const fan = fanned(), front = cards.slice().reverse(), H0 = front.length ? front[0].h : 0;
+    let y = 0;
+    front.forEach((k, i) => {
+      let t, h = k.h, o = 1;
+      if (fan){ t = `translateY(${-y}px)`; if (i < FAN) y += k.h + GAP; else o = 0; }
+      // the cards behind the front one take its height, so each peeks out by the same 8px whatever it holds
+      else { const j = Math.min(i, 2); t = j ? `translateY(${-j * PEEK}px) scale(${1 - j * .05})` : 'translateY(0px)'; if (i) h = H0; if (i > 2) o = 0; }
+      k.base = t; k.el.style.height = h + 'px'; k.el.style.zIndex = 100 - i;
+      if (!k.fresh && !k.drag){ k.el.style.transform = t; k.el.style.opacity = o; }
+      k.el.inert = fan ? i >= FAN : i > 0;
+      k.el.classList.toggle('tsk-back', !fan && i > 0);
     });
-  }
-  function add(){
-    const p = pool[n++ % pool.length];
-    const el = html(`<div class="tsk-c"><span class="g" data-tone="${p[5]}" style="color:${p[1]};background:${p[2]}">${I(p[0])}</span><div class="tsk-w"><div class="tx"><b>${p[3]}</b><span>${p[4]}</span></div><span class="t">now</span></div><button class="ib" aria-label="Dismiss" data-tip="Dismiss">${I('x')}</button></div>`);
-    el.style.transform = 'translateY(24px) scale(.96)'; el.style.opacity = 0; el.style.filter = 'blur(6px)';
-    el._new = true;
-    stack.appendChild(el); items.push(el);
-    $('.ib', el).onclick = () => { items = items.filter(x => x !== el); el.style.opacity = 0; el.style.transform += ' translateX(30px)'; setTimeout(() => el.remove(), 400); layout(); };
-    if (items.length > 6){ const old = items.shift(); old.remove(); }
-    requestAnimationFrame(() => requestAnimationFrame(layout));
-    items.forEach((it, i) => { if (i < items.length - 1){ const t = $('.t', it); t.textContent = (items.length - 1 - i) * 2 + 'm'; } });
-  }
-  c.on(stack, 'pointerenter', () => { hover = true; layout(); });
-  c.on(stack, 'pointerleave', () => { hover = false; layout(); });
-  c.on(stack, 'focusin', () => { if (!focused){ focused = true; layout(); } });
-  c.on(stack, 'focusout', e => { if (!stack.contains(e.relatedTarget)){ focused = false; layout(); } });
-  $('.tsk-add', r).onclick = add;
-  c.run(async () => {
-    for (let i = 0; i < 3; i++){ await c.wait(i ? 700 : 400); add(); }
-    // then a new one now and then, held back while the stack is fanned out under the pointer, until you take over
-    for (;;){ await c.step(3800); if (!hover && !focused) add(); }
+    stack.style.setProperty('--tsk-h', (fan ? Math.max(0, y - GAP) : H0 + Math.min(Math.max(front.length - 1, 0), 2) * PEEK) + 'px');
+    // the countdowns hold while the stack is open for reading
+    cards.forEach(k => { if (!k.cd) return; if (fan) k.cd.pause(); else if (k.cd.playState === 'paused') k.cd.play(); });
+  };
+  c.on(stack, 'pointerenter', e => { if (e.pointerType === 'mouse'){ hover = true; layout(); } });
+  c.on(stack, 'pointerleave', e => { if (e.pointerType === 'mouse'){ hover = false; layout(); } });
+  c.on(stack, 'focusin', e => { if (!focused && e.target.matches(':focus-visible')){ focused = true; layout(); } });
+  c.on(stack, 'focusout', e => { if (focused && !stack.contains(e.relatedTarget)){ focused = false; layout(); } });
+  // touch has no hover: a tap on the deck opens it, a tap anywhere else closes it
+  c.on(document, 'pointerdown', e => { if (e.pointerType === 'mouse') return; const on = stack.contains(e.target); if (on !== tapped && !(on && e.target.closest('button'))){ tapped = on; layout(); } });
+
+  /* the job's glyph: Toast's hand of slides, dealt as each one is drafted */
+  const N = 12, ang = i => -32 + i * 64 / (N - 1);
+  const slide = (i, k) => `<g class="tst-cd${k}" style="--a:${ang(i).toFixed(2)}deg;--i:${i}"><rect class="tst-b" x="26" y="6" width="12" height="20" rx="2"/><path class="tst-l" d="M28.5 10h6M28.5 13.5h7M28.5 17h4.5" pathLength="8"/></g>`;
+  const deck = '<span class="tst-dk idle" aria-hidden="true"><svg viewBox="0 0 64 40"><g class="tst-pg"><rect class="tst-pp" x="23.5" y="6.5" width="17" height="22" rx="2.5"/><path class="tst-pl" d="M27 12h10M27 15.5h8M27 19h10M27 22.5h6"/><path class="tst-sc" d="M25.5 10h13"/></g>'
+    + '<g>' + Array.from({ length:N }, (_, i) => slide(i, ' tst-gh')).join('') + '</g><g class="tst-fan">' + Array.from({ length:N }, (_, i) => slide(i, '')).join('') + '</g>'
+    + '<g class="tst-ok"><circle cx="41" cy="27" r="6.5"/><path d="M38.3 27.1l1.9 1.9 3.5-3.6"/></g></svg></span>';
+  // look: idle, read, plan, done or gone; n slides drafted, the next one in the accent while drafting
+  const glyph = (k, look, n = 0, now = false) => { const G = k.dk; G.setAttribute('class', 'tst-dk ' + look);
+    $$('.tst-fan .tst-cd', G).forEach((e, i) => { e.classList.toggle('made', look !== 'gone' && i < n); e.classList.toggle('now', now && i === n); }); };
+
+  /* a card: Toast's own markup */
+  const make = job => {
+    const el = html(`<div class="tst-t tsk-new"><div class="tsk-in">
+      <div class="tst-hd">${job ? deck : '<span class="tst-g mx-ic" aria-hidden="true"></span>'}
+        <div class="tst-tx"><span class="tst-ti"></span><span class="tst-de"></span></div>
+        <div class="tst-hb">
+          <button type="button" class="ib tst-more" aria-expanded="false" aria-label="Show the steps" data-tip="Steps" hidden>${I('chev-d')}</button>
+          <button type="button" class="ib tst-stop" aria-label="Stop the job" data-tip="Stop" hidden>${I('stop')}</button>
+          <button type="button" class="ib tst-x" aria-label="Close" data-tip="Close"><svg class="tst-ring" viewBox="0 0 28 28" aria-hidden="true" hidden><rect class="tst-tk" x=".75" y=".75" width="26.5" height="26.5"/><rect class="tst-rn" x=".75" y=".75" width="26.5" height="26.5" pathLength="100"/></svg>${I('x')}</button>
+        </div>
+      </div>
+      <div class="fold shut tst-mf"><div><ol class="tst-st" aria-label="Steps"></ol></div></div>
+      <div class="fold shut tst-ft"><div><div class="tst-fi"></div></div></div>
+    </div></div>`);
+    const q = s => $(s, el);
+    const k = { el, inner:q('.tsk-in'), g:q('.tst-g'), dk:q('.tst-dk'), ti:q('.tst-ti'), de:q('.tst-de'), moreB:q('.tst-more'), stopB:q('.tst-stop'), xB:q('.tst-x'),
+      ring:q('.tst-ring'), rn:q('.tst-rn'), mf:q('.tst-mf'), st:q('.tst-st'), ft:q('.tst-ft'), fi:q('.tst-fi'), h:0, d:{}, cd:null, base:'' };
+    el.style.setProperty('--tst-gw', job ? '64px' : '20px');
+    c.on(k.moreB, 'click', () => openSteps(k));
+    c.on(k.stopB, 'click', () => k.d.onStop && k.d.onStop());
+    c.on(k.xB, 'click', () => dismiss(k));
+    // Escape closes the card the focus is in; the focus goes on to the next card's Close, or to the button that sends them
+    c.on(el, 'keydown', e => { if (e.key === 'Escape'){ e.stopPropagation(); dismiss(k, 'escape'); } });
+    swipe(k);
+    return k;
+  };
+  const openSteps = (k, open) => { open = open ?? k.mf.classList.contains('shut'); k.mf.classList.toggle('shut', !open);
+    k.moreB.setAttribute('aria-expanded', open); k.moreB.setAttribute('aria-label', open ? 'Hide the steps' : 'Show the steps'); k.moreB.dataset.tip = open ? 'Hide steps' : 'Steps'; };
+
+  /* what a card says and offers: d = { status, title, desc, steps:[[label, state, detail]], acts:[[variant, label, fn]], time,
+     onStop, say }. The same card changes in place: its words crossfade (a counter ticks over at once), its mark crossfades
+     (iconSwap), its footer opens and shuts, and the card eases to its new height */
+  const lead = x => { const m = (x || '').match(/^(\D*)\d/); return m ? m[1] : null; };
+  const set = (k, d) => {
+    const was = k.d, first = !was.title, working = d.status === 'working'; k.d = d;
+    if (first){ k.ti.textContent = d.title; k.ti.classList.toggle('shim', working); }
+    else { swap(k.ti, d.title); c.later(REDUCE ? 0 : 170, () => k.ti.classList.toggle('shim', k.d.status === 'working')); }
+    if (first || (lead(was.desc) !== null && lead(was.desc) === lead(d.desc))){ if (k.de._sw){ clearTimeout(k.de._sw.t); k.de._sw = null; k.de.classList.remove('out'); } k.de.textContent = d.desc; }
+    else swap(k.de, d.desc);
+    if (k.g && k.g.dataset.s !== d.status){ const to = () => { k.g.dataset.s = d.status; k.g.innerHTML = MARK[d.status]; }; first ? to() : iconSwap(k.g, to); }
+    k.stopB.hidden = !(working && d.onStop); k.xB.hidden = !k.stopB.hidden; k.moreB.hidden = !d.steps;
+    if (d.steps){
+      if (k.st.children.length !== d.steps.length) k.st.innerHTML = d.steps.map(() => '<li><span class="tst-mk"></span><span class="tst-lb"></span><span class="tst-vl"></span></li>').join('');
+      d.steps.forEach(([lb, s, v = ''], i) => { const li = k.st.children[i]; if (li.dataset.s !== s){ li.dataset.s = s; $('.tst-mk', li).innerHTML = STEP[s]; } $('.tst-lb', li).textContent = lb; $('.tst-vl', li).textContent = v; });
+    } else openSteps(k, false);
+    if (!d.acts) k.ft.classList.add('shut');
+    else if (d.acts !== was.acts){
+      const open = !k.ft.classList.contains('shut');
+      k.fi.innerHTML = d.acts.map(([v, t]) => `<button type="button" class="pill sm ${v}${open ? ' in' : ''}">${t}</button>`).join('');
+      [...k.fi.children].forEach((b, i) => b.addEventListener('click', d.acts[i][2]));
+      k.ft.classList.remove('shut');
+    }
+    countdown(k, working ? 0 : d.time || 0);
+    // (say:false changes it quietly: a counter ticking, a step on the way; the milestones are announced)
+    const say = d.say === false ? k.said : d.say || d.title; if (say !== k.said){ k.said = say; tell(say, d.status === 'error'); }
+  };
+  const btn = (k, t) => [...k.fi.querySelectorAll('button')].find(b => b.textContent === t);
+
+  /* the countdown on Close: a ring that drains, held while the stack is open for reading (pointer or focus); it closes the card */
+  const countdown = (k, ms) => { if (k.cd){ k.cd.cancel(); k.cd = null; } k.ring.toggleAttribute('hidden', !ms); if (!ms) return;
+    k.cd = k.rn.animate([{ strokeDashoffset:0 }, { strokeDashoffset:100 }], { duration:ms, fill:'forwards', easing:'linear' });
+    if (fanned()) k.cd.pause();
+    k.cd.onfinish = () => { k.cd = null; dismiss(k, 'timeout'); }; };
+  c.offs.push(() => cards.forEach(k => k.cd && k.cd.cancel()));
+
+  /* a new card comes in at the front: it rises out of a short blur as the cards it covers step back and lose their words */
+  const push = (d, job) => {
+    const k = make(job); k.fresh = true; stack.appendChild(k.el); cards.push(k);
+    set(k, d);
+    k.h = k.inner.offsetHeight;
+    const ro = new ResizeObserver(() => { const h = k.inner.offsetHeight; if (h && h !== k.h && !k.gone){ k.h = h; layout(); } }); ro.observe(k.inner); c.offs.push(() => ro.disconnect()); k.ro = ro;
+    while (cards.length > MAX) dismiss(cards[0], 'drop');
+    layout();
+    requestAnimationFrame(() => requestAnimationFrame(() => { if (c.dead || k.gone) return; k.fresh = false; k.el.classList.remove('tsk-new'); layout(); }));
+    return k;
+  };
+  /* a card goes: Close, its countdown or Escape fade it 8px down while the others close the gap; a swipe has carried it off */
+  const dismiss = (k, how = 'close') => {
+    if (k.gone) return; k.gone = true; countdown(k, 0); k.ro && k.ro.disconnect();
+    const had = k.el.contains(document.activeElement);
+    cards = cards.filter(x => x !== k); k.el.inert = true; k.el.classList.add('tsk-out');
+    const end = () => k.el.remove();
+    if (how === 'swipe') c.later(motion().t, end);
+    else { const from = getComputedStyle(k.el).transform, t0 = from === 'none' ? '' : from;
+      const a = k.el.animate(REDUCE ? [{ opacity:getComputedStyle(k.el).opacity }, { opacity:0 }] : [{ transform:t0 || 'none', opacity:getComputedStyle(k.el).opacity }, { transform:t0 + ' translateY(8px) scale(.98)', opacity:0 }], { duration:motion().tin, easing:motion().ease, fill:'forwards' });
+      a.finished.then(end, end); }
+    layout();
+    if (had && how !== 'drop'){ const next = cards[cards.length - 1]; c.later(0, () => ((next && !next.xB.hidden ? next.xB : next && next.stopB) || addB).focus({ preventScroll:true })); }
+  };
+
+  /* swipe a card away: it follows the finger or the pointer sideways and goes once it has moved far enough, or eases back */
+  const fling = (k, dx, v) => {
+    if (Math.abs(dx) > 90 || v > .6){ const dir = Math.sign(dx) || 1, M = motion();
+      k.el.animate([{ transform:`${k.base} translateX(${dx}px)`, opacity:k.el.style.opacity }, { transform:`${k.base} translateX(${dx + dir * 140}px)`, opacity:0 }], { duration:M.t, easing:M.ease, fill:'forwards' });
+      k.drag = false; k.el.style.transition = ''; dismiss(k, 'swipe'); }
+    else { k.drag = false; k.el.style.transition = ''; k.el.style.transform = k.base; k.el.style.opacity = 1; }
+  };
+  const drag = (k, dx) => { k.drag = true; k.el.style.transition = 'none'; k.el.style.transform = `${k.base} translateX(${dx}px)`; k.el.style.opacity = String(Math.max(.2, 1 - Math.abs(dx) / 260)); };
+  const swipe = k => { let sw = null;
+    c.on(k.el, 'pointerdown', e => { if (e.button || e.target.closest('button')) return; sw = { x:e.clientX, y:e.clientY, t:performance.now(), dx:0, id:e.pointerId, on:false }; });
+    c.on(k.el, 'pointermove', e => { if (!sw || e.pointerId !== sw.id) return; const dx = e.clientX - sw.x, dy = e.clientY - sw.y;
+      if (!sw.on){ if (Math.abs(dx) < 6 || Math.abs(dy) > Math.abs(dx)) return; sw.on = true; k.el.setPointerCapture(e.pointerId); }
+      sw.dx = dx; drag(k, dx); });
+    const up = e => { if (!sw || e.pointerId !== sw.id) return; const s = sw; sw = null; if (s.on) fling(k, s.dx, Math.abs(s.dx) / Math.max(1, performance.now() - s.t)); };
+    c.on(k.el, 'pointerup', up); c.on(k.el, 'pointercancel', up); };
+
+  /* the news */
+  const SEC = ['Cover', 'Agenda', 'Revenue', 'North', 'South', 'Plan vs actual', 'By region', 'Hiring', 'Open roles', 'Risks', 'Data move', 'Next steps'];
+  // a job the agent runs in the background: it reads the notes, outlines and drafts twelve slides; Stop pauses it
+  const job = () => {
+    let tok = 0, n = 0, at = 0;
+    const L = ['Read the notes', 'Outline 12 slides', 'Draft the slides'];
+    const steps = (s, v) => L.map((lb, i) => [lb, i < at ? 'done' : i === at ? s : 'wait', i === 2 && i <= at && v ? v : '']);
+    const work = (title, desc) => ({ status:'working', title, desc, steps:steps('now', at === 2 ? `${Math.min(n + 1, N)} of 12` : ''), onStop:stop, say:at ? false : 'Making slides from your notes' });
+    const k = push({ status:'working', title:'Reading your notes…', desc:'3 sections · 212 words', steps:steps('now'), onStop:() => stop(), say:'Making slides from your notes' }, true);
+    const live = t => t === tok && !k.gone && !c.dead;
+    async function go(t){
+      if (at === 0){ glyph(k, 'read'); set(k, work('Reading your notes…', '3 sections · 212 words')); await wait(1600); if (!live(t)) return; at = 1; }
+      if (at === 1){ glyph(k, 'plan'); set(k, { ...work('Outlining the deck…', '12 slides planned'), say:false }); await wait(1200); if (!live(t)) return; at = 2; }
+      while (n < N){ glyph(k, 'plan', n, true); set(k, { ...work('Drafting slides…', `Slide ${n + 1} of 12 · ${SEC[n]}`), say:n === 6 ? 'Half the slides are drafted' : false }); await wait(380); if (!live(t)) return; n++; }
+      at = 3; glyph(k, 'done', N); done();
+    }
+    const done = () => set(k, { status:'success', title:'12 slides ready', desc:'Q3 planning deck', steps:steps('done'), time:12000, say:'12 slides ready. Open the deck or undo it.',
+      acts:[['line', 'Undo', () => { glyph(k, 'gone'); set(k, { status:'success', title:'Deck removed', desc:'Your notes are unchanged', steps:steps('done'), time:6000, acts:[['line', 'Redo', () => { glyph(k, 'done', N); done(); }]] }); }], ['primary', 'Open', () => dismiss(k)]] });
+    function stop(){ tok++; glyph(k, at ? 'plan' : 'idle', n); set(k, { status:'stopped', title:at === 2 ? `Stopped at slide ${n}` : 'Stopped before drafting', desc:`${n} of 12 drafted · nothing lost`, steps:steps('paused', `${n} of 12`), say:`Stopped. ${n} of 12 drafted. Resume or discard.`,
+      acts:[['line', 'Discard', () => dismiss(k)], ['primary', 'Resume', () => go(++tok)]] }); }
+    go(++tok);
+    return k;
+  };
+  // a problem the agent can fix: the card becomes its fix, then the result, in place
+  const tests = () => {
+    let tok = 0;
+    const T = [['Cart total rounds down', 'bad'], ['Tax shows on the receipt', 'bad'], ['40 other tests', 'done']];
+    const fail = () => ({ status:'error', title:'2 tests failed', desc:'checkout.spec · the total is 1¢ off', steps:T, say:'2 tests failed in checkout.spec. Fix them or ignore them.',
+      acts:[['line', 'Ignore', () => dismiss(k)], ['primary', 'Fix', () => fix()]] });
+    const k = push(fail());
+    async function fix(){ const t = ++tok, live = () => t === tok && !k.gone && !c.dead;
+      const stop = () => { tok++; set(k, fail()); };
+      set(k, { status:'working', title:'Fixing 2 tests…', desc:'Rounding in cart.ts', steps:T.map(([l, s]) => [l, s === 'bad' ? 'now' : s]), onStop:stop, say:'Fixing 2 tests' }); await wait(1700); if (!live()) return;
+      for (let i = 6; i <= 42; i += 6){ set(k, { status:'working', title:'Running checkout.spec…', desc:`Passed ${i} of 42`, steps:T.map(([l]) => [l, 'done']), onStop:stop, say:false }); await wait(200); if (!live()) return; }
+      set(k, { status:'success', title:'42 tests passed', desc:'Fixed in cart.ts · 1 line', steps:T.map(([l]) => [l, 'done']), time:10000, acts:[['line', 'View diff', () => dismiss(k)]], say:'42 tests passed. Fixed in cart.ts.' });
+    }
+    return k;
+  };
+  // plain news, and what Send notification sends: one action at most, and a countdown
+  const POOL = [
+    { status:'success', title:'Frames synced', desc:'6 frames from Pricing.fig', time:9000 },
+    { status:'info', title:'PR #412 is ready', desc:'Use shared spacing tokens · 3 files', time:10000, acts:[['primary', 'Review', null]] },
+    { status:'warning', title:'Budget at 80%', desc:'1,600 of 2,000 credits', time:12000, acts:[['warn', 'Raise cap', null]] },
+    { status:'success', title:'Draft written', desc:'Launch email · 2 subject lines', time:9000 }
+  ];
+  let sent = 0;
+  const news = (d = POOL[sent++ % POOL.length]) => { let k;
+    const acts = d.acts && d.acts.map(([v, t]) => [v, t, () => t === 'Raise cap' ? set(k, { status:'success', title:'Cap raised to 3,000', desc:'1,600 of 3,000 credits', time:6000 }) : dismiss(k)]);
+    k = push({ ...d, acts }); return k; };
+  c.on(addB, 'click', () => news());
+
+  /* the demo: a job starts, a success and a problem arrive; the pointer opens the stack, fixes the problem, swipes the success
+     away, and leaves the stack to fold back */
+  c.story(async s => {
+    await s.beat(1);
+    const J = job();
+    await s.beat(3);
+    const F = news(POOL[0]); sent = 1;
+    await s.beat(3);
+    const P = tests();
+    await s.beat(3);
+    await s.point(P.ti, false); shown = true; layout();
+    await s.beat(3);
+    await s.tap(btn(P, 'Fix'));
+    await s.until(() => P.d.status === 'success');
+    await s.beat(2);
+    // the swipe: the pointer takes the synced frames' card and drags it off to the right
+    if (!F.gone){
+      await s.point(F.de, false);
+      const hand = $('.hand', c.st), m = /translate\(([-\d.]+)px,\s*([-\d.]+)px\)/.exec(hand ? hand.style.transform : '');
+      if (hand){ hand.classList.add('down'); hand.style.transition = 'none'; }
+      await tween(0, 120, REDUCE ? 1 : 360, dx => { if (c.mine || c.dead || F.gone) return; drag(F, dx); if (hand && m) hand.style.transform = `translate(${+m[1] + dx}px,${m[2]}px)`; }, t => t * t);
+      if (hand){ hand.style.transition = ''; hand.classList.remove('down'); }
+      if (c.mine || c.dead) throw 'stop';
+      if (!F.gone) fling(F, 120, 1);
+    }
+    await s.beat(3);
+    s.away(); shown = false; layout();
+    await s.until(() => J.d.title === '12 slides ready');
+    await s.beat(5);
   });
+  // the visitor takes over: the stack follows their pointer and focus alone
+  c.taken(() => { if (shown){ shown = false; layout(); } });
 });
 /* ---------- Agent run timeline ---------- */
 DM.def('agent-run-timeline', (r, c) => {
@@ -824,7 +1059,7 @@ DM.def('web-search', (r, c) => {
   c.run(async () => {
     await c.wait(500);
     for (const [k, q] of Q.entries()){
-      const el = html(`<div class="wsx-q" data-k="${k}"><button class="wsx-qh${q.n ? '' : ' empty'}" aria-expanded="false">${I('search','xs')}<span class="t shim">${q.q}</span><span class="n shim">Searching</span><span class="tm num"></span>${I('chev-r','xs')}</button>${q.from != null ? `<span class="wsx-rw">${I('refresh','xs')}Asked again in other words</span>` : ''}${q.p ? '<div class="fold shut"><div><ul class="wsx-rs"></ul></div></div>' : ''}</div>`);
+      const el = html(`<div class="wsx-q" data-k="${k}"><button class="wsx-qh mx-press${q.n ? '' : ' empty'}" aria-expanded="false">${I('search','xs')}<span class="t shim">${q.q}</span><span class="n shim">Searching</span><span class="tm num"></span>${I('chev-r','xs')}</button>${q.from != null ? `<span class="wsx-rw">${I('refresh','xs')}Asked again in other words</span>` : ''}${q.p ? '<div class="fold shut"><div><ul class="wsx-rs"></ul></div></div>' : ''}</div>`);
       // the head says what is happening; the query and its pages are in the rows under it, so it repeats neither (owner, 18 Nov)
       list.appendChild(el); enter(el); swap(st, 'Searching the web');
       const b = $('.wsx-qh', el); b.onclick = () => { if ($('.fold', el)) qOpen(el, b.getAttribute('aria-expanded') !== 'true'); };
@@ -846,7 +1081,8 @@ DM.def('web-search', (r, c) => {
       await c.wait(500); qOpen(el, false);
     }
     // done: the trail folds to one line, and the answer streams in under it, citing its pages
-    done = true; ic.innerHTML = I('globe','xs'); st.classList.remove('shim');
+    // (the spinner crossfades to the globe: iconSwap(), motion pieces)
+    done = true; iconSwap(ic, () => { ic.innerHTML = I('globe','xs'); }, { inner:true }); st.classList.remove('shim');
     const read = Q.flatMap(q => q.p || []).filter(p => p[3] === 'read' || p[3] === 'skim').length;
     swap(st, `${Q.length} searches, ${read} pages read`); say(`Done: ${Q.length} searches, ${read} pages read`);
     await c.wait(400); setOpen(false);

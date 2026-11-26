@@ -26,7 +26,7 @@ DM.def('knowledge-sources', (r, c) => {
     : x.st === 'failed' ? I('alert','xs') + `<span>${esc(x.fail.why)}</span>` : I('ok','xs') + `<span>${of(x.n, x.unit)} · Synced ${x.ago}</span>`;
   function row(x){
     const [ic, k] = KIND[x.kind];
-    x.el = html(`<div class="ksx-s" role="listitem"><span class="ic" style="background:var(--dm-av-${k});color:var(--dm-av-${k}-ink)" aria-hidden="true">${I(ic,'xs')}</span><span class="t"><span class="nm"></span><span class="d"></span></span><button class="ib ksx-more" aria-haspopup="menu" aria-expanded="false" data-tip="More" data-pop=".ksx-mpop" data-pop-align="end">${I('more')}</button><div class="ksx-fx fold shut" inert><div><div><button class="pill accent sm ksx-fix"></button><button class="pill ghost sm ksx-del">Remove</button></div></div></div></div>`);
+    x.el = html(`<div class="ksx-s" role="listitem"><span class="ic" style="background:var(--dm-av-${k});color:var(--dm-av-${k}-ink)" aria-hidden="true">${I(ic,'xs')}</span><span class="t"><span class="nm"></span><span class="d"></span></span><button class="ib ksx-more mx-press" aria-haspopup="menu" aria-expanded="false" data-tip="More" data-pop=".ksx-mpop" data-pop-align="end">${I('more')}</button><div class="ksx-fx fold shut" inert><div><div><button class="pill accent sm ksx-fix"></button><button class="pill ghost sm ksx-del mx-press">Remove</button></div></div></div></div>`);
     $('.nm', x.el).textContent = x.name; $('.ksx-more', x.el).setAttribute('aria-label', 'Actions for ' + x.name);
     $('.ksx-fix', x.el).onclick = () => { x.ocr = true; x.st = 'queued'; x.ms = 3000; paint(x); next(); };
     $('.ksx-del', x.el).onclick = () => remove(x);
@@ -77,8 +77,8 @@ DM.def('knowledge-sources', (r, c) => {
   // Add source: upload files (the file picker), add a website (its address), or connect a folder (from the ones offered)
   function view(v){
     if (v === 'web') pop.innerHTML = `<form class="ksx-web"><div class="ph">Add a website</div><div class="ksx-in">${I('globe','xs')}<input placeholder="example.com/docs" aria-label="Website address" spellcheck="false" autocomplete="off"><button class="pill accent sm" type="submit">Add</button></div></form>`;
-    else if (v === 'folder') pop.innerHTML = '<div class="ph">Connect a folder</div>' + (FOLDERS.length ? FOLDERS.map((f, i) => `<button class="mi" role="menuitem" data-close data-i="${i}">${I('folder','xs')}<span>${f[0]}<span class="d">${f[1]}</span></span></button>`).join('') : '<div class="ph">All folders connected</div>');
-    else pop.innerHTML = [['upload', 'Upload files', 'files'], ['globe', 'Add a website', 'web'], ['folder', 'Connect a folder', 'folder']].map(([ic, t, k]) => `<button class="mi" role="menuitem" data-v="${k}"${k === 'files' ? ' data-close' : ''}>${I(ic,'xs')}<span>${t}</span></button>`).join('');
+    else if (v === 'folder') pop.innerHTML = '<div class="ph">Connect a folder</div>' + (FOLDERS.length ? FOLDERS.map((f, i) => `<button class="mi mx-press" role="menuitem" data-close data-i="${i}">${I('folder','xs')}<span>${f[0]}<span class="d">${f[1]}</span></span></button>`).join('') : '<div class="ph">All folders connected</div>');
+    else pop.innerHTML = [['upload', 'Upload files', 'files'], ['globe', 'Add a website', 'web'], ['folder', 'Connect a folder', 'folder']].map(([ic, t, k]) => `<button class="mi mx-press" role="menuitem" data-v="${k}"${k === 'files' ? ' data-close' : ''}>${I(ic,'xs')}<span>${t}</span></button>`).join('');
   }
   view('main');
   // a menu opens over the card from its button: down when it fits below, up when it doesn't and fits above or has more room

@@ -327,9 +327,12 @@ th:last-child>.col-rz{display:none}
 .fold.shut{grid-template-rows:0fr;opacity:0;visibility:hidden;transition:grid-template-rows var(--dm-t) var(--dm-ease),opacity var(--dm-t) var(--dm-ease),visibility 0s var(--dm-t)}
 
 /* grow(): a container that grows with its content, eased (any component; Plan review and Agent tree use it) */
-.growing{overflow:clip;overflow-clip-margin:6px;transition:height .55s cubic-bezier(.22,1,.36,1)}
+.growing{overflow:clip;overflow-clip-margin:6px;--dm-grow-t:.55s}
 .growing>.dm-grow{display:flex;flex-direction:column;gap:inherit;flex:none}
-@media (prefers-reduced-motion:reduce){.growing{transition:none}}
+/* a foot marked .mx-foot (a footer strip at the card's bottom) rides the card's bottom edge while the card springs to a change
+   made at once (growFit()'s --dm-grow-d), so it never drops out of sight or jumps up and leaves a gap; it covers what slides
+   under it with the card's own surface */
+.growing .mx-foot{translate:0 var(--dm-grow-d,0px);position:relative;z-index:1;background-color:var(--dm-surface)}
 /* ---------- tooltip and popover ---------- */
 .tip{position:fixed;z-index:1000;pointer-events:none;background:var(--dm-tip-bg,var(--dm-ink));color:var(--dm-tip-fg,var(--dm-on-ink));box-shadow:var(--dm-tip-ring,none);font-size:12px;line-height:1.35;padding:6px 9px;border-radius:var(--dm-r-sm);max-width:240px;opacity:0;transform:translateY(4px);filter:blur(2px);transition:opacity .18s var(--dm-ease),transform .25s var(--dm-ease),filter .18s}
 .tip.show{opacity:1;transform:none;filter:none}
@@ -385,9 +388,8 @@ th:last-child>.col-rz{display:none}
 .mx-w{white-space:nowrap}
 /* (the React components' SwapIcon wraps the icon it swaps in a span of this class) */
 .mx-icon{display:inline-grid;place-items:center}
-/* .mx-grow: a component that grows with what it holds (grow()) eases to its new height on the spring (Agent harness, which places
-   some of them in its chat, keeps the plain ease) */
-.mx-grow.growing:not(.ahx *){transition:height calc(var(--dm-t-in) * 1.4) var(--dm-ease-spring)}
+/* .mx-grow: a component that grows with what it holds (grow()) takes the motion pieces' time for a change made at once (--dm-t-in ×
+   1.4, set in growFit()); Agent harness, which places some of them in its chat, keeps grow()'s own --dm-grow-t */
 .mx-glide.hg{isolation:isolate}
 .mx-glide.hg.hg-pos{position:relative}
 .mx-glide.hg[data-hg="b"]::before,.mx-glide.hg[data-hg="a"]::after{content:"";position:absolute;left:0;top:0;z-index:-1;pointer-events:none;width:var(--dm-hg-w,0px);height:var(--dm-hg-h,0px);transform:translate(var(--dm-hg-x,0px),var(--dm-hg-y,0px));border-radius:var(--dm-hg-r,10px);background:var(--dm-hg-bg,var(--dm-row));opacity:var(--dm-hg-o,0);transition:opacity var(--dm-t-fast) var(--dm-ease),transform var(--dm-t-glide) var(--dm-ease-spring),width var(--dm-t-glide) var(--dm-ease-spring),height var(--dm-t-glide) var(--dm-ease-spring),background-color var(--dm-t-fast) var(--dm-ease)}
@@ -396,7 +398,7 @@ th:last-child>.col-rz{display:none}
 /* a pressed row deepens the glide under it, at once, and lets it ease back */
 .mx-glide.hg:has([data-hgr]:active){--dm-hg-bg:var(--dm-row-press)}
 .mx-glide.hg:has([data-hgr]:active)::before{transition-duration:var(--dm-t-fast),var(--dm-t-glide),var(--dm-t-glide),var(--dm-t-glide),var(--dm-t-press)}
-@media (prefers-reduced-motion:reduce){.mx-glide.hg[data-hg="b"]::before,.mx-glide.hg[data-hg="a"]::after{transition-property:opacity!important;transition-duration:var(--dm-t-fast)!important}.mx-pop{filter:none!important}.mx-grow.growing:not(.ahx *){transition:none}}
+@media (prefers-reduced-motion:reduce){.mx-glide.hg[data-hg="b"]::before,.mx-glide.hg[data-hg="a"]::after{transition-property:opacity!important;transition-duration:var(--dm-t-fast)!important}.mx-pop{filter:none!important}}
 
 @media (prefers-reduced-motion:reduce){:where([data-c]) *,:where([data-c]) *::before,:where([data-c]) *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.shim{color:var(--dm-fg);background:none}}
 

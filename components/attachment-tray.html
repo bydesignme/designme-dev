@@ -166,6 +166,8 @@
 /* a drop zone, then the files as plain rows. Each file wears its type's hue: its badge, its ring and the wash that fills its
    row from the left as it uploads. Once it is up the agent reads it (the line shimmers) and says what it found, like 12 pages */
 .atx{display:flex;flex-direction:column;gap:10px}
+/* its motion (the core's motion pieces, owner, 26 Nov): a press on a file's remove button shows at once (.mx-press), and in
+   Clean the card grows with its files on the spring (.mx-grow) */
 .atx-drop{display:flex;flex-direction:column;align-items:center;gap:6px;padding:26px var(--dm-s-4);border-radius:var(--dm-r-card);background:none;cursor:pointer;position:relative;font-size:13.5px;transition:background .35s,box-shadow .35s,transform .45s var(--dm-ease)}
 /* the dashed edge is drawn in SVG so its dashes can march around the corners: drifting slowly at rest, taking the accent
    under the pointer, and marching faster while a file is dragged over */
@@ -578,7 +580,7 @@
     <p class="side-cta-d">Expert design and dev support for startups and enterprises, from Astro sites to React apps and AI products.</p>
     <a class="hire-btn" href="https://www.designme.agency/intro?utm_source=designme.dev&utm_medium=referral&utm_campaign=book_a_call" target="_blank" rel="noopener">Book a call<span class="ms"><svg class="sh" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></span></a></div></div></details><nav class="pg-crumbs" aria-label="Breadcrumb"><a href="/library">Library</a><span>/</span><a href="/library#s-conversation">Conversation</a></nav><h1 class="pg-h1" id="content" tabindex="-1">Attachment tray</h1><p class="pg-lead">Drop files for the agent and watch each one upload. Free and MIT licensed, as HTML, a typed React component or an Astro component, in three styles with light and dark mode.</p><div class="pg-installs"><div class="pg-cmd"><span class="d">$</span><span class="c"><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">attachment-tray</span></span><button type="button" data-copy="npx designme add attachment-tray" aria-label="Copy install command"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg></button></div><div class="pg-cmd"><span class="d">$</span><span class="c"><span class="cp-w">npx</span> <span class="cp-w">shadcn@latest</span> <span class="cp-w">add</span> https:/<wbr>/<wbr>designme.dev/<wbr>r/<wbr>shadcn/<wbr>attachment-tray.json</span><button type="button" data-copy="npx shadcn@latest add https://designme.dev/r/shadcn/attachment-tray.json" aria-label="Copy the shadcn command"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg></button></div></div><button class="cp-copy cp-copy-top" type="button" id="cp-copy-code">Copy code</button><p class="cp-studio">Need this designed into your product? <a href="https://www.designme.agency/intro?utm_source=designme.dev&amp;utm_medium=referral&amp;utm_campaign=book_a_call" target="_blank" rel="noopener">Book a call</a></p><section class="cp-demo" aria-label="Attachment tray demo"><button type="button" class="cp-anim" id="cp-replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg>Animate</button><div class="pg-demo stage-inner" style="--h-a:534px;--h-j:484px;--h-k:502px;--h-l:502px;--h-m:502px"><div class="card" data-c="attachment-tray">
   <div class="stage-in">
-    <div class="dm atx-dm" data-designs="card"><div class="dm-main"><div class="atx">
+    <div class="dm atx-dm" data-designs="card"><div class="dm-main"><div class="atx mx-grow">
       <label class="atx-drop"><input type="file" multiple class="atx-file" aria-label="Choose files" title=""><svg class="atx-ants" aria-hidden="true"><rect/></svg>
         <span class="atx-ic"><svg class="i s"><use href="#i-upload"/></svg></span><b>Drop files here</b><span class="muted">or <span class="atx-sample">add sample files</span></span>
       </label>
@@ -759,7 +761,7 @@ function Item({ file, delay, onRemove, clean }: { file: Attachment; delay: numbe
           &lt;/svg&gt;}
       {onRemove &amp;&amp; (
         &lt;Tip label=&quot;Remove&quot;&gt;
-          &lt;button type=&quot;button&quot; className=&quot;dm-ib&quot; aria-label={`Remove ${file.name}`} disabled={leaving}
+          &lt;button type=&quot;button&quot; className=&quot;dm-ib dm-mx-press&quot; aria-label={`Remove ${file.name}`} disabled={leaving}
             onClick={() =&gt; { setLeaving(true); t.current = setTimeout(() =&gt; onRemove(file.id), 320); }}&gt;&lt;Icon name=&quot;x&quot; size=&quot;xs&quot; /&gt;&lt;/button&gt;
         &lt;/Tip&gt;
       )}
@@ -863,17 +865,19 @@ export function AttachmentTray({ files, onFiles, onRemove, title = &#39;Drop fil
   &lt;/&gt;);
 
   return (
-    &lt;div data-dm=&quot;&quot; ref={root} className={cx(&#39;dm-atx&#39;, clean &amp;&amp; &#39;dm-growing&#39;, clean &amp;&amp; (over || dragging) &amp;&amp; &#39;dm-over&#39;, className)}
+    &lt;div data-dm=&quot;&quot; ref={root} className={cx(&#39;dm-atx dm-mx-grow&#39;, clean &amp;&amp; &#39;dm-growing&#39;, clean &amp;&amp; (over || dragging) &amp;&amp; &#39;dm-over&#39;, className)}
       {...(clean ? { onDragEnter: hold, onDragOver: hold, onDragLeave: leave, onDrop: dropped } : {})}&gt;
       {clean ? &lt;div className=&quot;dm-grow&quot; ref={inner}&gt;{body}&lt;/div&gt; : body}
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>attachment-tray.css<span class="l">React · 132 lines</span></summary><pre class="cp-pre" data-name="attachment-tray.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>attachment-tray.css<span class="l">React · 134 lines</span></summary><pre class="cp-pre" data-name="attachment-tray.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Attachment tray ---------- */
 /* a drop zone, then the files as plain rows. Each file wears its type&#39;s hue: its badge, its ring and the wash that fills its
    row from the left as it uploads. Once it is up the agent reads it (the line shimmers) and says what it found, like 12 pages */
 .dm-atx{display:flex;flex-direction:column;gap:10px}
+/* its motion (the core&#39;s motion pieces, owner, 26 Nov): a press on a file&#39;s remove button shows at once (.mx-press), and in
+   Clean the card grows with its files on the spring (.mx-grow) */
 .dm-atx-drop{display:flex;flex-direction:column;align-items:center;gap:6px;padding:26px var(--dm-s-4);border-radius:var(--dm-r-card);background:none;cursor:pointer;position:relative;font-size:13.5px;transition:background .35s,box-shadow .35s,transform .45s var(--dm-ease)}
 /* the dashed edge is drawn in SVG so its dashes can march around the corners: drifting slowly at rest, taking the accent
    under the pointer, and marching faster while a file is dragged over */
@@ -1017,7 +1021,7 @@ const { class: className, ...rest } = Astro.props;
 ---
 &lt;div class:list={[&#39;card&#39;, className]} data-c=&quot;attachment-tray&quot; {...rest}&gt;
   &lt;div class=&quot;stage-in&quot;&gt;&lt;Fragment is:raw&gt;
-&lt;div class=&quot;atx&quot;&gt;
+&lt;div class=&quot;atx mx-grow&quot;&gt;
   &lt;label class=&quot;atx-drop&quot;&gt;&lt;input type=&quot;file&quot; multiple class=&quot;atx-file&quot; aria-label=&quot;Choose files&quot; title=&quot;&quot;&gt;&lt;svg class=&quot;atx-ants&quot; aria-hidden=&quot;true&quot;&gt;&lt;rect/&gt;&lt;/svg&gt;
     &lt;span class=&quot;atx-ic&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-upload&quot;/&gt;&lt;/svg&gt;&lt;/span&gt;&lt;b&gt;Drop files here&lt;/b&gt;&lt;span class=&quot;muted&quot;&gt;or &lt;span class=&quot;atx-sample&quot;&gt;add sample files&lt;/span&gt;&lt;/span&gt;
   &lt;/label&gt;
@@ -1031,7 +1035,7 @@ const { class: className, ...rest } = Astro.props;
 &lt;/script&gt;
 </code></pre></details><details class="cp-file"><summary>attachment-tray.html<span class="l">HTML · 12 lines</span></summary><pre class="cp-pre" data-name="attachment-tray.html"><code>&lt;div class=&quot;card&quot; data-c=&quot;attachment-tray&quot;&gt;
   &lt;div class=&quot;stage-in&quot;&gt;
-    &lt;div class=&quot;atx&quot;&gt;
+    &lt;div class=&quot;atx mx-grow&quot;&gt;
       &lt;label class=&quot;atx-drop&quot;&gt;&lt;input type=&quot;file&quot; multiple class=&quot;atx-file&quot; aria-label=&quot;Choose files&quot; title=&quot;&quot;&gt;&lt;svg class=&quot;atx-ants&quot; aria-hidden=&quot;true&quot;&gt;&lt;rect/&gt;&lt;/svg&gt;
         &lt;span class=&quot;atx-ic&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-upload&quot;/&gt;&lt;/svg&gt;&lt;/span&gt;&lt;b&gt;Drop files here&lt;/b&gt;&lt;span class=&quot;muted&quot;&gt;or &lt;span class=&quot;atx-sample&quot;&gt;add sample files&lt;/span&gt;&lt;/span&gt;
       &lt;/label&gt;
@@ -1040,10 +1044,12 @@ const { class: className, ...rest } = Astro.props;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>attachment-tray.css<span class="l">HTML · 131 lines</span></summary><pre class="cp-pre" data-name="attachment-tray.css"><code>/* ---------- Attachment tray ---------- */
+</code></pre></details><details class="cp-file"><summary>attachment-tray.css<span class="l">HTML · 133 lines</span></summary><pre class="cp-pre" data-name="attachment-tray.css"><code>/* ---------- Attachment tray ---------- */
 /* a drop zone, then the files as plain rows. Each file wears its type&#39;s hue: its badge, its ring and the wash that fills its
    row from the left as it uploads. Once it is up the agent reads it (the line shimmers) and says what it found, like 12 pages */
 .atx{display:flex;flex-direction:column;gap:10px}
+/* its motion (the core&#39;s motion pieces, owner, 26 Nov): a press on a file&#39;s remove button shows at once (.mx-press), and in
+   Clean the card grows with its files on the spring (.mx-grow) */
 .atx-drop{display:flex;flex-direction:column;align-items:center;gap:6px;padding:26px var(--dm-s-4);border-radius:var(--dm-r-card);background:none;cursor:pointer;position:relative;font-size:13.5px;transition:background .35s,box-shadow .35s,transform .45s var(--dm-ease)}
 /* the dashed edge is drawn in SVG so its dashes can march around the corners: drifting slowly at rest, taking the accent
    under the pointer, and marching faster while a file is dragged over */
@@ -1192,7 +1198,7 @@ const { class: className, ...rest } = Astro.props;
   // a file uploads (its row fills with its hue and its ring closes), then the agent reads it and says what it found
   function add(name, bytes, i = 0, found){
     const k = kind(name), sz = size(bytes);
-    const it = html(`&lt;div class=&quot;atx-it&quot; style=&quot;--dm-c:${k[1]};--dm-cb:${k[2]}&quot;&gt;&lt;span class=&quot;atx-ti&quot;&gt;${k[0]}&lt;/span&gt;&lt;span class=&quot;atx-n&quot;&gt;&lt;span class=&quot;atx-nm&quot;&gt;${esc(name)}&lt;/span&gt;&lt;span class=&quot;atx-m&quot;&gt;&lt;span&gt;${sz} · &lt;span class=&quot;num pc&quot;&gt;0%&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;svg class=&quot;atx-ring&quot; viewBox=&quot;0 0 22 22&quot; role=&quot;progressbar&quot; aria-label=&quot;Uploading ${esc(name).replace(/&quot;/g, &#39;&amp;quot;&#39;)}&quot; aria-valuemin=&quot;0&quot; aria-valuemax=&quot;100&quot; aria-valuenow=&quot;0&quot;&gt;&lt;circle cx=&quot;11&quot; cy=&quot;11&quot; r=&quot;8&quot; fill=&quot;none&quot; stroke=&quot;var(--dm-line)&quot; stroke-width=&quot;2&quot;/&gt;&lt;circle cx=&quot;11&quot; cy=&quot;11&quot; r=&quot;8&quot; fill=&quot;none&quot; stroke=&quot;${k[1]}&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-dasharray=&quot;50.3&quot; stroke-dashoffset=&quot;50.3&quot; transform=&quot;rotate(-90 11 11)&quot;/&gt;&lt;/svg&gt;&lt;button class=&quot;ib&quot; aria-label=&quot;Remove ${esc(name).replace(/&quot;/g, &#39;&amp;quot;&#39;)}&quot; data-tip=&quot;Remove&quot;&gt;${I(&#39;x&#39;,&#39;xs&#39;)}&lt;/button&gt;${clean ? &#39;&lt;span class=&quot;atx-ln&quot; aria-hidden=&quot;true&quot;&gt;&lt;i&gt;&lt;/i&gt;&lt;/span&gt;&#39; : &#39;&#39;}&lt;/div&gt;`);
+    const it = html(`&lt;div class=&quot;atx-it&quot; style=&quot;--dm-c:${k[1]};--dm-cb:${k[2]}&quot;&gt;&lt;span class=&quot;atx-ti&quot;&gt;${k[0]}&lt;/span&gt;&lt;span class=&quot;atx-n&quot;&gt;&lt;span class=&quot;atx-nm&quot;&gt;${esc(name)}&lt;/span&gt;&lt;span class=&quot;atx-m&quot;&gt;&lt;span&gt;${sz} · &lt;span class=&quot;num pc&quot;&gt;0%&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;svg class=&quot;atx-ring&quot; viewBox=&quot;0 0 22 22&quot; role=&quot;progressbar&quot; aria-label=&quot;Uploading ${esc(name).replace(/&quot;/g, &#39;&amp;quot;&#39;)}&quot; aria-valuemin=&quot;0&quot; aria-valuemax=&quot;100&quot; aria-valuenow=&quot;0&quot;&gt;&lt;circle cx=&quot;11&quot; cy=&quot;11&quot; r=&quot;8&quot; fill=&quot;none&quot; stroke=&quot;var(--dm-line)&quot; stroke-width=&quot;2&quot;/&gt;&lt;circle cx=&quot;11&quot; cy=&quot;11&quot; r=&quot;8&quot; fill=&quot;none&quot; stroke=&quot;${k[1]}&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-dasharray=&quot;50.3&quot; stroke-dashoffset=&quot;50.3&quot; transform=&quot;rotate(-90 11 11)&quot;/&gt;&lt;/svg&gt;&lt;button class=&quot;ib mx-press&quot; aria-label=&quot;Remove ${esc(name).replace(/&quot;/g, &#39;&amp;quot;&#39;)}&quot; data-tip=&quot;Remove&quot;&gt;${I(&#39;x&#39;,&#39;xs&#39;)}&lt;/button&gt;${clean ? &#39;&lt;span class=&quot;atx-ln&quot; aria-hidden=&quot;true&quot;&gt;&lt;i&gt;&lt;/i&gt;&lt;/span&gt;&#39; : &#39;&#39;}&lt;/div&gt;`);
     list.appendChild(it); enter(it, i * 80);
     $(&#39;.ib&#39;, it).onclick = () =&gt; { it.classList.add(&#39;leave&#39;); setTimeout(() =&gt; it.remove(), 320); };
     const svg = $(&#39;.atx-ring&#39;, it), ring = $$(&#39;circle&#39;, it)[1], m = $(&#39;.atx-m&#39;, it); let p = 0;
@@ -1596,7 +1602,7 @@ const fitHits = window.dmFitHits || (() => {
   // a file uploads (its row fills with its hue and its ring closes), then the agent reads it and says what it found
   function add(name, bytes, i = 0, found){
     const k = kind(name), sz = size(bytes);
-    const it = html(`<div class="atx-it" style="--dm-c:${k[1]};--dm-cb:${k[2]}"><span class="atx-ti">${k[0]}</span><span class="atx-n"><span class="atx-nm">${esc(name)}</span><span class="atx-m"><span>${sz} · <span class="num pc">0%</span></span></span></span><svg class="atx-ring" viewBox="0 0 22 22" role="progressbar" aria-label="Uploading ${esc(name).replace(/"/g, '&quot;')}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><circle cx="11" cy="11" r="8" fill="none" stroke="var(--dm-line)" stroke-width="2"/><circle cx="11" cy="11" r="8" fill="none" stroke="${k[1]}" stroke-width="2" stroke-linecap="round" stroke-dasharray="50.3" stroke-dashoffset="50.3" transform="rotate(-90 11 11)"/></svg><button class="ib" aria-label="Remove ${esc(name).replace(/"/g, '&quot;')}" data-tip="Remove">${I('x','xs')}</button>${clean ? '<span class="atx-ln" aria-hidden="true"><i></i></span>' : ''}</div>`);
+    const it = html(`<div class="atx-it" style="--dm-c:${k[1]};--dm-cb:${k[2]}"><span class="atx-ti">${k[0]}</span><span class="atx-n"><span class="atx-nm">${esc(name)}</span><span class="atx-m"><span>${sz} · <span class="num pc">0%</span></span></span></span><svg class="atx-ring" viewBox="0 0 22 22" role="progressbar" aria-label="Uploading ${esc(name).replace(/"/g, '&quot;')}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><circle cx="11" cy="11" r="8" fill="none" stroke="var(--dm-line)" stroke-width="2"/><circle cx="11" cy="11" r="8" fill="none" stroke="${k[1]}" stroke-width="2" stroke-linecap="round" stroke-dasharray="50.3" stroke-dashoffset="50.3" transform="rotate(-90 11 11)"/></svg><button class="ib mx-press" aria-label="Remove ${esc(name).replace(/"/g, '&quot;')}" data-tip="Remove">${I('x','xs')}</button>${clean ? '<span class="atx-ln" aria-hidden="true"><i></i></span>' : ''}</div>`);
     list.appendChild(it); enter(it, i * 80);
     $('.ib', it).onclick = () => { it.classList.add('leave'); setTimeout(() => it.remove(), 320); };
     const svg = $('.atx-ring', it), ring = $$('circle', it)[1], m = $('.atx-m', it); let p = 0;

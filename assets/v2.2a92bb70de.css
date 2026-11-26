@@ -334,9 +334,12 @@
 .v2 .fold.shut{grid-template-rows:0fr;opacity:0;visibility:hidden;transition:grid-template-rows var(--t) var(--ease),opacity var(--t) var(--ease),visibility 0s var(--t)}
 
 /* grow(): a container that grows with its content, eased (any component; Plan review and Agent tree use it) */
-.v2 .growing{overflow:clip;overflow-clip-margin:6px;transition:height .55s cubic-bezier(.22,1,.36,1)}
+.v2 .growing{overflow:clip;overflow-clip-margin:6px;--grow-t:.55s}
 .v2 .growing>.dm-grow{display:flex;flex-direction:column;gap:inherit;flex:none}
-@media (prefers-reduced-motion:reduce){.v2 .growing{transition:none}}
+/* a foot marked .mx-foot (a footer strip at the card's bottom) rides the card's bottom edge while the card springs to a change
+   made at once (growFit()'s --grow-d), so it never drops out of sight or jumps up and leaves a gap; it covers what slides
+   under it with the card's own surface */
+.v2 .growing .mx-foot{translate:0 var(--grow-d,0px);position:relative;z-index:1;background-color:var(--surface)}
 /* ---------- tooltip and popover ---------- */
 .v2 .tip{position:fixed;z-index:1000;pointer-events:none;background:var(--tip-bg,var(--ink));color:var(--tip-fg,var(--on-ink));box-shadow:var(--tip-ring,none);font-size:12px;line-height:1.35;padding:6px 9px;border-radius:var(--r-sm);max-width:240px;opacity:0;transform:translateY(4px);filter:blur(2px);transition:opacity .18s var(--ease),transform .25s var(--ease),filter .18s}
 .v2 .tip.show{opacity:1;transform:none;filter:none}
@@ -392,9 +395,8 @@
 .v2 .mx-w{white-space:nowrap}
 /* (the React components' SwapIcon wraps the icon it swaps in a span of this class) */
 .v2 .mx-icon{display:inline-grid;place-items:center}
-/* .mx-grow: a component that grows with what it holds (grow()) eases to its new height on the spring (Agent harness, which places
-   some of them in its chat, keeps the plain ease) */
-.v2 .mx-grow.growing:not(.ahx *){transition:height calc(var(--t-in) * 1.4) var(--ease-spring)}
+/* .mx-grow: a component that grows with what it holds (grow()) takes the motion pieces' time for a change made at once (--t-in ×
+   1.4, set in growFit()); Agent harness, which places some of them in its chat, keeps grow()'s own --grow-t */
 .v2 .mx-glide.hg{isolation:isolate}
 .v2 .mx-glide.hg.hg-pos{position:relative}
 .v2 .mx-glide.hg[data-hg="b"]::before,.v2 .mx-glide.hg[data-hg="a"]::after{content:"";position:absolute;left:0;top:0;z-index:-1;pointer-events:none;width:var(--hg-w,0px);height:var(--hg-h,0px);transform:translate(var(--hg-x,0px),var(--hg-y,0px));border-radius:var(--hg-r,10px);background:var(--hg-bg,var(--row));opacity:var(--hg-o,0);transition:opacity var(--t-fast) var(--ease),transform var(--t-glide) var(--ease-spring),width var(--t-glide) var(--ease-spring),height var(--t-glide) var(--ease-spring),background-color var(--t-fast) var(--ease)}
@@ -403,7 +405,7 @@
 /* a pressed row deepens the glide under it, at once, and lets it ease back */
 .v2 .mx-glide.hg:has([data-hgr]:active){--hg-bg:var(--row-press)}
 .v2 .mx-glide.hg:has([data-hgr]:active)::before{transition-duration:var(--t-fast),var(--t-glide),var(--t-glide),var(--t-glide),var(--t-press)}
-@media (prefers-reduced-motion:reduce){.v2 .mx-glide.hg[data-hg="b"]::before,.v2 .mx-glide.hg[data-hg="a"]::after{transition-property:opacity!important;transition-duration:var(--t-fast)!important}.v2 .mx-pop{filter:none!important}.v2 .mx-grow.growing:not(.ahx *){transition:none}}
+@media (prefers-reduced-motion:reduce){.v2 .mx-glide.hg[data-hg="b"]::before,.v2 .mx-glide.hg[data-hg="a"]::after{transition-property:opacity!important;transition-duration:var(--t-fast)!important}.v2 .mx-pop{filter:none!important}}
 
 @media (prefers-reduced-motion:reduce){.v2 *,.v2 *::before,.v2 *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.v2 .shim{color:var(--fg);background:none}}
 
@@ -481,6 +483,9 @@
 .v2 .stl .dm-main{gap:10px}
 .v2 .stl-row{display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:var(--r-pill);box-shadow:var(--shadow);height:40px;padding:0 14px 0 13px;font-size:13.5px;min-width:250px;transition:background-color var(--t-fast) var(--ease)}
 @media (hover:hover) and (pointer:fine){.v2 .stl-row:hover{background:color-mix(in srgb,var(--fg) 4%,var(--surface))}}
+/* its motion (the core's motion pieces, owner, 26 Nov): a press on the pill shows at once (.mx-press); a mark that changes, the
+   loader, the tick or a row's dot, crossfades in place (.mx-ic, iconSwap()); the list's rows settle one after another as it
+   opens (.mx-rows) */
 .v2 .stl-g{width:16px;display:grid;place-items:center;color:var(--fg)}
 /* a finished step's tick is the vivid mark green */
 .v2 .stl-ok{display:grid;color:var(--ok-mark)}
@@ -516,6 +521,8 @@
 /* the row's hover is Clean's one hover laid over its fill (owner, 21 Nov), easing in and out over 220ms */
 :root[data-style="clean"] .v2 .stl-row{transition:box-shadow var(--t-fast) var(--ease)}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .stl-row:hover{background:var(--surface);box-shadow:var(--shadow),inset 0 0 0 99px var(--row)}}
+/* (its press, the motion pieces' .mx-press: a step deeper than the hover, at once, in the hover's own layer) */
+:root[data-style="clean"] .v2 .stl-row.mx-press:active{box-shadow:var(--shadow),inset 0 0 0 99px var(--row-press);transition-duration:var(--t-press)}
 .v2 .bars3{display:inline-flex;gap:2px;align-items:center;height:12px}
 .v2 .bars3 i{width:2.5px;height:100%;border-radius:var(--r-tiny,2px);background:currentColor;animation:v2-b3 .9s var(--ease-io) infinite}
 .v2 .bars3 i:nth-child(2){animation-delay:.15s}.v2 .bars3 i:nth-child(3){animation-delay:.3s}
@@ -533,6 +540,8 @@
 .v2 .ths-row{display:flex;align-items:center;gap:10px;min-width:0}
 /* the animated mark has no tile or fill behind it in Soft and Clean (owner, 22 Nov: "remove the background container"): it sits
    in a 20px box on the line's centre line, the words 10px after it. Blueprint keeps its hairline tile */
+/* its motion (the core's motion pieces, owner, 26 Nov): picking another state crossfades its mark in for the last one (.mx-ic,
+   iconSwap()) */
 .v2 .ths-mk{position:relative;width:20px;height:20px;flex:none;display:grid;place-items:center;color:var(--accent-mark,var(--accent))}
 /* (the words and their seconds share one baseline; the mark stays centred on their line) */
 .v2 .ths-w{flex:0 1 auto;min-width:0;display:flex;align-items:baseline;gap:10px}
@@ -628,6 +637,8 @@
 .v2 .rtr{width:100%;padding:6px}
 .v2 .rtr-h{display:flex;align-items:center;gap:10px;width:100%;padding:10px var(--s-3);border-radius:var(--r-in);font-size:13.5px;transition:background .2s}
 @media (hover:hover) and (pointer:fine){.v2 .rtr-h:hover{background:var(--row)}}
+/* its motion (the core's motion pieces, owner, 26 Nov): a press on the header shows at once (.mx-press); in Clean the card grows on
+   the spring (.mx-grow) */
 .v2 .rtr-mark{color:var(--fg2)}
 .v2 .rtr-chev{margin-left:auto;color:var(--muted);transition:transform .4s var(--ease)}
 .v2 .rtr-h[aria-expanded="false"] .rtr-chev{transform:rotate(-90deg)}
@@ -661,6 +672,9 @@
 :root[data-style="clean"] .v2 .rtr-time{font-variant-numeric:tabular-nums}
 :root[data-style="clean"] .v2 .rtr-chev{width:14px;height:14px;border-radius:50%;box-shadow:0 0 0 7px transparent;transition:transform .4s var(--ease),background-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .rtr-h:hover .rtr-chev{background:var(--row);box-shadow:0 0 0 7px var(--row);color:var(--fg)}}
+/* (its press, the motion pieces' .mx-press: in Clean, where the header's hover is the chevron's fill, the press deepens that fill) */
+:root[data-style="clean"] .v2 .rtr-h.mx-press:active{background:none}
+:root[data-style="clean"] .v2 .rtr-h:active .rtr-chev{background:var(--row-press);box-shadow:0 0 0 7px var(--row-press);transition-duration:var(--t-press)}
 :root[data-style="clean"] .v2 .rtr-body{padding:10px 16px;border-top:1px solid var(--line)}
 :root[data-style="clean"] .v2 .rtr-body[data-v="sources"]{padding:16px}
 :root[data-style="clean"] .v2 .rtr-li{padding:6px 0 6px 28px;line-height:20px}
@@ -735,6 +749,11 @@
 .v2 .tk-st.run .mk{color:var(--accent-mark,var(--accent));background:var(--accent-bg);animation:v2-tkhalo 1.8s var(--ease-io) infinite}
 .v2 .tk-st.done .mk{background:var(--ok-bg);color:var(--ok)}
 .v2 .tk-st.done .mk .i{animation:v2-tkpop .45s var(--ease) backwards}
+/* its motion (the core's motion pieces, owner, 26 Nov): a press on the header shows at once as a deeper fill round the chevron,
+   the hover's own shape; a mark that changes (a step's ring, clock and tick, the header's dots and finished mark) crossfades in
+   place (.mx-ic, iconSwap(), in place of the tick's own pop); the trace grows on the spring (.mx-grow) */
+.v2 .tk-h:active .tk-chev{background:var(--row-press);box-shadow:0 0 0 6px var(--row-press);transition-duration:var(--t-press)}
+.v2 .tk.mx-ic .tk-st.done .mk .i,.v2 .tk.mx-ic .tk-h.tk-fin .tk-mark .i{animation:none}
 .v2 .tk-st.retry .mk{background:var(--warn-bg);color:var(--warn);animation:v2-tkhalow 1.8s var(--ease-io) infinite}
 @keyframes v2-tkhalo{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--fg) 0%,transparent)}50%{box-shadow:0 0 0 4px color-mix(in srgb,var(--fg) 6%,transparent)}}
 @keyframes v2-tkhalow{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--fg) 0%,transparent)}50%{box-shadow:0 0 0 4px color-mix(in srgb,var(--fg) 6%,transparent)}}
@@ -780,6 +799,7 @@
 :root[data-style="clean"] .v2 .tk-time{margin-right:auto;font-variant-numeric:tabular-nums}
 :root[data-style="clean"] .v2 .tk-chev{width:14px;height:14px;border-radius:50%;box-shadow:0 0 0 7px transparent;transition:transform var(--t) var(--ease),background-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .tk-h:hover .tk-chev{background:var(--row);box-shadow:0 0 0 7px var(--row);color:var(--fg)}}
+:root[data-style="clean"] .v2 .tk-h:active .tk-chev{background:var(--row-press);box-shadow:0 0 0 7px var(--row-press);transition-duration:var(--t-press)}
 :root[data-style="clean"] .v2 .tk-mark{width:16px;height:16px;margin-right:2px;color:var(--accent-mark)}
 :root[data-style="clean"] .v2 .tk-h.tk-fin .tk-mark{width:16px;height:16px;border-radius:50%;background:var(--ok-mark);color:var(--surface);animation:v2-tkdisc var(--t) var(--ease) backwards}
 :root[data-style="clean"] .v2 .tk-h.tk-fin .tk-mark .i{width:10px;height:10px;stroke-width:3.2;stroke-dasharray:21;animation:v2-tkdraw var(--t) var(--ease) .14s backwards}
@@ -851,6 +871,10 @@
 .v2 .ctm-leg{display:flex;flex-direction:column;margin:0 calc(-1 * var(--s-2))}
 .v2 .ctm-l{display:flex;align-items:center;gap:var(--s-2);padding:5px var(--s-2);border-radius:var(--r-sm);font-size:13px;line-height:18px;color:var(--fg2);cursor:default;transition:background var(--t-fast)}
 @media (hover:hover) and (pointer:fine){.v2 .ctm-l:hover{background:color-mix(in srgb,var(--fg) 5%,transparent)}}
+/* its motion (the core's motion pieces, owner, 26 Nov): one highlight glides from part to part in the legend, in the hover's
+   own grey (.mx-glide); a press on Compact shows at once; its box eases to its new words' width on the spring (mxWidth()) */
+.v2 .ctm-leg{--hg-bg:color-mix(in srgb,var(--fg) 5%,transparent)}
+:root[data-style="clean"] .v2 .ctm-leg{--hg-bg:var(--row)}
 /* the swatch is centred in a 16px column, the column of the message's sign and tick below, so their words line up */
 .v2 .ctm-l .sw{width:8px;height:8px;margin:0 4px 0 0;border-radius:var(--r-tiny,2px);flex:none;background:var(--c)}
 .v2 .ctm-l .v{margin-left:auto;color:var(--fg)}
@@ -861,6 +885,8 @@
 .v2 .ctm-msg{display:grid;grid-template-rows:0fr;margin-top:calc(-1 * var(--s-3));font-size:13px;line-height:18px;color:var(--fg);opacity:0;transition:grid-template-rows .32s var(--ease),margin .32s var(--ease),opacity .24s var(--ease)}
 .v2 .ctm-msg.on{grid-template-rows:1fr;margin-top:0;opacity:1}
 .v2 .ctm-msg>span{display:flex;align-items:flex-start;gap:var(--s-2);min-height:0;overflow:hidden}
+/* (the warning's tint and padding ease away as it turns into the result, so the panel eases to its new height in one motion) */
+.v2 .ctm-msg>span{transition:padding .32s var(--ease),background-color .32s var(--ease)}
 .v2 .ctm-msg>span>svg,.v2 .ctm-msg>span>svg.i{flex:none;width:16px;height:16px;margin-top:1px}
 /* the notice reaches out as far as the legend's hover, with the legend's padding, so its sign sits in the swatches' column
    and its words on the legend's words */
@@ -892,7 +918,13 @@
 .v2 .ctm-ring circle{fill:none;stroke-width:2.6}
 .v2 .ctm-ring .tr{stroke:var(--rail)}
 .v2 .ctm-ring .fl{stroke:var(--accent-mark,var(--accent));stroke-linecap:round;stroke-dasharray:0 100;transition:stroke-dasharray .42s var(--ease),stroke .32s}
-.v2 .ctm.hot .ctm-ring .fl{stroke:var(--warn-mark)}
+/* near the limit the ring turns to the warning mark by a wipe, never a blend (owner, 26 Nov, from its showcase): a second arc in
+   the warning mark (.fw) draws along the accent's from its start in 200ms, and draws back the same way once it is compacted, so
+   no frame shows a mix of the two colours. Each step up sends a thin bright highlight once along the filled arc (.hl, 0.45s)
+   and lifts the ring a touch (1.06, 0.35s); crossing the limit nudges the pill once. No halo or glow round it. With reduced
+   motion the ring and its colour change at once, with no highlight, lift or nudge */
+.v2 .ctm-ring .fw{stroke:var(--warn-mark);stroke-linecap:round;stroke-dasharray:0 100;opacity:0;transition:stroke-dasharray .42s var(--ease)}
+.v2 .ctm-ring .hl{stroke:#fff;stroke-width:2;stroke-linecap:butt;stroke-dasharray:0 200;opacity:0}
 
 /* Clean (owner, 17 and 18 Nov): the pill is the flat secondary control (a hairline and a light fill, no press); the ring is
    the accent's mark on a grey rail. The panel is a 22px card with an off-white head strip and foot strip, opening and
@@ -995,6 +1027,10 @@
 .v2 .atr-nm{flex:0 0 auto;max-width:100%;overflow:hidden;text-overflow:ellipsis;font-weight:500}
 .v2 .atr-tg{align-self:center;width:16px;height:16px;margin-left:-6px;flex:none;display:grid;place-items:center;border-radius:calc(4px * var(--rk-s,var(--rk)));color:var(--muted);cursor:pointer;transition:background var(--t-fast),color var(--t-fast)}
 @media (hover:hover) and (pointer:fine){.v2 .atr-tg:hover{background:color-mix(in srgb,var(--fg) 9%,transparent);color:var(--fg)}}
+/* its motion pieces (core's "motion pieces", 26 Nov): one highlight glides from row to row in Soft and Blueprint too (.mx-glide),
+   in the rows' own hover fill; a press on a branch's chevron shows at once (.mx-press) */
+.v2 .atr-tree.mx-glide{--hg-bg:color-mix(in srgb,var(--fg) 5%,transparent)}
+:root[data-style="clean"] .v2 .atr-tree.mx-glide{--hg-bg:var(--row)}
 .v2 .atr-tg svg{width:12px;height:12px;transition:transform .32s var(--ease)}
 .v2 .atr-n[aria-expanded="false"]>.atr-b .atr-tg svg{transform:rotate(-90deg)}
 .v2 .atr-sub{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;font-size:12px;color:var(--muted)}
@@ -1012,7 +1048,7 @@
 /* the tree grows with its rows (grow(), owner 17 Nov): each new row already opens its own height smoothly, so the panel
    follows its content frame by frame, with nothing cut off and no room left over; the way on under a row (a fix, Approve and
    Hold) opens its height the same way. Where a browser can't ease a height to auto, it appears at once */
-.v2 .atr.growing{transition:none;interpolate-size:allow-keywords}
+.v2 .atr.growing{--grow-t:0s;interpolate-size:allow-keywords}
 .v2 .atr-ask{overflow:clip;overflow-clip-margin:4px;animation:v2-atrask .42s var(--atr-ez) backwards}
 @keyframes v2-atrask{from{height:0;padding-bottom:0;opacity:0}}
 .v2 .atr .atr-n[data-ph="in"]>.atr-b>.atr-ask{animation:v2-atrask .42s var(--atr-ez) backwards,v2-atrin .56s var(--atr-ez) backwards}
@@ -1212,6 +1248,7 @@
 .v2 .aib-gl{display:flex;flex-direction:column}
 .v2 .aib-i{display:flex;align-items:center;gap:12px;padding:8px 0;border-radius:calc(10px * var(--rk-m,var(--rk)));font-size:13px;transition:background .16s}
 .v2 .aib-i.mv{position:relative;z-index:1;background:var(--surface)}
+/* (as a group goes or comes back the panel springs to its new height at the motion pieces' pace, .mx-grow) */
 /* nothing in it grows or shrinks when it is pressed (owner, 18 Nov); Clean's ink primary alone presses */
 .v2 .aib :is(.ib,.pill):active,:root[data-style="clean"] .v2 .aib .ib:active{transform:none}
 .v2 .aib-av{width:28px;height:28px;border-radius:var(--r-sm);display:grid;place-items:center;flex:none;font-size:11px;font-weight:500}
@@ -1381,6 +1418,8 @@
 .v2 .trv-r[aria-expanded="true"]{background:var(--row)}
 @media (hover:hover) and (pointer:fine){.v2 .trv-r:hover{background:var(--row)}}
 .v2 .trv-r[aria-expanded="true"] .trv-tk{color:var(--fg2)}
+/* its motion pieces (core's "motion pieces", 26 Nov): one highlight glides from span to span in every style (.mx-glide), the
+   picked span keeps its own fill; the details' parts settle one after another as they open (.mx-rows); Close presses at once */
 .v2 .trv-r:focus-visible{outline:0;box-shadow:inset 0 0 0 2px var(--focus)}
 .v2 .trv-n{position:relative;display:flex;align-items:center;gap:19px;min-width:0;align-self:stretch;padding-left:calc(7px + var(--lv,0) * 16px)}
 .v2 .trv-k{position:relative;z-index:1;width:18px;height:18px;display:grid;place-items:center;flex:none;border-radius:var(--r-tiny,5px);color:color-mix(in srgb,var(--k) 70%,var(--fg));background:color-mix(in srgb,var(--k) 13%,var(--surface))}
@@ -1654,48 +1693,23 @@
 /* reduced motion: it only fades in and out, in every style (after the styles' own, which it outranks or ties) */
 @media (prefers-reduced-motion:reduce){.v2 .tst-slot .tst-t.tst-in,.v2 .tst-fi .pill.in{animation-name:v2-tstfade}.v2 .tst-slot .tst-t.tst-out{animation-name:v2-tstfadeo}}
 /* ---------- Toast stack ---------- */
-/* each toast is the same size as the one in Toast: width, padding, type and icons */
-/* the deck is as tall as the toasts in it (--deckh, set as they arrive), growing with them, never keeping room for three
-   (owner, 18 Nov: containers grow with their content in every style) */
-.v2 .tsk-stack{position:relative;width:100%;max-width:380px;height:var(--deckh,96px);isolation:isolate}
-.v2 .tsk-stack.fan{height:var(--fanh,96px)}
-@media (hover:hover) and (pointer:fine){.v2 .tsk-stack:hover{height:var(--fanh,96px)}}
-.v2 .tsk-stack{transition:height .55s var(--ease)}
-/* 16px in all round (owner, 19 Nov); the icon, the title and the time share the title's line, and Close takes the time's
-   place on it, its glyph on the content's right edge; hover fills are a quiet 5% so they show on the white toast */
-.v2 .tsk-c{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:flex-start;gap:var(--s-3);padding:var(--s-4);--row:color-mix(in srgb,var(--fg) 5%,transparent);background:var(--surface);border-radius:var(--r-card);box-shadow:var(--shadow-toast);transition:transform .55s var(--ease),opacity .45s var(--ease),filter .45s;transform-origin:bottom center}
-.v2 .tsk-c .g{width:28px;height:28px;margin-top:calc(8.775px - 14px);border-radius:50%;display:grid;place-items:center;flex:none}
-/* (the title and its time share one baseline; the icon keeps its place on the title's line) */
-.v2 .tsk-w{flex:1;min-width:0;display:flex;align-items:baseline;gap:var(--s-3)}
-.v2 .tsk-c .tx{flex:1;min-width:0;font-size:13px;line-height:1.35}
-.v2 .tsk-c .tx b{font-weight:500;display:block}
-.v2 .tsk-c .tx span{font-size:12px;color:var(--muted)}
-.v2 .tsk-c .t{font-size:11.5px;line-height:17.55px;color:var(--muted)}
-/* the time sits at the right edge; the close button takes its place on hover */
-.v2 .tsk-c .t{transition:opacity .2s}
-.v2 .tsk-c .ib{position:absolute;top:calc(var(--s-4) + 8.775px - 14px);right:calc(var(--s-4) - 6px);width:28px;height:28px;opacity:0;transition:opacity .2s}
-.v2 .tsk-c .ib:focus-visible{opacity:1}
-@media (hover:hover) and (pointer:fine){.v2 .tsk-c:hover .ib{opacity:1}}
-/* a toast behind the front one in the deck shows only its edge: its words are hidden under the front toast, never
-   showing through it, and come back as the stack fans out (and go once it has folded again) */
-.v2 .tsk-c[inert]>*{visibility:hidden;transition:visibility 0s .5s}
-.v2 .tsk-c:has(.ib:focus-visible) .t{opacity:0}
-@media (hover:hover) and (pointer:fine){.v2 .tsk-c:hover .t{opacity:0}}
-/* Clean (lead, 18 Nov): each toast is the same small card as Toast's: content 16px in from every edge, ordinary 16px corners,
-   no blur on the way in or behind the front one. Colour only for meaning: a passed check is green and a warning orange, on
-   the icon alone; every other notification (a PR, synced frames, a draft) is grey, never a hue of its own. With no blur to
-   hide it, a new toast turns opaque at once as it rises, so the words of the one it covers never show through */
-:root[data-style="clean"] .v2 .tsk-stack{transition:height var(--t) var(--ease)}
-/* a toast covered by a new one loses its words at once, not after the half second a stack folding back keeps them for, so
-   they never show through the new toast as it fades in */
-:root[data-style="clean"] .v2 .tsk-c.tsk-under>*{visibility:hidden;transition:none}
-:root[data-style="clean"] .v2 .tsk-c{gap:12px;padding:16px;border-radius:calc(12px * var(--rk-l,var(--rk)));filter:none!important;transition:transform var(--t) var(--ease),opacity var(--t-fast) var(--ease)}
-:root[data-style="clean"] .v2 .tsk-c .g{width:20px;height:20px;margin-top:calc(8.775px - 10px);background:none!important;color:var(--fg2)!important}
-:root[data-style="clean"] .v2 .tsk-c .g .i{width:20px;height:20px}
-:root[data-style="clean"] .v2 .tsk-c .g[data-tone="ok"]{color:var(--ok-mark)!important}
-:root[data-style="clean"] .v2 .tsk-c .g[data-tone="warn"]{color:var(--warn-mark)!important}
-:root[data-style="clean"] .v2 .tsk-c .g[data-tone="bad"]{color:var(--bad-mark)!important}
-:root[data-style="clean"] .v2 .tsk-c .t{font-variant-numeric:tabular-nums}
+/* each toast in the stack is a Toast card (owner, 26 Nov: "Let's launch toast stack and toasts as launch components too"): the
+   same head, steps and footer, Close with its countdown ring, swipe and Escape, in each style's own corners, dividers and
+   shadow (Toast's section, which its installs carry too). The stack only places them. Collapsed, the cards behind the front one
+   take its height and peek out 8px above it, a step narrower each; under the pointer or the focus they fan out into a list, each
+   at its own height, 8px apart. The stack is as tall as what it shows (--tsk-h, set as cards come, go and change height), so it
+   stays centred in its stage as it grows and shrinks; the cards and the stack move together on the motion pieces' spring */
+.v2 .tsk-stack{--tsk-mv:calc(var(--t-in) * 1.4) var(--ease-spring);position:relative;width:100%;max-width:380px;height:var(--tsk-h,0px);transition:height var(--tsk-mv)}
+.v2 .tsk-stack>.tst-t{position:absolute;left:0;right:0;bottom:0;max-width:none;transform-origin:50% 0;transition:transform var(--tsk-mv),height var(--tsk-mv),opacity var(--t-fast) var(--ease),filter var(--t-fast) var(--ease)}
+/* a card arriving rises from 16px below out of a short blur (none in Blueprint and Clean); the cards behind it step back */
+.v2 .tsk-stack>.tst-t.tsk-new{transform:translateY(16px) scale(.97);opacity:0;filter:blur(var(--blur-in));transition:none}
+/* a card behind the front one in the deck shows only its edge: its words fade at once, so they never read through the card
+   that covers them, and come back as the stack fans out */
+.v2 .tsk-stack>.tst-t>*{transition:opacity var(--t-fast) var(--ease)}
+.v2 .tsk-stack>.tst-t.tsk-back>*{opacity:0}
+/* going: Close, its countdown or Escape fades it 8px down as the rest close the gap; a swipe carries it on sideways */
+.v2 .tsk-stack>.tst-t.tsk-out{pointer-events:none}
+@media (prefers-reduced-motion:reduce){.v2 .tsk-stack,.v2 .tsk-stack>.tst-t{transition-property:opacity}}
 /* ---------- Pricing cards ---------- */
 .v2 .pcx{display:flex;flex-direction:column;gap:14px;width:100%}
 .v2 .pcx-top{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);flex-wrap:wrap}
@@ -2445,6 +2459,10 @@
    --row matches the stage in light mode and would not show); every hover box reaches out round its glyph or chip, which line
    up with the answer's words (owner, 18 Nov) */
 .v2 .lva{display:flex;flex-direction:column;gap:14px;--row:color-mix(in srgb,var(--fg) 5%,transparent)}
+/* its motion (the core's motion pieces, owner, 26 Nov): a press on an action shows at once, a step deeper than its hover
+   (.mx-press); Copy's icon and its tick crossfade (.mx-ic); the turn grows on the spring as the answer streams in (.mx-grow) */
+.v2 .lva{--row-press:color-mix(in srgb,var(--fg) 9%,transparent)}
+:root[data-style="clean"] .v2 .lva{--row-press:var(--row-on)}
 /* grow() keeps the hover boxes that reach out past the answer's edge */
 .v2 .lva.growing{overflow-clip-margin:12px}
 .v2 .lva-q{display:flex;justify-content:flex-end}
@@ -2512,6 +2530,10 @@
    stage. Its menus open over it from their buttons, down when there is room and up when there isn't, and the composer never
    moves for them (the visitor's clicks never move it). grow() must not clip the menus */
 .v2 .cpx.growing{overflow:visible}
+/* its motion (the core's motion pieces, owner, 26 Nov): its menus grow out of their buttons and go back quicker, their rows
+   settle one after another and one highlight glides between them; a press shows at once (.mx-press, no scale); a chip's icon
+   crossfades to the new pick and its box eases to the new words' width (.mx-w), as a file's name does when it can't be opened;
+   a file's spinner crossfades to its icon; and the thread and the box grow on the spring (.mx-grow) */
 .v2 .cpx-thread{display:flex;flex-direction:column;gap:var(--s-3)}
 .v2 .cpx-thread:empty{display:none}
 /* a message is a small card: its files and words 16px from its edges */
@@ -3213,6 +3235,8 @@
 /* a drop zone, then the files as plain rows. Each file wears its type's hue: its badge, its ring and the wash that fills its
    row from the left as it uploads. Once it is up the agent reads it (the line shimmers) and says what it found, like 12 pages */
 .v2 .atx{display:flex;flex-direction:column;gap:10px}
+/* its motion (the core's motion pieces, owner, 26 Nov): a press on a file's remove button shows at once (.mx-press), and in
+   Clean the card grows with its files on the spring (.mx-grow) */
 .v2 .atx-drop{display:flex;flex-direction:column;align-items:center;gap:6px;padding:26px var(--s-4);border-radius:var(--r-card);background:none;cursor:pointer;position:relative;font-size:13.5px;transition:background .35s,box-shadow .35s,transform .45s var(--ease)}
 /* the dashed edge is drawn in SVG so its dashes can march around the corners: drifting slowly at rest, taking the accent
    under the pointer, and marching faster while a file is dragged over */
@@ -3611,6 +3635,8 @@
 @media (prefers-reduced-motion:reduce){:root[data-style="clean"] .v2 .atx-ctx{transition:none}.v2 .atx-ctx-it.up .atx-ctx-rg .pg{animation:none;stroke-dasharray:1 0}}
 /* ---------- Response versions ---------- */
 .v2 .rvx{display:flex;flex-direction:column;gap:14px}
+/* its motion (the core's motion pieces, owner, 26 Nov): a press on its buttons shows at once (.mx-press); Copy's icon and its
+   tick crossfade (.mx-ic); the answer eases to its new height on the spring (.mx-grow) */
 .v2 .rvx-a{display:flex;flex-direction:column;gap:var(--s-2)}
 /* the answer is as tall as its words in every style (owner's notes, 18 Nov): the component grows with them (grow()), and a
    version streaming in keeps the height of the one it replaces, then eases to its own. The bar's first button reaches 6px
@@ -3654,6 +3680,9 @@
 .v2 .rvx-cp.copied,.v2 .aab-cp.copied{color:var(--ok-mark)!important}
 /* ---------- Feedback sheet ---------- */
 .v2 .fbx{display:flex;flex-direction:column;gap:var(--s-2)}
+/* its motion (the core's motion pieces, owner, 26 Nov): a press on a thumb or Cancel shows at once (.mx-press); as the sheet
+   opens, its question, its reasons and the box rise in one after another (mxIn()); Send eases to the spinner's width on the
+   spring (mxWidth()); and it grows on the spring as the sheet opens and the thanks line comes in (.mx-grow) */
 /* the first thumb's icon starts where the answer does */
 .v2 .fbx-bar{display:flex;align-items:center;gap:2px;margin-left:-8px}
 .v2 .fbx-bar .ib svg{transition:transform .45s var(--ease)}
@@ -3933,8 +3962,11 @@
 .v2 .aab-ch .chip{background:var(--hover)}
 @media (hover:hover) and (pointer:fine){.v2 .aab-ch .chip:hover{background:var(--press)}}
 .v2 .aab-ch .chip.on{background:var(--accent-bg);color:var(--accent-fg,var(--accent));box-shadow:none}
-.v2 .aab-st{margin:0;max-height:20px;font-size:12.5px;display:flex;align-items:center;gap:6px;transition:max-height var(--t) var(--ease),margin-top var(--t) var(--ease)}
+/* (the status line opens and closes on its own height at the moment the reasons fold does, so the card moves once, in one
+   direction: owner, 26 Nov. A line about to empty eases shut and fades with its words still in it; .off) */
+.v2 .aab-st{margin:0;max-height:20px;font-size:12.5px;display:flex;align-items:center;gap:6px;overflow:clip;overflow-clip-margin:2px;transition:max-height var(--t) var(--ease),margin-top var(--t) var(--ease),opacity var(--t-fast) var(--ease)}
 .v2 .aab-st:is(:empty,.off){max-height:0;margin-top:calc(-1 * var(--s-3))}
+.v2 .aab-st.off{opacity:0}
 .v2 .aab-st.warn{color:var(--warn)}
 .v2 .aab-st.ok svg{color:var(--ok);flex:none}
 .v2 .aab-rd.on .aab-pr{width:40px}
@@ -4220,6 +4252,10 @@
    answers. Without .panel it sits flat in the thread */
 .v2 .pgx{position:relative;width:100%;max-width:400px;margin:0 auto;padding:var(--s-1) 0;display:flex;flex-direction:column;gap:var(--s-3)}
 .v2 .pgx.panel{padding:var(--s-4)}
+/* its motion (the core's motion pieces, owner, 26 Nov): How long's menu grows out of its button and goes back quicker, its
+   rows settle one after another and one highlight glides between them; a press shows at once (.mx-press, no scale); How
+   long's words and Allow ease their box to the new width (.mx-w); the spinner crossfades to the done mark (.mx-ic); and the
+   card eases to each new height on the spring (.mx-grow) */
 .v2 .pgx-h{display:flex;gap:var(--s-3);align-items:center}
 .v2 .pgx-ic{width:32px;height:32px;border-radius:calc(9px * var(--rk-m,var(--rk)));background:var(--chip);display:grid;place-items:center;flex:none}
 .v2 .pgx-ht{display:flex;flex-direction:column;min-width:0}
@@ -4318,6 +4354,7 @@
 @keyframes v2-pgxfoot{from{opacity:0}}
 :root[data-style="clean"] .v2 .pgx-f .pgx-db{padding:0 8px;margin:0;color:var(--fg2);transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .pgx-f :is(.pgx-db:hover,.pill.ghost:hover){background:var(--row);color:var(--fg)}}
+:root[data-style="clean"] .v2 .pgx-f :is(.pgx-db,.pill.ghost).mx-press:active{background:var(--row-press)}
 :root[data-style="clean"] .v2 .pgx-f .pgx-db[aria-expanded="true"]{background:var(--row-on);color:var(--fg)}
 /* on a narrow stage the buttons wrap under the select: the strip's 4px gaps put them 8px under it */
 @container (max-width:340px){:root[data-style="clean"] .v2 .pgx-no{margin:0 0 0 auto}:root[data-style="clean"] .v2 .pgx-ok{margin-top:0}}
@@ -4469,6 +4506,9 @@
 /* the plan the agent posts in the chat: no container; with .panel it becomes a card */
 .v2 .plx{padding:14px 0;display:flex;flex-direction:column;gap:10px;--row:color-mix(in srgb,var(--fg) 5%,transparent)}
 .v2 .plx.panel{padding:var(--s-4)}
+/* its motion (the core's motion pieces, owner, 26 Nov): one highlight glides from step to step in every style (.mx-glide); a
+   press shows at once (.mx-press, no scale); a step's number, spinner, clock and tick crossfade, as Skip's cross and undo do
+   (.mx-ic); and the plan grows on the spring as its lines arrive (.mx-grow) */
 .v2 .plx-h{display:flex;align-items:center;gap:10px}
 /* the header's mark sits in the steps' 32px number column, centred */
 .v2 .plx-mk{color:var(--accent-fg,var(--accent));margin-inline:9px}
@@ -4588,6 +4628,13 @@
 .v2 .itd-bar{position:absolute;left:0;top:0;z-index:5;display:flex;flex-direction:column;gap:var(--s-2);padding:var(--s-2);width:max-content;max-width:260px;border-radius:var(--r-in);background:var(--raised);box-shadow:var(--shadow-pop);opacity:0;transform:translateY(-4px);visibility:hidden;pointer-events:none;transition:opacity .16s,transform .32s var(--ease),visibility 0s .32s}
 .v2 .itd-bar.up{transform:translateY(4px)}
 .v2 .itd-bar.open{opacity:1;transform:none;visibility:visible;pointer-events:auto;transition-delay:0s}
+/* its motion (the core's motion pieces, owner, 26 Nov): the toolbar grows out of the edit's corner (.mx-pop) and goes back
+   quicker; a press on Reject all shows at once (.mx-press); the card eases to each new height on the spring (.mx-grow). Clean
+   keeps its own scale and fade below */
+.v2 .itd-bar.mx-pop{transform:scale(.95);filter:blur(var(--blur-in));transform-origin:top left;transition:opacity var(--t-out) var(--ease-io),transform var(--t-out) var(--ease-io),filter var(--t-out) var(--ease-io),visibility 0s var(--t-out)}
+.v2 .itd-bar.mx-pop.up{transform-origin:bottom left}
+.v2 .itd-bar.mx-pop.open{transform:none;filter:none;transition:opacity calc(var(--t-in) * .6) var(--ease),transform var(--t-in) var(--ease-pop),filter calc(var(--t-in) * .7) var(--ease),visibility 0s}
+@media (prefers-reduced-motion:reduce){.v2 .itd-bar.mx-pop{filter:none}}
 /* an edit the agent isn't sure of: its toolbar is a warning notice (owner, 18 Nov): a faint warning tint, the filled warning
    sign in the bright orange, the words in the text colour, and the answer that settles it, Reject, as .pill.warn, with Accept
    the white button beside it */
@@ -5137,6 +5184,12 @@
    avatar colour with its own ink); Clean keeps its marks one neutral grey. It sits on the stage, not on a card, so a row's
    hover fill is a quiet step darker than the stage (owner, 18 Nov), reaching out round the row's mark and words */
 .v2 .ssx{display:flex;flex-direction:column;gap:10px;align-items:flex-start;--row:color-mix(in srgb,var(--fg) 5%,transparent)}
+/* its motion (the core's motion pieces, owner, 26 Nov): one highlight glides from source to source in every style (.mx-glide);
+   a filter moves the rows (reflow()) as the list eases to its new height, its hover fills kept while it does; a press on Open
+   shows at once, a step deeper than its hover (.mx-press) */
+.v2 .ssx{--row-press:color-mix(in srgb,var(--fg) 9%,transparent)}
+:root[data-style="clean"] .v2 .ssx{--row-press:var(--row-on)}
+.v2 .ssx-list{overflow-clip-margin:8px}
 .v2 .ssx-pill{display:inline-flex;align-items:center;gap:var(--s-2);height:30px;padding:0 10px 0 6px;border-radius:var(--r-pill);background:var(--chip-fill);font-size:12.5px;color:var(--fg2);transition:background .25s,color .25s}
 @media (hover:hover) and (pointer:fine){.v2 .ssx-pill:hover{background:var(--chip-fill-h);color:var(--fg)}}
 .v2 .ssx-pill>svg{transition:transform .4s var(--ease)}
@@ -5530,6 +5583,9 @@
 /* (its hover fill ends on the content's 16px edge, as the output above it does) */
 .v2 .tmx-more{display:flex;align-items:center;gap:6px;width:calc(100% - 48px);margin:0 var(--s-4) 0 32px;padding:0 8px;border-radius:var(--r-sm);font-size:12px;line-height:inherit;text-align:left;color:var(--muted);transition:color var(--t-fast),background-color var(--t-fast)}
 @media (hover:hover) and (pointer:fine){.v2 .tmx-more:hover{color:var(--fg);background:var(--row)}}
+/* its motion (the core's motion pieces, owner, 26 Nov): Stop, Copy and the folded lines' button press at once (.mx-press); Copy's
+   tick, and a mark that changes (the header's and each command's spinner into its tick, Exit tag or Stopped), crossfade in place
+   (.mx-ic, iconSwap()); the terminal grows on the spring (.mx-grow) */
 .v2 .tmx-more .sp{flex:1}
 .v2 .tmx-more svg{transition:transform var(--t) var(--ease)}
 .v2 .tmx-more[aria-expanded="true"] svg{transform:rotate(180deg)}
@@ -6706,6 +6762,9 @@
 .v2 .mmx-list{display:flex;flex-direction:column;margin:0 calc(-1 * var(--s-2))}
 .v2 .mmx-m{display:flex;align-items:flex-start;gap:12px;padding:var(--s-2);border-radius:calc(10px * var(--rk-m,var(--rk)));font-size:13px;line-height:1.5;transition:background .3s}
 @media (hover:hover) and (pointer:fine){.v2 .mmx-m:hover{background:var(--row)}}
+/* its motion (the core's motion pieces, owner, 26 Nov): one highlight glides from memory to memory in every style (.mx-glide);
+   a filter moves the rows (reflow()); a press on Edit or Forget shows at once (.mx-press); a source's spinner and mark, and the
+   footer's mark, crossfade (.mx-ic); the panel grows on the spring (.mx-grow) */
 .v2 .mmx-src{width:28px;height:28px;margin-top:1px;border-radius:calc(8px * var(--rk-m,var(--rk)));display:grid;place-items:center;flex:none;background:var(--surface);color:var(--fg2);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent)}
 .v2 .mmx-src .brand{width:15px;height:15px;color:var(--fg)}
 .v2 .mmx-src .spin{width:12px;height:12px}
@@ -6731,7 +6790,8 @@
 /* a memory an answer uses pulses once with a quiet grey fill, and its source lifts */
 .v2 .mmx-m.use{animation:v2-mmxuse 1.4s var(--ease)}
 .v2 .mmx-m.use .mmx-src{animation:v2-mmxlift .6s var(--ease)}
-@keyframes v2-mmxuse{0%{background:var(--hover)}100%{background:transparent}}
+/* (the pulse is an inset shade, not the row's fill, so the gliding hover, which clears the rows' own fills, never hides it) */
+@keyframes v2-mmxuse{0%{box-shadow:inset 0 0 0 99px var(--hover)}100%{box-shadow:inset 0 0 0 99px transparent}}
 @keyframes v2-mmxlift{40%{transform:translateY(-2px) scale(1.08)}}
 /* a forgotten memory leaves a line with its Undo in its place: the words on the memories' mark column, Undo ending where their
    actions end */
@@ -6746,7 +6806,7 @@
 .v2 .mmx-ft{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .v2 .mmx-ft.sw{display:block}
 :root:not([data-style="soft"],[data-style="clean"]) .v2 .mmx-m.use{animation:v2-mmxusebp .9s steps(3,end)}
-@keyframes v2-mmxusebp{0%{background:var(--hover)}100%{background:transparent}}
+@keyframes v2-mmxusebp{0%{box-shadow:inset 0 0 0 99px var(--hover)}100%{box-shadow:inset 0 0 0 99px transparent}}
 :root:not([data-style="soft"],[data-style="clean"]) .v2 .mmx-m.use .mmx-src{animation:v2-mmxbp .9s steps(1,end)}
 @keyframes v2-mmxbp{0%,50%{box-shadow:inset 0 0 0 1px var(--line-strong)}51%,100%{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent)}}
 /* nothing in it grows or shrinks when it is pressed (owner, 18 Nov) */
@@ -6825,6 +6885,9 @@
 .v2 .hnx-add[aria-expanded="true"]{color:var(--fg);background:var(--row)}
 @media (hover:hover) and (pointer:fine){.v2 .hnx-add:hover{color:var(--fg);background:var(--row)}}
 .v2 .hnx-pop{min-width:220px}
+/* its motion (the core's motion pieces, owner, 26 Nov): Connect a tool's menu grows out of its button and goes back quicker,
+   its rows settle one after another and one highlight glides between them (.mx-pop, .mx-rows, .mx-glide); a press shows at once
+   (.mx-press); Test all eases to the width of its new words on the spring (mxWidth()); the card grows on the spring (.mx-grow) */
 .v2 .hnx-pop .mi .brand{width:12px;height:12px}
 /* nothing in it grows or shrinks when it is pressed (owner, 18 Nov); Clean's ink primary alone presses */
 .v2 .hnx :is(.ib,.pill):active,:root[data-style="clean"] .v2 .hnx .ib:active{transform:none}
@@ -6902,6 +6965,9 @@
 .v2 .ksx-add[aria-expanded="true"]{color:var(--fg);background:var(--row)}
 @media (hover:hover) and (pointer:fine){.v2 .ksx-add:hover{color:var(--fg);background:var(--row)}}
 .v2 .ksx-pop{width:248px}
+/* its motion (the core's motion pieces, owner, 26 Nov): its menus grow out of their buttons and go back quicker, their rows
+   settle one after another (a menu's next step too) and one highlight glides between them; one highlight glides from source to
+   source in every style (.mx-glide); a press shows at once (.mx-press); the card grows on the spring (.mx-grow) */
 .v2 .ksx-mpop{min-width:160px}
 .v2 .ksx-mpop .mi.del,.v2 .ksx-mpop .mi.del .i{color:var(--bad)}
 @media (hover:hover) and (pointer:fine){.v2 .ksx-mpop .mi.del:hover{background:var(--bad-bg)}}
@@ -7010,6 +7076,9 @@
 .v2 .shx-add>.i{width:28px;padding:0 8px;box-sizing:border-box}
 .v2 .shx-add[aria-expanded="true"]{color:var(--fg);background:var(--row)}
 @media (hover:hover) and (pointer:fine){.v2 .shx-add:hover{color:var(--fg);background:var(--row)}}
+/* its motion (the core's motion pieces, owner, 26 Nov): New schedule and Run now press at once (.mx-press; Clean keeps its
+   button's own press); the New schedule dialog grows out of its button and goes back into it quicker (.mx-pop); the card grows
+   on the spring (.mx-grow) */
 .v2 .shx-pop{width:272px;padding:var(--s-3)}
 .v2 .shx-f{display:flex;flex-direction:column;gap:var(--s-2)}
 .v2 .shx-f h4{margin:0 0 2px;font-size:13px;font-weight:500}
@@ -8400,6 +8469,11 @@
 .v2 .ecx-msg{font-size:12.5px;margin-right:var(--s-2)}
 .v2 .ecx-pop{position:absolute;z-index:20;width:248px;padding:var(--s-3);background:var(--raised);border-radius:calc(14px * var(--rk-l,var(--rk)));box-shadow:var(--shadow-pop);opacity:0;visibility:hidden;transform:translateY(6px);filter:blur(3px);pointer-events:none;transition:opacity .2s var(--ease),transform .35s var(--ease),filter .2s,visibility 0s .2s}
 .v2 .ecx-pop.open{opacity:1;visibility:visible;transform:none;filter:none;pointer-events:auto;transition-property:opacity,transform,filter}
+/* its motion (the core's motion pieces, owner, 26 Nov): the event's card grows out of the event's side (.mx-pop) and goes back
+   quicker; a press shows at once (.mx-press); Ask's and Prep notes' boxes ease to the width of their new words (mxWidth()) */
+.v2 .ecx-pop.mx-pop{transform:scale(.95);filter:blur(var(--blur-in));transform-origin:var(--origin,top left);transition:opacity var(--t-out) var(--ease-io),transform var(--t-out) var(--ease-io),filter var(--t-out) var(--ease-io),visibility 0s var(--t-out)}
+.v2 .ecx-pop.mx-pop.open{transform:none;filter:none;transition:opacity calc(var(--t-in) * .6) var(--ease),transform var(--t-in) var(--ease-pop),filter calc(var(--t-in) * .7) var(--ease),visibility 0s}
+@media (prefers-reduced-motion:reduce){.v2 .ecx-pop.mx-pop{filter:none}}
 .v2 .ecx-ph{display:flex;align-items:center;gap:var(--s-2);font-size:13.5px}
 .v2 .ecx-ph>i{width:10px;height:10px;border-radius:var(--r-tiny,3px);flex:none}
 .v2 .ecx-ph b{font-weight:500;flex:1;min-width:0}
@@ -11368,6 +11442,10 @@
    why; once done it folds to one line, and the answer under it points back at its pages */
 /* hover fills are a quiet 5%, so they show wherever the trail sits (on the stage, --row is the stage's own colour) */
 .v2 .wsx{padding:6px;display:flex;flex-direction:column;font-size:13px;--row:color-mix(in srgb,var(--fg) 5%,transparent)}
+/* its motion (the core's motion pieces, owner, 26 Nov): a press on the head or a search shows at once, a step deeper than its
+   hover (.mx-press); the spinner crossfades to the globe when it is done (.mx-ic); the card grows on the spring (.mx-grow) */
+.v2 .wsx{--row-press:color-mix(in srgb,var(--fg) 9%,transparent)}
+:root[data-style="clean"] .v2 .wsx{--row-press:var(--row-on)}
 /* the head's mark sits as far from the top as from the side: 16px in from the panel's edges (owner, 21 Nov: "more padding at
    the top of the card?") */
 .v2 .wsx-h{display:flex;align-items:center;gap:10px;width:100%;padding:10px;border-radius:var(--r-in);text-align:left;font-size:13.5px;transition:background var(--t-fast)}

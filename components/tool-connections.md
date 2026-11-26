@@ -37,7 +37,7 @@ A list of the tools and services an agent is connected to, each with a three-way
 - Each row shows a service logo (`brand`) on a white tile, or an `icon` on a vivid tile of its `color`, with a name and a detail line. In Clean the tiles are one neutral grey, and logos keep their own colours.
 - A tool's state is a small dot after its name: green while it is connected, red once it has failed, and a turning ring while it is tested. A tool set to Off has no dot, and its tile and name dim.
 - An Off, Ask or Allow switch per tool, defaulting to Ask; a tool set to Off is not counted as connected.
-- "Connect a tool" opens a menu of `available` tools not yet in the list; a picked tool joins with "Just connected" and Ask, and `onConnect` is called. The menu opens under the button, or above it when there is no room below.
+- "Connect a tool" opens a menu of `available` tools not yet in the list; a picked tool joins with "Just connected" and Ask, and `onConnect` is called. The menu opens under the button, or above it when there is no room below. It grows out of the button, its rows settling in one after another, and one highlight glides from row to row.
 - Passing `onTest` adds a Test all button, and `testing` shows a spinner on it while a test runs; the button is as wide as its words and eases to the new ones. You report each tool's progress through its `status`: 'testing' turns its dot into a small ring, without changing its line.
 - A test brings a line to the card's foot, beside Connect a tool: pass it as `status`, like "Testing 4 connections" while `testing` is set (it shimmers) and then "4 of 4 healthy", with `healthy` to lead it with the green tick. Without `status` there is none, since the rows already say what is connected.
 - A tool with `status: 'error'` shows its note in red and a Reconnect button that calls `onReconnect`, with a spinner while `status` is 'reconnecting'.
@@ -183,7 +183,7 @@ import { Brand, type BrandName } from '../lib/brands';
 import { cx } from '../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../lib/hooks';
 import { Icon, type IconName } from '../lib/icons';
-import { avatarInk, enter, Spin, Swap, Tip, useGrow } from '../lib/motion';
+import { avatarInk, enter, mxT, Spin, Swap, Tip, useGrow } from '../lib/motion';
 import { usePopover } from '../lib/popover';
 import '../designme.css';
 // its menus' rows glide in Clean
@@ -252,8 +252,7 @@ function useEaseWidth(ref: RefObject<HTMLElement | null>, words: unknown) {
   useIsoLayoutEffect(() => {
     const b = ref.current; if (!b) return;
     const w1 = b.getBoundingClientRect().width, w0 = was.current; was.current = w1;
-    const cs = getComputedStyle(b), t = cs.getPropertyValue('--dm-t').trim();
-    if (w0 && !reduce && Math.abs(w1 - w0) > .5) b.animate([{ width: w0 + 'px' }, { width: w1 + 'px' }], { duration: (t.endsWith('ms') ? parseFloat(t) : parseFloat(t) * 1000) || 340, easing: cs.getPropertyValue('--dm-ease').trim() || 'ease' });
+    if (w0 && !reduce && Math.abs(w1 - w0) > .5) b.animate([{ width: w0 + 'px' }, { width: w1 + 'px' }], { duration: mxT(b, 't-in', 360), easing: mxT(b, 'ease-spring', 'ease') });
   }, [words]);
 }
 
@@ -320,12 +319,12 @@ export function ToolConnections({ tools, defaultTools = [], onToolsChange, avail
   };
 
   return (
-    <div data-dm="" ref={root} className={cx('dm-hnx dm-panel dm-growing', className)}>
+    <div data-dm="" ref={root} className={cx('dm-hnx dm-panel dm-growing dm-mx-grow', className)}>
       <div ref={inner} className="dm-grow">
         <div className="dm-hnx-h">
           <span className="dm-hnx-hi" aria-hidden="true"><Icon name="link" size="xs" /></span>
           <div className="dm-hnx-ht"><b>{title}</b></div>
-          {onTest && <button ref={test} type="button" className="dm-pill dm-ghost dm-sm dm-hnx-test" onClick={onTest} disabled={testing}>{testing ? <><Spin /><span>Testing</span></> : <><Icon name="refresh" size="xs" /><span>Test all</span></>}</button>}
+          {onTest && <button ref={test} type="button" className="dm-pill dm-ghost dm-sm dm-hnx-test dm-mx-press" onClick={onTest} disabled={testing}>{testing ? <><Spin /><span>Testing</span></> : <><Icon name="refresh" size="xs" /><span>Test all</span></>}</button>}
         </div>
         <div className="dm-hnx-list" role="list" aria-label="Tools">
           {list.map(t => {
@@ -344,13 +343,13 @@ export function ToolConnections({ tools, defaultTools = [], onToolsChange, avail
           })}
         </div>
         <div className="dm-hnx-ft">
-          <button type="button" className="dm-hnx-add" {...menu.trigger}><Icon name="plus" size="xs" />Connect a tool</button>
+          <button type="button" className="dm-hnx-add dm-mx-press" {...menu.trigger}><Icon name="plus" size="xs" />Connect a tool</button>
           {/* a test's progress and result, beside Connect a tool */}
           <span className="dm-muted dm-hnx-st" aria-live="polite">{status && <>{healthy && !testing && <Icon name="ok" size="xs" />}<Swap className={testing ? 'dm-shim' : undefined}>{status}</Swap></>}</span>
         </div>
-        <div {...menu.pop} className={cx(menu.pop.className, 'dm-hnx-pop')} role="menu" aria-label="Connect a tool">
+        <div {...menu.pop} className={cx(menu.pop.className, 'dm-hnx-pop dm-mx-pop dm-mx-rows dm-mx-glide')} role="menu" aria-label="Connect a tool">
           {left.length
-            ? left.map(a => <button type="button" key={a.key} className="dm-mi" role="menuitem" onClick={() => connect(a)}>{a.brand ? <Brand name={a.brand} /> : a.icon && <Icon name={a.icon} size="xs" />}<span>{a.name}</span></button>)
+            ? left.map(a => <button type="button" key={a.key} className="dm-mi dm-mx-press" role="menuitem" onClick={() => connect(a)}>{a.brand ? <Brand name={a.brand} /> : a.icon && <Icon name={a.icon} size="xs" />}<span>{a.name}</span></button>)
             : <div className="dm-ph">All tools connected</div>}
         </div>
       </div>

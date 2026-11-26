@@ -36,7 +36,7 @@ Thinking states is a set of six indicators for the moment an agent is thinking, 
 
 - `variant` picks the indicator. Five of them are grids of dots, each at its own density: `orbit` (5 by 5, a light running round the edge with a fading tail and a dot breathing in the middle), `morph` (7 by 7, the dots drawing a rectangle, then a circle, then a triangle), `scan` (6 by 6, a column of light sweeping three lines of text in dots), `stream` (three lines of four dots, the same size as Matrix, that light up one by one, line by line, then fade out together, the line typed out behind a caret), `matrix` (a four by four grid of dots, each lighting up on its own beat) or `stack` (pages shuffling to the front).
 - Pass `steps`, a list of status lines. Leave `current` out and they take turns every `interval` milliseconds (2600 by default), or set `current` to show the step your agent reports.
-- The status line has a highlight sweeping across it while the agent works, in every variant. A new line crossfades in, except in Stream, where it types out a letter at a time.
+- The status line has a highlight sweeping across it while the agent works, in every variant. Switching `variant` crossfades the new mark in for the last one. A new line crossfades in, except in Stream, where it types out a letter at a time.
 - `seconds` shows the time so far at the end of the line. Left out, it counts by itself; `false` hides it.
 - Marks use the accent and everything else stays grey. In Soft and Clean the mark has no tile or fill behind it and sits on the line's centre line. In Blueprint it sits on a square tile with a hairline edge, marks tick in steps and Stream's caret is a block. Clean is monochrome: the mark and the caret are ink, black in light mode and white in dark.
 - On designme.dev the switch under the demo picks the variant, and the HTML install ships both the switch and every variant.
@@ -129,7 +129,7 @@ Yes. Pass `seconds={false}`. Pass a number to show your own time instead of the 
 import { useEffect, useRef, useState } from 'react';
 import { cx } from '../lib/cx';
 import { useReducedMotion, useSeconds } from '../lib/hooks';
-import { Swap } from '../lib/motion';
+import { Swap, SwapIcon } from '../lib/motion';
 import '../designme.css';
 import './thinking-states.css';
 
@@ -217,9 +217,9 @@ export function ThinkingStates({ variant = 'orbit', steps = ['Thinking'], curren
     return () => clearInterval(id);
   }, [text, stream, reduce]);
   return (
-    <div data-dm="" data-v={variant} className={cx('dm-ths', className)}>
+    <div data-dm="" data-v={variant} className={cx('dm-ths dm-mx-ic', className)}>
       <div className="dm-ths-row">
-        <span className="dm-ths-mk" aria-hidden="true"><Mark variant={variant} /></span>
+        <span className="dm-ths-mk" aria-hidden="true"><SwapIcon id={variant}><Mark variant={variant} /></SwapIcon></span>
         <span className="dm-ths-w">
           <span className="dm-ths-l" aria-hidden="true">
             {stream ? <span className="dm-ths-tx dm-shim">{text.slice(0, typed)}</span> : <Swap className="dm-ths-tx dm-shim">{text}</Swap>}

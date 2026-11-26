@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, BRAND, DM, I, REDUCE, enter, grow, html, popRoom, stagger, swap } from '../core/core.js';
+import { $, $$, BRAND, DM, I, REDUCE, enter, grow, html, mxWidth, popRoom, stagger, swap } from '../core/core.js';
 DM.def('tool-connections', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{refresh}', I('refresh','xs')).replace('{plus}', I('plus','xs')).replace('{link}', I('link','xs'));
   // [mark, name, detail, tile colour (a vivid avatar colour, for a mark without a logo), permission 0 Off, 1 Ask, 2 Allow]
@@ -33,7 +33,7 @@ DM.def('tool-connections', (r, c) => {
   const count = now => write('', now);
   const healthy = (ok, n) => write((ok === n ? I('ok','xs') : '') + `<span>${ok} of ${n} healthy</span>`);
   T.forEach(t => list.appendChild(row(t))); stagger([...list.children], 50); count(true);
-  function menu(){ pop.innerHTML = ADD.length ? ADD.map((a, i) => `<button class="mi" role="menuitem" data-close data-i="${i}">${a[0][0] === '@' ? BRAND[a[0].slice(1)] : I(a[0],'xs')}<span>${a[1]}</span></button>`).join('') : '<div class="ph">All tools connected</div>';
+  function menu(){ pop.innerHTML = ADD.length ? ADD.map((a, i) => `<button class="mi mx-press" role="menuitem" data-close data-i="${i}">${a[0][0] === '@' ? BRAND[a[0].slice(1)] : I(a[0],'xs')}<span>${a[1]}</span></button>`).join('') : '<div class="ph">All tools connected</div>';
     $$('.mi', pop).forEach(m => m.addEventListener('click', () => { const a = ADD.splice(+m.dataset.i, 1)[0]; const t = [a[0], a[1], 'Just connected', a[2], 1]; T.push(t); const el = row(t); list.appendChild(el); enter(el); count(); menu(); })); }
   menu();
   // a menu opens over the card from its button: down when it fits below, up when it doesn't and fits above or has more room
@@ -47,9 +47,8 @@ DM.def('tool-connections', (r, c) => {
   // Test all: every connected tool's dot turns at once, and they settle one by one; only a failure changes its line. The
   // button is as wide as its words and eases to the new ones
   const test = $('.hnx-test', r);
-  const label = h => { const w0 = test.getBoundingClientRect().width; test.innerHTML = h; const w1 = test.getBoundingClientRect().width;
-    const cs = getComputedStyle(test), t = cs.getPropertyValue('--dm-t').trim();
-    if (!REDUCE && w0 && Math.abs(w1 - w0) > .5) test.animate([{ width:w0 + 'px' }, { width:w1 + 'px' }], { duration:(t.endsWith('ms') ? parseFloat(t) : parseFloat(t) * 1000) || 340, easing:cs.getPropertyValue('--dm-ease').trim() || 'ease' }); };
+  // (on the motion pieces' spring: mxWidth())
+  const label = h => { const w0 = test.offsetWidth; test.innerHTML = h; if (!REDUCE && w0) mxWidth(test, w0); };
   const idle = I('refresh','xs') + '<span>Test all</span>';
   test.onclick = () => c.run(async () => {
     const rows = [...list.children].filter(el => el._t[4] > 0);

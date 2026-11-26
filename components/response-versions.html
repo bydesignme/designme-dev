@@ -164,6 +164,8 @@
 })();
 </script><script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"Response versions","description":"Response versions shows an agent's answer with a small bar to page through earlier versions, regenerate it and copy it. Each regenerated answer is kept as a new version, so the person can compare it with the ones before and keep the one they like.","url":"https://designme.dev/components/response-versions","image":"https://designme.dev/components/og/response-versions.jpg","programmingLanguage":["HTML","CSS","JavaScript","TypeScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"Response versions, Conversation, AI agent UI, React component, HTML component","author":{"@type":"Organization","name":"DesignMe","url":"https://designme.agency"},"isPartOf":{"@type":"WebSite","name":"Designme.dev","url":"https://designme.dev/"}}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Library","item":"https://designme.dev/library"},{"@type":"ListItem","position":2,"name":"Conversation","item":"https://designme.dev/library#s-conversation"},{"@type":"ListItem","position":3,"name":"Response versions","item":"https://designme.dev/components/response-versions"}]}</script><script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I stream a regenerated answer into a new version?","acceptedAnswer":{"@type":"Answer","text":"In onRegenerate, append an empty string to versions, set version to its index and streaming to true, then update that string as tokens arrive. Set streaming back to false when it is done."}},{"@type":"Question","name":"Why are the arrows greyed out?","acceptedAnswer":{"@type":"Answer","text":"They are disabled while streaming is true, and at the first or last version. That keeps people from paging away from an answer that is still being written."}},{"@type":"Question","name":"Can the answer contain formatting like lists or code?","acceptedAnswer":{"@type":"Answer","text":"No. Each version is a plain string, split into words for the fade-in, so markup is shown as text."}}]}</script><link rel="stylesheet" href="/components/assets/core.css"><style>/* ---------- Response versions ---------- */
 .rvx{display:flex;flex-direction:column;gap:14px}
+/* its motion (the core's motion pieces, owner, 26 Nov): a press on its buttons shows at once (.mx-press); Copy's icon and its
+   tick crossfade (.mx-ic); the answer eases to its new height on the spring (.mx-grow) */
 .rvx-a{display:flex;flex-direction:column;gap:var(--dm-s-2)}
 /* the answer is as tall as its words in every style (owner's notes, 18 Nov): the component grows with them (grow()), and a
    version streaming in keeps the height of the one it replaces, then eases to its own. The bar's first button reaches 6px
@@ -222,14 +224,14 @@
     <p class="side-cta-d">Expert design and dev support for startups and enterprises, from Astro sites to React apps and AI products.</p>
     <a class="hire-btn" href="https://www.designme.agency/intro?utm_source=designme.dev&utm_medium=referral&utm_campaign=book_a_call" target="_blank" rel="noopener">Book a call<span class="ms"><svg class="sh" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg></span></a></div></div></details><nav class="pg-crumbs" aria-label="Breadcrumb"><a href="/library">Library</a><span>/</span><a href="/library#s-conversation">Conversation</a></nav><h1 class="pg-h1" id="content" tabindex="-1">Response versions</h1><p class="pg-lead">Regenerate an answer and flip between versions. Free and MIT licensed, as HTML, a typed React component or an Astro component, in three styles with light and dark mode.</p><div class="pg-installs"><div class="pg-cmd"><span class="d">$</span><span class="c"><span class="cp-w">npx</span> <span class="cp-w">designme</span> <span class="cp-w">add</span> <span class="cp-w">response-versions</span></span><button type="button" data-copy="npx designme add response-versions" aria-label="Copy install command"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg></button></div><div class="pg-cmd"><span class="d">$</span><span class="c"><span class="cp-w">npx</span> <span class="cp-w">shadcn@latest</span> <span class="cp-w">add</span> https:/<wbr>/<wbr>designme.dev/<wbr>r/<wbr>shadcn/<wbr>response-versions.json</span><button type="button" data-copy="npx shadcn@latest add https://designme.dev/r/shadcn/response-versions.json" aria-label="Copy the shadcn command"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg></button></div></div><button class="cp-copy cp-copy-top" type="button" id="cp-copy-code">Copy code</button><p class="cp-studio">Need this designed into your product? <a href="https://www.designme.agency/intro?utm_source=designme.dev&amp;utm_medium=referral&amp;utm_campaign=book_a_call" target="_blank" rel="noopener">Book a call</a></p><section class="cp-demo" aria-label="Response versions demo"><button type="button" class="cp-anim" id="cp-replay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg>Animate</button><div class="pg-demo stage-inner" style="--h-a:420px;--h-j:420px;--h-k:420px;--h-l:420px;--h-m:420px"><div class="card bare" data-c="response-versions">
   <div class="stage-in">
-    <div class="rvx">
+    <div class="rvx mx-grow">
       <div class="bub">Write a headline for the pricing page</div>
       <div class="rvx-a">
         <p class="msg rvx-t"></p>
-        <div class="rvx-bar">
-          <div class="rvx-pg"><button class="ib rvx-prev" aria-label="Previous version" data-tip="Previous"><svg class="i s"><use href="#i-chev-l"/></svg></button><span class="rvx-n num">1 / 1</span><button class="ib rvx-next" aria-label="Next version" data-tip="Next"><svg class="i s"><use href="#i-chev-r"/></svg></button></div>
-          <button class="ib rvx-re" aria-label="Regenerate" data-tip="Regenerate" data-tip-k="⌘R"><svg class="i s"><use href="#i-refresh"/></svg></button>
-          <button class="ib rvx-cp" aria-label="Copy" data-tip="Copy"><svg class="i s"><use href="#i-copy"/></svg></button>
+        <div class="rvx-bar mx-ic">
+          <div class="rvx-pg"><button class="ib rvx-prev mx-press" aria-label="Previous version" data-tip="Previous"><svg class="i s"><use href="#i-chev-l"/></svg></button><span class="rvx-n num">1 / 1</span><button class="ib rvx-next mx-press" aria-label="Next version" data-tip="Next"><svg class="i s"><use href="#i-chev-r"/></svg></button></div>
+          <button class="ib rvx-re mx-press" aria-label="Regenerate" data-tip="Regenerate" data-tip-k="⌘R"><svg class="i s"><use href="#i-refresh"/></svg></button>
+          <button class="ib rvx-cp mx-press" aria-label="Copy" data-tip="Copy"><svg class="i s"><use href="#i-copy"/></svg></button>
           <span class="rvx-st muted"></span>
         </div>
       </div>
@@ -336,7 +338,7 @@ import { useEffect, useRef, useState, type ReactNode } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useControllable, useCopied, useIsoLayoutEffect, useReducedMotion } from &#39;../lib/hooks&#39;;
 import { Icon } from &#39;../lib/icons&#39;;
-import { Swap, Tip } from &#39;../lib/motion&#39;;
+import { Swap, SwapIcon, Tip } from &#39;../lib/motion&#39;;
 import &#39;../designme.css&#39;;
 import &#39;./response-versions.css&#39;;
 
@@ -423,21 +425,21 @@ export function ResponseVersions({ prompt, versions, version, defaultVersion = 0
   const copy = () =&gt; { const t = versions[at] ?? &#39;&#39;; copyText(t); onCopy?.(t); };
 
   return (
-    &lt;div data-dm=&quot;&quot; ref={root} className={cx(&#39;dm-rvx&#39;, !bare &amp;&amp; &#39;dm-panel&#39;, &#39;dm-growing&#39;, className)} style={bare ? undefined : { padding: 16 }}&gt;
+    &lt;div data-dm=&quot;&quot; ref={root} className={cx(&#39;dm-rvx&#39;, !bare &amp;&amp; &#39;dm-panel&#39;, &#39;dm-growing dm-mx-grow&#39;, className)} style={bare ? undefined : { padding: 16 }}&gt;
       &lt;div ref={inner} className=&quot;dm-grow&quot;&gt;
       {prompt &amp;&amp; &lt;div className=&quot;dm-bub&quot;&gt;{prompt}&lt;/div&gt;}
       &lt;div className=&quot;dm-rvx-a&quot;&gt;
         &lt;p ref={tRef} className={cx(&#39;dm-msg dm-rvx-t&#39;, out &amp;&amp; &#39;dm-out&#39;)} aria-live=&quot;polite&quot;&gt;
           {words.map((w, k) =&gt; &lt;span key={shown + &#39;:&#39; + k} className=&quot;dm-w&quot; style={jump ? { animationDelay: k * 12 + &#39;ms&#39; } : undefined}&gt;{w} &lt;/span&gt;)}
         &lt;/p&gt;
-        &lt;div className=&quot;dm-rvx-bar&quot;&gt;
+        &lt;div className=&quot;dm-rvx-bar dm-mx-ic&quot;&gt;
           &lt;div className=&quot;dm-rvx-pg&quot;&gt;
-            &lt;Tip label=&quot;Previous&quot;&gt;&lt;button type=&quot;button&quot; className=&quot;dm-ib&quot; aria-label=&quot;Previous version&quot; disabled={at === 0 || streaming} onClick={() =&gt; setCur(at - 1)}&gt;&lt;Icon name=&quot;chev-l&quot; /&gt;&lt;/button&gt;&lt;/Tip&gt;
+            &lt;Tip label=&quot;Previous&quot;&gt;&lt;button type=&quot;button&quot; className=&quot;dm-ib dm-mx-press&quot; aria-label=&quot;Previous version&quot; disabled={at === 0 || streaming} onClick={() =&gt; setCur(at - 1)}&gt;&lt;Icon name=&quot;chev-l&quot; /&gt;&lt;/button&gt;&lt;/Tip&gt;
             &lt;span className=&quot;dm-rvx-n dm-num&quot;&gt;{at + 1} / {Math.max(versions.length, 1)}&lt;/span&gt;
-            &lt;Tip label=&quot;Next&quot;&gt;&lt;button type=&quot;button&quot; className=&quot;dm-ib&quot; aria-label=&quot;Next version&quot; disabled={at === last || streaming} onClick={() =&gt; setCur(at + 1)}&gt;&lt;Icon name=&quot;chev-r&quot; /&gt;&lt;/button&gt;&lt;/Tip&gt;
+            &lt;Tip label=&quot;Next&quot;&gt;&lt;button type=&quot;button&quot; className=&quot;dm-ib dm-mx-press&quot; aria-label=&quot;Next version&quot; disabled={at === last || streaming} onClick={() =&gt; setCur(at + 1)}&gt;&lt;Icon name=&quot;chev-r&quot; /&gt;&lt;/button&gt;&lt;/Tip&gt;
           &lt;/div&gt;
-          {onRegenerate &amp;&amp; &lt;Tip label=&quot;Regenerate&quot; kbd=&quot;⌘R&quot;&gt;&lt;button type=&quot;button&quot; className={cx(&#39;dm-ib dm-rvx-re&#39;, spin &amp;&amp; &#39;dm-go&#39;)} aria-label=&quot;Regenerate&quot; onClick={regenerate}&gt;&lt;Icon name=&quot;refresh&quot; /&gt;&lt;/button&gt;&lt;/Tip&gt;}
-          &lt;Tip label={copied ? &#39;Copied to clipboard&#39; : &#39;Copy&#39;} open={copied || undefined}&gt;&lt;button type=&quot;button&quot; className={cx(&#39;dm-ib dm-rvx-cp&#39;, copied &amp;&amp; &#39;dm-copied&#39;)} aria-label=&quot;Copy&quot; onClick={copy}&gt;&lt;Icon name={copied ? &#39;check&#39; : &#39;copy&#39;} /&gt;&lt;/button&gt;&lt;/Tip&gt;
+          {onRegenerate &amp;&amp; &lt;Tip label=&quot;Regenerate&quot; kbd=&quot;⌘R&quot;&gt;&lt;button type=&quot;button&quot; className={cx(&#39;dm-ib dm-rvx-re dm-mx-press&#39;, spin &amp;&amp; &#39;dm-go&#39;)} aria-label=&quot;Regenerate&quot; onClick={regenerate}&gt;&lt;Icon name=&quot;refresh&quot; /&gt;&lt;/button&gt;&lt;/Tip&gt;}
+          &lt;Tip label={copied ? &#39;Copied to clipboard&#39; : &#39;Copy&#39;} open={copied || undefined}&gt;&lt;button type=&quot;button&quot; className={cx(&#39;dm-ib dm-rvx-cp dm-mx-press&#39;, copied &amp;&amp; &#39;dm-copied&#39;)} aria-label=&quot;Copy&quot; onClick={copy}&gt;&lt;SwapIcon id={copied ? &#39;check&#39; : &#39;copy&#39;}&gt;&lt;Icon name={copied ? &#39;check&#39; : &#39;copy&#39;} /&gt;&lt;/SwapIcon&gt;&lt;/button&gt;&lt;/Tip&gt;
           &lt;Swap className={cx(&#39;dm-rvx-st dm-muted&#39;, streaming &amp;&amp; status &amp;&amp; &#39;dm-shim&#39;)}&gt;{status}&lt;/Swap&gt;
         &lt;/div&gt;
       &lt;/div&gt;
@@ -445,9 +447,11 @@ export function ResponseVersions({ prompt, versions, version, defaultVersion = 0
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>response-versions.css<span class="l">React · 45 lines</span></summary><pre class="cp-pre" data-name="response-versions.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>response-versions.css<span class="l">React · 47 lines</span></summary><pre class="cp-pre" data-name="response-versions.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Response versions ---------- */
 .dm-rvx{display:flex;flex-direction:column;gap:14px}
+/* its motion (the core&#39;s motion pieces, owner, 26 Nov): a press on its buttons shows at once (.mx-press); Copy&#39;s icon and its
+   tick crossfade (.mx-ic); the answer eases to its new height on the spring (.mx-grow) */
 .dm-rvx-a{display:flex;flex-direction:column;gap:var(--dm-s-2)}
 /* the answer is as tall as its words in every style (owner&#39;s notes, 18 Nov): the component grows with them (grow()), and a
    version streaming in keeps the height of the one it replaces, then eases to its own. The bar&#39;s first button reaches 6px
@@ -506,14 +510,14 @@ const { class: className, ...rest } = Astro.props;
 ---
 &lt;div class:list={[&#39;card&#39;, &#39;bare&#39;, className]} data-c=&quot;response-versions&quot; {...rest}&gt;
   &lt;div class=&quot;stage-in&quot;&gt;&lt;Fragment is:raw&gt;
-&lt;div class=&quot;rvx&quot;&gt;
+&lt;div class=&quot;rvx mx-grow&quot;&gt;
   &lt;div class=&quot;bub&quot;&gt;Write a headline for the pricing page&lt;/div&gt;
   &lt;div class=&quot;rvx-a&quot;&gt;
     &lt;p class=&quot;msg rvx-t&quot;&gt;&lt;/p&gt;
-    &lt;div class=&quot;rvx-bar&quot;&gt;
-      &lt;div class=&quot;rvx-pg&quot;&gt;&lt;button class=&quot;ib rvx-prev&quot; aria-label=&quot;Previous version&quot; data-tip=&quot;Previous&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-chev-l&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;&lt;span class=&quot;rvx-n num&quot;&gt;1 / 1&lt;/span&gt;&lt;button class=&quot;ib rvx-next&quot; aria-label=&quot;Next version&quot; data-tip=&quot;Next&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-chev-r&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;&lt;/div&gt;
-      &lt;button class=&quot;ib rvx-re&quot; aria-label=&quot;Regenerate&quot; data-tip=&quot;Regenerate&quot; data-tip-k=&quot;⌘R&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-refresh&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;
-      &lt;button class=&quot;ib rvx-cp&quot; aria-label=&quot;Copy&quot; data-tip=&quot;Copy&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-copy&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;
+    &lt;div class=&quot;rvx-bar mx-ic&quot;&gt;
+      &lt;div class=&quot;rvx-pg&quot;&gt;&lt;button class=&quot;ib rvx-prev mx-press&quot; aria-label=&quot;Previous version&quot; data-tip=&quot;Previous&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-chev-l&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;&lt;span class=&quot;rvx-n num&quot;&gt;1 / 1&lt;/span&gt;&lt;button class=&quot;ib rvx-next mx-press&quot; aria-label=&quot;Next version&quot; data-tip=&quot;Next&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-chev-r&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;&lt;/div&gt;
+      &lt;button class=&quot;ib rvx-re mx-press&quot; aria-label=&quot;Regenerate&quot; data-tip=&quot;Regenerate&quot; data-tip-k=&quot;⌘R&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-refresh&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;
+      &lt;button class=&quot;ib rvx-cp mx-press&quot; aria-label=&quot;Copy&quot; data-tip=&quot;Copy&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-copy&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;
       &lt;span class=&quot;rvx-st muted&quot;&gt;&lt;/span&gt;
     &lt;/div&gt;
   &lt;/div&gt;
@@ -525,22 +529,24 @@ const { class: className, ...rest } = Astro.props;
 &lt;/script&gt;
 </code></pre></details><details class="cp-file"><summary>response-versions.html<span class="l">HTML · 17 lines</span></summary><pre class="cp-pre" data-name="response-versions.html"><code>&lt;div class=&quot;card bare&quot; data-c=&quot;response-versions&quot;&gt;
   &lt;div class=&quot;stage-in&quot;&gt;
-    &lt;div class=&quot;rvx&quot;&gt;
+    &lt;div class=&quot;rvx mx-grow&quot;&gt;
       &lt;div class=&quot;bub&quot;&gt;Write a headline for the pricing page&lt;/div&gt;
       &lt;div class=&quot;rvx-a&quot;&gt;
         &lt;p class=&quot;msg rvx-t&quot;&gt;&lt;/p&gt;
-        &lt;div class=&quot;rvx-bar&quot;&gt;
-          &lt;div class=&quot;rvx-pg&quot;&gt;&lt;button class=&quot;ib rvx-prev&quot; aria-label=&quot;Previous version&quot; data-tip=&quot;Previous&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-chev-l&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;&lt;span class=&quot;rvx-n num&quot;&gt;1 / 1&lt;/span&gt;&lt;button class=&quot;ib rvx-next&quot; aria-label=&quot;Next version&quot; data-tip=&quot;Next&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-chev-r&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;&lt;/div&gt;
-          &lt;button class=&quot;ib rvx-re&quot; aria-label=&quot;Regenerate&quot; data-tip=&quot;Regenerate&quot; data-tip-k=&quot;⌘R&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-refresh&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;
-          &lt;button class=&quot;ib rvx-cp&quot; aria-label=&quot;Copy&quot; data-tip=&quot;Copy&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-copy&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;
+        &lt;div class=&quot;rvx-bar mx-ic&quot;&gt;
+          &lt;div class=&quot;rvx-pg&quot;&gt;&lt;button class=&quot;ib rvx-prev mx-press&quot; aria-label=&quot;Previous version&quot; data-tip=&quot;Previous&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-chev-l&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;&lt;span class=&quot;rvx-n num&quot;&gt;1 / 1&lt;/span&gt;&lt;button class=&quot;ib rvx-next mx-press&quot; aria-label=&quot;Next version&quot; data-tip=&quot;Next&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-chev-r&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;&lt;/div&gt;
+          &lt;button class=&quot;ib rvx-re mx-press&quot; aria-label=&quot;Regenerate&quot; data-tip=&quot;Regenerate&quot; data-tip-k=&quot;⌘R&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-refresh&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;
+          &lt;button class=&quot;ib rvx-cp mx-press&quot; aria-label=&quot;Copy&quot; data-tip=&quot;Copy&quot;&gt;&lt;svg class=&quot;i s&quot;&gt;&lt;use href=&quot;#i-copy&quot;/&gt;&lt;/svg&gt;&lt;/button&gt;
           &lt;span class=&quot;rvx-st muted&quot;&gt;&lt;/span&gt;
         &lt;/div&gt;
       &lt;/div&gt;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>response-versions.css<span class="l">HTML · 44 lines</span></summary><pre class="cp-pre" data-name="response-versions.css"><code>/* ---------- Response versions ---------- */
+</code></pre></details><details class="cp-file"><summary>response-versions.css<span class="l">HTML · 46 lines</span></summary><pre class="cp-pre" data-name="response-versions.css"><code>/* ---------- Response versions ---------- */
 .rvx{display:flex;flex-direction:column;gap:14px}
+/* its motion (the core&#39;s motion pieces, owner, 26 Nov): a press on its buttons shows at once (.mx-press); Copy&#39;s icon and its
+   tick crossfade (.mx-ic); the answer eases to its new height on the spring (.mx-grow) */
 .rvx-a{display:flex;flex-direction:column;gap:var(--dm-s-2)}
 /* the answer is as tall as its words in every style (owner&#39;s notes, 18 Nov): the component grows with them (grow()), and a
    version streaming in keeps the height of the one it replaces, then eases to its own. The bar&#39;s first button reaches 6px
@@ -582,7 +588,7 @@ const { class: className, ...rest } = Astro.props;
 :root[data-style=&quot;clean&quot;] .rvx-re,:root [data-style=&quot;clean&quot;] .rvx-re,:root [data-style=&quot;clean&quot;].rvx-re{order:2;margin-left:auto}
 :root[data-style=&quot;clean&quot;] .rvx-cp,:root [data-style=&quot;clean&quot;] .rvx-cp,:root [data-style=&quot;clean&quot;].rvx-cp{order:3}
 .rvx-cp.copied,.aab-cp.copied{color:var(--dm-ok-mark)!important}
-</code></pre></details><details class="cp-file"><summary>response-versions.js<span class="l">HTML · 38 lines</span></summary><pre class="cp-pre" data-name="response-versions.js"><code>DM.def(&#39;response-versions&#39;, (r, c) =&gt; {
+</code></pre></details><details class="cp-file"><summary>response-versions.js<span class="l">HTML · 39 lines</span></summary><pre class="cp-pre" data-name="response-versions.js"><code>DM.def(&#39;response-versions&#39;, (r, c) =&gt; {
   r.innerHTML = r.innerHTML.replace(&#39;{l}&#39;, I(&#39;chev-l&#39;)).replace(&#39;{rr}&#39;, I(&#39;chev-r&#39;)).replace(&#39;{re}&#39;, I(&#39;refresh&#39;)).replace(&#39;{cp}&#39;, I(&#39;copy&#39;));
   const pool = [
     &#39;Pricing that grows with your team. Start free, upgrade when the work gets serious.&#39;,
@@ -596,7 +602,7 @@ const { class: className, ...rest } = Astro.props;
   // no room kept for a longer answer, in every style (owner, 18 Nov). The component grows with its words (grow(), once its
   // entrance has settled), and a version streaming in keeps the height of the one it replaces, then eases to its own
   const rvx = $(&#39;.rvx&#39;, r);
-  Promise.resolve().then(() =&gt; Promise.all(rvx.getAnimations().map(a =&gt; a.finished.catch(() =&gt; {})))).then(() =&gt; { if (!c.dead &amp;&amp; rvx.isConnected) c.offs.push(grow(rvx)); });
+  const growing = Promise.resolve().then(() =&gt; Promise.all(rvx.getAnimations().map(a =&gt; a.finished.catch(() =&gt; {})))).then(() =&gt; { if (!c.dead &amp;&amp; rvx.isConnected) c.offs.push(grow(rvx)); });
   const keep = () =&gt; { if (t.textContent.trim()) t.style.minHeight = t.offsetHeight + &#39;px&#39;; };
   const fit = () =&gt; { if (!t.style.minHeight) return; const was = t.offsetHeight; t.style.minHeight = &#39;&#39;; const h = t.offsetHeight; if (h &gt;= was || REDUCE) return;
     t.style.minHeight = was + &#39;px&#39;; void t.offsetHeight; t.style.transition = &#39;min-height var(--dm-t) var(--dm-ease)&#39;; t.style.minHeight = h + &#39;px&#39;;
@@ -615,7 +621,8 @@ const { class: className, ...rest } = Astro.props;
       await stream(s); busy = false; nav(); st.classList.remove(&#39;shim&#39;); swap(st, &#39;&#39;); }); };
   const cp = $(&#39;.rvx-cp&#39;, r);
   cp.onclick = () =&gt; copied(cp, vers[cur]);
-  c.run(async () =&gt; { busy = true; nav(); await c.wait(300); await stream(vers[0]); busy = false; nav();
+  // (the first version starts once grow() has the component, so its first lines ease it open rather than jump it, motion pieces)
+  c.run(async () =&gt; { busy = true; nav(); await c.wait(300); await growing; await stream(vers[0]); busy = false; nav();
     // then one regenerate plays by itself, so the version count and arrows show what they do, unless you have taken over
     await c.step(1900); if (vers.length === 1) re.click(); });
 });
@@ -969,7 +976,7 @@ const fitHits = window.dmFitHits || (() => {
   // no room kept for a longer answer, in every style (owner, 18 Nov). The component grows with its words (grow(), once its
   // entrance has settled), and a version streaming in keeps the height of the one it replaces, then eases to its own
   const rvx = $('.rvx', r);
-  Promise.resolve().then(() => Promise.all(rvx.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && rvx.isConnected) c.offs.push(grow(rvx)); });
+  const growing = Promise.resolve().then(() => Promise.all(rvx.getAnimations().map(a => a.finished.catch(() => {})))).then(() => { if (!c.dead && rvx.isConnected) c.offs.push(grow(rvx)); });
   const keep = () => { if (t.textContent.trim()) t.style.minHeight = t.offsetHeight + 'px'; };
   const fit = () => { if (!t.style.minHeight) return; const was = t.offsetHeight; t.style.minHeight = ''; const h = t.offsetHeight; if (h >= was || REDUCE) return;
     t.style.minHeight = was + 'px'; void t.offsetHeight; t.style.transition = 'min-height var(--dm-t) var(--dm-ease)'; t.style.minHeight = h + 'px';
@@ -988,7 +995,8 @@ const fitHits = window.dmFitHits || (() => {
       await stream(s); busy = false; nav(); st.classList.remove('shim'); swap(st, ''); }); };
   const cp = $('.rvx-cp', r);
   cp.onclick = () => copied(cp, vers[cur]);
-  c.run(async () => { busy = true; nav(); await c.wait(300); await stream(vers[0]); busy = false; nav();
+  // (the first version starts once grow() has the component, so its first lines ease it open rather than jump it, motion pieces)
+  c.run(async () => { busy = true; nav(); await c.wait(300); await growing; await stream(vers[0]); busy = false; nav();
     // then one regenerate plays by itself, so the version count and arrows show what they do, unless you have taken over
     await c.step(1900); if (vers.length === 1) re.click(); });
 });

@@ -1,6 +1,6 @@
-TPLS["source-stack"] = "<div class=\"ssx\">\n  <p class=\"msg\">Annual plans convert about 18% better when the monthly price is shown crossed out next to them.</p>\n  <button class=\"ssx-pill\" aria-expanded=\"false\"><span class=\"ssx-ics\"></span><span class=\"ssx-l\">8 sources</span>{chev}</button>\n  <div class=\"fold shut ssx-box\"><div><div class=\"ssx-in\">\n    <div class=\"ssx-fl\"><button class=\"chip sm on\" data-f=\"all\">All</button><button class=\"chip sm\" data-f=\"web\">Web</button><button class=\"chip sm\" data-f=\"file\">Files</button><button class=\"chip sm\" data-f=\"figma\">Figma</button></div>\n    <div class=\"ssx-list\"></div>\n  </div></div></div>\n</div>";
+TPLS["source-stack"] = "<div class=\"ssx\">\n  <p class=\"msg\">Annual plans convert about 18% better when the monthly price is shown crossed out next to them.</p>\n  <button class=\"ssx-pill\" aria-expanded=\"false\"><span class=\"ssx-ics\"></span><span class=\"ssx-l\">8 sources</span>{chev}</button>\n  <div class=\"fold shut ssx-box\"><div><div class=\"ssx-in\">\n    <div class=\"ssx-fl\"><button class=\"chip sm on\" data-f=\"all\">All</button><button class=\"chip sm\" data-f=\"web\">Web</button><button class=\"chip sm\" data-f=\"file\">Files</button><button class=\"chip sm\" data-f=\"figma\">Figma</button></div>\n    <div class=\"ssx-list mx-glide\"></div>\n  </div></div></div>\n</div>";
 TPLS["citation-hover"] = "<div class=\"chx\">\n  <p class=\"msg chx-p\">Teams that show the annual price first see higher paid conversion<button class=\"chx-c\" data-i=\"0\">1</button>, and the effect is stronger when the monthly price stays visible beside it<button class=\"chx-c\" data-i=\"1\">2</button>. Your own data shows the same pattern since the September update<button class=\"chx-c\" data-i=\"2\">3</button>.</p>\n  <div class=\"chx-card panel keep mx-pop\" role=\"dialog\" aria-label=\"Source\"><div class=\"chx-in\"></div></div>\n</div>";
-TPLS["terminal-stream"] = "<div class=\"tmx panel\" data-reveal=\"flat\">\n  <div class=\"tmx-h\"><span class=\"tmx-ic\">{term}</span><span class=\"tmx-cwd\">~/acme/web</span><span class=\"tmx-st\"><span class=\"g\"><span class=\"spin\"></span></span><span class=\"tmx-sv num\">Starting</span></span><span class=\"sp\"></span><button class=\"pill ghost sm tmx-stop\" aria-label=\"Stop the running command\">{stop}Stop</button><button class=\"ib tmx-cp\" aria-label=\"Copy the output\" data-tip=\"Copy\">{copy}</button></div>\n  <div class=\"tmx-body\" role=\"log\" aria-label=\"Terminal output\" tabindex=\"0\"></div>\n  <div class=\"fold shut tmx-ff\"><div><div class=\"tmx-f\"><span class=\"g\"></span><span class=\"tmx-fs num\"></span></div></div></div>\n</div>";
+TPLS["terminal-stream"] = "<div class=\"tmx panel mx-grow mx-ic\" data-reveal=\"flat\">\n  <div class=\"tmx-h\"><span class=\"tmx-ic\">{term}</span><span class=\"tmx-cwd\">~/acme/web</span><span class=\"tmx-st\"><span class=\"g\"><span class=\"spin\"></span></span><span class=\"tmx-sv num\">Starting</span></span><span class=\"sp\"></span><button class=\"pill ghost sm tmx-stop mx-press\" aria-label=\"Stop the running command\">{stop}Stop</button><button class=\"ib tmx-cp mx-press\" aria-label=\"Copy the output\" data-tip=\"Copy\">{copy}</button></div>\n  <div class=\"tmx-body\" role=\"log\" aria-label=\"Terminal output\" tabindex=\"0\"></div>\n  <div class=\"fold shut tmx-ff\"><div><div class=\"tmx-f\"><span class=\"g\"></span><span class=\"tmx-fs num\"></span></div></div></div>\n</div>";
 
 /* ---------- Source stack ---------- */
 DM.def('source-stack', (r, c) => {
@@ -20,13 +20,20 @@ DM.def('source-stack', (r, c) => {
   const pill = $('.ssx-pill', r), box = $('.ssx-box', r), list = $('.ssx-list', r);
   if (!r.closest('.ahx')) c.offs.push(hoverGlide(list, '.ssx-s'));
   $('.ssx-ics', r).innerHTML = S.slice(0, 4).map(s => `<span style="background:${s[5]};color:${ink(s[5])}">${s[4][0]}</span>`).join('');
-  function paint(f){
+  const draw = f => {
     const items = S.filter(s => f === 'all' || s[0] === f);
-    list.innerHTML = items.map(s => `<div class="ssx-s"><span class="fv" style="background:${s[5]};color:${ink(s[5])}">${s[4]}</span><span class="t"><span>${s[1]}</span><span class="h"> · ${s[2]}</span></span><span class="rel" data-tip="Relevance ${Math.round(s[3] * 100)}%"><i style="width:${s[3] * 100}%"></i></span><button class="ib" aria-label="Open source" data-tip="Open">${I('ext','xs')}</button></div>`).join('');
-    stagger($$('.ssx-s', list), 40);
-  }
+    list.innerHTML = items.map(s => `<div class="ssx-s" data-key="${s[1]}"><span class="fv" style="background:${s[5]};color:${ink(s[5])}">${s[4]}</span><span class="t"><span>${s[1]}</span><span class="h"> · ${s[2]}</span></span><span class="rel" data-tip="Relevance ${Math.round(s[3] * 100)}%"><i style="width:${s[3] * 100}%"></i></span><button class="ib mx-press" aria-label="Open source" data-tip="Open">${I('ext','xs')}</button></div>`).join('');
+  };
+  function paint(f){ draw(f); stagger($$('.ssx-s', list), 40); }
+  // a filter moves the rows: the sources that stay glide to their new places, new ones rise in out of a short blur and the
+  // ones that go fade where they were (reflow()), and the list eases to its new height on the spring (motion pieces)
+  const refilter = f => { const h0 = list.offsetHeight;
+    reflow(() => $$('.ssx-s', list), () => draw(f), { root:$('.ssx', r) || r, host:list, blur:true });
+    const h1 = list.offsetHeight; if (REDUCE || Math.abs(h1 - h0) < 1) return;
+    list.style.overflow = 'clip'; const a = list.animate([{ height:h0 + 'px' }, { height:h1 + 'px' }], { duration:mxT(list, '--t-in', 360) * 1.4, easing:mxT(list, '--ease-spring', 'ease') });
+    a.onfinish = a.oncancel = () => { list.style.overflow = ''; }; };
   pill.onclick = () => { const open = box.classList.toggle('shut') === false; pill.setAttribute('aria-expanded', open); if (open) paint($('.ssx-fl .on', r).dataset.f); };
-  $$('.ssx-fl .chip', r).forEach(ch => ch.onclick = () => { $$('.ssx-fl .chip', r).forEach(x => x.classList.toggle('on', x === ch)); paint(ch.dataset.f); });
+  $$('.ssx-fl .chip', r).forEach(ch => ch.onclick = () => { $$('.ssx-fl .chip', r).forEach(x => x.classList.toggle('on', x === ch)); refilter(ch.dataset.f); });
   // the preview opens the sources once on its own, unless you take over first
   c.auto(1100, () => { if (pill.getAttribute('aria-expanded') === 'false') pill.click(); });
 });
@@ -72,7 +79,7 @@ DM.def('terminal-stream', (r, c) => {
     $('.tmx-c', el).textContent = text; body.appendChild(el); enter(el); return el;
   }
   function lines(el){
-    const more = html(`<button class="tmx-more" aria-expanded="false" hidden>${I('chev-d','xs')}<span></span><i class="sp"></i></button>`), hid = html('<div class="fold shut"><code class="tmx-o"></code></div>'), tail = html('<code class="tmx-o"></code>');
+    const more = html(`<button class="tmx-more mx-press" aria-expanded="false" hidden>${I('chev-d','xs')}<span></span><i class="sp"></i></button>`), hid = html('<div class="fold shut"><code class="tmx-o"></code></div>'), tail = html('<code class="tmx-o"></code>');
     const inner = hid.firstElementChild; hid.inert = true; el.append(more, hid, tail);
     const label = () => { const n = inner.children.length, open = !hid.classList.contains('shut'); $('span', more).textContent = open ? 'Show fewer lines' : `Show ${n} more line${n > 1 ? 's' : ''}`; more.setAttribute('aria-expanded', open); };
     more.onclick = () => { hid.inert = hid.classList.toggle('shut'); label(); };
@@ -82,10 +89,11 @@ DM.def('terminal-stream', (r, c) => {
       if (inner.children.length){ more.hidden = false; label(); }
     };
   }
-  const halted = el => { $('.tmx-m .g', el).innerHTML = '<span class="tag">Stopped</span>'; el.dataset.s = 'stop'; };
+  // (a mark that changes, the spinner into its tick, Exit tag or Stopped, crossfades in place: iconSwap())
+  const halted = el => { const g = $('.tmx-m .g', el); iconSwap(g, () => { g.innerHTML = '<span class="tag">Stopped</span>'; }); el.dataset.s = 'stop'; };
   function finish(how){
     over = true; stop.hidden = true; root.classList.remove('live'); sv.classList.remove('shim');
-    st.classList.toggle('ok', how === 'passed'); st.classList.toggle('bad', how === 'failed'); $('.g', st).innerHTML = I(how === 'passed' ? 'check' : 'stop', 'xs'); sv.textContent = how === 'passed' ? 'Passed' : how === 'failed' ? 'Failed' : 'Stopped';
+    st.classList.toggle('ok', how === 'passed'); st.classList.toggle('bad', how === 'failed'); { const g = $('.g', st); iconSwap(g, () => { g.innerHTML = I(how === 'passed' ? 'check' : 'stop', 'xs'); }); } sv.textContent = how === 'passed' ? 'Passed' : how === 'failed' ? 'Failed' : 'Stopped';
     // each command counts once, however many times it ran; how it went is the header's tag, so the summary doesn't say it
     // again, and a finished line has no clock (owner, 18 Nov)
     const n = new Set(ran).size;
@@ -130,7 +138,7 @@ DM.def('terminal-stream', (r, c) => {
         const pair = Array.isArray(ln) ? ln : [ln, '']; add(pair); log.push(pair[0]);
       }
       t.textContent = sec(k.ms); last = k.exit || 0;
-      $('.tmx-m .g', el).innerHTML = k.exit ? `<span class="tag bad">Exit ${k.exit}</span>` : `<span class="ok">${I('check','xs')}</span>`; el.dataset.s = k.exit ? 'bad' : 'ok';
+      { const g = $('.tmx-m .g', el); iconSwap(g, () => { g.innerHTML = k.exit ? `<span class="tag bad">Exit ${k.exit}</span>` : `<span class="ok">${I('check','xs')}</span>`; }); } el.dataset.s = k.exit ? 'bad' : 'ok';
     }
     finish(last ? 'failed' : 'passed');
   });

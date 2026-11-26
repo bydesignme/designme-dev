@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, REDUCE, enter, grow, html, stagger, swap } from '../core/core.js';
+import { $, $$, DM, I, REDUCE, enter, grow, html, iconSwap, mxWidth, stagger, swap } from '../core/core.js';
 DM.def('permission-gate', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{figma}', I('figma')).replace(/\{chk\}/g, I('check','xs')).replace('{chev}', I('chev-d','xs'));
   const root = $('.pgx', r), ok = $('.pgx-ok', r), no = $('.pgx-no', r), sc = $('.pgx-sc', r), title = $('.pgx-ht b', r), sub = $('.pgx-ht .muted', r);
@@ -45,7 +45,7 @@ DM.def('permission-gate', (r, c) => {
   const F = ['Hero', 'Plan cards', 'Compare table', 'FAQ', 'Plan toggle', 'Checkout summary'], LIB = 4;
   let granted = 0, publish = false, skip = false, done = 0, run = 0, panel = null;
   function row(){
-    panel = html(`<div class="pgx-done run"><span class="g"><span class="spin"></span></span><span class="t"><b class="pgx-a"></b><span class="pgx-d"></span></span><button class="pill line sm">Revoke</button></div>`);
+    panel = html(`<div class="pgx-done run"><span class="g"><span class="spin"></span></span><span class="t"><b class="pgx-a"></b><span class="pgx-d"></span></span><button class="pill line sm mx-press">Revoke</button></div>`);
     sum(panel, names.join(', '), `${names.length} ${word(names.length)} allowed`);
     into().appendChild(panel); enter(panel); $('button', panel).onclick = revoke;
   }
@@ -61,7 +61,8 @@ DM.def('permission-gate', (r, c) => {
         await c.wait(900); if (run !== id) return;
         done++;
       }
-      panel.classList.replace('run', 'ok'); const g = $('.g', panel); g.innerHTML = clean ? I('check') : I('ok'); enter(g);
+      // (the spinner crossfades to the done mark: iconSwap(), motion pieces)
+      panel.classList.replace('run', 'ok'); const g = $('.g', panel); iconSwap(g, () => { g.innerHTML = clean ? I('check') : I('ok'); }, { inner:true });
       swap(a, skip ? `Done. ${F.length - 1} frames edited` : `Done. ${F.length} frames edited`);
       swap(d, skip ? 'On a new page. Plan toggle skipped' : 'On a new page. Plan toggle published');
     });
@@ -87,14 +88,14 @@ DM.def('permission-gate', (r, c) => {
     const picked = one() ? [one()] : boxes().filter(b => b.checked).map(b => b.closest('.pgx-o')); if (!picked.length) return;
     granted += picked.length; if (picked.some(o => o.dataset.k === 'publish')) publish = true;
     names.push(...picked.map(o => $('.t', o).firstChild.textContent));
-    ok.innerHTML = '<span class="spin"></span>'; await c.wait(500);
+    { const w0 = ok.offsetWidth; ok.innerHTML = '<span class="spin"></span>'; if (!REDUCE) mxWidth(ok, w0); } await c.wait(500);
     // Clean: the scopes fade up and out before the card eases to the result row's height
     if (clean){ sc.classList.add('leave'); await c.wait(180); sc.classList.remove('leave'); }
     show(false);
     if (root.classList.contains('esc')){ root.classList.remove('esc'); swap(title, first.title); swap(sub, first.sub); }
     // placed inside another component (Agent harness), it reports back without the run
     if (!c.card){ row(); swap($('.pgx-a', panel), `Allowed ${granted} ${granted > 1 ? 'scopes' : 'scope'} ${span()}`); swap($('.pgx-d', panel), 'Applying the pricing fixes now');
-      c.later(1400, () => { if (!panel) return; panel.classList.replace('run', 'ok'); $('.g', panel).innerHTML = clean ? I('check') : I('ok'); swap($('.pgx-d', panel), 'Done. 6 frames edited on a new page'); }); return; }
+      c.later(1400, () => { if (!panel) return; panel.classList.replace('run', 'ok'); const g = $('.g', panel); iconSwap(g, () => { g.innerHTML = clean ? I('check') : I('ok'); }, { inner:true }); swap($('.pgx-d', panel), 'Done. 6 frames edited on a new page'); }); return; }
     work();
   });
   no.onclick = () => {

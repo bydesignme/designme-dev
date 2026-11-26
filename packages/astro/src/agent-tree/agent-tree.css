@@ -70,6 +70,10 @@
 .atr-nm{flex:0 0 auto;max-width:100%;overflow:hidden;text-overflow:ellipsis;font-weight:500}
 .atr-tg{align-self:center;width:16px;height:16px;margin-left:-6px;flex:none;display:grid;place-items:center;border-radius:calc(4px * var(--dm-rk-s,var(--dm-rk)));color:var(--dm-muted);cursor:pointer;transition:background var(--dm-t-fast),color var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.atr-tg:hover{background:color-mix(in srgb,var(--dm-fg) 9%,transparent);color:var(--dm-fg)}}
+/* its motion pieces (core's "motion pieces", 26 Nov): one highlight glides from row to row in Soft and Blueprint too (.mx-glide),
+   in the rows' own hover fill; a press on a branch's chevron shows at once (.mx-press) */
+.atr-tree.mx-glide{--dm-hg-bg:color-mix(in srgb,var(--dm-fg) 5%,transparent)}
+:root[data-style="clean"] .atr-tree.mx-glide,:root [data-style="clean"] .atr-tree.mx-glide,:root [data-style="clean"].atr-tree.mx-glide{--dm-hg-bg:var(--dm-row)}
 .atr-tg svg{width:12px;height:12px;transition:transform .32s var(--dm-ease)}
 .atr-n[aria-expanded="false"]>.atr-b .atr-tg svg{transform:rotate(-90deg)}
 .atr-sub{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;font-size:12px;color:var(--dm-muted)}
@@ -87,7 +91,7 @@
 /* the tree grows with its rows (grow(), owner 17 Nov): each new row already opens its own height smoothly, so the panel
    follows its content frame by frame, with nothing cut off and no room left over; the way on under a row (a fix, Approve and
    Hold) opens its height the same way. Where a browser can't ease a height to auto, it appears at once */
-.atr.growing{transition:none;interpolate-size:allow-keywords}
+.atr.growing{--dm-grow-t:0s;interpolate-size:allow-keywords}
 .atr-ask{overflow:clip;overflow-clip-margin:4px;animation:atrask .42s var(--dm-atr-ez) backwards}
 @keyframes atrask{from{height:0;padding-bottom:0;opacity:0}}
 .atr .atr-n[data-ph="in"]>.atr-b>.atr-ask{animation:atrask .42s var(--dm-atr-ez) backwards,atrin .56s var(--dm-atr-ez) backwards}

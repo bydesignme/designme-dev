@@ -252,14 +252,63 @@ function grow(el){
   const w = document.createElement('div'); w.className = 'dm-grow';
   while (el.firstChild) w.appendChild(el.firstChild);
   el.appendChild(w); el.classList.add('growing');
+  const stop = growFit(el, w);
+  return el._grow = () => { stop(); el._grow = null; el.classList.remove('growing'); };
+}
+/* growFit(): how a grow() box keeps its height, in one smooth motion (owner, 26 Nov: "no jittering and jagged motion when the
+   components jump up and down"). The box is always as tall as its content (the wrapper w) plus an offset that springs to
+   nothing, set in the same frame the content changes, so the box's edges, the content and its place in the stage (which
+   centres it) move together:
+   - content that eases its own height (a fold opening, a row opening its height, a status line's max-height: a running
+     transition or animation of a size inside it) is followed frame by frame, on the content's own curve. A box that eased
+     after it instead lagged behind and restarted its ease every frame, so the rows under a fold went down and then back up as
+     the stage re-centred the card, and spilled past its edge
+   - content that changes at once (rows drawn, a question swapped) keeps the height on screen and springs to the new one: a
+     critically damped spring, which never overshoots and carries its speed into a change that lands mid-way, so quick
+     changes never stutter or start over
+   Heights are the wrapper's layout box (the ResizeObserver's border box), unrounded and untouched by an entrance's scale.
+   Timing: --grow-t (.55s; an .mx-grow box takes the motion pieces' --t-in × 1.4); 0s only follows, as reduced motion does.
+   The offset is --grow-d on the box, which a foot marked .mx-foot rides, so it stays on the box's bottom edge */
+const GROW_SIZING = /^(all|height|min-height|max-height|block-size|min-block-size|max-block-size|grid-template-rows|grid-auto-rows|margin|margin-top|margin-bottom|margin-block(-start|-end)?|padding|padding-top|padding-bottom|padding-block(-start|-end)?|gap|row-gap|line-height|font-size|flex|flex-basis|flex-grow|border-width|border-top-width|border-bottom-width)$/;
+function sizingIn(w){
+  for (const a of w.getAnimations({ subtree:true })){
+    if (a.playState === 'finished' || a.playState === 'idle' || !a.effect || a.effect.pseudoElement) continue;
+    const ps = typeof a.transitionProperty === 'string' ? [a.transitionProperty] : a.effect.getKeyframes ? a.effect.getKeyframes().flatMap(k => Object.keys(k)) : [];
+    if (ps.some(p => GROW_SIZING.test(p.replace(/[A-Z]/g, ch => '-' + ch.toLowerCase())))) return true;
+  }
+  return false;
+}
+function growFit(el, w){
+  let H = null, d = 0, v = 0, raf = 0, last = 0;
   const box = () => { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
-  let first = true;
-  // the wrapper's layout height (offsetHeight), not its box on screen, so an entrance that scales the card (.98 in Clean)
-  // never leaves it short
-  const fit = () => { const h = Math.ceil(w.offsetHeight + box());
-    if (first){ el.style.transition = 'none'; el.style.height = h + 'px'; void el.offsetHeight; el.style.transition = ''; first = false; } else el.style.height = h + 'px'; };
-  const ro = new ResizeObserver(fit); ro.observe(w); fit();
-  return el._grow = () => { ro.disconnect(); el._grow = null; el.style.height = ''; el.classList.remove('growing'); };
+  const dur = () => REDUCE ? 0 : el.classList.contains('mx-grow') && !el.closest('.ahx') ? mxT(el, '--dm-t-in', 360) * 1.4 : mxT(el, '--dm-grow-t', 550);
+  const put = () => { el.style.height = Math.max(0, H + box() + d) + 'px'; el.style.setProperty('--dm-grow-d', d.toFixed(2) + 'px'); };
+  // the spring, solved exactly for each frame's step (stiffness from the duration: settled within it, 92% there halfway)
+  const step = now => {
+    raf = 0; const T = dur() / 1000, dt = Math.min(.064, Math.max(0, (now - last) / 1000)); last = now;
+    if (!T || !el.isConnected){ d = v = 0; put(); return; }
+    const k = 8.4 / T, e = Math.exp(-k * dt), c = v + k * d;
+    d = (d + c * dt) * e; v = (v - k * c * dt) * e;
+    if (Math.abs(d) < .05 && Math.abs(v) < 2){ d = v = 0; put(); return; }
+    put(); raf = requestAnimationFrame(step);
+  };
+  // (vc: the content's own speed while it eases, in px a ms, and tc when it was last measured; a pause of more than three
+  // frames starts a new easing)
+  let vc = null, tc = 0;
+  const ro = new ResizeObserver(es => {
+    const b = es[es.length - 1].borderBoxSize, h = b && b[0] ? b[0].blockSize : w.offsetHeight, t = performance.now();
+    if (H === null || !dur()){ H = h; d = v = 0; vc = null; put(); return; }
+    const dh = h - H, dt = Math.max(1, t - tc); if (Math.abs(dh) < .01) return; H = h; tc = t;
+    // a change made at once keeps the height on screen and springs from it; a content's own easing is followed as it goes.
+    // While it eases, a step far from its speed (a line emptied at once as a fold opens) is a change made at once on top of it
+    let jump = dh; if (dt > 50) vc = null;
+    if (sizingIn(w)){ const e = vc === null ? 0 : dh - vc * dt; jump = Math.abs(e) > Math.max(4, Math.abs(vc * dt)) ? e : 0; vc = (dh - jump) / (vc === null ? 1000 / 60 : dt); }
+    else vc = null;
+    if (jump){ d -= jump; if (!raf){ last = t; raf = requestAnimationFrame(step); } }
+    put();
+  });
+  ro.observe(w);
+  return () => { ro.disconnect(); cancelAnimationFrame(raf); el.style.height = ''; el.style.removeProperty('--dm-grow-d'); };
 }
 /* hoverGlide(): Clean's one hover in a menu or a list (owner, 21 Nov): a single highlight that glides from row to row as the
    pointer moves, and fades in as the pointer enters the list and out as it leaves. It follows the keyboard too: the row with
@@ -594,7 +643,7 @@ document.addEventListener('click', e => { const b = e.target.closest && e.target
 const DM = {
   defs:{},
   // agents at work: their demos keep playing while a mouse rests on them, instead of holding (see mount)
-  PLAYS:new Set(['status-pill','toast','step-loader','thinking','reasoning-trail','agent-lanes','agent-run-timeline','trace-view','agent-tree','terminal-stream','browser-session','attachment-tray','progress','web-search','thinking-states','run-drawer','live-answer','harness','response-versions','memory-panel','tool-connections','knowledge-sources','scheduled-runs','event-calendar','form','comments']),
+  PLAYS:new Set(['status-pill','toast','toast-stack','step-loader','thinking','reasoning-trail','agent-lanes','agent-run-timeline','trace-view','agent-tree','terminal-stream','browser-session','attachment-tray','progress','web-search','thinking-states','run-drawer','live-answer','harness','response-versions','memory-panel','tool-connections','knowledge-sources','scheduled-runs','event-calendar','form','comments']),
   def(id, fn){ this.defs[id] = fn; },
   /* the markup a card starts from: its <template>, or, when the markup is written out in its stage, what the stage holds
      before it first mounts, kept as a template so Replay starts from it again */

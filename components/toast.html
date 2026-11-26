@@ -520,12 +520,12 @@ export default function ToastDemo() {
 import Toast from &#39;../components/designme/toast/Toast.astro&#39;;
 ---
 &lt;Toast /&gt;
-&lt;Toast data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything Toast takes.</p></div><h3 class="pg-t"><code>ToastProps</code></h3><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>toast</code><span class="opt">required</span></td><td><code>ToastData | null</code></td><td>The toast to show, or null for none</td></tr><tr><td><code>onDismiss</code></td><td><code>(id: ToastData[&#39;id&#39;], reason: ToastDismissReason) =&gt; void</code></td><td>Called when it is closed: by Close, its countdown, a swipe or Escape. It leaves either way</td></tr><tr><td><code>from</code></td><td><code>RefObject&lt;HTMLElement | null&gt;</code></td><td>The button that started it: the toast grows out of it as it comes in and goes back into it as it leaves</td></tr><tr><td><code>stepsOpen</code></td><td><code>boolean</code></td><td>Whether the steps are open. Leave it out and the chevron keeps its own state</td></tr><tr><td><code>defaultStepsOpen</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onStepsOpenChange</code></td><td><code>(open: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div><h3 class="pg-t"><code>DeckGlyphProps</code></h3><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>phase</code><span class="opt">required</span></td><td><code>DeckGlyphPhase</code></td><td>reading sweeps a line down the notes; outlining lays out a dashed slot for every slide; drafting and checking deal the slides into their slots; done closes the hand into a deck with a green tick; gone folds it away</td></tr><tr><td><code>slides</code></td><td><code>number</code></td><td>How many slides the hand holds. Default 12</td></tr><tr><td><code>made</code></td><td><code>number</code></td><td>How many are drafted so far</td></tr><tr><td><code>active</code></td><td><code>number</code></td><td>The slide being drafted, checked or fixed (from 0): in the accent, in front</td></tr><tr><td><code>flagged</code></td><td><code>number</code></td><td>A slide the check stopped on (from 0): red, lifted, in front</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>Toast.tsx<span class="l">React · 313 lines</span></summary><pre class="cp-pre" data-name="Toast.tsx"><code>&#39;use client&#39;;
+&lt;Toast data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything Toast takes.</p></div><h3 class="pg-t"><code>ToastProps</code></h3><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>toast</code><span class="opt">required</span></td><td><code>ToastData | null</code></td><td>The toast to show, or null for none</td></tr><tr><td><code>onDismiss</code></td><td><code>(id: ToastData[&#39;id&#39;], reason: ToastDismissReason) =&gt; void</code></td><td>Called when it is closed: by Close, its countdown, a swipe or Escape. It leaves either way</td></tr><tr><td><code>from</code></td><td><code>RefObject&lt;HTMLElement | null&gt;</code></td><td>The button that started it: the toast grows out of it as it comes in and goes back into it as it leaves</td></tr><tr><td><code>stepsOpen</code></td><td><code>boolean</code></td><td>Whether the steps are open. Leave it out and the chevron keeps its own state</td></tr><tr><td><code>defaultStepsOpen</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onStepsOpenChange</code></td><td><code>(open: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div><h3 class="pg-t"><code>DeckGlyphProps</code></h3><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>phase</code><span class="opt">required</span></td><td><code>DeckGlyphPhase</code></td><td>reading sweeps a line down the notes; outlining lays out a dashed slot for every slide; drafting and checking deal the slides into their slots; done closes the hand into a deck with a green tick; gone folds it away</td></tr><tr><td><code>slides</code></td><td><code>number</code></td><td>How many slides the hand holds. Default 12</td></tr><tr><td><code>made</code></td><td><code>number</code></td><td>How many are drafted so far</td></tr><tr><td><code>active</code></td><td><code>number</code></td><td>The slide being drafted, checked or fixed (from 0): in the accent, in front</td></tr><tr><td><code>flagged</code></td><td><code>number</code></td><td>A slide the check stopped on (from 0): red, lifted, in front</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div><h3 class="pg-t"><code>ToastCardProps</code></h3><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>toast</code><span class="opt">required</span></td><td><code>ToastData</code></td><td></td></tr><tr><td><code>onClose</code><span class="opt">required</span></td><td><code>(reason: ToastDismissReason) =&gt; void</code></td><td>Called when it is closed: by Close, its countdown, a swipe or Escape</td></tr><tr><td><code>leaving</code></td><td><code>boolean</code></td><td>It is on its way out: it can&#39;t be reached, and with its own motion it plays its exit</td></tr><tr><td><code>from</code></td><td><code>RefObject&lt;HTMLElement | null&gt;</code></td><td>The button that started it: with its own motion it grows out of it and goes back into it</td></tr><tr><td><code>stepsOpen</code></td><td><code>boolean</code></td><td>Whether the steps are open. Leave it out and the chevron keeps its own state</td></tr><tr><td><code>defaultStepsOpen</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onStepsOpenChange</code></td><td><code>(open: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>paused</code></td><td><code>boolean</code></td><td>Holds the countdown while true, as the pointer or the focus on the card does (a stack open for reading holds them all)</td></tr><tr><td><code>motion</code></td><td><code>&#39;own&#39; | &#39;host&#39;</code></td><td>`own` (the default) plays its own entrance and exit; `host` leaves where it sits and how it comes and goes to the component that places it, as `ToastStack` does</td></tr><tr><td><code>height</code></td><td><code>number</code></td><td>A height to draw it at instead of its own; it clips what doesn&#39;t fit (a card behind the front one in a stack takes the front one&#39;s). It eases to it</td></tr><tr><td><code>onHeight</code></td><td><code>(height: number) =&gt; void</code></td><td>Called with its own height each time that changes: its words wrap, its steps or its footer open or shut</td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr><tr><td><code>style</code></td><td><code>CSSProperties</code></td><td>Where its host places it. A swipe moves it on from its `transform`</td></tr><tr><td><code>inert</code></td><td><code>boolean</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>Toast.tsx<span class="l">React · 364 lines</span></summary><pre class="cp-pre" data-name="Toast.tsx"><code>&#39;use client&#39;;
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent, type ReactNode, type RefObject } from &#39;react&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from &#39;../lib/hooks&#39;;
 import { Icon } from &#39;../lib/icons&#39;;
-import { Fold, Spin, Swap, Tip, useGrow } from &#39;../lib/motion&#39;;
+import { Fold, Spin, Swap, SwapIcon, Tip } from &#39;../lib/motion&#39;;
 import &#39;../designme.css&#39;;
 import &#39;./toast.css&#39;;
 
@@ -675,11 +675,56 @@ function Line({ text }: { text: string }) {
   return &lt;span className={cx(&#39;dm-sw dm-tst-de&#39;, out &amp;&amp; &#39;dm-out&#39;)}&gt;{shown}&lt;/span&gt;;
 }
 
-function Card({ t, leaving, close, open, setOpen, from }: {
-  t: ToastData; leaving: boolean; close: (r: ToastDismissReason) =&gt; void; open: boolean; setOpen: (o: boolean) =&gt; void; from?: RefObject&lt;HTMLElement | null&gt;;
-}) {
-  // the card eases to its new height as its words wrap or its steps and footer come and go (useGrow)
-  const [el, inner] = useGrow&lt;HTMLDivElement&gt;(), ring = useRef&lt;SVGRectElement&gt;(null), reduce = useReducedMotion();
+export interface ToastCardProps {
+  toast: ToastData;
+  /** Called when it is closed: by Close, its countdown, a swipe or Escape */
+  onClose: (reason: ToastDismissReason) =&gt; void;
+  /** It is on its way out: it can&#39;t be reached, and with its own motion it plays its exit */
+  leaving?: boolean;
+  /** The button that started it: with its own motion it grows out of it and goes back into it */
+  from?: RefObject&lt;HTMLElement | null&gt;;
+  /** Whether the steps are open. Leave it out and the chevron keeps its own state */
+  stepsOpen?: boolean;
+  defaultStepsOpen?: boolean;
+  onStepsOpenChange?: (open: boolean) =&gt; void;
+  /** Holds the countdown while true, as the pointer or the focus on the card does (a stack open for reading holds them all) */
+  paused?: boolean;
+  /** `own` (the default) plays its own entrance and exit; `host` leaves where it sits and how it comes and goes to the
+      component that places it, as `ToastStack` does */
+  motion?: &#39;own&#39; | &#39;host&#39;;
+  /** A height to draw it at instead of its own; it clips what doesn&#39;t fit (a card behind the front one in a stack takes the
+      front one&#39;s). It eases to it */
+  height?: number;
+  /** Called with its own height each time that changes: its words wrap, its steps or its footer open or shut */
+  onHeight?: (height: number) =&gt; void;
+  className?: string;
+  /** Where its host places it. A swipe moves it on from its `transform` */
+  style?: CSSProperties;
+  inert?: boolean;
+}
+
+/** One Toast card on its own: the head (the glyph or the status mark, the words, the chevron, Stop or Close with its countdown
+    ring), the steps and the footer, swiped or Escaped away. `Toast` shows one at a time; `ToastStack` stacks them */
+export function ToastCard({ toast: t, onClose: close, leaving = false, from, stepsOpen, defaultStepsOpen = false, onStepsOpenChange, paused = false, motion = &#39;own&#39;, height, onHeight, className, style, inert }: ToastCardProps) {
+  const [open, setOpen] = useControllable(stepsOpen, defaultStepsOpen, onStepsOpenChange);
+  const own = motion === &#39;own&#39;;
+  // the card eases to its new height as its words wrap or its steps and footer come and go, or to the height its host asks for
+  const el = useRef&lt;HTMLDivElement&gt;(null), inner = useRef&lt;HTMLDivElement&gt;(null), ring = useRef&lt;SVGRectElement&gt;(null), reduce = useReducedMotion();
+  const natural = useRef(0), first = useRef(true), want = useRef(height), report = useRef(onHeight);
+  want.current = height; report.current = onHeight;
+  const fit = () =&gt; {
+    const card = el.current; if (!card || !natural.current) return;
+    const h = want.current ?? natural.current;
+    if (first.current) { card.style.transition = &#39;none&#39;; card.style.height = h + &#39;px&#39;; void card.offsetHeight; card.style.transition = &#39;&#39;; first.current = false; }
+    else card.style.height = h + &#39;px&#39;;
+  };
+  useIsoLayoutEffect(() =&gt; {
+    const w = inner.current; if (!w || typeof ResizeObserver === &#39;undefined&#39;) return;
+    const measure = () =&gt; { const h = Math.ceil(w.offsetHeight); if (h === natural.current) return; natural.current = h; fit(); report.current?.(h); };
+    const ro = new ResizeObserver(measure); ro.observe(w); measure();
+    return () =&gt; ro.disconnect();
+  }, []);
+  useIsoLayoutEffect(fit, [height]);
   const status = t.status ?? &#39;success&#39;, working = status === &#39;working&#39;;
   const stop = working &amp;&amp; t.onStop;
   // the footer keeps its last buttons while it folds shut, so they never vanish before it has closed
@@ -688,7 +733,7 @@ function Card({ t, leaving, close, open, setOpen, from }: {
   const acts = t.actions?.length ? t.actions : lastActs.current;
 
   /* coming in: out of its button when there is one, eased to its place, its parts one after another; or the style&#39;s entrance */
-  const [flyIn] = useState(() =&gt; typeof window !== &#39;undefined&#39; &amp;&amp; !matchMedia(&#39;(prefers-reduced-motion: reduce)&#39;).matches &amp;&amp; !!from?.current?.getClientRects().length);
+  const [flyIn] = useState(() =&gt; own &amp;&amp; typeof window !== &#39;undefined&#39; &amp;&amp; !matchMedia(&#39;(prefers-reduced-motion: reduce)&#39;).matches &amp;&amp; !!from?.current?.getClientRects().length);
   useIsoLayoutEffect(() =&gt; {
     const card = el.current, host = card?.parentElement, btn = from?.current;
     if (!flyIn || !card || !host || !btn) return;
@@ -707,15 +752,16 @@ function Card({ t, leaving, close, open, setOpen, from }: {
   /* going: back into its button when there is one, or the style&#39;s exit */
   useIsoLayoutEffect(() =&gt; {
     const card = el.current, host = card?.parentElement, btn = from?.current;
-    if (!leaving || !card || !host || reduce || !btn || !btn.getClientRects().length || card.style.transform) return;
+    if (!own || !leaving || !card || !host || reduce || !btn || !btn.getClientRects().length || card.style.transform) return;
     const m = motionOf(card), f = fly(host, boxIn(card, host), boxIn(btn, host), m.t, m.ease);
     card.animate([{ opacity: 1 }, { opacity: 0 }], { duration: m.fast * .6, fill: &#39;forwards&#39; });
     return () =&gt; f.stop();
   }, [leaving]);
 
-  /* the countdown: a ring round Close that drains; the pointer or the focus on the toast holds it */
-  const cd = useRef&lt;Animation | null&gt;(null);
-  const held = () =&gt; !!el.current &amp;&amp; (el.current.matches(&#39;:hover&#39;) || el.current.contains(document.activeElement));
+  /* the countdown: a ring round Close that drains; the pointer or the focus on the toast holds it, and so does `paused` */
+  const cd = useRef&lt;Animation | null&gt;(null), still = useRef(paused);
+  still.current = paused;
+  const held = () =&gt; still.current || (!!el.current &amp;&amp; (el.current.matches(&#39;:hover&#39;) || el.current.contains(document.activeElement)));
   const timed = !!t.duration &amp;&amp; !working &amp;&amp; !stop &amp;&amp; !leaving;
   useEffect(() =&gt; {
     const r = ring.current; if (!timed || !r) return;
@@ -726,34 +772,39 @@ function Card({ t, leaving, close, open, setOpen, from }: {
   }, [timed, t.id, status, t.title, t.duration]); // eslint-disable-line react-hooks/exhaustive-deps
   const hold = () =&gt; { if (cd.current?.playState === &#39;running&#39;) cd.current.pause(); };
   const go = () =&gt; setTimeout(() =&gt; { if (cd.current?.playState === &#39;paused&#39; &amp;&amp; !held()) cd.current.play(); }, 0);
+  useEffect(() =&gt; { if (paused) hold(); else go(); }, [paused]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  /* swipe it away: it follows the finger or the pointer sideways and goes once it has moved far enough, or eases back */
+  /* swipe it away: it follows the finger or the pointer sideways (on from where its host placed it) and goes once it has moved
+     far enough, or eases back */
+  const base = style?.transform ? String(style.transform) + &#39; &#39; : &#39;&#39;;
   const sw = useRef&lt;{ x: number; y: number; t: number; dx: number; id: number; on: boolean } | null&gt;(null);
   const onDown = (e: ReactPointerEvent) =&gt; { if (e.button || (e.target as Element).closest(&#39;button&#39;)) return; sw.current = { x: e.clientX, y: e.clientY, t: performance.now(), dx: 0, id: e.pointerId, on: false }; };
   const onMove = (e: ReactPointerEvent) =&gt; {
     const s = sw.current, card = el.current; if (!s || !card || e.pointerId !== s.id) return;
     const dx = e.clientX - s.x, dy = e.clientY - s.y;
     if (!s.on) { if (Math.abs(dx) &lt; 6 || Math.abs(dy) &gt; Math.abs(dx)) return; s.on = true; card.setPointerCapture(e.pointerId); }
-    s.dx = dx; card.style.transform = `translateX(${dx}px)`; card.style.opacity = String(Math.max(.2, 1 - Math.abs(dx) / 260));
+    s.dx = dx; card.style.transition = &#39;none&#39;; card.style.transform = `${base}translateX(${dx}px)`; card.style.opacity = String(Math.max(.2, 1 - Math.abs(dx) / 260));
   };
   const onUp = (e: ReactPointerEvent) =&gt; {
     const s = sw.current, card = el.current; if (!s || !card || e.pointerId !== s.id) return; sw.current = null; if (!s.on) return;
-    const v = Math.abs(s.dx) / Math.max(1, performance.now() - s.t), m = motionOf(card);
-    if (Math.abs(s.dx) &gt; 90 || v &gt; .6) { card.animate([{ transform: `translateX(${s.dx}px)`, opacity: card.style.opacity }, { transform: `translateX(${(Math.sign(s.dx) || 1) * 420}px)`, opacity: 0 }], { duration: m.t, easing: m.ease, fill: &#39;forwards&#39; }); close(&#39;swipe&#39;); }
-    else { card.animate([{ transform: `translateX(${s.dx}px)`, opacity: card.style.opacity }, { transform: &#39;none&#39;, opacity: 1 }], { duration: m.t, easing: m.ease }); card.style.transform = &#39;&#39;; card.style.opacity = &#39;&#39;; }
+    const v = Math.abs(s.dx) / Math.max(1, performance.now() - s.t), m = motionOf(card), dir = Math.sign(s.dx) || 1;
+    card.style.transition = &#39;&#39;;
+    if (Math.abs(s.dx) &gt; 90 || v &gt; .6) { card.animate([{ transform: `${base}translateX(${s.dx}px)`, opacity: card.style.opacity }, { transform: `${base}translateX(${own ? dir * 420 : s.dx + dir * 140}px)`, opacity: 0 }], { duration: m.t, easing: m.ease, fill: &#39;forwards&#39; }); close(&#39;swipe&#39;); }
+    else { if (own) card.animate([{ transform: `translateX(${s.dx}px)`, opacity: card.style.opacity }, { transform: &#39;none&#39;, opacity: 1 }], { duration: m.t, easing: m.ease }); card.style.transform = String(style?.transform ?? &#39;&#39;); card.style.opacity = style?.opacity !== undefined ? String(style.opacity) : &#39;&#39;; }
   };
 
   // (going back into the button needs the button on screen; a swiped toast has gone sideways already)
   const flyOut = leaving &amp;&amp; !reduce &amp;&amp; !!from?.current?.getClientRects().length &amp;&amp; !el.current?.style.transform;
-  const anim = leaving ? (flyOut ? undefined : &#39;dm-tst-out&#39;) : flyIn ? undefined : &#39;dm-tst-in&#39;;
+  const anim = !own ? undefined : leaving ? (flyOut ? undefined : &#39;dm-tst-out&#39;) : flyIn ? undefined : &#39;dm-tst-in&#39;;
   return (
-    &lt;div ref={el} className={cx(&#39;dm-tst-t dm-growing&#39;, anim)} inert={leaving} style={{ &#39;--dm-tst-gw&#39;: t.glyph ? &#39;64px&#39; : &#39;20px&#39; } as CSSProperties}
+    &lt;div ref={el} className={cx(&#39;dm-tst-t dm-growing&#39;, anim, className)} inert={leaving || inert} style={{ ...style, &#39;--dm-tst-gw&#39;: t.glyph ? &#39;64px&#39; : &#39;20px&#39; } as CSSProperties}
       onPointerEnter={hold} onPointerLeave={go} onFocus={hold} onBlur={go}
       onKeyDown={e =&gt; { if (e.key === &#39;Escape&#39;) { e.stopPropagation(); close(&#39;escape&#39;); } }}
       onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}&gt;
       &lt;div ref={inner} className=&quot;dm-grow&quot;&gt;
         &lt;div className=&quot;dm-tst-hd&quot;&gt;
-          {t.glyph ?? &lt;span className=&quot;dm-tst-g&quot; data-s={status} aria-hidden=&quot;true&quot;&gt;{MARK[status]}&lt;/span&gt;}
+          {/* a status mark that changes (a fix&#39;s spinner becoming its tick) crossfades in place */}
+          {t.glyph ?? &lt;span className=&quot;dm-tst-g dm-mx-ic&quot; data-s={status} aria-hidden=&quot;true&quot;&gt;&lt;SwapIcon id={status}&gt;{MARK[status]}&lt;/SwapIcon&gt;&lt;/span&gt;}
           &lt;div className=&quot;dm-tst-tx&quot;&gt;
             &lt;Swap className={cx(&#39;dm-tst-ti&#39;, working &amp;&amp; &#39;dm-shim&#39;)}&gt;{t.title}&lt;/Swap&gt;
             {t.description !== undefined &amp;&amp; &lt;Line text={t.description} /&gt;}
@@ -825,8 +876,8 @@ export function Toast({ toast, onDismiss, from, stepsOpen, defaultStepsOpen = fa
   };
   return (
     &lt;div data-dm=&quot;&quot; ref={slot} className={cx(&#39;dm-tst-slot&#39;, className)}&gt;
-      {leaving.filter(t =&gt; t.id !== cur?.id).map(t =&gt; &lt;Card key={&#39;t&#39; + t.id} t={t} leaving close={() =&gt; {}} open={open} setOpen={() =&gt; {}} from={from} /&gt;)}
-      {cur &amp;&amp; &lt;Card key={&#39;t&#39; + cur.id} t={cur} leaving={false} close={r =&gt; close(cur.id, r)} open={open} setOpen={setOpen} from={from} /&gt;}
+      {leaving.filter(t =&gt; t.id !== cur?.id).map(t =&gt; &lt;ToastCard key={&#39;t&#39; + t.id} toast={t} leaving onClose={() =&gt; {}} stepsOpen={open} onStepsOpenChange={() =&gt; {}} from={from} /&gt;)}
+      {cur &amp;&amp; &lt;ToastCard key={&#39;t&#39; + cur.id} toast={cur} onClose={r =&gt; close(cur.id, r)} stepsOpen={open} onStepsOpenChange={setOpen} from={from} /&gt;}
       &lt;div className=&quot;dm-tst-sr&quot; role=&quot;status&quot; aria-live=&quot;polite&quot;&gt;{said.loud ? &#39;&#39; : said.text}&lt;/div&gt;
       &lt;div className=&quot;dm-tst-sr&quot; role=&quot;alert&quot; aria-live=&quot;assertive&quot;&gt;{said.loud ? said.text : &#39;&#39;}&lt;/div&gt;
     &lt;/div&gt;

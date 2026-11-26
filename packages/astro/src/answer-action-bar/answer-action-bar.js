@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, REDUCE, copied, enter, grow, iconSwap, mxIn, swap } from '../core/core.js';
+import { $, $$, DM, I, REDUCE, copied, enter, grow, iconSwap, mxIn, mxT, swap } from '../core/core.js';
 DM.def('answer-action-bar', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{copy}', I('copy')).replace('{re}', I('refresh')).replace('{l}', I('chev-l','xs')).replace('{rr}', I('chev-r','xs'))
     .replace('{up}', I('up-thumb')).replace('{dn}', I('down-thumb')).replace('{vol}', I('vol','xs'));
@@ -19,9 +19,17 @@ DM.def('answer-action-bar', (r, c) => {
     const s = (i ? `<span${inner ? ' class="nw"' : ''}> </span>` : '') + `<span class="w${on ? ' nw' : ''}">${w.replace(/\[\[|\]\]/g, '')}</span>`; if (b) on = false; return s; }); };
   // the tone changes with the words: the words fading out keep their colour, and the new ones arrive in theirs (swap()
   // writes them 170ms on)
-  const status = (text, tone) => { clearTimeout(st._tone); const set = () => { st.classList.toggle('warn', tone === 'warn'); st.classList.toggle('ok', tone === 'ok'); };
+  // The line opens and closes on its own height at the same moment as the reasons (owner, 26 Nov: no jumping up and down): an
+  // empty line takes its words at once rather than after swap()'s fade, and a line that empties eases shut with its words still
+  // in it, then lets them go
+  const status = (text, tone) => { clearTimeout(st._tone); clearTimeout(st._off); const set = () => { st.classList.toggle('warn', tone === 'warn'); st.classList.toggle('ok', tone === 'ok'); };
+    const had = !!st.textContent.trim() && !st.classList.contains('off');
+    if (st._sw && (!text || !had)){ clearTimeout(st._sw.t); st._sw = null; st.classList.remove('out'); }
+    if (!text){ if (!st.textContent.trim()){ st.classList.remove('off'); return; } st.classList.add('off'); st._off = setTimeout(() => { st.textContent = ''; st.classList.remove('off', 'warn', 'ok'); }, REDUCE ? 0 : mxT(st, '--dm-t', 450)); return; }
+    st.classList.remove('off');
     if (tone === 'ok') { set(); st.innerHTML = `${I('ok','xs')}<span>${text}</span>`; enter(st); return; }
-    const lag = !REDUCE && !!st.textContent.trim() && st.textContent !== text; swap(st, text); if (lag) st._tone = setTimeout(set, 170); else set(); };
+    if (!had){ set(); st.textContent = text; mxIn(st); return; }
+    const lag = !REDUCE && st.textContent !== text; swap(st, text); if (lag) st._tone = setTimeout(set, 170); else set(); };
   function nav(){
     n.textContent = (cur + 1) + ' / ' + vers.length; pg.classList.toggle('on', vers.length > 1); pg.inert = vers.length < 2;
     pv.disabled = cur === 0 || busy; nx.disabled = cur === vers.length - 1 || busy; re.disabled = busy;

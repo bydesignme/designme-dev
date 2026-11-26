@@ -1,5 +1,5 @@
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
-import { $, $$, DM, I, ctl, enter, grow, html, swap } from '../core/core.js';
+import { $, $$, DM, I, ctl, enter, grow, html, iconSwap, swap } from '../core/core.js';
 DM.def('composer', (r, c) => {
   const icons = { clip:'clip', figma:'figma', eye:'eye', edit:'edit', list:'list', code:'code', mic:'mic', up:'up', check:'check', file:'file-text', image:'image' };
   r.innerHTML = r.innerHTML.replace(/\{(\w+)\}/g, (m, k) => k === 'chev' ? I('chev-d','xs') : icons[k] ? I(icons[k]) : m);
@@ -17,16 +17,18 @@ DM.def('composer', (r, c) => {
   const ATT = { file:['file-text','Spacing notes.pdf'], figma:['figma','Pricing / Desktop'], shot:['image','Screenshot 10.42'] };
   let figmaTries = 0;
   function load(ch, kind){
-    const a = ATT[kind]; ch.className = 'fchip ld'; $('.ic', ch).innerHTML = '<span class="spin"></span>'; swap($('.n', ch), a[1]); const rt = $('.rt', ch); if (rt) rt.remove(); sync();
+    const a = ATT[kind], ic0 = $('.ic', ch), sp = () => { ic0.innerHTML = '<span class="spin"></span>'; }; ch.className = 'fchip ld'; if (ic0.firstElementChild) iconSwap(ic0, sp, { inner:true }); else sp(); swap($('.n', ch), a[1]); const rt = $('.rt', ch); if (rt) rt.remove(); sync();
     const fail = kind === 'figma' && figmaTries++ === 0;
     c.later(1000, () => { if (!ch.isConnected) return;
-      if (fail){ ch.className = 'fchip err'; $('.ic', ch).innerHTML = I('alert','xs'); swap($('.n', ch), a[1] + " can't be opened");
+      // (the spinner and the file's icon, or the alert, crossfade: iconSwap(), motion pieces)
+      const ic = $('.ic', ch);
+      if (fail){ ch.className = 'fchip err'; iconSwap(ic, () => { ic.innerHTML = I('alert','xs'); }, { inner:true }); swap($('.n', ch), a[1] + " can't be opened");
         const b = html(`<button class="rt" aria-label="Try again" data-tip="Try again">${I('refresh','xs')}</button>`); $('.x', ch).before(b); b.onclick = () => load(ch, kind); }
-      else { ch.className = 'fchip'; $('.ic', ch).innerHTML = I(a[0],'xs'); enter($('.ic', ch).firstElementChild); }
+      else { ch.className = 'fchip'; iconSwap(ic, () => { ic.innerHTML = I(a[0],'xs'); }, { inner:true }); }
       sync(); });
   }
   function add(kind){
-    const a = ATT[kind], ch = html(`<span class="fchip"><span class="ic" style="display:grid"></span><span class="n">${a[1]}</span><button class="x" aria-label="Remove ${a[1]}">${I('x','xs')}</button></span>`);
+    const a = ATT[kind], ch = html(`<span class="fchip"><span class="ic" style="display:grid"></span><span class="n mx-w">${a[1]}</span><button class="x" aria-label="Remove ${a[1]}">${I('x','xs')}</button></span>`);
     att.appendChild(ch); enter(ch);
     $('.x', ch).onclick = () => { ch.classList.add('leave'); c.later(300, () => { ch.remove(); sync(); }); };
     load(ch, kind);
@@ -35,7 +37,8 @@ DM.def('composer', (r, c) => {
   /* what the agent works on, and what it may do: a menu each, the chip shows the pick */
   const pick = (menu, chip, name, key) => $$(menu + ' .mi', r).forEach(b => b.onclick = () => {
     $$(menu + ' .mi', r).forEach(x => x.setAttribute('aria-checked', x === b));
-    const ch = $(chip, r); ch.firstElementChild.outerHTML = I(b.dataset.ic); swap($(name, ch), b.dataset[key]);
+    // (the chip's icon crossfades to the new one, iconSwap(), and its box eases to the new words' width, .mx-w: motion pieces)
+    const ch = $(chip, r), ic = ch.firstElementChild, u = $('use', ic); if (u){ const h = $('use', html(I(b.dataset.ic))).getAttribute('href'); iconSwap(ic, () => u.setAttribute('href', h)); } else ic.outerHTML = I(b.dataset.ic); swap($(name, ch), b.dataset[key]);
   });
   pick('.pp-ctx', '.cpx-ctx', '.cpx-ctx-n', 'ctx');
   pick('.pp-mode', '.cpx-mode', '.cpx-mode-n', 'mode');

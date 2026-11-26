@@ -35,7 +35,7 @@ A list of the things an agent remembers about a team, such as brand rules and wo
 
 ### What it does
 
-- Filter tabs for All plus one per entry in `kinds`. Under each memory its kind's `label` is written in the kind's `color`, followed by its `source`, like "A thread in #design-system, Sep 4".
+- Filter tabs for All plus one per entry in `kinds`. Under each memory its kind's `label` is written in the kind's `color`, followed by its `source`, like "A thread in #design-system, Sep 4". Switching tabs moves the list: the memories that stay glide to their new places, the ones that go fade where they were and the new ones come in after one another.
 - Each memory shows where it came from: `brand` for an app's own mark (google, github, figma, slack, notion, linear, gmail or drive), or `icon` for anything else.
 - `learning` shimmers a memory's text, shows a spinner where its source goes and hides Edit and Forget. When it is learned, the text crossfades to the rule and the source's mark comes in.
 - A memory marked `isNew` has a New tag (`newLabel`), and grows into the list when it arrives while the panel is open.
@@ -189,7 +189,7 @@ import { cx } from '../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../lib/hooks';
 import { Icon, type IconName } from '../lib/icons';
 import { Brand, type BrandName } from '../lib/brands';
-import { Seg, Swap, Tip, useGrow } from '../lib/motion';
+import { Seg, Swap, SwapIcon, Tip, useGrow, useReflow } from '../lib/motion';
 import { useHoverGlide } from '../lib/glide';
 import '../designme.css';
 import './memory-panel.css';
@@ -293,8 +293,9 @@ export function MemoryPanel({
   const edit = useRef<HTMLSpanElement>(null);
   const kindOf = (kind: string) => kinds.find(k => k.value === kind);
 
-  // a new tab repaints the list: the rows stagger in again and any Undo goes away
-  const [paint, setPaint] = useState(0);
+  // a new tab changes the list: the rows that stay glide to their new places, the ones that go fade where they were, the new
+  // ones come in after one another (motion pieces), and any Undo goes away
+  const [, setPaint] = useState(0);
   const order = useRef(new Map<MemoryItem['id'], number>());
   const first = useRef(true);
   useIsoLayoutEffect(() => {
@@ -358,9 +359,10 @@ export function MemoryPanel({
   // no room is kept for a memory still to come (owner, 17 Nov): the panel grows and shrinks with its list, eased (as grow() on
   // the site)
   const [box, inner] = useGrow();
+  useReflow(box, '.dm-mmx-m', { blur: true, enter: false, host: listRef });
 
   return (
-    <div data-dm="" ref={box} className={cx('dm-mmx dm-growing', !bare && 'dm-panel', className)} style={bare ? { paddingInline: 0 } : undefined}>
+    <div data-dm="" ref={box} className={cx('dm-mmx dm-growing dm-mx-grow dm-mx-ic', !bare && 'dm-panel', className)} style={bare ? { paddingInline: 0 } : undefined}>
       <div ref={inner} className="dm-grow">
       {/* the head names the panel; a count and a row of the sources' marks would repeat what the list shows */}
       <div className="dm-mmx-h">
@@ -370,12 +372,12 @@ export function MemoryPanel({
           <Seg label="Filter" value={f} onChange={setF} options={[{ value: 'all', label: allLabel }, ...kinds.map(k => ({ value: k.value, label: k.label }))]} />
         </div>
       </div>
-      <div ref={listRef} className="dm-mmx-list">
+      <div ref={listRef} className="dm-mmx-list dm-mx-glide">
         {shown.map(r => {
           if (r.g) {
             const { m, leaving } = r.g;
             return (
-              <div key={`${paint}-gone-${m.id}`} className={cx('dm-mmx-gone', leaving ? 'dm-leave' : 'dm-enter')}>
+              <div key={`gone-${m.id}`} className={cx('dm-mmx-gone', leaving ? 'dm-leave' : 'dm-enter')}>
                 <span>Forgot “{m.text.slice(0, 32)}{m.text.length > 32 ? '…' : ''}”</span>
                 <button type="button" onClick={() => restore(r.g)}>Undo</button>
               </div>
@@ -385,7 +387,7 @@ export function MemoryPanel({
           const fresh = learnt.current.has(m.id) && !m.learning;
           return (
             // a memory that turns `used` pulses once, as the class arrives
-            <div key={`${paint}-${m.id}`} ref={arriving ? growRow : undefined}
+            <div key={m.id} data-key={String(m.id)} ref={arriving ? growRow : undefined}
               className={cx('dm-mmx-m', !arriving && 'dm-enter', m.learning && 'dm-learn', m.used && 'dm-use')}
               style={{ '--dm-k': k?.color ?? 'var(--dm-muted)', ...(arriving ? null : { animationDelay: delay(m.id) }) } as CSSProperties}>
               <span key={m.learning ? 'learn' : 'from'} className={cx('dm-mmx-src', fresh && 'dm-enter')} aria-hidden="true">
@@ -406,8 +408,8 @@ export function MemoryPanel({
                 </span>
               </span>
               <span className="dm-acts">
-                <Tip label="Edit"><button type="button" className="dm-ib" aria-label="Edit" disabled={m.learning} onClick={() => setEditing(m.id)}><Icon name="edit" size="xs" /></button></Tip>
-                <Tip label="Forget"><button type="button" className="dm-ib" aria-label="Forget" disabled={m.learning} onClick={() => forget(m)}><Icon name="trash" size="xs" /></button></Tip>
+                <Tip label="Edit"><button type="button" className="dm-ib dm-mx-press" aria-label="Edit" disabled={m.learning} onClick={() => setEditing(m.id)}><Icon name="edit" size="xs" /></button></Tip>
+                <Tip label="Forget"><button type="button" className="dm-ib dm-mx-press" aria-label="Forget" disabled={m.learning} onClick={() => forget(m)}><Icon name="trash" size="xs" /></button></Tip>
               </span>
             </div>
           );
@@ -415,7 +417,7 @@ export function MemoryPanel({
       </div>
       {activity && (
         <div className="dm-mmx-f" aria-live="polite">
-          <span className="dm-mmx-fi" aria-hidden="true"><Mark brand={activity.brand} icon={activity.icon ?? (activity.brand ? undefined : 'spark')} /></span>
+          <span className="dm-mmx-fi" aria-hidden="true"><SwapIcon id={activity.brand ?? activity.icon ?? 'spark'}><Mark brand={activity.brand} icon={activity.icon ?? (activity.brand ? undefined : 'spark')} /></SwapIcon></span>
           <Swap className={cx('dm-mmx-ft', activity.live && 'dm-shim')}>{activity.text}</Swap>
         </div>
       )}
