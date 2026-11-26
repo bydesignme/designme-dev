@@ -41,7 +41,7 @@ Terminal stream shows the shell commands an agent runs as a compact terminal pan
 - The header shows `cwd` and the run's `status` as a tag: grey while it runs, with `elapsed` beside Running shimmering like every loading line, then green when passed or red when failed. In Blueprint and Soft a light sweeps along the header's edge while it runs; in Clean the header is an off-white strip. `onStop` adds a Stop button while it runs, and Copy copies the whole run as text, edits' diffs included.
 - While the run goes on, a block cursor blinks after the newest line. The commands, their output and the diffs are code, in mono; the header, the times, the notes and the summary are in the interface's type.
 - Once the run is over, `summary` folds open at the foot. By default it says how many commands ran, counting each one once however many times it ran; how the run went is the header's tag, and the finished line has no clock.
-- The terminal grows with its output, eased, up to 420px, then its output scrolls inside it and stays on the newest line, unless someone has scrolled up to read. To change the most it grows to, give it a `className` and set `max-height` on it and on its `.dm-grow` child in your CSS.
+- Each command, note, edit and output line opens its own height as it arrives, with its words fading in, and the terminal grows with them in one continuous motion, up to 420px; then its output scrolls inside it and stays on the newest line, unless someone has scrolled up to read. In browsers that can't ease to an auto height, lines arrive at once and the terminal eases to them. To change the most it grows to, give it a `className` and set `max-height` on it and on its `.dm-grow` child in your CSS.
 
 ### Accessibility
 
@@ -283,6 +283,9 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
   const foot = summary !== undefined ? summary : `Ran ${n} command${n === 1 ? '' : 's'}`;
   // no room is kept for output still to come (owner, 17 Nov): it grows as lines arrive (as grow() on the site)
   const [root, inner] = useGrow();
+  // while it streams, its lines open their own height (the CSS, where the browser can ease to an auto height), so the
+  // terminal follows them exactly and never springs behind them (data-grow-follow)
+  const [opens] = useState(() => typeof CSS !== 'undefined' && CSS.supports('interpolate-size', 'allow-keywords') && !(typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches));
   const toggle = (i: number) => setOpen(s => { const t = new Set(s); if (t.has(i)) t.delete(i); else t.add(i); return t; });
   // new output keeps the log on its newest line, unless the reader has scrolled up; then it stays where they are
   const log = useRef<HTMLDivElement>(null), pinned = useRef(true);
@@ -291,8 +294,12 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
     const stick = () => { if (pinned.current) el.scrollTop = el.scrollHeight; };
     const mo = new MutationObserver(stick); mo.observe(el, { childList: true, subtree: true, characterData: true });
     const ro = new ResizeObserver(stick); ro.observe(el);
+    // a line that arrives opens its height (the CSS), so once the log scrolls it stays on that line as it opens
+    let raf = 0, till = 0;
+    const follow = () => { till = performance.now() + 240; if (raf) return; const f = (t: number) => { stick(); raf = t < till ? requestAnimationFrame(f) : 0; }; raf = requestAnimationFrame(f); };
+    el.addEventListener('animationstart', follow);
     stick();
-    return () => { mo.disconnect(); ro.disconnect(); };
+    return () => { mo.disconnect(); ro.disconnect(); el.removeEventListener('animationstart', follow); cancelAnimationFrame(raf); };
   }, []);
 
   const text = () => entries.flatMap(e => isNote(e) ? ['# ' + e.text]
@@ -301,7 +308,7 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
   const copyAll = () => { const t = text(); copy(t); onCopy?.(t); };
 
   return (
-    <div data-dm="" ref={root} className={cx('dm-tmx dm-panel dm-growing dm-mx-grow dm-mx-ic', running && 'dm-live', className)} style={{ containerType: 'inline-size' }}>
+    <div data-dm="" ref={root} data-grow-follow={running && opens ? '' : undefined} className={cx('dm-tmx dm-panel dm-growing dm-mx-grow dm-mx-ic', running && 'dm-live', className)} style={{ containerType: 'inline-size' }}>
       <div ref={inner} className="dm-grow">
       <div className="dm-tmx-h">
         <span className="dm-tmx-ic"><Icon name="term" /></span>
@@ -319,11 +326,11 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
       <div ref={log} className="dm-tmx-body" role="log" aria-label="Terminal output" tabIndex={0}
         onScroll={e => { const el = e.currentTarget; pinned.current = el.scrollTop + el.clientHeight >= el.scrollHeight - 24; }}>
         {entries.map((e, i) => {
-          const e0 = enter();
-          // the agent's newest note shimmers while the run goes on: it is still working it out
-          if (isNote(e)) return <div key={i} className={cx('dm-tmx-note', e0.className)} style={e0.style}><Icon name="spark" size="xs" /><span className={cx(running && i === entries.length - 1 && 'dm-shim')}>{e.text}</span></div>;
+          // each entry, line and edit opens its own height as it arrives (the CSS), so the log never pulses; the agent's newest
+          // note shimmers while the run goes on: it is still working it out
+          if (isNote(e)) return <div key={i} className="dm-tmx-note"><Icon name="spark" size="xs" /><span className={cx(running && i === entries.length - 1 && 'dm-shim')}>{e.text}</span></div>;
           if (isEdit(e)) return (
-            <div key={i} className={cx('dm-tmx-blk', e0.className)} style={e0.style} data-s={e.status === 'stopped' ? 'stop' : 'edit'}>
+            <div key={i} className="dm-tmx-blk" data-s={e.status === 'stopped' ? 'stop' : 'edit'}>
               <div className="dm-tmx-cmd"><span className="dm-tmx-p"><Icon name="edit" size="xs" /></span><code className="dm-tmx-c">{L.edit} {e.file}</code>
                 <span className="dm-tmx-m">{e.status === 'running' || e.status === 'stopped' ? <span className="dm-g"><SwapIcon id={e.status}>{e.status === 'running' ? <Spin /> : <span className="dm-tag">{L.stopped}</span>}</SwapIcon></span>
                   : <>{e.added !== undefined && <span className="dm-add">+{e.added}</span>}{e.removed !== undefined && <span className="dm-del">−{e.removed}</span>}</>}</span>
@@ -335,7 +342,7 @@ export function TerminalStream({ cwd, entries, status, elapsed, summary, tail = 
           );
           const out = e.output ?? [], fold = out.length > tail + 1, hidden = fold ? out.slice(0, out.length - tail) : [], shown = fold ? out.slice(out.length - tail) : out, isOpen = open.has(i);
           return (
-            <div key={i} className={cx('dm-tmx-blk', e0.className)} style={e0.style} data-s={e.status === 'running' ? 'run' : e.status === 'ok' ? 'ok' : e.status === 'failed' ? 'bad' : 'stop'}>
+            <div key={i} className="dm-tmx-blk" data-s={e.status === 'running' ? 'run' : e.status === 'ok' ? 'ok' : e.status === 'failed' ? 'bad' : 'stop'}>
               <div className="dm-tmx-cmd">
                 <code className="dm-tmx-p">$</code><code className="dm-tmx-c">{e.command}</code>
                 <span className="dm-tmx-m">

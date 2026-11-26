@@ -315,6 +315,9 @@ function growFit(el, w){
     const sz = sizingIn(w);
     if (sz === 2){ const e = vc === null ? 0 : dh - vc * dt; jump = Math.abs(e) > Math.max(4, Math.abs(vc * dt)) ? e : 0; vc = (dh - jump) / (vc === null ? 1000 / 60 : dt); }
     else vc = null;
+    // (a box marked data-grow-follow holds content that eases each change of its height itself, like a streaming log whose
+    // lines open as they arrive: it follows that content exactly, frame by frame, and never springs behind it)
+    if (el.hasAttribute('data-grow-follow')){ jump = 0; vc = null; }
     if (jump){ d -= jump; if (!raf){ last = t; raf = requestAnimationFrame(step); } }
     put();
   });

@@ -536,8 +536,10 @@ th:last-child>.col-rz{display:none}
 .stl-g{width:16px;display:grid;place-items:center;color:var(--fg)}
 /* a finished step's tick is the vivid mark green */
 .stl-ok{display:grid;color:var(--ok-mark)}
-.stl-t{flex:1;text-align:left}
-.stl-n{color:var(--muted);font-size:12.5px}
+/* (the step and its count share one baseline, grouped in their own line, while the loader and the chevron stay centred on
+   the pill; the count keeps the right end) */
+.stl-t{flex:1;min-width:0;display:flex;align-items:baseline;gap:10px;text-align:left}
+.stl-n{margin-left:auto;color:var(--muted);font-size:12.5px}
 .stl-chev{color:var(--muted);transition:transform .4s var(--ease)}
 .stl-row[aria-expanded="true"] .stl-chev{transform:rotate(180deg)}
 .stl-track{display:flex;gap:var(--s-1);width:250px}
@@ -561,6 +563,7 @@ th:last-child>.col-rz{display:none}
    clean") */
 :root[data-style="clean"] .stl-g{color:var(--accent-mark)}
 :root[data-style="clean"] .stl-row{height:36px;gap:8px;padding:0 16px;font-size:13px}
+:root[data-style="clean"] .stl-t{gap:8px}
 :root[data-style="clean"] .stl-chev{transition:transform var(--t) var(--ease)}
 :root[data-style="clean"] .stl-track i{background:var(--rail)}
 :root[data-style="clean"] .stl-list{margin:8px 0 16px;padding:8px;border-radius:var(--r-card)}
@@ -1928,7 +1931,9 @@ th:last-child>.col-rz{display:none}
    joins the badges. A hand-off sends a light down that line from one agent to the next, and the stretch it crossed stays lit */
 /* the card's content, the head and the lanes, sits 16px in from every edge: each lane's badge starts and its tag ends on the
    head's 16px column, and a lane's hover fill reaches 8px out round it, into the padding (owner, 26 Nov) */
-.aln{padding:var(--s-4)}
+/* (the lanes' own 12px above and below their content take the place of the card's bottom padding, so the last lane's words
+   and badge end 16px from the card's bottom edge, as the head starts 16px from its top) */
+.aln{padding:var(--s-4) var(--s-4) var(--s-1)}
 /* the lanes' marks (tracks, lines, a finished badge) in livelier versions of the agents' hues, each 3:1 on the surface; their
    text keeps the agent's text colour. Dark mode's agent colours are light already, so they are used as they are */
 .aln{--aln-pb:#2a7bff;--aln-pm:#1daa51;--aln-pl:#7a5af5}
@@ -1958,7 +1963,8 @@ th:last-child>.col-rz{display:none}
 /* the relay line runs from badge to badge, through the lanes and the hand-offs between them, and stops short of each badge */
 .aln-rows>*::before{content:"";position:absolute;left:24px;width:2px;top:0;bottom:0;background:var(--line);pointer-events:none}
 .aln-lane::before{top:50px}
-.aln-lane:last-child::before{display:none}
+/* (the last lane, whatever follows it in the list, like a hand-off's lit stroke, has no line under its badge) */
+.aln-lane:not(:has(~ .aln-lane))::before{display:none}
 .aln-lane::after{content:"";position:absolute;left:24px;width:2px;top:0;height:8px;background:var(--line);pointer-events:none}
 .aln-lane:first-child::after{display:none}
 /* a stretch that has carried a hand-off is drawn by its one lit stroke (.aln-pk, below), so the grey under it steps aside
@@ -5599,6 +5605,19 @@ code.tmx-p{font-weight:500;color:var(--accent-fg,var(--fg))}
 .tmx-o{display:block;padding:0 var(--s-4) 0 40px;color:var(--fg2);white-space:pre-wrap;overflow-wrap:anywhere}
 .tmx-l{display:block}
 .tmx-l.ok{color:var(--ok)}.tmx-l.bad{color:var(--bad)}.tmx-l.mu{color:var(--muted)}
+/* a streaming log never pulses (owner, 26 Nov): each line, command, note and edit that arrives opens its own height in 180ms
+   (between the motion pieces' quick and calm times, about one line's arrival apart) as its words fade in, and the line that folds
+   away above the last four closes in the same time and curve, so the log's height moves in one continuous line and the card,
+   which follows its content frame by frame (growFit()), never lags behind it: the newest line never sits in the card's padding
+   and the cursor under it never hides. A line moved into the folded part stays still (.still). Where a browser can't ease to
+   an auto height, lines arrive as before and the card springs to them */
+@keyframes tmxopen{from{height:0;margin-top:0;margin-bottom:0;opacity:0;clip-path:inset(0 0 100% 0)}to{clip-path:inset(0)}}
+@keyframes tmxshut{from{clip-path:inset(0)}to{height:0;margin-top:0;margin-bottom:0;opacity:0;clip-path:inset(0 0 100% 0)}}
+@supports (interpolate-size:allow-keywords){
+  .tmx-body{interpolate-size:allow-keywords}
+  .tmx-body>:is(.tmx-blk,.tmx-note),.tmx-o>.tmx-l:not(.still),.tmx-df,.tmx-more.opens{animation:tmxopen 180ms var(--ease) backwards}
+  .tmx-o>.tmx-l.gone{animation:tmxshut 180ms var(--ease) forwards}
+}
 /* (its hover fill ends on the content's 16px edge, as the output above it does) */
 .tmx-more{display:flex;align-items:center;gap:6px;width:calc(100% - 48px);margin:0 var(--s-4) 0 32px;padding:0 8px;border-radius:var(--r-sm);font-size:12px;line-height:inherit;text-align:left;color:var(--muted);transition:color var(--t-fast),background-color var(--t-fast)}
 .tmx-more:hover{color:var(--fg);background:var(--row)}
@@ -12049,8 +12068,7 @@ button.pvb-row:focus-visible{outline-offset:-2px}
   <template><div class="stl dm mx-ic"><div class="dm-main">
   <button class="stl-row mx-press" aria-expanded="false">
     <span class="stl-g"></span>
-    <span class="stl-t"><span class="stl-lab shim">Reading Figma frames</span></span>
-    <span class="stl-n num">1/4</span>
+    <span class="stl-t"><span class="stl-lab shim">Reading Figma frames</span><span class="stl-n num">1/4</span></span>
     <svg class="i xs stl-chev"><use href="#i-chev-d"/></svg>
   </button>
   <div class="stl-track"><i></i><i></i><i></i><i></i></div>
@@ -14167,6 +14185,9 @@ function growFit(el, w){
     const sz = sizingIn(w);
     if (sz === 2){ const e = vc === null ? 0 : dh - vc * dt; jump = Math.abs(e) > Math.max(4, Math.abs(vc * dt)) ? e : 0; vc = (dh - jump) / (vc === null ? 1000 / 60 : dt); }
     else vc = null;
+    // (a box marked data-grow-follow holds content that eases each change of its height itself, like a streaming log whose
+    // lines open as they arrive: it follows that content exactly, frame by frame, and never springs behind it)
+    if (el.hasAttribute('data-grow-follow')){ jump = 0; vc = null; }
     if (jump){ d -= jump; if (!raf){ last = t; raf = requestAnimationFrame(step); } }
     put();
   });
@@ -20948,23 +20969,33 @@ DM.def('terminal-stream', (r, c) => {
   // a command or an edit: its $ (or the edit's pencil) in the marks' column, what it is, and a spinner and its time on the right
   function row(mark, text){
     const el = html(`<div class="tmx-blk" data-s="run"><div class="tmx-cmd">${mark === '$' ? '<code class="tmx-p">$</code>' : `<span class="tmx-p">${mark}</span>`}<code class="tmx-c"></code><span class="tmx-m"><span class="g"><span class="spin"></span></span><span class="t num"></span></span></div></div>`);
-    $('.tmx-c', el).textContent = text; body.appendChild(el); enter(el); return el;
+    $('.tmx-c', el).textContent = text; body.appendChild(el); follow(); return el;
   }
   function lines(el){
     const more = html(`<button class="tmx-more mx-press" aria-expanded="false" hidden>${I('chev-d','xs')}<span></span><i class="sp"></i></button>`), hid = html('<div class="fold shut"><code class="tmx-o"></code></div>'), tail = html('<code class="tmx-o"></code>');
     const inner = hid.firstElementChild; hid.inert = true; el.append(more, hid, tail);
-    const label = () => { const n = inner.children.length, open = !hid.classList.contains('shut'); $('span', more).textContent = open ? 'Show fewer lines' : `Show ${n} more line${n > 1 ? 's' : ''}`; more.setAttribute('aria-expanded', open); };
+    const label = () => { const n = inner.children.length + $$('.gone', tail).length, open = !hid.classList.contains('shut'); $('span', more).textContent = open ? 'Show fewer lines' : `Show ${n} more line${n > 1 ? 's' : ''}`; more.setAttribute('aria-expanded', open); };
     more.onclick = () => { hid.inert = hid.classList.toggle('shut'); label(); };
+    // (the lines that fold away above the last four close as the new one opens, in the same time and curve, and then move
+    // into the folded part; with the fold open, or no easing to an auto height, they move at once, which keeps the height)
+    const hidden = () => inner.children.length + $$('.gone', tail).length;
+    const retire = l => {
+      const done = () => { l.classList.remove('gone'); l.classList.add('still'); inner.appendChild(l); label(); };
+      if (!OPENS || !hid.classList.contains('shut')) return done();
+      l.classList.add('gone'); l.addEventListener('animationend', done, { once:true });
+    };
     return ([text, tone]) => {
       const l = document.createElement('span'); l.className = 'tmx-l' + (tone ? ' ' + tone : ''); l.textContent = text; tail.appendChild(l);
-      if (inner.children.length + tail.children.length > TAIL + 1) while (tail.children.length > TAIL) inner.appendChild(tail.firstElementChild);
-      if (inner.children.length){ more.hidden = false; label(); }
+      const live = $$('.tmx-l:not(.gone)', tail);
+      if (hidden() + live.length > TAIL + 1) while (live.length > TAIL) retire(live.shift());
+      if (hidden()){ if (more.hidden){ more.hidden = false; more.classList.add('opens'); } label(); }
+      follow();
     };
   }
   // (a mark that changes, the spinner into its tick, Exit tag or Stopped, crossfades in place: iconSwap())
   const halted = el => { const g = $('.tmx-m .g', el); iconSwap(g, () => { g.innerHTML = '<span class="tag">Stopped</span>'; }); el.dataset.s = 'stop'; };
   function finish(how){
-    over = true; stop.hidden = true; root.classList.remove('live'); sv.classList.remove('shim');
+    over = true; stop.hidden = true; delete root.dataset.growFollow; root.classList.remove('live'); sv.classList.remove('shim');
     st.classList.toggle('ok', how === 'passed'); st.classList.toggle('bad', how === 'failed'); { const g = $('.g', st); iconSwap(g, () => { g.innerHTML = I(how === 'passed' ? 'check' : 'stop', 'xs'); }); } sv.textContent = how === 'passed' ? 'Passed' : how === 'failed' ? 'Failed' : 'Stopped';
     // each command counts once, however many times it ran; how it went is the header's tag, so the summary doesn't say it
     // again, and a finished line has no clock (owner, 18 Nov)
@@ -20974,20 +21005,23 @@ DM.def('terminal-stream', (r, c) => {
     ff.classList.remove('shut');
   }
   // new output keeps the log on its newest line, unless the person has scrolled up to read; then it stays where they are
-  let pinned = true;
+  let pinned = true, till = 0;
   const stick = () => { if (pinned) body.scrollTop = body.scrollHeight; };
+  // (a line that opens its height grows the log frame by frame, so once it scrolls the log stays on it as it opens)
+  const OPENS = !REDUCE && CSS.supports('interpolate-size', 'allow-keywords');
+  const follow = () => { const go = !till; till = performance.now() + 240; if (go) requestAnimationFrame(function f(t){ stick(); if (t < till && !c.dead) requestAnimationFrame(f); else till = 0; }); };
   c.on(body, 'scroll', () => { pinned = body.scrollTop + body.clientHeight >= body.scrollHeight - 24; });
   const mo = new MutationObserver(stick); mo.observe(body, { childList:true, subtree:true }); c.offs.push(() => mo.disconnect());
   const ro = new ResizeObserver(stick); ro.observe(body); c.offs.push(() => ro.disconnect());
   stop.onclick = () => { halt = true; };
   cp.onclick = () => copied(cp, log.join('\n'));
-  root.classList.add('live'); sv.classList.add('shim');
+  root.classList.add('live'); sv.classList.add('shim'); if (OPENS) root.dataset.growFollow = '';
   c.run(async () => {
     let last = 0;
     for (const k of S){
       if (!await pass(GAP)) return finish('stopped');
       if (k.note){
-        const n = html(`<div class="tmx-note">${I('spark','xs')}<span class="shim"></span></div>`), w = $('span', n); w.textContent = k.note; body.appendChild(n); enter(n); log.push('# ' + k.note);
+        const n = html(`<div class="tmx-note">${I('spark','xs')}<span class="shim"></span></div>`), w = $('span', n); w.textContent = k.note; body.appendChild(n); follow(); log.push('# ' + k.note);
         const ok = await pass(k.ms); w.classList.remove('shim');
         if (!ok) return finish('stopped');
         continue;
@@ -20998,7 +21032,7 @@ DM.def('terminal-stream', (r, c) => {
         $('.tmx-m', el).innerHTML = `<span class="add">+${k.add}</span><span class="del">−${k.del}</span>`; log.push(`# Edited ${k.edit} (+${k.add} −${k.del})`);
         const df = document.createElement('code'); df.className = 'tmx-df';
         k.diff.forEach((d, i) => { const l = document.createElement('span'); l.className = d[0] === '+' ? 'a' : d[0] === '-' ? 'd' : ''; l.textContent = d; df.appendChild(l); enter(l, i * 90); });
-        el.appendChild(df); log.push(...k.diff);
+        el.appendChild(df); follow(); log.push(...k.diff);
         continue;
       }
       const el = row('$', k.cmd), t = $('.tmx-m .t', el), add = lines(el), per = k.ms / k.out.length;

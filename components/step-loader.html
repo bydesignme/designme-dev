@@ -175,8 +175,10 @@
 .stl-g{width:16px;display:grid;place-items:center;color:var(--dm-fg)}
 /* a finished step's tick is the vivid mark green */
 .stl-ok{display:grid;color:var(--dm-ok-mark)}
-.stl-t{flex:1;text-align:left}
-.stl-n{color:var(--dm-muted);font-size:12.5px}
+/* (the step and its count share one baseline, grouped in their own line, while the loader and the chevron stay centred on
+   the pill; the count keeps the right end) */
+.stl-t{flex:1;min-width:0;display:flex;align-items:baseline;gap:10px;text-align:left}
+.stl-n{margin-left:auto;color:var(--dm-muted);font-size:12.5px}
 .stl-chev{color:var(--dm-muted);transition:transform .4s var(--dm-ease)}
 .stl-row[aria-expanded="true"] .stl-chev{transform:rotate(180deg)}
 .stl-track{display:flex;gap:var(--dm-s-1);width:250px}
@@ -200,6 +202,7 @@
    clean") */
 :root[data-style="clean"] .stl-g,:root [data-style="clean"] .stl-g,:root [data-style="clean"].stl-g{color:var(--dm-accent-mark)}
 :root[data-style="clean"] .stl-row,:root [data-style="clean"] .stl-row,:root [data-style="clean"].stl-row{height:36px;gap:8px;padding:0 16px;font-size:13px}
+:root[data-style="clean"] .stl-t,:root [data-style="clean"] .stl-t,:root [data-style="clean"].stl-t{gap:8px}
 :root[data-style="clean"] .stl-chev,:root [data-style="clean"] .stl-chev,:root [data-style="clean"].stl-chev{transition:transform var(--dm-t) var(--dm-ease)}
 :root[data-style="clean"] .stl-track i,:root [data-style="clean"] .stl-track i,:root [data-style="clean"].stl-track i{background:var(--dm-rail)}
 :root[data-style="clean"] .stl-list,:root [data-style="clean"] .stl-list,:root [data-style="clean"].stl-list{margin:8px 0 16px;padding:8px;border-radius:var(--dm-r-card)}
@@ -233,8 +236,7 @@
     <div class="stl dm mx-ic"><div class="dm-main">
       <button class="stl-row mx-press" aria-expanded="false">
         <span class="stl-g"></span>
-        <span class="stl-t"><span class="stl-lab shim">Reading Figma frames</span></span>
-        <span class="stl-n num">1/4</span>
+        <span class="stl-t"><span class="stl-lab shim">Reading Figma frames</span><span class="stl-n num">1/4</span></span>
         <svg class="i xs stl-chev"><use href="#i-chev-d"/></svg>
       </button>
       <div class="stl-track"><i></i><i></i><i></i><i></i></div>
@@ -319,7 +321,7 @@ export default function StepLoaderDemo() {
 import StepLoader from &#39;../components/designme/step-loader/StepLoader.astro&#39;;
 ---
 &lt;StepLoader /&gt;
-&lt;StepLoader data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything StepLoader takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>steps</code><span class="opt">required</span></td><td><code>Step[]</code></td><td></td></tr><tr><td><code>current</code><span class="opt">required</span></td><td><code>number</code></td><td>Index of the step running now. steps.length (or more) means every step is done</td></tr><tr><td><code>loader</code></td><td><code>StepLoaderGlyph</code></td><td>The loader beside the running step</td></tr><tr><td><code>doneLabel</code></td><td><code>string</code></td><td>Label once every step is done</td></tr><tr><td><code>open</code></td><td><code>boolean</code></td><td>Whether the list of every step is open. Leave it out to let the row toggle it</td></tr><tr><td><code>defaultOpen</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onOpenChange</code></td><td><code>(open: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>StepLoader.tsx<span class="l">React · 67 lines</span></summary><pre class="cp-pre" data-name="StepLoader.tsx"><code>&#39;use client&#39;;
+&lt;StepLoader data-style=&quot;soft&quot; class=&quot;my-class&quot; /&gt;</code></pre></div></section><section class="cp-sec" id="props"><div class="pg-sh"><span class="n">04</span><h2>Props</h2><p>Everything StepLoader takes.</p></div><div class="cp-props"><table><thead><tr><th>Prop</th><th>Type</th><th>What it does</th></tr></thead><tbody><tr><td><code>steps</code><span class="opt">required</span></td><td><code>Step[]</code></td><td></td></tr><tr><td><code>current</code><span class="opt">required</span></td><td><code>number</code></td><td>Index of the step running now. steps.length (or more) means every step is done</td></tr><tr><td><code>loader</code></td><td><code>StepLoaderGlyph</code></td><td>The loader beside the running step</td></tr><tr><td><code>doneLabel</code></td><td><code>string</code></td><td>Label once every step is done</td></tr><tr><td><code>open</code></td><td><code>boolean</code></td><td>Whether the list of every step is open. Leave it out to let the row toggle it</td></tr><tr><td><code>defaultOpen</code></td><td><code>boolean</code></td><td></td></tr><tr><td><code>onOpenChange</code></td><td><code>(open: boolean) =&gt; void</code></td><td></td></tr><tr><td><code>className</code></td><td><code>string</code></td><td></td></tr></tbody></table></div></section><section class="cp-sec" id="code"><div class="pg-sh"><span class="n">05</span><h2>Code</h2><p>The full source, as the CLI installs it.</p></div><div class="cp-files"><details class="cp-file"><summary>StepLoader.tsx<span class="l">React · 66 lines</span></summary><pre class="cp-pre" data-name="StepLoader.tsx"><code>&#39;use client&#39;;
 import { cx } from &#39;../lib/cx&#39;;
 import { useControllable } from &#39;../lib/hooks&#39;;
 import { Icon } from &#39;../lib/icons&#39;;
@@ -362,8 +364,7 @@ export function StepLoader({ steps, current, loader = &#39;radar&#39;, doneLabel
     &lt;div data-dm=&quot;&quot; className={cx(&#39;dm-stl dm-mx-ic&#39;, className)} style={{ display: &#39;flex&#39;, flexDirection: &#39;column&#39;, alignItems: &#39;center&#39;, gap: 10 }}&gt;
       &lt;button type=&quot;button&quot; className=&quot;dm-stl-row dm-mx-press&quot; aria-expanded={isOpen} onClick={() =&gt; setOpen(!isOpen)}&gt;
         &lt;span className=&quot;dm-stl-g&quot;&gt;&lt;SwapIcon id={done ? &#39;ok&#39; : loader}&gt;{done ? &lt;span className=&quot;dm-stl-ok&quot;&gt;&lt;Icon name=&quot;ok&quot; /&gt;&lt;/span&gt; : &lt;Loader kind={loader} /&gt;}&lt;/SwapIcon&gt;&lt;/span&gt;
-        &lt;span className=&quot;dm-stl-t&quot;&gt;&lt;Swap className={cx(&#39;dm-stl-lab&#39;, !done &amp;&amp; &#39;dm-shim&#39;)}&gt;{done ? doneLabel : steps[at].label}&lt;/Swap&gt;&lt;/span&gt;
-        &lt;Swap className=&quot;dm-stl-n dm-num&quot;&gt;{`${done ? n : at + 1}/${n}`}&lt;/Swap&gt;
+        &lt;span className=&quot;dm-stl-t&quot;&gt;&lt;Swap className={cx(&#39;dm-stl-lab&#39;, !done &amp;&amp; &#39;dm-shim&#39;)}&gt;{done ? doneLabel : steps[at].label}&lt;/Swap&gt;&lt;Swap className=&quot;dm-stl-n dm-num&quot;&gt;{`${done ? n : at + 1}/${n}`}&lt;/Swap&gt;&lt;/span&gt;
         &lt;Icon name=&quot;chev-d&quot; size=&quot;xs&quot; className=&quot;dm-stl-chev&quot; /&gt;
       &lt;/button&gt;
       &lt;div className=&quot;dm-stl-track&quot; role=&quot;progressbar&quot; aria-valuemin={0} aria-valuemax={n} aria-valuenow={done ? n : at}&gt;
@@ -385,7 +386,7 @@ export function StepLoader({ steps, current, loader = &#39;radar&#39;, doneLabel
     &lt;/div&gt;
   );
 }
-</code></pre></details><details class="cp-file"><summary>step-loader.css<span class="l">React · 53 lines</span></summary><pre class="cp-pre" data-name="step-loader.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+</code></pre></details><details class="cp-file"><summary>step-loader.css<span class="l">React · 56 lines</span></summary><pre class="cp-pre" data-name="step-loader.css"><code>/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Step loader ---------- */
 /* a pill with the step in hand (its loader, its name shimmering while it runs, how far along), a track of one part a step
    under it, and a fold that lists every step. The list&#39;s marks sit centred under the pill&#39;s loader and its words start
@@ -399,8 +400,10 @@ export function StepLoader({ steps, current, loader = &#39;radar&#39;, doneLabel
 .dm-stl-g{width:16px;display:grid;place-items:center;color:var(--dm-fg)}
 /* a finished step&#39;s tick is the vivid mark green */
 .dm-stl-ok{display:grid;color:var(--dm-ok-mark)}
-.dm-stl-t{flex:1;text-align:left}
-.dm-stl-n{color:var(--dm-muted);font-size:12.5px}
+/* (the step and its count share one baseline, grouped in their own line, while the loader and the chevron stay centred on
+   the pill; the count keeps the right end) */
+.dm-stl-t{flex:1;min-width:0;display:flex;align-items:baseline;gap:10px;text-align:left}
+.dm-stl-n{margin-left:auto;color:var(--dm-muted);font-size:12.5px}
 .dm-stl-chev{color:var(--dm-muted);transition:transform .4s var(--dm-ease)}
 .dm-stl-row[aria-expanded=&quot;true&quot;] .dm-stl-chev{transform:rotate(180deg)}
 .dm-stl-track{display:flex;gap:var(--dm-s-1);width:250px}
@@ -424,6 +427,7 @@ export function StepLoader({ steps, current, loader = &#39;radar&#39;, doneLabel
    clean&quot;) */
 :root[data-style=&quot;clean&quot;] .dm-stl-g,:root [data-style=&quot;clean&quot;] .dm-stl-g,:root [data-style=&quot;clean&quot;].dm-stl-g{color:var(--dm-accent-mark)}
 :root[data-style=&quot;clean&quot;] .dm-stl-row,:root [data-style=&quot;clean&quot;] .dm-stl-row,:root [data-style=&quot;clean&quot;].dm-stl-row{height:36px;gap:8px;padding:0 16px;font-size:13px}
+:root[data-style=&quot;clean&quot;] .dm-stl-t,:root [data-style=&quot;clean&quot;] .dm-stl-t,:root [data-style=&quot;clean&quot;].dm-stl-t{gap:8px}
 :root[data-style=&quot;clean&quot;] .dm-stl-chev,:root [data-style=&quot;clean&quot;] .dm-stl-chev,:root [data-style=&quot;clean&quot;].dm-stl-chev{transition:transform var(--dm-t) var(--dm-ease)}
 :root[data-style=&quot;clean&quot;] .dm-stl-track i,:root [data-style=&quot;clean&quot;] .dm-stl-track i,:root [data-style=&quot;clean&quot;].dm-stl-track i{background:var(--dm-rail)}
 :root[data-style=&quot;clean&quot;] .dm-stl-list,:root [data-style=&quot;clean&quot;] .dm-stl-list,:root [data-style=&quot;clean&quot;].dm-stl-list{margin:8px 0 16px;padding:8px;border-radius:var(--dm-r-card)}
@@ -437,7 +441,7 @@ export function StepLoader({ steps, current, loader = &#39;radar&#39;, doneLabel
 .dm-bars3 i{width:2.5px;height:100%;border-radius:var(--dm-r-tiny,2px);background:currentColor;animation:dm-b3 .9s var(--dm-ease-io) infinite}
 .dm-bars3 i:nth-child(2){animation-delay:.15s}.dm-bars3 i:nth-child(3){animation-delay:.3s}
 @keyframes dm-b3{0%,100%{transform:scaleY(.35)}50%{transform:scaleY(1)}}
-</code></pre></details><details class="cp-file"><summary>StepLoader.astro<span class="l">Astro · 35 lines</span></summary><pre class="cp-pre" data-name="StepLoader.astro"><code>---
+</code></pre></details><details class="cp-file"><summary>StepLoader.astro<span class="l">Astro · 34 lines</span></summary><pre class="cp-pre" data-name="StepLoader.astro"><code>---
 // Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
 // Step loader: Named steps with a progress track and four loaders.
 // The markup, CSS and script are designme.dev&#39;s own, run by the shared core in ../core, which mounts the component when it scrolls
@@ -457,8 +461,7 @@ const { class: className, ...rest } = Astro.props;
 &lt;div class=&quot;stl dm mx-ic&quot;&gt;&lt;div class=&quot;dm-main&quot;&gt;
   &lt;button class=&quot;stl-row mx-press&quot; aria-expanded=&quot;false&quot;&gt;
     &lt;span class=&quot;stl-g&quot;&gt;&lt;/span&gt;
-    &lt;span class=&quot;stl-t&quot;&gt;&lt;span class=&quot;stl-lab shim&quot;&gt;Reading Figma frames&lt;/span&gt;&lt;/span&gt;
-    &lt;span class=&quot;stl-n num&quot;&gt;1/4&lt;/span&gt;
+    &lt;span class=&quot;stl-t&quot;&gt;&lt;span class=&quot;stl-lab shim&quot;&gt;Reading Figma frames&lt;/span&gt;&lt;span class=&quot;stl-n num&quot;&gt;1/4&lt;/span&gt;&lt;/span&gt;
     &lt;svg class=&quot;i xs stl-chev&quot;&gt;&lt;use href=&quot;#i-chev-d&quot;/&gt;&lt;/svg&gt;
   &lt;/button&gt;
   &lt;div class=&quot;stl-track&quot;&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;/div&gt;
@@ -471,13 +474,12 @@ const { class: className, ...rest } = Astro.props;
 &lt;script&gt;
   import &#39;./step-loader.js&#39;;
 &lt;/script&gt;
-</code></pre></details><details class="cp-file"><summary>step-loader.html<span class="l">HTML · 17 lines</span></summary><pre class="cp-pre" data-name="step-loader.html"><code>&lt;div class=&quot;card wide bare&quot; data-c=&quot;step-loader&quot;&gt;
+</code></pre></details><details class="cp-file"><summary>step-loader.html<span class="l">HTML · 16 lines</span></summary><pre class="cp-pre" data-name="step-loader.html"><code>&lt;div class=&quot;card wide bare&quot; data-c=&quot;step-loader&quot;&gt;
   &lt;div class=&quot;stage-in&quot;&gt;
     &lt;div class=&quot;stl dm mx-ic&quot;&gt;&lt;div class=&quot;dm-main&quot;&gt;
       &lt;button class=&quot;stl-row mx-press&quot; aria-expanded=&quot;false&quot;&gt;
         &lt;span class=&quot;stl-g&quot;&gt;&lt;/span&gt;
-        &lt;span class=&quot;stl-t&quot;&gt;&lt;span class=&quot;stl-lab shim&quot;&gt;Reading Figma frames&lt;/span&gt;&lt;/span&gt;
-        &lt;span class=&quot;stl-n num&quot;&gt;1/4&lt;/span&gt;
+        &lt;span class=&quot;stl-t&quot;&gt;&lt;span class=&quot;stl-lab shim&quot;&gt;Reading Figma frames&lt;/span&gt;&lt;span class=&quot;stl-n num&quot;&gt;1/4&lt;/span&gt;&lt;/span&gt;
         &lt;svg class=&quot;i xs stl-chev&quot;&gt;&lt;use href=&quot;#i-chev-d&quot;/&gt;&lt;/svg&gt;
       &lt;/button&gt;
       &lt;div class=&quot;stl-track&quot;&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;/div&gt;
@@ -487,7 +489,7 @@ const { class: className, ...rest } = Astro.props;
     &lt;/div&gt;
   &lt;/div&gt;
 &lt;/div&gt;
-</code></pre></details><details class="cp-file"><summary>step-loader.css<span class="l">HTML · 52 lines</span></summary><pre class="cp-pre" data-name="step-loader.css"><code>/* ---------- Step loader ---------- */
+</code></pre></details><details class="cp-file"><summary>step-loader.css<span class="l">HTML · 55 lines</span></summary><pre class="cp-pre" data-name="step-loader.css"><code>/* ---------- Step loader ---------- */
 /* a pill with the step in hand (its loader, its name shimmering while it runs, how far along), a track of one part a step
    under it, and a fold that lists every step. The list&#39;s marks sit centred under the pill&#39;s loader and its words start
    where the pill&#39;s do. The pill is a disclosure: pointing at it gives it a quiet fill, never a bigger shadow */
@@ -500,8 +502,10 @@ const { class: className, ...rest } = Astro.props;
 .stl-g{width:16px;display:grid;place-items:center;color:var(--dm-fg)}
 /* a finished step&#39;s tick is the vivid mark green */
 .stl-ok{display:grid;color:var(--dm-ok-mark)}
-.stl-t{flex:1;text-align:left}
-.stl-n{color:var(--dm-muted);font-size:12.5px}
+/* (the step and its count share one baseline, grouped in their own line, while the loader and the chevron stay centred on
+   the pill; the count keeps the right end) */
+.stl-t{flex:1;min-width:0;display:flex;align-items:baseline;gap:10px;text-align:left}
+.stl-n{margin-left:auto;color:var(--dm-muted);font-size:12.5px}
 .stl-chev{color:var(--dm-muted);transition:transform .4s var(--dm-ease)}
 .stl-row[aria-expanded=&quot;true&quot;] .stl-chev{transform:rotate(180deg)}
 .stl-track{display:flex;gap:var(--dm-s-1);width:250px}
@@ -525,6 +529,7 @@ const { class: className, ...rest } = Astro.props;
    clean&quot;) */
 :root[data-style=&quot;clean&quot;] .stl-g,:root [data-style=&quot;clean&quot;] .stl-g,:root [data-style=&quot;clean&quot;].stl-g{color:var(--dm-accent-mark)}
 :root[data-style=&quot;clean&quot;] .stl-row,:root [data-style=&quot;clean&quot;] .stl-row,:root [data-style=&quot;clean&quot;].stl-row{height:36px;gap:8px;padding:0 16px;font-size:13px}
+:root[data-style=&quot;clean&quot;] .stl-t,:root [data-style=&quot;clean&quot;] .stl-t,:root [data-style=&quot;clean&quot;].stl-t{gap:8px}
 :root[data-style=&quot;clean&quot;] .stl-chev,:root [data-style=&quot;clean&quot;] .stl-chev,:root [data-style=&quot;clean&quot;].stl-chev{transition:transform var(--dm-t) var(--dm-ease)}
 :root[data-style=&quot;clean&quot;] .stl-track i,:root [data-style=&quot;clean&quot;] .stl-track i,:root [data-style=&quot;clean&quot;].stl-track i{background:var(--dm-rail)}
 :root[data-style=&quot;clean&quot;] .stl-list,:root [data-style=&quot;clean&quot;] .stl-list,:root [data-style=&quot;clean&quot;].stl-list{margin:8px 0 16px;padding:8px;border-radius:var(--dm-r-card)}

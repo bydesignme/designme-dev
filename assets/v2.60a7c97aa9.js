@@ -318,6 +318,9 @@ function growFit(el, w){
     const sz = sizingIn(w);
     if (sz === 2){ const e = vc === null ? 0 : dh - vc * dt; jump = Math.abs(e) > Math.max(4, Math.abs(vc * dt)) ? e : 0; vc = (dh - jump) / (vc === null ? 1000 / 60 : dt); }
     else vc = null;
+    // (a box marked data-grow-follow holds content that eases each change of its height itself, like a streaming log whose
+    // lines open as they arrive: it follows that content exactly, frame by frame, and never springs behind it)
+    if (el.hasAttribute('data-grow-follow')){ jump = 0; vc = null; }
     if (jump){ d -= jump; if (!raf){ last = t; raf = requestAnimationFrame(step); } }
     put();
   });
@@ -3004,7 +3007,7 @@ DM.def('permission-gate', (r, c) => {
   });
 });
 /* ---------- the sections' components, loaded the first time a section comes near (DEF_PARTS in build.js) ---------- */
-const PARTS = {"files":{"s-status":"/assets/v2-status.c2336118e5.js","s-review":"/assets/v2-review.7b21ccf7c5.js","s-data":"/assets/v2-data.dfd10576d6.js","s-workspace":"/assets/v2-workspace.c065b8851e.js","s-dates":"/assets/v2-dates.ca471b0cff.js"},"of":{"status-pill":"s-status","step-loader":"s-status","thinking-states":"s-status","reasoning-trail":"s-status","thinking":"s-status","context-meter":"s-status","toast":"s-status","toast-stack":"s-status","agent-run-timeline":"s-status","decision-prompt":"s-review","plan-review":"s-review","inline-text-diff":"s-review","source-stack":"s-data","terminal-stream":"s-data","citation-hover":"s-data","command-palette":"s-workspace","file-explorer":"s-workspace","run-drawer":"s-workspace","memory-panel":"s-workspace","tool-connections":"s-workspace","knowledge-sources":"s-workspace","scheduled-runs":"s-workspace","event-calendar":"s-dates","web-search":"s-status"},"all":[]};
+const PARTS = {"files":{"s-status":"/assets/v2-status.47d1b96d91.js","s-review":"/assets/v2-review.7b21ccf7c5.js","s-data":"/assets/v2-data.80d1be531b.js","s-workspace":"/assets/v2-workspace.c065b8851e.js","s-dates":"/assets/v2-dates.ca471b0cff.js"},"of":{"status-pill":"s-status","step-loader":"s-status","thinking-states":"s-status","reasoning-trail":"s-status","thinking":"s-status","context-meter":"s-status","toast":"s-status","toast-stack":"s-status","agent-run-timeline":"s-status","decision-prompt":"s-review","plan-review":"s-review","inline-text-diff":"s-review","source-stack":"s-data","terminal-stream":"s-data","citation-hover":"s-data","command-palette":"s-workspace","file-explorer":"s-workspace","run-drawer":"s-workspace","memory-panel":"s-workspace","tool-connections":"s-workspace","knowledge-sources":"s-workspace","scheduled-runs":"s-workspace","event-calendar":"s-dates","web-search":"s-status"},"all":[]};
 const partRun = src => eval(src);
 // the markup of the cards whose section has a file of its own comes with that file
 const TPLS = {};
