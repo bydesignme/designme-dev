@@ -40,6 +40,10 @@
 .dm-ctm-leg{display:flex;flex-direction:column;margin:0}
 .dm-ctm-l{display:flex;align-items:center;gap:var(--dm-s-2);padding:5px 6px;border-radius:var(--dm-r-sm);font-size:13px;line-height:18px;color:var(--dm-fg2);cursor:default;transition:background var(--dm-t-fast)}
 @media (hover:hover) and (pointer:fine){.dm-ctm-l:hover{background:color-mix(in srgb,var(--dm-fg) 5%,transparent)}}
+/* its motion (the core's motion pieces, owner, 26 Nov): one highlight glides from part to part in the legend, in the hover's
+   own grey (.mx-glide); a press on Compact shows at once; its box eases to its new words' width on the spring (mxWidth()) */
+.dm-ctm-leg{--dm-hg-bg:color-mix(in srgb,var(--dm-fg) 5%,transparent)}
+:root[data-style="clean"] .dm-ctm-leg,:root [data-style="clean"] .dm-ctm-leg,:root [data-style="clean"].dm-ctm-leg{--dm-hg-bg:var(--dm-row)}
 /* the swatch is centred in a 16px column, the column of the message's sign and tick below, so their words line up */
 .dm-ctm-l .dm-sw{width:8px;height:8px;margin:0 4px;border-radius:var(--dm-r-tiny,2px);flex:none;background:var(--dm-c)}
 .dm-ctm-l .dm-v{margin-left:auto;color:var(--dm-fg)}
@@ -81,7 +85,13 @@
 .dm-ctm-ring circle{fill:none;stroke-width:2.6}
 .dm-ctm-ring .dm-tr{stroke:var(--dm-rail)}
 .dm-ctm-ring .dm-fl{stroke:var(--dm-accent-mark,var(--dm-accent));stroke-linecap:round;stroke-dasharray:0 100;transition:stroke-dasharray .42s var(--dm-ease),stroke .32s}
-.dm-ctm.dm-hot .dm-ctm-ring .dm-fl{stroke:var(--dm-warn-mark)}
+/* near the limit the ring turns to the warning mark by a wipe, never a blend (owner, 26 Nov, from its showcase): a second arc in
+   the warning mark (.fw) draws along the accent's from its start in 200ms, and draws back the same way once it is compacted, so
+   no frame shows a mix of the two colours. Each step up sends a thin bright highlight once along the filled arc (.hl, 0.45s)
+   and lifts the ring a touch (1.06, 0.35s); crossing the limit nudges the pill once. No halo or glow round it. With reduced
+   motion the ring and its colour change at once, with no highlight, lift or nudge */
+.dm-ctm-ring .dm-fw{stroke:var(--dm-warn-mark);stroke-linecap:round;stroke-dasharray:0 100;opacity:0;transition:stroke-dasharray .42s var(--dm-ease)}
+.dm-ctm-ring .dm-hl{stroke:#fff;stroke-width:2;stroke-linecap:butt;stroke-dasharray:0 200;opacity:0}
 
 /* Clean (owner, 17 and 18 Nov): the pill is the flat secondary control (a hairline and a light fill, no press); the ring is
    the accent's mark on a grey rail. The panel is a 22px card with an off-white head strip and foot strip, opening and
