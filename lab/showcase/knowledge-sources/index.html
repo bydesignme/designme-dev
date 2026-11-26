@@ -868,9 +868,17 @@ body.render #stage{left:0;top:0;transform:none!important}
 /* completion marks: four-point sparks and a ring, in the accent's mark colour and neutral grey; strokes and fills, no glow */
 #fx{position:absolute;left:0;top:0;overflow:visible}
 #fx svg{position:absolute;left:0;top:0;overflow:visible}
-.spk{fill:var(--dm-accent-mark,var(--dm-accent))}
-.spk.n{fill:var(--dm-line-strong)}
-.ring{fill:none;stroke:var(--dm-accent-mark,var(--dm-accent));stroke-width:1.5}
+/* the finish: one thin ring, the tile's own shape, ripples out from it in the accent's mark colour and fades. No stars, no glow */
+#tring{position:absolute;left:0;top:0;box-sizing:border-box;border:1.5px solid var(--dm-accent-mark,var(--dm-accent));opacity:0}
+/* the new row's tile is a tank: it starts as a tint of the files colour and fills from the bottom, piece by piece, until it is
+   the solid tile the component shows. Its icon is drawn twice, cut at the level, so it reads on the tint and on the fill */
+#tile{position:relative;overflow:hidden}
+.tk-fill{position:absolute;left:0;right:0;bottom:0;height:0;background:var(--tk-fill)}
+.tk-a,.tk-b{position:absolute;left:8px;top:8px}
+.tk-b{color:var(--tk-ic2)}
+:root{--tk-bg:color-mix(in srgb,var(--dm-av-p) 24%,var(--dm-surface));--tk-fill:var(--dm-av-p);--tk-ic:var(--dm-av-p-ink);--tk-ic2:var(--dm-av-p-ink)}
+:root[data-theme="dark"]{--tk-bg:color-mix(in srgb,var(--dm-av-p) 20%,var(--dm-surface));--tk-ic:var(--dm-av-p)}
+:root[data-style="clean"]{--tk-bg:var(--dm-surface);--tk-fill:color-mix(in srgb,var(--dm-fg) 13%,var(--dm-surface));--tk-ic:var(--dm-fg2);--tk-ic2:var(--dm-fg2)}
 #cur{position:absolute;left:0;top:0;width:22px;height:26px;transform-origin:2px 2px;pointer-events:none}
 #rip{position:absolute;left:-14px;top:-14px;width:28px;height:28px;border-radius:50%;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-fg) 45%,transparent)}
 /* the window's caption (not in renders) */
@@ -888,7 +896,7 @@ body.render .cap{display:none}
       <div class="dm-ksx-list" role="list" aria-label="Sources">
         <div class="dm-ksx-s" role="listitem" data-st="ready" id="r1"><span class="dm-ic" style="background:var(--dm-av-m);color:var(--dm-av-m-ink)" aria-hidden="true"><svg class="dm-i dm-xs" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span><span class="dm-t"><span class="dm-nm">Product docs</span><span class="dm-d"><svg class="dm-i dm-xs" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8.2 12.3 2.6 2.6 5-5.2"/></svg><span>86 pages · Synced 2m ago</span></span></span><button type="button" class="dm-ib dm-ksx-more" aria-label="Actions for Product docs"><svg class="dm-i" viewBox="0 0 24 24"><circle cx="6" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="18" cy="12" r="1.2"/></svg></button></div>
         <div class="dm-ksx-s" role="listitem" data-st="ready" id="r2"><span class="dm-ic" style="background:var(--dm-av-p);color:var(--dm-av-p-ink)" aria-hidden="true"><svg class="dm-i dm-xs" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 13h6M9 16.5h6"/></svg></span><span class="dm-t"><span class="dm-nm">Sales playbooks</span><span class="dm-d"><svg class="dm-i dm-xs" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8.2 12.3 2.6 2.6 5-5.2"/></svg><span>18 files · Synced 1h ago</span></span></span><button type="button" class="dm-ib dm-ksx-more" aria-label="Actions for Sales playbooks"><svg class="dm-i" viewBox="0 0 24 24"><circle cx="6" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="18" cy="12" r="1.2"/></svg></button></div>
-        <div class="slot" id="slot"><div class="dm-ksx-s" role="listitem" data-st="indexing" id="r3"><span class="dm-ic" id="tile" style="background:var(--dm-av-p);color:var(--dm-av-p-ink)" aria-hidden="true"><svg class="dm-i dm-xs" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 13h6M9 16.5h6"/></svg></span><span class="dm-t"><span class="dm-nm" id="r3n">Brand book 2024.pdf</span><span class="dl" id="r3l"><span class="dm-d" id="dIdx"><span class="dm-ksx-bar" role="progressbar" aria-label="Indexing Brand book 2024.pdf" aria-valuemin="0" aria-valuemax="48"><i id="bar" style="width:0"></i></span><span class="num" id="num"></span></span><span class="dm-d" id="dOk"><svg class="dm-i dm-xs" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8.2 12.3 2.6 2.6 5-5.2"/></svg><span>48 pages · Synced just now</span></span></span></span><button type="button" class="dm-ib dm-ksx-more" id="r3m" aria-label="Actions for Brand book 2024.pdf"><svg class="dm-i" viewBox="0 0 24 24"><circle cx="6" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="18" cy="12" r="1.2"/></svg></button></div></div>
+        <div class="slot" id="slot"><div class="dm-ksx-s" role="listitem" data-st="indexing" id="r3"><span class="dm-ic" id="tile" style="background:var(--tk-bg);color:var(--tk-ic)" aria-hidden="true"><i class="tk-fill" id="tkf"></i><svg class="dm-i dm-xs tk-a" id="tka" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 13h6M9 16.5h6"/></svg><svg class="dm-i dm-xs tk-b" id="tkb" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 13h6M9 16.5h6"/></svg></span><span class="dm-t"><span class="dm-nm" id="r3n">Brand book 2024.pdf</span><span class="dl" id="r3l"><span class="dm-d" id="dIdx"><span class="dm-ksx-bar" role="progressbar" aria-label="Indexing Brand book 2024.pdf" aria-valuemin="0" aria-valuemax="48"><i id="bar" style="width:0"></i></span><span class="num" id="num"></span></span><span class="dm-d" id="dOk"><svg class="dm-i dm-xs" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8.2 12.3 2.6 2.6 5-5.2"/></svg><span>48 pages · Synced just now</span></span></span></span><button type="button" class="dm-ib dm-ksx-more" id="r3m" aria-label="Actions for Brand book 2024.pdf"><svg class="dm-i" viewBox="0 0 24 24"><circle cx="6" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="18" cy="12" r="1.2"/></svg></button></div></div>
       </div>
       <div class="dm-ksx-ft" id="ft"><button type="button" class="dm-ksx-add"><svg class="dm-i dm-xs" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add source</button></div>
     </div>
@@ -995,18 +1003,9 @@ for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++){
 const arrivals = pieces.map(p => p.arr).sort((a, b) => a - b), lastArr = arrivals[arrivals.length - 1], DONE = lastArr;
 const landed = t => { let k = 0; for (const a of arrivals) if (a <= t) k++; return k; };
 
-// ---------- completion marks ----------
-const fx = $('#fx'), NS = 'http://www.w3.org/2000/svg';
-const sparkPath = 'M0-7C.5-2.2 2.2-.5 7 0 2.2.5.5 2.2 0 7-.5 2.2-2.2.5-7 0-2.2-.5-.5-2.2 0-7z';
-const svg = document.createElementNS(NS, 'svg'); svg.setAttribute('width', 1); svg.setAttribute('height', 1); fx.appendChild(svg);
-const ring = document.createElementNS(NS, 'circle'); ring.setAttribute('class', 'ring'); svg.appendChild(ring);
-const sparks = [];
-for (let i = 0; i < 10; i++){
-  const p = document.createElementNS(NS, 'path'); p.setAttribute('d', sparkPath); p.setAttribute('class', 'spk' + (i % 3 === 2 ? ' n' : ''));
-  svg.appendChild(p);
-  // they burst out on the tile's open side (up, left and down), never over the row's words
-  sparks.push({ p, a: Math.PI * .42 + i * (Math.PI * 1.16 / 9) + (rnd() - .5) * .16, d0: 18, d1: 32 + rnd() * 16, s: .85 + rnd() * .5, delay: rnd() * .1, rot: (rnd() - .5) * 140 });
-}
+// ---------- the finish: one ring in the tile's own shape ----------
+const fx = $('#fx'), tring = document.createElement('div'); tring.id = 'tring'; fx.appendChild(tring);
+let tileR = 0;
 
 // ---------- layout ----------
 function offsetIn(el){ let x = 0, y = 0; for (let e = el; e && e !== world; e = e.offsetParent){ x += e.offsetLeft; y += e.offsetTop; } return { x, y }; }
@@ -1020,6 +1019,8 @@ function measureLayout(){
   const cr = card.getBoundingClientRect(), k = cr.width / card.offsetWidth;
   wordsRight = Math.max(...[...document.querySelectorAll('#r1 .dm-d>span, #r2 .dm-d>span, #r1 .dm-nm, #r2 .dm-nm, #hd b, #tot')].map(e => { const rg = document.createRange(); rg.selectNodeContents(e); return (rg.getBoundingClientRect().right - cr.left) / k; }));
   window.LAYOUT = { wordsRight, chFull, slotOpenH };
+  const tcs = getComputedStyle(tile); tileR = parseFloat(tcs.borderTopLeftRadius) || 0;
+  if (tcs.cornerShape) tring.style.cornerShape = tcs.cornerShape;
   const listTop = offsetIn(r1).y, listBot = offsetIn(r2).y + r2.offsetHeight + slotOpenH;
   DROP = { x: CL + Math.max(322, wordsRight + PW / 2 + 30), y: topFull + (listTop + listBot) / 2 - 4 };
 }
@@ -1094,6 +1095,14 @@ function renderAt(t){
   const sx = tilePop * (1 + bump + .26 * land - give), sy = tilePop * (1 + bump - .2 * land + give * .6);
   tile.style.transform = `scale(${sx.toFixed(4)},${sy.toFixed(4)})`;
   r3.style.transform = land ? `translateY(${(1.6 * land).toFixed(2)}px)` : '';
+  // the tank: each landing raises the level by one piece's share (a quick, eased rise), full on the last one
+  let lvl = 0; for (const a2 of arrivals) lvl += eOutCubic(clamp((t - a2) / .2)); lvl /= N;
+  $('#tkf').style.height = (lvl * 100).toFixed(2) + '%';
+  // Clean's tile is a neutral outline at rest, so its fill clears once the source is indexed
+  $('#tkf').style.opacity = document.documentElement.dataset.style === 'clean' ? (1 - eInOutCubic(seg(t, DONE + .5, .6))).toFixed(3) : '';
+  const cut = clamp((28 * (1 - lvl) - 8) / 12);
+  $('#tka').style.clipPath = `inset(0 0 ${((1 - cut) * 100).toFixed(2)}% 0)`;
+  $('#tkb').style.clipPath = `inset(${(cut * 100).toFixed(2)}% 0 0 0)`;
   const tw = eOutCubic(seg(t, B.row + .1, .45));
   for (const el of [$('#r3n'), $('#r3l'), $('#r3m')]){ el.style.opacity = tw.toFixed(3); el.style.transform = `translateY(${((1 - tw) * 6).toFixed(2)}px)`; el.style.filter = tw < 1 ? `blur(${((1 - tw) * 3).toFixed(2)}px)` : ''; }
 
@@ -1170,18 +1179,15 @@ function renderAt(t){
     p.el.style.transform = `translate(${(x - CW_ / 2).toFixed(2)}px,${(y - CH_ / 2).toFixed(2)}px) rotate(${rot.toFixed(2)}deg) scale(${s.toFixed(4)})`;
   }
 
-  // ---------- completion marks round the tile ----------
-  const mq = t - DONE;
-  if (mq > 0 && mq < 1.05){
+  // ---------- the finish: the tank is full; one ring ripples out from the tile ----------
+  const mq = t - DONE - .08;   // it leaves once the tile has taken the last piece's squash
+  if (mq > 0 && mq < .8){
     fx.style.display = '';
-    const rr = eOutCubic(clamp(mq / .55));
-    ring.setAttribute('cx', tx); ring.setAttribute('cy', ty); ring.setAttribute('r', (18 + rr * 22).toFixed(2));
-    ring.style.opacity = (1 - rr) * .9;
-    for (const s of sparks){
-      const u = clamp((mq - s.delay) / .85), e = eOutCubic(u), d = lerp(s.d0, s.d1, e);
-      const sz = s.s * Math.sin(Math.PI * Math.min(1, u * 1.05));
-      s.p.setAttribute('transform', `translate(${(tx + Math.cos(s.a) * d).toFixed(2)} ${(ty + Math.sin(s.a) * d).toFixed(2)}) rotate(${(s.rot * e).toFixed(1)}) scale(${Math.max(0, sz).toFixed(3)})`);
-    }
+    const rr = eOutCubic(clamp(mq / .7)), g = 3 + 24 * rr, sz = 28 + 2 * g;
+    tring.style.width = tring.style.height = sz.toFixed(2) + 'px';
+    tring.style.transform = `translate(${(tx - sz / 2).toFixed(2)}px,${(ty - sz / 2).toFixed(2)}px)`;
+    tring.style.borderRadius = tileR ? (tileR + g * .9).toFixed(2) + 'px' : '0';
+    tring.style.opacity = ((1 - rr) * .9).toFixed(3);
   } else fx.style.display = 'none';
 
   // ---------- the pointer ----------
