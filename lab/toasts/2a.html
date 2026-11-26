@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Job toast · Toast lab 2a</title>
+<script>
+/* the style and theme: ?style=bp|soft|clean&theme=light|dark first, then what the visitor picked before (dmui-style,
+   dmui-theme), then the device: light opens in Soft, dark in Blueprint, as on the site */
+(function(){
+  var q = new URLSearchParams(location.search), d = document.documentElement, s, t;
+  try { s = q.get('style'); if (s === 'bp' || s === 'soft' || s === 'clean') localStorage.setItem('dmui-style', s);
+        t = q.get('theme'); if (t === 'light' || t === 'dark') localStorage.setItem('dmui-theme', t);
+        t = localStorage.getItem('dmui-theme'); s = localStorage.getItem('dmui-style'); } catch(e){ s = q.get('style'); t = q.get('theme'); }
+  if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  if (s !== 'bp' && s !== 'soft' && s !== 'clean') s = t === 'dark' ? 'bp' : 'soft';
+  d.setAttribute('data-theme', t);
+  if (s === 'bp') d.removeAttribute('data-style'); else d.setAttribute('data-style', s);
+})();
+</script>
+<link rel="stylesheet" href="assets/core.css">
+<style>
+@font-face{font-family:"Inter";src:url(../../fonts/inter-latin-400-normal.woff2) format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Inter";src:url(../../fonts/inter-latin-500-normal.woff2) format("woff2");font-weight:500;font-display:swap}
+html,body{margin:0}
+body{background:var(--dm-page);color:var(--dm-fg);font-family:var(--dm-sans);font-size:13px;line-height:1.45;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+
+/* ---------- the lab page around the stage ---------- */
+.ts2a-page{max-width:760px;margin:0 auto;padding:40px 24px 64px;box-sizing:border-box}
+.ts2a-top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px 24px;margin-bottom:20px}
+.ts2a-intro{min-width:0;flex:1 1 360px}
+.ts2a-eb{font-size:12px;color:var(--dm-muted);margin:0 0 4px}
+.ts2a-h1{font-size:14px;font-weight:500;margin:0 0 4px}
+.ts2a-lead{font-size:13px;color:var(--dm-fg2);margin:0;max-width:540px}
+.ts2a-ctl{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.ts2a-ctl .pill .i{width:14px;height:14px}
+
+/* ---------- the stage: a small app window, the toast arriving at its bottom-right corner ---------- */
+[data-c].ts2a-card{width:100%;max-width:none;font-size:13px}
+.ts2a-card .stage-in{max-width:none}
+.ts2a-win{position:relative;height:540px;background:var(--dm-surface);border-radius:var(--dm-r-card);box-shadow:var(--dm-shadow);overflow:hidden;display:flex;flex-direction:column;isolation:isolate}
+:root[data-style="clean"] .ts2a-win{border-radius:22px}
+.ts2a-bar{display:flex;align-items:center;gap:var(--dm-s-2);padding:var(--dm-s-2) var(--dm-s-4) var(--dm-s-2) var(--dm-s-2);border-bottom:1px solid var(--dm-line);background:var(--dm-wash);min-height:48px;box-sizing:border-box}
+:root[data-style="clean"] .ts2a-bar{background:var(--dm-strip);border-bottom-color:var(--dm-hair)}
+.ts2a-tabs{display:flex;align-items:center;gap:var(--dm-s-1);min-width:0;flex:1}
+.ts2a-tab{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 var(--dm-s-3);border-radius:var(--dm-r-sm);font-size:13px;color:var(--dm-fg2);white-space:nowrap;min-width:0;transition:background var(--dm-t-fast),color var(--dm-t-fast),box-shadow var(--dm-t-fast)}
+.ts2a-tab span{overflow:hidden;text-overflow:ellipsis}
+@media (hover:hover) and (pointer:fine){.ts2a-tab:hover{background:var(--dm-row);color:var(--dm-fg)}}
+.ts2a-tab[aria-selected="true"]{background:var(--dm-surface);color:var(--dm-fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-pick-on) 50%,transparent)}
+:root[data-style="clean"] .ts2a-tab{border-radius:var(--dm-r-pill)}
+:root[data-style="clean"] .ts2a-tab[aria-selected="true"]{background:var(--dm-row-on);box-shadow:none}
+.ts2a-tab[hidden]{display:none}
+.ts2a-tab.new{animation:ts2a-tabin .52s var(--dm-ease) both}
+@keyframes ts2a-tabin{from{opacity:0;transform:translateY(6px)}}
+.ts2a-make .i{width:14px;height:14px}
+
+.ts2a-body{flex:1;min-height:0;position:relative}
+.ts2a-view{position:absolute;inset:0;padding:var(--dm-s-6);overflow:hidden;transition:opacity var(--dm-t) var(--dm-ease)}
+.ts2a-view[hidden]{display:block!important;opacity:0;pointer-events:none;visibility:hidden}
+.ts2a-doc{max-width:420px}
+.ts2a-doc h2{font-size:14px;font-weight:500;margin:0 0 6px}
+.ts2a-by{display:flex;align-items:center;gap:var(--dm-s-2);font-size:12px;color:var(--dm-muted);margin-bottom:var(--dm-s-5)}
+.ts2a-avs{display:flex}
+.ts2a-avs .av{box-shadow:0 0 0 2px var(--dm-surface)}
+.ts2a-avs .av+.av{margin-left:-4px}
+.ts2a-doc h3{font-size:13px;font-weight:500;margin:0 0 2px}
+.ts2a-doc p{font-size:13px;color:var(--dm-fg2);margin:0 0 var(--dm-s-4)}
+.ts2a-doc b{font-weight:500;color:var(--dm-fg)}
+
+/* the deck the job makes: twelve thumbnails, slide 7 with the number it fixed */
+.ts2a-dh{display:flex;align-items:baseline;gap:var(--dm-s-2);margin:0 0 var(--dm-s-4)}
+.ts2a-dh h2{font-size:14px;font-weight:500;margin:0}
+.ts2a-dh span{font-size:12px;color:var(--dm-muted)}
+.ts2a-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--dm-s-3)}
+.ts2a-sl{aspect-ratio:16/10;border-radius:var(--dm-r-xs);background:var(--dm-surface);box-shadow:0 0 0 1px var(--dm-line);padding:9% 10%;box-sizing:border-box;display:flex;flex-direction:column;gap:6%;position:relative;overflow:hidden}
+.ts2a-sl i{display:block;height:5%;min-height:3px;border-radius:2px;background:var(--dm-line)}
+.ts2a-sl i.t{width:46%;background:var(--dm-faint);height:7%;min-height:4px}
+.ts2a-sl i.s{width:70%}.ts2a-sl i.m{width:58%}
+.ts2a-sl .n{position:absolute;right:7%;bottom:6%;font-size:10px;color:var(--dm-muted);font-variant-numeric:tabular-nums}
+.ts2a-sl.cover{justify-content:center}
+.ts2a-sl.cover b{font-size:12px;font-weight:500}
+.ts2a-sl .big{font-size:14px;font-weight:500;line-height:1;margin-top:auto}
+.ts2a-sl .lb{font-size:10px;color:var(--dm-muted);line-height:1.2}
+.ts2a-sl .tag{position:absolute;right:6%;top:8%;height:18px;font-size:10.5px;padding:0 6px}
+.ts2a-sl.in{animation:ts2a-slin .5s var(--dm-ease) both}
+@keyframes ts2a-slin{from{opacity:0;transform:translateY(8px) scale(.96)}}
+
+/* ---------- the toast ---------- */
+.ts2a-tr{position:absolute;right:var(--dm-s-4);bottom:var(--dm-s-4);width:360px;max-width:calc(100% - 32px);z-index:5;display:flex;flex-direction:column;justify-content:flex-end}
+.ts2a-t{--dm-row:color-mix(in srgb,var(--dm-fg) 5%,transparent);background:var(--dm-raised);border-radius:var(--dm-r-card);box-shadow:var(--dm-shadow-pop);overflow:hidden;position:relative;touch-action:pan-y;user-select:none;-webkit-user-select:none;transition:opacity var(--dm-t-fast)}
+.ts2a-t[hidden]{display:none}
+:root[data-style="clean"] .ts2a-t{border-radius:calc(12px * var(--dm-rk-l,var(--dm-rk)));--dm-row:rgba(0,0,0,.05)}
+:root[data-style="clean"][data-theme="dark"] .ts2a-t{--dm-row:rgba(255,255,255,.07)}
+/* the head: the live glyph, the words, then the toast's own buttons, all on one centre line */
+.ts2a-hd{display:flex;align-items:center;gap:var(--dm-s-3);padding:var(--dm-s-4)}
+.ts2a-tx{flex:1;min-width:0}
+.ts2a-ti{display:block;width:fit-content;max-width:100%;font-size:13px;font-weight:500;line-height:18px}
+.ts2a-de{display:block;font-size:12px;line-height:17px;color:var(--dm-muted);font-variant-numeric:tabular-nums}
+.ts2a-hb{display:flex;align-items:center;gap:var(--dm-s-1);margin-right:-2px}
+.ts2a-hb .ib{width:28px;height:28px;position:relative}
+.ts2a-hb .ib[hidden]{display:none}
+.ts2a-more-b .i{transition:transform var(--dm-t) var(--dm-ease)}
+.ts2a-more-b[aria-expanded="true"] .i{transform:rotate(180deg)}
+/* the countdown you can see: a ring round Close that drains, held while the pointer or the focus is on the toast */
+.ts2a-ring{position:absolute;inset:0;width:28px;height:28px;pointer-events:none;fill:none}
+.ts2a-ring rect{rx:13.25px;ry:13.25px;stroke-width:1.5}
+:root:not([data-style="soft"],[data-style="clean"]) .ts2a-ring rect{rx:0;ry:0}
+.ts2a-ring .tk{stroke:color-mix(in srgb,var(--dm-line) 70%,transparent)}
+.ts2a-ring .rn{stroke:var(--dm-muted);stroke-dasharray:100 100;stroke-linecap:round}
+.ts2a-ring[hidden]{display:none}
+
+/* the steps and the footer open and close smoothly with what they hold (nothing kept for a later state) */
+.ts2a-fold{display:grid;grid-template-rows:0fr;transition:grid-template-rows var(--dm-t) var(--dm-ease)}
+.ts2a-fold.open{grid-template-rows:1fr}
+.ts2a-fold>div{min-height:0;overflow:hidden}
+.ts2a-fold>div>*{transition:opacity var(--dm-t-fast) var(--dm-ease)}
+.ts2a-fold:not(.open)>div>*{opacity:0}
+.ts2a-steps{list-style:none;margin:0;padding:var(--dm-s-2) 0;border-top:1px solid var(--dm-line)}
+:root[data-style="clean"] .ts2a-steps{border-top-color:var(--dm-hair)}
+/* a step's mark sits centred in the glyph's column and its words start where the title's words start */
+.ts2a-steps li{display:grid;grid-template-columns:64px minmax(0,1fr) auto;column-gap:var(--dm-s-3);align-items:center;height:28px;padding:0 var(--dm-s-4);font-size:12.5px;color:var(--dm-fg2)}
+.ts2a-steps .mk{justify-self:center;width:16px;height:16px;display:grid;place-items:center}
+.ts2a-steps .mk .i{width:16px;height:16px}
+.ts2a-steps .vl{font-size:12px;color:var(--dm-muted);font-variant-numeric:tabular-nums}
+.ts2a-steps li[data-s="done"]{color:var(--dm-fg2)}
+.ts2a-steps li[data-s="done"] .mk{color:var(--dm-ok-mark)}
+.ts2a-steps li[data-s="done"] .mk .i{stroke-width:2}
+.ts2a-steps li[data-s="now"]{color:var(--dm-fg)}
+.ts2a-steps li[data-s="now"] .mk{color:var(--dm-accent-mark)}
+.ts2a-steps li[data-s="bad"]{color:var(--dm-fg)}
+.ts2a-steps li[data-s="bad"] .mk{color:var(--dm-bad-mark)}
+.ts2a-steps li[data-s="paused"] .mk{color:var(--dm-muted)}
+.ts2a-steps li[data-s="wait"]{color:var(--dm-muted)}
+.ts2a-steps .pend{width:8px;height:8px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--dm-faint)}
+.ts2a-steps .mk .spin{width:12px;height:12px}
+.ts2a-ft>div>div{display:flex;align-items:center;justify-content:flex-end;gap:var(--dm-s-2);padding:var(--dm-s-4);border-top:1px solid var(--dm-line)}
+:root[data-style="clean"] .ts2a-ft>div>div{background:var(--dm-strip);border-top-color:var(--dm-hair);padding:var(--dm-strip-y,16px) var(--dm-s-4)}
+.ts2a-ft .pill{min-width:0}
+.ts2a-ft .pill.in{animation:ts2a-btnin .34s var(--dm-ease) both}
+@keyframes ts2a-btnin{from{opacity:0;transform:translateY(4px)}}
+
+/* the button the toast grows out of, flying to the corner and opening into the toast */
+.ts2a-fly{position:absolute;z-index:6;background:var(--dm-raised);box-shadow:var(--dm-shadow-pop);pointer-events:none;overflow:hidden}
+
+/* ---------- the glyph: a hand of slides, dealt as each one is drafted ---------- */
+.ts2a-g{width:64px;height:40px;flex:none;display:block;--ts2a-spring:cubic-bezier(.34,1.42,.5,1)}
+.ts2a-g svg{width:64px;height:40px;display:block;overflow:visible}
+/* the notes being read: a page with a line sweeping down it */
+.ts2a-pg{transform-box:view-box;transform-origin:32px 24px;transition:opacity .3s var(--dm-ease),transform .5s var(--dm-ease)}
+.ts2a-pg .pp{fill:var(--dm-raised);stroke:var(--dm-muted);stroke-width:1.2}
+.ts2a-pg .pl{stroke:var(--dm-faint);stroke-width:1.4;stroke-linecap:round}
+.ts2a-pg .sc{stroke:var(--dm-accent-mark);stroke-width:1.6;stroke-linecap:round;opacity:0}
+.ts2a-g.read .ts2a-pg .sc{opacity:1;animation:ts2a-scan 1s var(--dm-ease-io) infinite alternate}
+@keyframes ts2a-scan{from{transform:translateY(0)}to{transform:translateY(13px)}}
+.ts2a-g:not(.read) .ts2a-pg{opacity:0;transform:scale(.6) translateY(10px)}
+.ts2a-g.idle .ts2a-pg{opacity:1;transform:none}
+/* the cards: undealt, then a faint outline once planned, drawn as drafted, in the accent while drafting, red where a check failed */
+.ts2a-cd{transform-box:view-box;transform-origin:32px 56px;transform:rotate(0deg) scale(.7);opacity:0;transition:transform .62s var(--ts2a-spring),opacity .28s var(--dm-ease)}
+.ts2a-cd .b{fill:var(--dm-raised);stroke:var(--dm-faint);stroke-width:1.2;transition:fill .3s var(--dm-ease),stroke .3s var(--dm-ease)}
+:root:not([data-style="soft"],[data-style="clean"]) .ts2a-cd .b{rx:0}
+.ts2a-cd .l{fill:none;stroke:var(--dm-faint);stroke-width:1.3;stroke-linecap:round;stroke-dasharray:8 8;stroke-dashoffset:8;transition:stroke-dashoffset .34s var(--dm-ease),stroke .3s var(--dm-ease)}
+.ts2a-cd.ghost{transition:transform .5s var(--dm-ease),opacity .3s var(--dm-ease)}
+.ts2a-cd.ghost .b{fill:var(--dm-raised);stroke:color-mix(in srgb,var(--dm-muted) 38%,var(--dm-raised));stroke-dasharray:2 1.6}
+.ts2a-cd.ghost .l{display:none}
+.ts2a-cd.ghost.plan{opacity:1;transform:rotate(var(--a))}
+.ts2a-g.done .ts2a-cd.ghost,.ts2a-g.gone .ts2a-cd.ghost{opacity:0}
+.ts2a-cd.made,.ts2a-cd.now,.ts2a-cd.bad{opacity:1;transform:rotate(var(--a))}
+.ts2a-cd.made .b{stroke:var(--dm-fg2)}
+.ts2a-cd.made .l{stroke-dashoffset:0;stroke:color-mix(in srgb,var(--dm-muted) 70%,var(--dm-raised))}
+.ts2a-cd.now{transform:rotate(var(--a)) translateY(-3px)}
+.ts2a-cd.now .b{stroke:var(--dm-accent-mark);stroke-width:1.5;fill:color-mix(in srgb,var(--dm-accent-mark) 10%,var(--dm-raised))}
+.ts2a-cd.now .l{stroke:var(--dm-accent-mark);stroke-dashoffset:0}
+.ts2a-cd.chk{transform:rotate(var(--a)) translateY(-2px)}
+.ts2a-cd.chk .b{stroke:var(--dm-accent-mark);fill:color-mix(in srgb,var(--dm-accent-mark) 10%,var(--dm-raised))}
+.ts2a-cd.bad{transform:rotate(var(--a)) translateY(-4px)}
+.ts2a-cd.bad .b{fill:var(--dm-bad-mark);stroke:var(--dm-bad-mark)}
+.ts2a-cd.bad .l{stroke:#fff}
+/* done: the hand closes into a neat deck and a green tick lands in front of it */
+.ts2a-g.done .ts2a-cd{transform:rotate(calc(var(--a) * .16)) translateY(3px)}
+.ts2a-ok{transform-box:fill-box;transform-origin:center;transform:scale(0);opacity:0;transition:transform .5s var(--ts2a-spring),opacity .2s}
+.ts2a-ok circle{fill:var(--dm-ok-mark);stroke:var(--dm-raised);stroke-width:2}
+.ts2a-ok path{fill:none;stroke:#fff;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.ts2a-g.done .ts2a-ok{transform:scale(1);opacity:1;transition-delay:.28s}
+/* gone: the cards fold back to where they came from */
+.ts2a-g.gone .ts2a-cd{opacity:0;transform:rotate(0deg) scale(.6)}
+
+.ts2a-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
+
+/* phones: the window runs edge to edge and the toast takes the width less 16px each side */
+@media (max-width:560px){
+  .ts2a-page{padding:24px 16px 48px}
+  .ts2a-card{margin:0 -16px}
+  .ts2a-win,:root[data-style="clean"] .ts2a-win{border-radius:0;height:600px}
+  .ts2a-tr{left:var(--dm-s-4);right:var(--dm-s-4);width:auto;max-width:none}
+  .ts2a-view{padding:var(--dm-s-5) var(--dm-s-4)}
+  .ts2a-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--dm-s-2)}
+  .ts2a-make span{display:none}
+  .ts2a-make{width:32px;padding:0}
+}
+@media (prefers-reduced-motion:reduce){
+  .ts2a-g *{transition-duration:.01ms!important;animation:none!important}
+}
+</style>
+</head>
+<body>
+<main class="ts2a-page">
+  <header class="ts2a-top">
+    <div class="ts2a-intro">
+      <p class="ts2a-eb">Toast lab · 2a · Agent work in a toast</p>
+      <h1 class="ts2a-h1">Job toast</h1>
+      <p class="ts2a-lead">A job the agent runs in the background lives in one toast: its glyph deals out the slides as they are drafted, it opens into the steps, and it turns into the deck you can open or undo.</p>
+    </div>
+    <div class="ts2a-ctl">
+      <div class="seg2" id="ts2a-style" role="group" aria-label="Style"><button type="button" data-v="bp" aria-pressed="false">Blueprint</button><button type="button" data-v="soft" aria-pressed="false">Soft</button><button type="button" data-v="clean" aria-pressed="false">Clean</button></div>
+      <div class="seg2" id="ts2a-theme" role="group" aria-label="Theme"><button type="button" data-v="light" aria-pressed="false">Light</button><button type="button" data-v="dark" aria-pressed="false">Dark</button></div>
+      <button type="button" class="pill line sm" id="ts2a-replay"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button>
+    </div>
+  </header>
+
+  <div class="card ts2a-card" data-c="ts2a">
+    <div class="stage-in">
+      <div class="ts2a-win">
+        <div class="ts2a-bar">
+          <div class="ts2a-tabs" role="tablist" aria-label="Open files">
+            <button type="button" class="ts2a-tab" role="tab" aria-selected="true" data-v="notes"><svg class="i s"><use href="#i-file-text"/></svg><span>Q3 planning notes</span></button>
+            <button type="button" class="ts2a-tab" role="tab" aria-selected="false" data-v="deck" hidden><svg class="i s"><use href="#i-layers"/></svg><span>Q3 planning deck</span></button>
+          </div>
+          <button type="button" class="pill line sm ts2a-make" aria-label="Make slides"><svg class="i s"><use href="#i-spark"/></svg><span>Make slides</span></button>
+        </div>
+        <div class="ts2a-body">
+          <section class="ts2a-view ts2a-notes" role="tabpanel" aria-label="Q3 planning notes">
+            <div class="ts2a-doc">
+              <h2>Q3 planning notes</h2>
+              <div class="ts2a-by"><span class="ts2a-avs"><span class="av" style="background:var(--dm-av-l)">AK</span><span class="av" style="background:var(--dm-av-m);color:var(--dm-av-m-ink)">JT</span><span class="av" style="background:var(--dm-av-p);color:var(--dm-av-p-ink)">RS</span></span>Edited by Ana and 2 others</div>
+              <h3>Revenue by region</h3>
+              <p>North grew to <b>41k</b>, ahead of plan. South held flat at 18k while the new team ramps up.</p>
+              <h3>Hiring</h3>
+              <p>Two engineers start in October. The design role is still open.</p>
+              <h3>Risks</h3>
+              <p>The data move could slip into November if vendor access comes late.</p>
+            </div>
+          </section>
+          <section class="ts2a-view ts2a-deckv" role="tabpanel" aria-label="Q3 planning deck" hidden>
+            <div class="ts2a-dh"><h2>Q3 planning deck</h2><span>12 slides</span></div>
+            <div class="ts2a-grid"></div>
+          </section>
+          <div class="ts2a-tr">
+            <div class="ts2a-t" hidden>
+              <div class="ts2a-hd">
+                <span class="ts2a-g idle" aria-hidden="true"><svg viewBox="0 0 64 40"></svg></span>
+                <div class="ts2a-tx"><span class="ts2a-ti"></span><span class="ts2a-de"></span></div>
+                <div class="ts2a-hb">
+                  <button type="button" class="ib ts2a-more-b" aria-expanded="false" aria-label="Show the steps" data-tip="Steps"><svg class="i s"><use href="#i-chev-d"/></svg></button>
+                  <button type="button" class="ib ts2a-stop" aria-label="Stop the job" data-tip="Stop"><svg class="i s"><use href="#i-stop"/></svg></button>
+                  <button type="button" class="ib ts2a-x" aria-label="Close" data-tip="Close" hidden><svg class="ts2a-ring" viewBox="0 0 28 28" aria-hidden="true" hidden><rect class="tk" x=".75" y=".75" width="26.5" height="26.5"/><rect class="rn" x=".75" y=".75" width="26.5" height="26.5" pathLength="100"/></svg><svg class="i s"><use href="#i-x"/></svg></button>
+                </div>
+              </div>
+              <div class="ts2a-fold ts2a-more"><div><ol class="ts2a-steps" aria-label="Steps"></ol></div></div>
+              <div class="ts2a-fold ts2a-ft"><div><div></div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="ts2a-sr" role="status" aria-live="polite"></div>
+      <div class="ts2a-sr" role="alert" aria-live="assertive"></div>
+    </div>
+  </div>
+</main>
+<script src="assets/core.js"></script>
+<script>
+/* ---------- the style and theme switch ---------- */
+(function(){
+  const d = document.documentElement;
+  const cur = () => ({ s:d.getAttribute('data-style') || 'bp', t:d.getAttribute('data-theme') || 'light' });
+  const mark = () => { const v = cur();
+    document.querySelectorAll('#ts2a-style button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === v.s));
+    document.querySelectorAll('#ts2a-theme button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === v.t)); };
+  mark();
+  addEventListener('DOMContentLoaded', () => {
+    seg(document.getElementById('ts2a-style'), v => { if (v === 'bp') d.removeAttribute('data-style'); else d.setAttribute('data-style', v); try { localStorage.setItem('dmui-style', v); } catch(e){} });
+    seg(document.getElementById('ts2a-theme'), v => { d.setAttribute('data-theme', v); try { localStorage.setItem('dmui-theme', v); } catch(e){} });
+    document.getElementById('ts2a-replay').addEventListener('click', () => DM.mount(document.querySelector('[data-c="ts2a"]')));
+  });
+})();
+
+/* ---------- Job toast ---------- */
+// an agent at work: the demo keeps playing while the pointer rests on it
+DM.PLAYS.add('ts2a');
+DM.def('ts2a', (st, c, card) => {
+  const q = s => st.querySelector(s), qa = s => [...st.querySelectorAll(s)];
+  const win = q('.ts2a-win'), make = q('.ts2a-make'), tr = q('.ts2a-tr'), T = q('.ts2a-t'), G = q('.ts2a-g'), svg = q('.ts2a-g svg');
+  const ti = q('.ts2a-ti'), de = q('.ts2a-de'), moreB = q('.ts2a-more-b'), stopB = q('.ts2a-stop'), xB = q('.ts2a-x'), ring = q('.ts2a-ring'), rn = q('.ts2a-ring .rn');
+  const more = q('.ts2a-more'), steps = q('.ts2a-steps'), ft = q('.ts2a-ft'), ftIn = q('.ts2a-ft>div>div');
+  const tabN = q('.ts2a-tab[data-v="notes"]'), tabD = q('.ts2a-tab[data-v="deck"]'), vN = q('.ts2a-notes'), vD = q('.ts2a-deckv'), grid = q('.ts2a-grid');
+  const [polite, loud] = qa('.ts2a-sr');
+  const wait = ms => new Promise(res => c.later(REDUCE ? Math.min(ms, 400) : ms, res));
+  const SEC = ['Q3 at a glance', 'Agenda', 'Revenue overview', 'North', 'South', 'Plan against actual', 'Revenue by region', 'Hiring', 'Open roles', 'Risks', 'Data move', 'Next steps'];
+
+  /* the glyph: a page for the notes, twelve cards fanned round a point under the glyph, and the tick */
+  const N = 12, SPAN = 64;
+  const cardSvg = (a, k) => `<g class="ts2a-cd${k}" style="--a:${a.toFixed(2)}deg"><rect class="b" x="26" y="6" width="12" height="20" rx="2"/><path class="l" d="M28.5 10h6M28.5 13.5h7M28.5 17h4.5" pathLength="8"/></g>`;
+  let g = '<g class="ts2a-pg"><rect class="pp" x="23.5" y="6.5" width="17" height="22" rx="2.5"/><path class="pl" d="M27 12h10M27 15.5h8M27 19h10M27 22.5h6"/><path class="sc" d="M25.5 10h13"/></g><g class="ts2a-gh">';
+  const ang = i => -SPAN / 2 + i * SPAN / (N - 1);
+  for (let i = 0; i < N; i++) g += cardSvg(ang(i), ' ghost');
+  g += '</g><g class="ts2a-fan">';
+  for (let i = 0; i < N; i++) g += cardSvg(ang(i), '');
+  g += '</g><g class="ts2a-ok"><circle cx="41" cy="27" r="6.5"/><path d="M38.3 27.1l1.9 1.9 3.5-3.6"/></g>';
+  svg.innerHTML = g;
+  const ghosts = [...svg.querySelectorAll('.ts2a-gh .ts2a-cd')], cards = [...svg.querySelectorAll('.ts2a-fan .ts2a-cd')], fan = svg.querySelector('.ts2a-fan');
+  // the card being drafted, or the one a check stopped on, comes to the front of the hand; the hand is put back in order after
+  const front = i => fan.appendChild(cards[i]);
+  const order = () => cards.forEach(e => fan.appendChild(e));
+  const glyph = cls => { G.classList.remove('idle', 'read', 'done', 'gone'); if (cls) G.classList.add(cls); };
+  const cardAs = (i, k) => { const e = cards[i]; e.classList.remove('made', 'now', 'chk', 'bad');
+    if (k) e.classList.add(k); if (k === 'now' || k === 'bad') front(i); else if (k === 'made' && fan.lastElementChild === e && i < N - 1 && cards[i + 1].classList.length > 1) order(); };
+
+  /* the steps, opened from the chevron */
+  const STEPS = ['Read the notes', 'Outline 12 slides', 'Draft the slides', 'Check the numbers'];
+  steps.innerHTML = STEPS.map(s => `<li data-s="wait"><span class="mk"></span><span>${s}</span><span class="vl"></span></li>`).join('');
+  const rows = [...steps.children];
+  const MK = { done:I('check'), now:'<span class="spin"></span>', bad:I('alert'), paused:I('pause'), wait:'<span class="pend"></span>' };
+  const stepAs = (i, s, v = '') => { const r = rows[i]; if (r.dataset.s !== s){ r.dataset.s = s; r.querySelector('.mk').innerHTML = MK[s]; } r.querySelector('.vl').textContent = v; };
+  rows.forEach((r, i) => stepAs(i, 'wait'));
+
+  const S = { phase:'idle', n:0, tok:0, fixed:false, skipped:false, shown:false, deck:false, at:'read' };
+
+  /* words that change cross-fade; loader words sweep (.shim) */
+  const say = (el, text, shim, now) => {
+    if (now){ clearTimeout(el._t); el.getAnimations().forEach(a => a.cancel()); el.textContent = text; el.classList.toggle('shim', !!shim); return; }
+    if (el.textContent === text){ el.classList.toggle('shim', !!shim); return; }
+    if (REDUCE || !S.shown){ el.textContent = text; el.classList.toggle('shim', !!shim); return; }
+    clearTimeout(el._t); el.animate([{ opacity:1 }, { opacity:0 }], { duration:120, fill:'forwards' });
+    el._t = setTimeout(() => { el.textContent = text; el.classList.toggle('shim', !!shim); el.getAnimations().forEach(a => a.cancel()); el.animate([{ opacity:0, transform:'translateY(3px)' }, { opacity:1, transform:'none' }], { duration:240, easing:'cubic-bezier(.23,1,.32,1)' }); }, 120);
+  };
+  const tell = (text, now) => { const el = now ? loud : polite; el.textContent = ''; setTimeout(() => { el.textContent = text; }, 60); };
+
+  /* the countdown: a ring round Close that drains; the pointer or the focus on the toast holds it */
+  let cd = null;
+  const countdown = ms => {
+    if (cd){ cd.cancel(); cd = null; } ring.toggleAttribute('hidden', !ms); if (!ms) return;
+    cd = rn.animate([{ strokeDashoffset:0 }, { strokeDashoffset:100 }], { duration:ms, fill:'forwards', easing:'linear' });
+    if (T.matches(':hover') || T.contains(document.activeElement)) cd.pause();
+    cd.onfinish = () => { cd = null; dismiss(); };
+  };
+  const holdT = () => { if (cd && cd.playState === 'running') cd.pause(); };
+  const goT = () => { if (cd && cd.playState === 'paused' && !T.matches(':hover') && !T.contains(document.activeElement)) cd.play(); };
+  c.on(T, 'pointerenter', holdT); c.on(T, 'pointerleave', goT); c.on(T, 'focusin', holdT); c.on(T, 'focusout', () => setTimeout(goT, 0));
+
+  /* the footer's buttons, made for each state */
+  const foot = acts => {
+    if (!acts){ ft.classList.remove('open'); return; }
+    ftIn.innerHTML = acts.map(([k, t]) => `<button type="button" class="pill sm ${k}${S.shown && !REDUCE ? ' in' : ''}">${t}</button>`).join('');
+    [...ftIn.children].forEach((b, i) => b.addEventListener('click', acts[i][2]));
+    ft.classList.add('open');
+  };
+  const btnOf = t => [...ftIn.querySelectorAll('button')].find(b => b.textContent === t);
+
+  const P = {
+    read:    { ti:'Reading your notes…', de:'3 sections · 212 words', work:1 },
+    outline: { ti:'Outlining the deck…', de:'12 slides planned', work:1 },
+    draft:   { ti:'Drafting slides…', de:() => `Slide ${Math.min(S.n + 1, N)} of 12 · ${SEC[Math.min(S.n, N - 1)]}`, work:1 },
+    check:   { ti:'Checking the numbers…', de:'Against the Q3 sheet', work:1 },
+    error:   { ti:'Slide 7 doesn’t match', de:'The sheet says 41k, not 14k', acts:[['line', 'Skip', () => skip()], ['primary', 'Fix slide 7', () => fix()]] },
+    fix:     { ti:'Fixing slide 7…', de:'Using 41k from the sheet', work:1 },
+    done:    { ti:'12 slides ready', de:() => S.skipped ? 'Q3 planning deck · 1 to check' : 'Q3 planning deck · 1 fixed', acts:[['line', 'Undo', () => undo()], ['primary', 'Open', () => openDeck()]], time:10000 },
+    stopped: { ti:() => S.at === 'draft' ? `Stopped at slide ${S.n}` : S.at === 'check' ? 'Stopped while checking' : 'Stopped before drafting', de:() => `${S.n} of 12 drafted · nothing lost`, acts:[['line', 'Discard', () => discard()], ['primary', 'Resume', () => resume()]] },
+    removed: { ti:'Deck removed', de:'Your notes are unchanged', acts:[['line', 'Redo', () => redo()]], time:5000 }
+  };
+  const val = v => typeof v === 'function' ? v() : v;
+  const setPhase = p => {
+    S.phase = p; const d = P[p];
+    say(ti, val(d.ti), d.work); say(de, val(d.de));
+    stopB.hidden = !d.work; xB.hidden = !!d.work; moreB.hidden = p === 'removed';
+    if (p === 'removed' && more.classList.contains('open')) toggleMore(false);
+    foot(d.acts); countdown(d.time || 0);
+    // the steps follow the job
+    const sv = { read:['now', 'wait', 'wait', 'wait'], outline:['done', 'now', 'wait', 'wait'], draft:['done', 'done', 'now', 'wait'], check:['done', 'done', 'done', 'now'], error:['done', 'done', 'done', 'bad'], fix:['done', 'done', 'done', 'now'], done:['done', 'done', 'done', 'done'], removed:['done', 'done', 'done', 'done'] }[p];
+    if (sv) sv.forEach((s, i) => stepAs(i, s, i === 2 && s === 'now' ? `${S.n} of 12` : i === 3 && (p === 'error' || p === 'fix') ? 'Slide 7' : ''));
+    if (p === 'stopped'){ const at = ['read', 'outline', 'draft', 'check'].indexOf(S.at); rows.forEach((r, i) => stepAs(i, i < at ? 'done' : i === at ? 'paused' : 'wait', i === at && i === 2 ? `${S.n} of 12` : '')); }
+  };
+
+  /* the toast comes in: it grows out of the button that started it, flies to the corner and opens */
+  const show = (from) => {
+    T.hidden = false; S.shown = false;
+    const go = () => { S.shown = true; };
+    if (REDUCE || !from){ T.animate([{ opacity:0 }, { opacity:1 }], { duration:200 }); go(); return; }
+    const wb = win.getBoundingClientRect(), bb = from.getBoundingClientRect(), tb = T.getBoundingClientRect();
+    const cs = getComputedStyle(T), r = cs.borderTopLeftRadius;
+    const fly = document.createElement('div'); fly.className = 'ts2a-fly';
+    Object.assign(fly.style, { left:bb.left - wb.left + 'px', top:bb.top - wb.top + 'px', width:bb.width + 'px', height:bb.height + 'px', borderRadius:getComputedStyle(from).borderTopLeftRadius });
+    win.appendChild(fly); T.style.opacity = '0';
+    const ease = getComputedStyle(win).getPropertyValue('--dm-motion').trim() === 'bp' ? 'cubic-bezier(.65,0,.25,1)' : 'cubic-bezier(.23,1,.32,1)';
+    const a = fly.animate([
+      { left:bb.left - wb.left + 'px', top:bb.top - wb.top + 'px', width:bb.width + 'px', height:bb.height + 'px', borderRadius:getComputedStyle(from).borderTopLeftRadius },
+      { left:tb.left - wb.left + 'px', top:tb.top - wb.top + 'px', width:tb.width + 'px', height:tb.height + 'px', borderRadius:r }
+    ], { duration:620, easing:ease, fill:'forwards' });
+    a.finished.then(() => {
+      T.style.opacity = ''; fly.animate([{ opacity:1 }, { opacity:0 }], { duration:180, fill:'forwards' }).finished.then(() => fly.remove());
+      // its parts follow one after another, as the library's entrances do
+      [G, q('.ts2a-tx'), q('.ts2a-hb')].forEach((el, i) => el.animate([{ opacity:0, transform:'translateY(6px)' }, { opacity:1, transform:'none' }], { duration:460, delay:i * 50, easing:'cubic-bezier(.23,1,.32,1)', fill:'backwards' }));
+      go();
+    }).catch(() => fly.remove());
+  };
+  const exit = () => new Promise(res => {
+    if (T.hidden){ res(); return; }
+    const a = T.animate([{ opacity:1, transform:'none' }, { opacity:0, transform:'translateY(10px) scale(.98)' }], { duration:REDUCE ? 160 : 300, easing:'cubic-bezier(.23,1,.32,1)', fill:'forwards' });
+    a.finished.then(() => { T.hidden = true; a.cancel(); T.style.transform = ''; T.style.opacity = ''; res(); });
+  });
+  /* Close, Escape or a swipe: a finished toast goes; a job still running carries on, and the button brings its toast back */
+  const dismiss = () => {
+    if (T.hidden) return; countdown(0); exit();
+    if (P[S.phase] && P[S.phase].work){ make.disabled = false; make.querySelector('span').textContent = 'Show progress'; make.setAttribute('aria-label', 'Show progress'); }
+    else if (S.phase === 'stopped' || S.phase === 'error'){ make.disabled = false; make.querySelector('span').textContent = 'Show job'; make.setAttribute('aria-label', 'Show job'); }
+    else { S.phase = 'idle'; resetMake(); }
+  };
+  const resetMake = () => { make.disabled = false; make.querySelector('span').textContent = 'Make slides'; make.setAttribute('aria-label', 'Make slides'); };
+
+  const toggleMore = open => { open = open ?? !more.classList.contains('open'); more.classList.toggle('open', open); moreB.setAttribute('aria-expanded', open); moreB.setAttribute('aria-label', open ? 'Hide the steps' : 'Show the steps'); moreB.dataset.tip = open ? 'Hide steps' : 'Steps'; };
+
+  /* ---------- the job ---------- */
+  const reset = () => { S.n = 0; S.fixed = false; S.skipped = false; cards.forEach((e, i) => cardAs(i)); ghosts.forEach(e => e.classList.remove('plan')); order(); glyph('idle'); rows.forEach((r, i) => stepAs(i, 'wait')); toggleMore(false); };
+  const start = () => {
+    // a job whose toast was dismissed: the button brings its toast back
+    if (P[S.phase] && (P[S.phase].work || S.phase === 'stopped' || S.phase === 'error') && T.hidden){ resetMake(); make.disabled = true; show(make); return; }
+    if (P[S.phase] && P[S.phase].work) return;
+    reset(); S.tok++; const tok = S.tok;
+    make.disabled = true; setPhase('read'); glyph('read');
+    show(make); run(tok, 'read');
+    tell('Making slides from your notes');
+  };
+  const live = tok => tok === S.tok && !c.dead;
+  async function run(tok, from){
+    if (from === 'read'){ S.at = 'read'; setPhase('read'); glyph('read'); await wait(1700); if (!live(tok)) return; from = 'outline'; }
+    if (from === 'outline'){
+      S.at = 'outline'; setPhase('outline'); glyph('');
+      for (let i = 0; i < N; i++){ ghosts[i].classList.add('plan'); await wait(36); if (!live(tok)) return; }
+      await wait(900); if (!live(tok)) return; from = 'draft';
+    }
+    if (from === 'draft'){
+      S.at = 'draft'; setPhase('draft');
+      while (S.n < N){
+        const i = S.n; cardAs(i, 'now'); say(de, val(P.draft.de), false, i > 0); stepAs(2, 'now', `${i + 1} of 12`);
+        await wait(400); if (!live(tok)) return;
+        cardAs(i, 'made'); S.n++;
+        if (S.n === 6) tell('Half the slides are drafted');
+      }
+      from = 'check';
+    }
+    if (from === 'check' || from === 'recheck'){
+      S.at = 'check'; setPhase('check');
+      for (let i = from === 'recheck' ? 7 : 0; i < N; i++){
+        if (i === 6 && !S.fixed && !S.skipped){ cardAs(i, 'bad'); setPhase('error'); tell('Slide 7 doesn’t match the sheet. Fix slide 7 or skip it.', true); return; }
+        if (S.skipped && i === 6) continue;
+        cardAs(i, 'chk'); await wait(120); if (!live(tok)) return; cardAs(i, 'made');
+      }
+    }
+    for (let i = 0; i < N; i++) if (!(S.skipped && i === 6)) cardAs(i, 'made');
+    await wait(150); if (!live(tok)) return;
+    setPhase('done'); glyph('done'); S.deck = true; addDeck(); make.disabled = false; resetMake();
+    tell('12 slides ready. Open the deck or undo it.');
+  }
+  const fix = async () => {
+    S.tok++; const tok = S.tok; setPhase('fix'); cardAs(6, 'now');
+    await wait(1500); if (!live(tok)) return; S.fixed = true; cardAs(6, 'made'); run(tok, 'recheck');
+  };
+  const skip = () => { S.skipped = true; S.tok++; run(S.tok, 'recheck'); };
+  const stop = () => { if (!P[S.phase] || !P[S.phase].work) return; S.tok++;
+    // stopping a fix goes back to the problem it was fixing
+    if (S.phase === 'fix'){ cardAs(6, 'bad'); setPhase('error'); return; }
+    cards.forEach((e, i) => { if (e.classList.contains('now') || e.classList.contains('chk')) cardAs(i, i < S.n ? 'made' : ''); });
+    if (G.classList.contains('read')) glyph('idle');
+    setPhase('stopped'); make.disabled = true; tell(`Stopped at slide ${S.n}. Resume or discard.`); };
+  const resume = () => { S.tok++; make.disabled = true; if (S.at === 'read') glyph('read'); run(S.tok, S.at === 'check' ? 'check' : S.at); };
+  const discard = async () => { S.tok++; countdown(0); glyph('gone'); await exit(); S.phase = 'idle'; resetMake(); reset(); tell('Job discarded'); };
+  const undo = () => { removeDeck(); setPhase('removed'); glyph('gone'); tell('Deck removed. Your notes are unchanged.'); };
+  const redo = () => { addDeck(); glyph('done'); setPhase('done'); tell('Deck restored'); };
+  const openDeck = async () => { view('deck'); countdown(0); await exit(); S.phase = 'idle'; resetMake(); };
+
+  /* ---------- the window: the deck's tab and its slides ---------- */
+  const slide = i => {
+    const n = `<span class="n">${i + 1}</span>`;
+    if (i === 0) return `<div class="ts2a-sl cover"><i class="t" style="width:30%"></i><b>Q3 planning</b>${n}</div>`;
+    if (i === 6) return `<div class="ts2a-sl"><i class="t"></i><span class="big">41k</span><span class="lb">North</span>${S.skipped ? '' : '<span class="tag">Fixed</span>'}${n}</div>`;
+    return `<div class="ts2a-sl"><i class="t"></i><i class="${['s', 'm', ''][i % 3]}"></i><i class="${['m', '', 's'][i % 3]}"></i>${n}</div>`;
+  };
+  const addDeck = () => { grid.innerHTML = Array.from({ length:N }, (_, i) => slide(i)).join(''); if (tabD.hidden){ tabD.hidden = false; if (!REDUCE){ tabD.classList.remove('new'); void tabD.offsetWidth; tabD.classList.add('new'); } } };
+  const removeDeck = () => { S.deck = false; if (tabD.getAttribute('aria-selected') === 'true') view('notes'); tabD.hidden = true; };
+  const view = v => {
+    tabN.setAttribute('aria-selected', v === 'notes'); tabD.setAttribute('aria-selected', v === 'deck');
+    vN.hidden = v !== 'notes'; vD.hidden = v !== 'deck';
+    if (v === 'deck' && !REDUCE) [...grid.children].forEach((e, i) => { e.classList.remove('in'); void e.offsetWidth; e.style.animationDelay = i * 40 + 'ms'; e.classList.add('in'); });
+  };
+  c.on(tabN, 'click', () => view('notes')); c.on(tabD, 'click', () => view('deck'));
+  c.on(make, 'click', start);
+  c.on(moreB, 'click', () => toggleMore());
+  c.on(stopB, 'click', stop);
+  c.on(xB, 'click', dismiss);
+
+  /* swipe it away: it follows the finger or the pointer sideways, and goes once it has moved far enough */
+  let sw = null;
+  c.on(T, 'pointerdown', e => { if (e.button || e.target.closest('button')) return; sw = { x:e.clientX, y:e.clientY, t:performance.now(), dx:0, id:e.pointerId, on:false }; });
+  c.on(T, 'pointermove', e => { if (!sw || e.pointerId !== sw.id) return; const dx = e.clientX - sw.x, dy = e.clientY - sw.y;
+    if (!sw.on){ if (Math.abs(dx) < 6 || Math.abs(dy) > Math.abs(dx)) return; sw.on = true; T.setPointerCapture(e.pointerId); T.style.transition = 'none'; }
+    sw.dx = dx; T.style.transform = `translateX(${dx}px)`; T.style.opacity = String(Math.max(.2, 1 - Math.abs(dx) / 260)); });
+  const swEnd = e => { if (!sw || e.pointerId !== sw.id) return; const s = sw; sw = null; if (!s.on) return;
+    const v = Math.abs(s.dx) / Math.max(1, performance.now() - s.t); T.style.transition = '';
+    if (Math.abs(s.dx) > 90 || v > .6){ const dir = Math.sign(s.dx) || 1; countdown(0);
+      const a = T.animate([{ transform:`translateX(${s.dx}px)`, opacity:T.style.opacity }, { transform:`translateX(${dir * 420}px)`, opacity:0 }], { duration:260, easing:'cubic-bezier(.23,1,.32,1)', fill:'forwards' });
+      a.finished.then(() => { T.hidden = true; a.cancel(); T.style.transform = ''; T.style.opacity = ''; afterSwipe(); }); }
+    else { T.animate([{ transform:`translateX(${s.dx}px)`, opacity:T.style.opacity }, { transform:'none', opacity:1 }], { duration:340, easing:'cubic-bezier(.34,1.42,.5,1)' }); T.style.transform = ''; T.style.opacity = ''; } };
+  const afterSwipe = () => { if (P[S.phase] && P[S.phase].work){ make.disabled = false; make.querySelector('span').textContent = 'Show progress'; } else if (S.phase === 'stopped' || S.phase === 'error'){ make.disabled = false; make.querySelector('span').textContent = 'Show job'; } else { S.phase = 'idle'; resetMake(); } };
+  c.on(T, 'pointerup', swEnd); c.on(T, 'pointercancel', swEnd);
+  /* Escape dismisses the toast, wherever the focus is on the page */
+  c.on(document, 'keydown', e => { if (e.key !== 'Escape' || T.hidden || !e.isTrusted) return; c.mine = true; if (T.contains(document.activeElement)) make.focus({ preventScroll:true }); dismiss(); });
+
+  /* ---------- the demo: about 20 seconds, then again ---------- */
+  const again = () => { if (c.mine || c.dead || card._c !== c) return;
+    const a = st.animate([{ opacity:1 }, { opacity:0 }], { duration:360, easing:'ease-out', fill:'forwards' });
+    a.finished.then(() => { if (card._c === c && !c.dead && !c.mine){ DM.mount(card, true); card._c.st.animate([{ opacity:0 }, { opacity:1 }], { duration:360, easing:'ease-out' }); } a.cancel(); }); };
+  c.story(async s => {
+    await s.beat(2);
+    await s.tap(make);
+    await s.beat(5);
+    await s.tap(moreB);
+    s.away();
+    await s.until(() => S.n >= 9);
+    await s.tap(moreB);
+    s.away();
+    await s.until(() => S.phase === 'error');
+    await s.beat(3);
+    await s.tap(btnOf('Fix slide 7'));
+    s.away();
+    await s.until(() => S.phase === 'done');
+    await s.beat(4);
+    await s.tap(btnOf('Open'));
+    s.away();
+    await s.beat(6);
+    again(); throw 'stop';
+  });
+});
+</script>
+</body>
+</html>
