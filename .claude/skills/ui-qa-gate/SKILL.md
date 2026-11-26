@@ -44,6 +44,14 @@ The mistakes that got through were all within a box that looked right:
 - **Ghost buttons and selects** at rest are measured by their words; filled and outlined buttons by their box; icons by their
   glyph.
 
+- **Rows that appear later.** A row that only shows after an action or late in a demo (a result row such as Context meter's
+  "Freed 120.0k tokens", a notice, a status or done line, an undo row) slipped through because checks sampled the start.
+  Reach that state, then measure it against its siblings with `getComputedStyle` and rects: its mark's centre on the
+  siblings' mark centre, its words starting at the siblings' words, and the same font family, size, weight and line height.
+  Any mismatch above 1px is a bug.
+- **No flag is dismissed unseen.** A check-align or check-rules flag in a new or changed state is never written off as
+  "probably the fill" or "probably an artefact": crop it at 2x, look, and fix it or say exactly why it is right.
+
 ## 2b. Judge it as a designer, not only as a ruler
 
 These also got through, and no script would have caught them:
@@ -85,23 +93,6 @@ Serve the build first. The scripts take `PORT`.
    format: `JSON.stringify(x,null,1)+"\n"`.
 5. **Agent harness and Kanban.** These are Phase II and must keep staging's look. Check they are unchanged whenever a shared
    rule or an embedded component changes.
-6. **Rules.** `tools/site/check-rules.js` opens each component page (and each template) in every style, theme and width,
-   samples the demo while it plays, hovers rows and controls, opens menus, and checks every drawn element against eight
-   simple rules: R1 inset (16px in a card, panel, popover or strip with controls; 6px in a row fill, field or button; 4px in
-   a small chip or icon button; never 0–3px), R2 even room above and below and at both ends (±1px, footers measured from
-   the hairline), R3 one baseline for words side by side (±0.5px), R4 a circle or a clear pill, never in between, R5 nothing
-   coloured inside a disabled control, R6 chip and selected fills (and Clean's hover) at least as visible as Clean's chip, R7 one look per
-   button job, R8 chips and buttons at least 4px apart. Serve the build, then from the repo root:
-
-   ```
-   IDS=<ids> PORT=<port> OUT=/tmp/rules node tools/site/check-rules.js
-   ```
-
-   With no `IDS` it checks every page in `components/` and `templates/` (about 1,200 runs; give it `JOBS=6` or so and a few
-   hours). It writes `violations.md` (by rule, then component, with counts), `violations.json` and a 2x crop of each spot,
-   outlined, in `crops/`. It must report **zero Phase I violations** outside its exceptions list before anything is shown to
-   the owner. Don't add to the exceptions list to get there: an exception needs a reason from CLAUDE.md, and the list stays
-   short. Open the crops of what it reports; a rule that raises a false alarm is fixed in the script, not excepted.
 
 ## 4. Look, close up
 

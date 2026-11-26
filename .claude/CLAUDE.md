@@ -235,6 +235,15 @@ every session and every agent.
 - Showcases keep every padding and alignment rule (Alignment and fit): the component's insets, columns and centre lines are
   exactly as in the library at every frame, and nothing that flies in lands off its column.
 
+- Nothing flies from one component to another (owner, 26 Nov: "it makes it look cheap and unpolished", on Run cost's
+  chips flying from the timeline into the budget bar). The impressive part is the component's own animation, fluid and
+  extremely reactive, inside the component. Only a real object (a card, an image, a file) may travel, and only where the
+  product would really move it. Take the reels as a feel, not literally. No big visuals above a component (Toast's dealt
+  hand of slides): its animations happen within it.
+- A showcase can run longer and show more of the component working (several lanes, not one), and switch styles (Blueprint,
+  Soft, Clean) and light and dark during the video. A component shown with others keeps them only where the setting needs
+  them (Agent lanes doesn't need the inbox above it).
+
 ## Spacing and radius
 - Soft is plush (owner, 3 Nov): every corner radius in a component is scaled by `--rk` (1.25, and 1.7 where the browser
   draws squircles), and every corner is a squircle (`corner-shape: squircle`, round corners as the fallback), pills,
