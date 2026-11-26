@@ -223,6 +223,17 @@ every session and every agent.
 - Each showcase ends on its own finishing moment that grows out of what the component does (a bar flexing, a pulse running
   back down a tree, ink settling): no shared sparkle burst repeated across showcases (owner, 26 Nov: "you're using this effect
   a bit too much"). Where sparkles are used at all, they are few, fine and varied in size, never the same chunky star burst.
+- Showcases are flat (owner, 26 Nov): no 3D tilts, no perspective and no camera orbit, unlike the Knowledge sources 3D tests.
+  The camera only zooms and repositions on a flat surface. The reference for movement, speed, easing and effects is the
+  owner's set of reels (personalities, payments, motion reel, admin dashboard, doors closed, carousel loops, dashboard
+  dopamine, empty states, contribution skyline): quick, confident moves that settle softly, things that travel and land,
+  numbers that count, cards dealt like a hand, line-art that draws itself.
+- A component that only makes sense in a wider setting (Context meter under a chat's composer) is shown in its showcase with
+  the other library components it lives among (Composer, the chat's messages); in the library it stays a standalone piece.
+- Before animating a showcase, describe the planned motion to the owner in plain words and wait for approval (owner, 26 Nov).
+  One cut (Soft light) unless the owner asks for more.
+- Showcases keep every padding and alignment rule (Alignment and fit): the component's insets, columns and centre lines are
+  exactly as in the library at every frame, and nothing that flies in lands off its column.
 
 ## Spacing and radius
 - Soft is plush (owner, 3 Nov): every corner radius in a component is scaled by `--rk` (1.25, and 1.7 where the browser
