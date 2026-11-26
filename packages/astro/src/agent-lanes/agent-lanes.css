@@ -4,7 +4,9 @@
    joins the badges. A hand-off sends a light down that line from one agent to the next, and the stretch it crossed stays lit */
 /* the card's content, the head and the lanes, sits 16px in from every edge: each lane's badge starts and its tag ends on the
    head's 16px column, and a lane's hover fill reaches 8px out round it, into the padding (owner, 26 Nov) */
-.aln{padding:var(--dm-s-4)}
+/* (the lanes' own 12px above and below their content take the place of the card's bottom padding, so the last lane's words
+   and badge end 16px from the card's bottom edge, as the head starts 16px from its top) */
+.aln{padding:var(--dm-s-4) var(--dm-s-4) var(--dm-s-1)}
 /* the lanes' marks (tracks, lines, a finished badge) in livelier versions of the agents' hues, each 3:1 on the surface; their
    text keeps the agent's text colour. Dark mode's agent colours are light already, so they are used as they are */
 .aln{--dm-aln-pb:#2a7bff;--dm-aln-pm:#1daa51;--dm-aln-pl:#7a5af5}
@@ -34,7 +36,8 @@
 /* the relay line runs from badge to badge, through the lanes and the hand-offs between them, and stops short of each badge */
 .aln-rows>*::before{content:"";position:absolute;left:24px;width:2px;top:0;bottom:0;background:var(--dm-line);pointer-events:none}
 .aln-lane::before{top:50px}
-.aln-lane:last-child::before{display:none}
+/* (the last lane, whatever follows it in the list, like a hand-off's lit stroke, has no line under its badge) */
+.aln-lane:not(:has(~ .aln-lane))::before{display:none}
 .aln-lane::after{content:"";position:absolute;left:24px;width:2px;top:0;height:8px;background:var(--dm-line);pointer-events:none}
 .aln-lane:first-child::after{display:none}
 /* a stretch that has carried a hand-off is drawn by its one lit stroke (.aln-pk, below), so the grey under it steps aside

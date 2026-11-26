@@ -491,8 +491,10 @@
 .v2 .stl-g{width:16px;display:grid;place-items:center;color:var(--fg)}
 /* a finished step's tick is the vivid mark green */
 .v2 .stl-ok{display:grid;color:var(--ok-mark)}
-.v2 .stl-t{flex:1;text-align:left}
-.v2 .stl-n{color:var(--muted);font-size:12.5px}
+/* (the step and its count share one baseline, grouped in their own line, while the loader and the chevron stay centred on
+   the pill; the count keeps the right end) */
+.v2 .stl-t{flex:1;min-width:0;display:flex;align-items:baseline;gap:10px;text-align:left}
+.v2 .stl-n{margin-left:auto;color:var(--muted);font-size:12.5px}
 .v2 .stl-chev{color:var(--muted);transition:transform .4s var(--ease)}
 .v2 .stl-row[aria-expanded="true"] .stl-chev{transform:rotate(180deg)}
 .v2 .stl-track{display:flex;gap:var(--s-1);width:250px}
@@ -516,6 +518,7 @@
    clean") */
 :root[data-style="clean"] .v2 .stl-g{color:var(--accent-mark)}
 :root[data-style="clean"] .v2 .stl-row{height:36px;gap:8px;padding:0 16px;font-size:13px}
+:root[data-style="clean"] .v2 .stl-t{gap:8px}
 :root[data-style="clean"] .v2 .stl-chev{transition:transform var(--t) var(--ease)}
 :root[data-style="clean"] .v2 .stl-track i{background:var(--rail)}
 :root[data-style="clean"] .v2 .stl-list{margin:8px 0 16px;padding:8px;border-radius:var(--r-card)}
@@ -1886,7 +1889,9 @@
    joins the badges. A hand-off sends a light down that line from one agent to the next, and the stretch it crossed stays lit */
 /* the card's content, the head and the lanes, sits 16px in from every edge: each lane's badge starts and its tag ends on the
    head's 16px column, and a lane's hover fill reaches 8px out round it, into the padding (owner, 26 Nov) */
-.v2 .aln{padding:var(--s-4)}
+/* (the lanes' own 12px above and below their content take the place of the card's bottom padding, so the last lane's words
+   and badge end 16px from the card's bottom edge, as the head starts 16px from its top) */
+.v2 .aln{padding:var(--s-4) var(--s-4) var(--s-1)}
 /* the lanes' marks (tracks, lines, a finished badge) in livelier versions of the agents' hues, each 3:1 on the surface; their
    text keeps the agent's text colour. Dark mode's agent colours are light already, so they are used as they are */
 .v2 .aln{--aln-pb:#2a7bff;--aln-pm:#1daa51;--aln-pl:#7a5af5}
@@ -1916,7 +1921,8 @@
 /* the relay line runs from badge to badge, through the lanes and the hand-offs between them, and stops short of each badge */
 .v2 .aln-rows>*::before{content:"";position:absolute;left:24px;width:2px;top:0;bottom:0;background:var(--line);pointer-events:none}
 .v2 .aln-lane::before{top:50px}
-.v2 .aln-lane:last-child::before{display:none}
+/* (the last lane, whatever follows it in the list, like a hand-off's lit stroke, has no line under its badge) */
+.v2 .aln-lane:not(:has(~ .aln-lane))::before{display:none}
 .v2 .aln-lane::after{content:"";position:absolute;left:24px;width:2px;top:0;height:8px;background:var(--line);pointer-events:none}
 .v2 .aln-lane:first-child::after{display:none}
 /* a stretch that has carried a hand-off is drawn by its one lit stroke (.aln-pk, below), so the grey under it steps aside
@@ -5582,6 +5588,19 @@
 .v2 .tmx-o{display:block;padding:0 var(--s-4) 0 40px;color:var(--fg2);white-space:pre-wrap;overflow-wrap:anywhere}
 .v2 .tmx-l{display:block}
 .v2 .tmx-l.ok{color:var(--ok)}.v2 .tmx-l.bad{color:var(--bad)}.v2 .tmx-l.mu{color:var(--muted)}
+/* a streaming log never pulses (owner, 26 Nov): each line, command, note and edit that arrives opens its own height in 180ms
+   (between the motion pieces' quick and calm times, about one line's arrival apart) as its words fade in, and the line that folds
+   away above the last four closes in the same time and curve, so the log's height moves in one continuous line and the card,
+   which follows its content frame by frame (growFit()), never lags behind it: the newest line never sits in the card's padding
+   and the cursor under it never hides. A line moved into the folded part stays still (.still). Where a browser can't ease to
+   an auto height, lines arrive as before and the card springs to them */
+@keyframes v2-tmxopen{from{height:0;margin-top:0;margin-bottom:0;opacity:0;clip-path:inset(0 0 100% 0)}to{clip-path:inset(0)}}
+@keyframes v2-tmxshut{from{clip-path:inset(0)}to{height:0;margin-top:0;margin-bottom:0;opacity:0;clip-path:inset(0 0 100% 0)}}
+@supports (interpolate-size:allow-keywords){
+  .v2 .tmx-body{interpolate-size:allow-keywords}
+  .v2 .tmx-body>:is(.tmx-blk,.tmx-note),.v2 .tmx-o>.tmx-l:not(.still),.v2 .tmx-df,.v2 .tmx-more.opens{animation:v2-tmxopen 180ms var(--ease) backwards}
+  .v2 .tmx-o>.tmx-l.gone{animation:v2-tmxshut 180ms var(--ease) forwards}
+}
 /* (its hover fill ends on the content's 16px edge, as the output above it does) */
 .v2 .tmx-more{display:flex;align-items:center;gap:6px;width:calc(100% - 48px);margin:0 var(--s-4) 0 32px;padding:0 8px;border-radius:var(--r-sm);font-size:12px;line-height:inherit;text-align:left;color:var(--muted);transition:color var(--t-fast),background-color var(--t-fast)}
 @media (hover:hover) and (pointer:fine){.v2 .tmx-more:hover{color:var(--fg);background:var(--row)}}

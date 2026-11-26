@@ -76,23 +76,33 @@ DM.def('terminal-stream', (r, c) => {
   // a command or an edit: its $ (or the edit's pencil) in the marks' column, what it is, and a spinner and its time on the right
   function row(mark, text){
     const el = html(`<div class="tmx-blk" data-s="run"><div class="tmx-cmd">${mark === '$' ? '<code class="tmx-p">$</code>' : `<span class="tmx-p">${mark}</span>`}<code class="tmx-c"></code><span class="tmx-m"><span class="g"><span class="spin"></span></span><span class="t num"></span></span></div></div>`);
-    $('.tmx-c', el).textContent = text; body.appendChild(el); enter(el); return el;
+    $('.tmx-c', el).textContent = text; body.appendChild(el); follow(); return el;
   }
   function lines(el){
     const more = html(`<button class="tmx-more mx-press" aria-expanded="false" hidden>${I('chev-d','xs')}<span></span><i class="sp"></i></button>`), hid = html('<div class="fold shut"><code class="tmx-o"></code></div>'), tail = html('<code class="tmx-o"></code>');
     const inner = hid.firstElementChild; hid.inert = true; el.append(more, hid, tail);
-    const label = () => { const n = inner.children.length, open = !hid.classList.contains('shut'); $('span', more).textContent = open ? 'Show fewer lines' : `Show ${n} more line${n > 1 ? 's' : ''}`; more.setAttribute('aria-expanded', open); };
+    const label = () => { const n = inner.children.length + $$('.gone', tail).length, open = !hid.classList.contains('shut'); $('span', more).textContent = open ? 'Show fewer lines' : `Show ${n} more line${n > 1 ? 's' : ''}`; more.setAttribute('aria-expanded', open); };
     more.onclick = () => { hid.inert = hid.classList.toggle('shut'); label(); };
+    // (the lines that fold away above the last four close as the new one opens, in the same time and curve, and then move
+    // into the folded part; with the fold open, or no easing to an auto height, they move at once, which keeps the height)
+    const hidden = () => inner.children.length + $$('.gone', tail).length;
+    const retire = l => {
+      const done = () => { l.classList.remove('gone'); l.classList.add('still'); inner.appendChild(l); label(); };
+      if (!OPENS || !hid.classList.contains('shut')) return done();
+      l.classList.add('gone'); l.addEventListener('animationend', done, { once:true });
+    };
     return ([text, tone]) => {
       const l = document.createElement('span'); l.className = 'tmx-l' + (tone ? ' ' + tone : ''); l.textContent = text; tail.appendChild(l);
-      if (inner.children.length + tail.children.length > TAIL + 1) while (tail.children.length > TAIL) inner.appendChild(tail.firstElementChild);
-      if (inner.children.length){ more.hidden = false; label(); }
+      const live = $$('.tmx-l:not(.gone)', tail);
+      if (hidden() + live.length > TAIL + 1) while (live.length > TAIL) retire(live.shift());
+      if (hidden()){ if (more.hidden){ more.hidden = false; more.classList.add('opens'); } label(); }
+      follow();
     };
   }
   // (a mark that changes, the spinner into its tick, Exit tag or Stopped, crossfades in place: iconSwap())
   const halted = el => { const g = $('.tmx-m .g', el); iconSwap(g, () => { g.innerHTML = '<span class="tag">Stopped</span>'; }); el.dataset.s = 'stop'; };
   function finish(how){
-    over = true; stop.hidden = true; root.classList.remove('live'); sv.classList.remove('shim');
+    over = true; stop.hidden = true; delete root.dataset.growFollow; root.classList.remove('live'); sv.classList.remove('shim');
     st.classList.toggle('ok', how === 'passed'); st.classList.toggle('bad', how === 'failed'); { const g = $('.g', st); iconSwap(g, () => { g.innerHTML = I(how === 'passed' ? 'check' : 'stop', 'xs'); }); } sv.textContent = how === 'passed' ? 'Passed' : how === 'failed' ? 'Failed' : 'Stopped';
     // each command counts once, however many times it ran; how it went is the header's tag, so the summary doesn't say it
     // again, and a finished line has no clock (owner, 18 Nov)
@@ -102,20 +112,23 @@ DM.def('terminal-stream', (r, c) => {
     ff.classList.remove('shut');
   }
   // new output keeps the log on its newest line, unless the person has scrolled up to read; then it stays where they are
-  let pinned = true;
+  let pinned = true, till = 0;
   const stick = () => { if (pinned) body.scrollTop = body.scrollHeight; };
+  // (a line that opens its height grows the log frame by frame, so once it scrolls the log stays on it as it opens)
+  const OPENS = !REDUCE && CSS.supports('interpolate-size', 'allow-keywords');
+  const follow = () => { const go = !till; till = performance.now() + 240; if (go) requestAnimationFrame(function f(t){ stick(); if (t < till && !c.dead) requestAnimationFrame(f); else till = 0; }); };
   c.on(body, 'scroll', () => { pinned = body.scrollTop + body.clientHeight >= body.scrollHeight - 24; });
   const mo = new MutationObserver(stick); mo.observe(body, { childList:true, subtree:true }); c.offs.push(() => mo.disconnect());
   const ro = new ResizeObserver(stick); ro.observe(body); c.offs.push(() => ro.disconnect());
   stop.onclick = () => { halt = true; };
   cp.onclick = () => copied(cp, log.join('\n'));
-  root.classList.add('live'); sv.classList.add('shim');
+  root.classList.add('live'); sv.classList.add('shim'); if (OPENS) root.dataset.growFollow = '';
   c.run(async () => {
     let last = 0;
     for (const k of S){
       if (!await pass(GAP)) return finish('stopped');
       if (k.note){
-        const n = html(`<div class="tmx-note">${I('spark','xs')}<span class="shim"></span></div>`), w = $('span', n); w.textContent = k.note; body.appendChild(n); enter(n); log.push('# ' + k.note);
+        const n = html(`<div class="tmx-note">${I('spark','xs')}<span class="shim"></span></div>`), w = $('span', n); w.textContent = k.note; body.appendChild(n); follow(); log.push('# ' + k.note);
         const ok = await pass(k.ms); w.classList.remove('shim');
         if (!ok) return finish('stopped');
         continue;
@@ -126,7 +139,7 @@ DM.def('terminal-stream', (r, c) => {
         $('.tmx-m', el).innerHTML = `<span class="add">+${k.add}</span><span class="del">−${k.del}</span>`; log.push(`# Edited ${k.edit} (+${k.add} −${k.del})`);
         const df = document.createElement('code'); df.className = 'tmx-df';
         k.diff.forEach((d, i) => { const l = document.createElement('span'); l.className = d[0] === '+' ? 'a' : d[0] === '-' ? 'd' : ''; l.textContent = d; df.appendChild(l); enter(l, i * 90); });
-        el.appendChild(df); log.push(...k.diff);
+        el.appendChild(df); follow(); log.push(...k.diff);
         continue;
       }
       const el = row('$', k.cmd), t = $('.tmx-m .t', el), add = lines(el), per = k.ms / k.out.length;

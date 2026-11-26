@@ -175,8 +175,7 @@ export function StepLoader({ steps, current, loader = 'radar', doneLabel = 'Read
     <div data-dm="" className={cx('dm-stl dm-mx-ic', className)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
       <button type="button" className="dm-stl-row dm-mx-press" aria-expanded={isOpen} onClick={() => setOpen(!isOpen)}>
         <span className="dm-stl-g"><SwapIcon id={done ? 'ok' : loader}>{done ? <span className="dm-stl-ok"><Icon name="ok" /></span> : <Loader kind={loader} />}</SwapIcon></span>
-        <span className="dm-stl-t"><Swap className={cx('dm-stl-lab', !done && 'dm-shim')}>{done ? doneLabel : steps[at].label}</Swap></span>
-        <Swap className="dm-stl-n dm-num">{`${done ? n : at + 1}/${n}`}</Swap>
+        <span className="dm-stl-t"><Swap className={cx('dm-stl-lab', !done && 'dm-shim')}>{done ? doneLabel : steps[at].label}</Swap><Swap className="dm-stl-n dm-num">{`${done ? n : at + 1}/${n}`}</Swap></span>
         <Icon name="chev-d" size="xs" className="dm-stl-chev" />
       </button>
       <div className="dm-stl-track" role="progressbar" aria-valuemin={0} aria-valuemax={n} aria-valuenow={done ? n : at}>
