@@ -117,9 +117,9 @@
       + '@supports (corner-shape:squircle){:root[data-style="soft"] .dmf-p{corner-shape:squircle;border-radius:var(--dm-r-card,24px)}}'
       // Blueprint keeps its square corners
       + ':root[data-style="bp"] .dmf-p,:root:not([data-style]) .dmf-p{border-radius:0}'
-      // the 3D mark's stage over the words: the pop-up's width, the flat mark until the 3D one is drawn (or if it can't be)
-      + '.dmf-3d{position:relative;height:128px;margin:-4px -8px 12px;display:grid;place-items:center}'
-      + '.dmf-3d>svg{width:84px;height:70px;color:var(--pg-fg);opacity:.9;transition:opacity .3s}'
+      // the 3D mark's stage over the words, on the words' left edge (owner, 26 Nov): as wide as the mark, the flat mark until the 3D one is drawn (or if it can't be)
+      + '.dmf-3d{position:relative;width:128px;height:128px;margin:0 0 12px;display:grid;place-items:center}'
+      + '.dmf-3d>svg{width:128px;height:107px;color:var(--pg-fg);opacity:.9;transition:opacity .3s}'
       + '.dmf-3d.ready>svg{opacity:0}'
       + '.dmf-3d-cv{position:absolute;inset:0;width:100%;height:100%;opacity:0;transition:opacity .5s}'
       + '.dmf-3d.ready .dmf-3d-cv{opacity:1}'

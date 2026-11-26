@@ -67,7 +67,7 @@ export function mount(stage, svgText, opts){
     camera.aspect = W / H;
     // fit the mark's height (and its width as it turns) into the stage with a little room
     const fitH = (h + 200) / 2 / Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
-    const fitW = (w * 1.05) / 2 / Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) / camera.aspect;
+    const fitW = (w * 1.02) / 2 / Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) / camera.aspect;
     const d = Math.max(fitH, fitW);
     camera.position.set(0, h * .28, d); camera.lookAt(0, -40, 0); camera.updateProjectionMatrix();
   };
