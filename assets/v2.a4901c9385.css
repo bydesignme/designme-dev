@@ -1466,7 +1466,7 @@
 .v2 .tst{position:relative}
 /* the toast on its way out and the one coming in share one cell, so each keeps its full width while they cross; the cell is
    as tall as its toast and keeps no room when there is none */
-.v2 .tst-slot{position:relative;width:100%;display:grid;justify-items:center;align-items:center}
+.v2 .tst-slot{position:relative;width:100%;display:grid;grid-template-columns:minmax(0,1fr);justify-items:center;align-items:center}
 .v2 .tst-slot>:is(.tst-t,.tst-make){grid-area:1/1}
 /* the button that starts the job sits where its toast will: the toast grows out of it and, once closed, goes back into it */
 .v2 .tst-make.under{visibility:hidden}
@@ -1475,12 +1475,18 @@
    show on Blueprint's dark raised grey */
 .v2 .tst-t{width:100%;max-width:380px;box-sizing:border-box;background:var(--raised);border-radius:var(--r-card);box-shadow:var(--shadow-pop);--row:color-mix(in srgb,var(--fg) 5%,transparent);--tst-div:color-mix(in srgb,var(--fg) 10%,transparent);overflow:clip;position:relative;touch-action:pan-y;user-select:none;-webkit-user-select:none}
 .v2 .tst-t[hidden]{display:none}
+/* (it grows with what it holds, grow(); its corners clip what is inside them exactly). The card's own height carries the motion,
+   so its steps and its footer open and shut at once and only fade: two eased heights on top of each other would leave the
+   card's edge trailing behind them */
+.v2 .tst-t.growing{overflow-clip-margin:0px}
+.v2 .tst-t .fold{transition:opacity var(--t-fast) var(--ease)}
+.v2 .tst-t .fold.shut{transition:opacity var(--t-fast) var(--ease),visibility 0s var(--t-fast)}
 /* the head: the glyph, the words, then the toast's own buttons, all on one centre line, 16px in from every edge */
 .v2 .tst-hd{display:flex;align-items:center;gap:var(--s-3);padding:var(--s-4)}
 .v2 .tst-tx{flex:1;min-width:0}
 .v2 .tst-ti{display:block;width:fit-content;max-width:100%;font-size:13px;font-weight:500;line-height:18px}
-/* the line under the title stays on one line, so the toast keeps its height as a counter in it ticks over */
-.v2 .tst-de{display:block;font-size:12px;line-height:18px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* the line under the title wraps on a narrow toast rather than cutting off its news ("The sheet says 41k, not 14k") */
+.v2 .tst-de{display:block;font-size:12px;line-height:18px;color:var(--muted);font-variant-numeric:tabular-nums}
 /* its icon buttons fill on hover, so they are measured by their box (ui-qa-gate, "boxes that fill"): Close's box, and the
    countdown ring drawn on it, end on the content's right edge, 16px in, where the footer's buttons end */
 .v2 .tst-hb{display:flex;align-items:center;gap:var(--s-1);flex:none}
