@@ -32,6 +32,8 @@ Black, white and grey with an ink primary button, hairline outlines and fully ro
 
 Until you pick a style in the header, designme.dev follows your theme: light opens in Soft and dark in Blueprint. It remembers the style you pick.
 
+To link to a style on designme.dev, add it to the address: `?style=blueprint`, `?style=soft` or `?style=clean`, with `&theme=light` or `&theme=dark` if you like. The address follows the header's switches, so copying it shares what you see.
+
 ## Light and dark
 
 Without `data-theme`, the components follow the device's setting. Set it to fix the theme:
