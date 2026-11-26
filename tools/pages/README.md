@@ -29,7 +29,7 @@ twelve of the library's most distinctive components playing live, each its own c
 shrinks as it plays, pushing only what is under it in its stack, so no card has room left empty under it; the cards and
 their stacks are chosen, from each candidate's height sampled live over a full run in every style, so the stacks' feet stay
 close to level. Then the templates' views (the Sales CRM's Accounts, Pipeline, Calendar, Forecast and Reports, the
-Workflow editor and the Dashboard builder), live in one frame on the site's grey with a switch over it, taking turns (`src/device/frame.js`, with
+Workflow editor, the Dashboard builder and the Whiteboard), live in one frame on the site's grey with a switch over it, taking turns (`src/device/frame.js`, with
 `?embed=1`, which hides the site's header, `nav=0`, which hides the app's sidebar and the header button that opens it, and
 `view=`, which picks the CRM's view; another view of an open app is switched to in place; the Workflow editor opens on its
 last test run). The apps never trap the page's scrolling (`passWheel`):
@@ -96,6 +96,22 @@ and a note. A short scripted demo opens the builder, drags a bar chart onto the 
 the controller's waits: a mouse resting on the app holds it, the first click, key or touch ends it, and with reduced motion
 (or `?demo=0`) it doesn't play. Its layout is `src/templates/dashboard-builder/db.css` and its data and interactions
 `src/templates/dashboard-builder/db.js`; the parts the library doesn't have yet have a `dbb-` prefix.
+
+`/templates/whiteboard` (`src/pages/templates/whiteboard.astro`) is a shared whiteboard made the same way: a dotted canvas
+that pans and zooms (drag with the Pan tool, Space or the middle button, scroll, pinch, or ⌘ and scroll to zoom), sticky notes
+in the core tag colours, text, shapes, connectors between items and a pen, on a tool rail whose tools all work and have keys
+(V, H, S, P, E, R, A, T and C; a bar along the bottom on phones), a selection that moves, resizes, duplicates, reorders,
+recolours and deletes (with its own right-click menu), and undo and redo of every change you make. The people on the board
+have live cursors with their names in their own colour; a click on one in the bar follows their view (the canvas is edged in
+their colour, and Stop or moving the view yourself ends it). Comments are pins on the board that open a thread (Comments),
+listed from the bar. Ask the agent (⌘K, the Command palette) groups the notes into labelled frames by what they say and
+writes a summary beside them, or redraws pen sketches that look like boxes, ellipses or arrows as shapes and connectors; its
+run shows in Status pill, with Stop (the board goes back as it was) and, when it is done, Undo. A short scripted session
+plays on its own, on the controller's waits (a mouse resting on the app holds it; the agent's own run keeps going): Jon adds
+a note, you follow Ari while Ari sketches, the agent groups the notes and Sam comments on a frame, then it loops. The first
+click, key, touch or scroll in the app ends it for good; Replay demo (in the site header, and in the board's menu) plays it
+again; with reduced motion or `?demo=0` it doesn't play. Its layout is `src/templates/whiteboard/wb.css` and its data and
+interactions `src/templates/whiteboard/wb.js`; the parts the library doesn't have yet have a `wbx-` prefix.
 
 ## Pictures
 
