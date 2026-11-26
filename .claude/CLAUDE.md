@@ -14,6 +14,10 @@ every session and every agent.
 - A polish, elevation or "calmer" pass never removes something the owner set up (lines, controls, columns, chips) without
   saying so and asking first (owner, 21 Nov: "You made those changes without telling me").
 
+- Tokens first (owner, 26 Nov): optimise token use above all. For new designs, describe the idea in plain words and show a
+  static mock first; build and animate only after the owner approves. Don't record videos or captures unless the owner asks;
+  the owner plays pages themselves. Keep checks proportionate to the change.
+
 ## Brand
 - The DesignMe wordmark is fixed: never redraw, retype or restyle its letters. Use its existing vector paths as they
   are. Logo work may only change the ".dev" part, add an icon beside it, or show the same paths as an outline (a
