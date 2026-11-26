@@ -908,7 +908,7 @@ let SECTION_ORDER = null;
   const js = V2JS.replace('/*@@V2DEFS@@*/', () => P.main).replace('/*@@V2PARTS@@*/null', () => JSON.stringify({ files, of:P.of, all:P.all }));
   console.log(`components script: ${Math.round(js.length / 1024)} KB with ${order[0]}, ${V2_PARTS.length} section files of ${Math.round(V2_PARTS.reduce((n, f) => n + f.text.length, 0) / 1024)} KB, waiting for every section: ${P.all.join(', ') || 'none'}`);
   // then the pictures in the carousels' demos, which only the site shows (art/art.js), and the phone's DesignMe card (fab/fab.js)
-  site = site.slice(0, end) + '<script id="v2-js">\n' + js + '</script>\n<script src="/art/art.js?v=2" defer></script>\n<script src="/fab/fab.js" defer></script>\n' + site.slice(end);
+  site = site.slice(0, end) + '<script id="v2-js">\n' + js + '</script>\n<script src="/art/art.js?v=3" defer></script>\n<script src="/fab/fab.js" defer></script>\n' + site.slice(end);
 }
 /* ---------- site: the HTML / React switch in the code views, and thumbnails of components not yet started ---------- */
 for (const [a, b] of SITE_PATCHES.patches){
