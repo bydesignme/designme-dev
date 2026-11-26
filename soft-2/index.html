@@ -6659,7 +6659,9 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 /* what the run waits for: a person's yes, as a warning notice (owner, 18 Nov; Model picker's busy notice is the reference): a
    faint warning tint as wide as the rows' fills, the filled warning sign centred in the rows' tile column, the words in the
    text colour on the names' column, Approve (what resolves it) in the warning tint and Reject white, ending where the times end */
-.rdr-ask{display:grid;grid-template-columns:18px minmax(0,1fr) auto;align-items:center;gap:var(--s-2) 6px;width:auto;box-sizing:border-box;margin:6px var(--s-2) var(--s-1);padding:10px var(--s-2);border-radius:calc(8px * var(--rk-m,var(--rk)));background:color-mix(in srgb,var(--warn-bg) 45%,transparent);font-size:12.5px}
+/* the notice's tint reaches 8px out round the rows' column, as their fills do, so its sign, words and buttons sit on the
+   card's 16px column under the head's (owner, 26 Nov) */
+.rdr-ask{display:grid;grid-template-columns:18px minmax(0,1fr) auto;align-items:center;gap:var(--s-2) 6px;width:auto;box-sizing:border-box;margin:6px 0 var(--s-1);padding:10px var(--s-2);border-radius:calc(8px * var(--rk-m,var(--rk)));background:color-mix(in srgb,var(--warn-bg) 45%,transparent);font-size:12.5px}
 .rdr-ask.in{animation:enter var(--t) var(--ease) backwards}
 .rdr-sgi{grid-area:1/1;justify-self:center;align-self:start;width:16px;height:16px;margin-top:1px;overflow:visible}
 .rdr-sgi .a{fill:var(--warn-mark);stroke:var(--warn-mark);stroke-width:2;stroke-linejoin:round}
@@ -6710,7 +6712,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
   .rdr-stop,.rdr-again{width:28px;padding:0}
   .rdr-ax,.rdr-r{grid-template-columns:minmax(0,1fr) 30% 48px}
   /* the notice on two lines is a small card: its content 16px from its edges */
-  .rdr-ask{grid-template-columns:18px minmax(0,1fr);padding:var(--s-4)}.rdr-ask .acts{grid-area:2/1/3/3;justify-content:flex-end}
+  .rdr-ask{grid-template-columns:18px minmax(0,1fr);padding:var(--s-4) var(--s-2)}.rdr-ask .acts{grid-area:2/1/3/3;justify-content:flex-end}
   .rdr-data{grid-template-columns:minmax(0,1fr)}
   .rdr-ds{flex-direction:row;overflow-x:auto;scrollbar-width:none}
   .rdr-ds button{flex:none;width:auto}
@@ -6976,6 +6978,10 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 .ksx-add[aria-expanded="true"]{color:var(--fg);background:var(--row)}
 .ksx-add:hover{color:var(--fg);background:var(--row)}
 .ksx-pop{width:248px}
+/* switching the open menu to another view (a website, a folder) shows its first line at once and settles the rest after it, so
+   the menu never shows empty for a moment (the 40ms lead of .mx-rows is for a menu opening from its button) */
+.ksx-pop.mx-sw>:first-child{animation:none}
+.ksx-pop.mx-sw>*{animation-delay:calc((var(--mx-i,0) - 1) * var(--mx-step))}
 /* its motion (the core's motion pieces, owner, 26 Nov): its menus grow out of their buttons and go back quicker, their rows
    settle one after another (a menu's next step too) and one highlight glides between them; one highlight glides from source to
    source in every style (.mx-glide); a press shows at once (.mx-press); the card grows on the spring (.mx-grow) */
@@ -16693,7 +16699,8 @@ DM.def('toast-stack', (r, c) => {
   /* swipe a card away: it follows the finger or the pointer sideways and goes once it has moved far enough, or eases back */
   const fling = (k, dx, v) => {
     if (Math.abs(dx) > 90 || v > .6){ const dir = Math.sign(dx) || 1, M = motion();
-      k.el.animate([{ transform:`${k.base} translateX(${dx}px)`, opacity:k.el.style.opacity }, { transform:`${k.base} translateX(${dx + dir * 140}px)`, opacity:0 }], { duration:M.t, easing:M.ease, fill:'forwards' });
+      // (with reduced motion it only fades where it was let go)
+      k.el.animate([{ transform:`${k.base} translateX(${dx}px)`, opacity:k.el.style.opacity }, { transform:`${k.base} translateX(${REDUCE ? dx : dx + dir * 140}px)`, opacity:0 }], { duration:REDUCE ? M.fast : M.t, easing:M.ease, fill:'forwards' });
       k.drag = false; k.el.style.transition = ''; dismiss(k, 'swipe'); }
     else { k.drag = false; k.el.style.transition = ''; k.el.style.transform = k.base; k.el.style.opacity = 1; }
   };
@@ -19949,7 +19956,11 @@ DM.def('inline-text-diff', (r, c) => {
     bar.classList.toggle('unsure', !!e.why);
     acc.className = 'pill sm itd-acc ' + (e.why ? 'line mx-press' : 'primary'); rej.className = 'pill sm itd-rej ' + (e.why ? 'warn' : 'ghost mx-press');
     const rb = root.getBoundingClientRect(), k = rb.width / root.offsetWidth || 1, rs = el.getClientRects(), cr = rs[rs.length - 1] || el.getBoundingClientRect(), c0 = rs[0] || cr;
-    const room = popRoom(el), up = cr.bottom + 6 + bar.offsetHeight * k > room.bottom - 8 && c0.top - 6 - bar.offsetHeight * k >= room.top + 8;
+    // (the room is the stage's as well as the page's, so in a card of fixed height, like the homepage's, it never hangs past the
+    // stage's edge: it opens over the edit when there is no room under it and more over it)
+    const room = popRoom(el), sg = el.closest('.stage-inner') || el.closest('.stage');
+    if (sg){ const sr = sg.getBoundingClientRect(), cs = getComputedStyle(sg); room.top = Math.max(room.top, sr.top + parseFloat(cs.paddingTop)); room.bottom = Math.min(room.bottom, sr.bottom - parseFloat(cs.paddingBottom)); }
+    const need = 6 + bar.offsetHeight * k, below = room.bottom - 8 - cr.bottom, above = c0.top - room.top - 8, up = below < need && (above >= need || above > below);
     bar.inert = false; bar.classList.toggle('up', up); void bar.offsetWidth; bar.classList.add('open');
     bar.style.left = Math.max(12, Math.min(((up ? c0 : cr).left - rb.left) / k, root.offsetWidth - bar.offsetWidth - 12)) + 'px';
     bar.style.top = (up ? (c0.top - rb.top) / k - 6 - bar.offsetHeight : (cr.bottom - rb.top) / k + 6) + 'px';
@@ -22469,6 +22480,9 @@ DM.def('run-drawer', (r, c) => {
   r.innerHTML = r.innerHTML.replace(/\{([\w-]+)(?:\.(xs))?\}/g, (m, k, z) => I(k, z || 's'));
   const uid = 'rdr' + Math.random().toString(36).slice(2, 7);
   const frame = $('.rdr', r), dw = $('.rdr-dw', r), flow = $('.rdr-flow', r), tg = $('.rdr-tg', r), stT = $('.rdr-st', r), idT = $('.rdr-id', r), meta = $('.rdr-meta', r);
+  // where a row sits in the scrolling body (its offsets add up to the body: the list, which the gliding highlight positions, is
+  // an offset parent of its own)
+  const topIn = el => { let y = 0; for (let e = el; e && e !== bd && bd.contains(e); e = e.offsetParent) y += e.offsetTop; return y; };
   const bd = $('.rdr-b', r), rowsEl = $('.rdr-rows', r), sc = $('.rdr-sc', r), logEl = $('.rdr-log', r), cnt = $('.rdr-lf .n', r), ds = $('.rdr-ds', r), io = $('.rdr-io', r);
   // its motion pieces (26 Nov): one highlight glides from step to step in both lists, in every style; the picked step keeps its
   // own fill
@@ -22560,7 +22574,7 @@ DM.def('run-drawer', (r, c) => {
       li.hidden = lvl !== 'all' && l.l !== lvl; logEl.appendChild(li); if (!force && !REDUCE && !li.hidden) li.classList.add('in'); }
     filterLog(false);
     // the newest line in view while the run is followed
-    if (follow && (R.st === 'run' || R.st === 'wait' || force)){ if (tab === 'steps'){ const b = rowsEl.lastElementChild; if (b && b.offsetTop + b.offsetHeight > bd.scrollTop + bd.clientHeight) bd.scrollTop = b.offsetTop + b.offsetHeight - bd.clientHeight + 6; } if (tab === 'log') bd.scrollTop = bd.scrollHeight; }
+    if (follow && (R.st === 'run' || R.st === 'wait' || force)){ if (tab === 'steps'){ const b = rowsEl.lastElementChild; if (b && topIn(b) + b.offsetHeight > bd.scrollTop + bd.clientHeight) bd.scrollTop = topIn(b) + b.offsetHeight - bd.clientHeight + 6; } if (tab === 'log') bd.scrollTop = bd.scrollHeight; }
     // the head: the run's state, its time, tokens and cost
     const tag = { run:['run', '<span class="spin"></span>Running'], wait:['warn', 'Waiting'], ok:['ok', 'Passed'], bad:['bad', 'Failed'], stopped:['', 'Stopped'] }[R.st];
     if (stT.dataset.s !== R.st){ stT.dataset.s = R.st; stT.className = 'rdr-st tag ' + tag[0]; stT.innerHTML = tag[1]; }
@@ -22607,7 +22621,7 @@ DM.def('run-drawer', (r, c) => {
     const a = e.target.closest('.rdr-ask [data-a]'); if (a) return decide(a.dataset.a === 'yes');
     const b = e.target.closest('.rdr-r, .rdr-nd, .rdr-ds button'); if (!b) return;
     pick(b.dataset.s);
-    if (b.matches('.rdr-nd') && tab === 'steps'){ const row = $(`.rdr-r[data-s="${b.dataset.s}"]`, rowsEl); if (row) bd.scrollTop = Math.max(0, row.offsetTop - 34); }
+    if (b.matches('.rdr-nd') && tab === 'steps'){ const row = $(`.rdr-r[data-s="${b.dataset.s}"]`, rowsEl); if (row) bd.scrollTop = Math.max(0, topIn(row) - 34); }
   });
   // Steps, Log and Data; the log's level filter
   const tabs = seg($('.rdr-tabs', r), v => { tab = v; $$('.rdr-v', r).forEach(x => x.hidden = x.dataset.v !== v); bd.scrollTop = 0; if (v === 'data') paintData(); if (v === 'log' && follow && R.st === 'run') bd.scrollTop = bd.scrollHeight; });
@@ -22875,6 +22889,7 @@ DM.def('knowledge-sources', (r, c) => {
   $('.ksx-rm', mpop).onclick = () => cur && remove(cur);
   // Add source: upload files (the file picker), add a website (its address), or connect a folder (from the ones offered)
   function view(v){
+    pop.classList.toggle('mx-sw', pop.classList.contains('open'));
     if (v === 'web') pop.innerHTML = `<form class="ksx-web"><div class="ph">Add a website</div><div class="ksx-in">${I('globe','xs')}<input placeholder="example.com/docs" aria-label="Website address" spellcheck="false" autocomplete="off"><button class="pill accent sm" type="submit">Add</button></div></form>`;
     else if (v === 'folder') pop.innerHTML = '<div class="ph">Connect a folder</div>' + (FOLDERS.length ? FOLDERS.map((f, i) => `<button class="mi mx-press" role="menuitem" data-close data-i="${i}">${I('folder','xs')}<span>${f[0]}<span class="d">${f[1]}</span></span></button>`).join('') : '<div class="ph">All folders connected</div>');
     else pop.innerHTML = [['upload', 'Upload files', 'files'], ['globe', 'Add a website', 'web'], ['folder', 'Connect a folder', 'folder']].map(([ic, t, k]) => `<button class="mi mx-press" role="menuitem" data-v="${k}"${k === 'files' ? ' data-close' : ''}>${I(ic,'xs')}<span>${t}</span></button>`).join('');

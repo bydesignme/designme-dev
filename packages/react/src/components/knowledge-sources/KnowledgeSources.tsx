@@ -170,7 +170,7 @@ export function KnowledgeSources({ sources, onUpload, onAddWebsite, address, def
       )}
       {canAdd && <>
         {sources.length > 0 && <div className="dm-ksx-ft"><button type="button" className="dm-ksx-add dm-mx-press" {...menu.trigger} onClick={e => { if (!menu.open) setView('main'); menu.trigger.onClick(e); }}><Icon name="plus" size="xs" />Add source</button></div>}
-        <div {...menu.pop} style={{ ...menu.pop.style, ...bottom }} className={cx(menu.pop.className, 'dm-ksx-pop dm-mx-pop dm-mx-rows dm-mx-glide')} role="menu" aria-label="Add source">
+        <div {...menu.pop} style={{ ...menu.pop.style, ...bottom }} className={cx(menu.pop.className, 'dm-ksx-pop dm-mx-pop dm-mx-rows dm-mx-glide', view !== 'main' && 'dm-mx-sw')} role="menu" aria-label="Add source">
           {view === 'main' && <>
             {onUpload && <button type="button" className="dm-mi dm-mx-press" role="menuitem" onClick={() => { menu.closeSoon(); file.current?.click(); }}><Icon name="upload" size="xs" /><span>Upload files</span></button>}
             {onAddWebsite && <button type="button" className="dm-mi dm-mx-press" role="menuitem" onClick={() => { setView('web'); requestAnimationFrame(() => field.current?.focus({ preventScroll: true })); }}><Icon name="globe" size="xs" /><span>Add a website</span></button>}
