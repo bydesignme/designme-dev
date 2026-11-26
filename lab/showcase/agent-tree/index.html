@@ -888,12 +888,6 @@ body.render #stage{left:0;top:0;transform:none!important}
 #card .dm-atr-dot{transform-origin:50% 50%}
 #card .dm-atr-ln .dm-drop{stroke:var(--dm-atr-run);stroke-width:3.6;stroke-linecap:round;stroke-linejoin:round;fill:none}
 :root:not([data-style]) #card .dm-atr-ln .dm-drop{stroke-linecap:square}
-/* the task: a card that falls into the head and becomes the run's title */
-#chip{position:absolute;left:0;top:0;transform-origin:0 0;pointer-events:none;white-space:nowrap}
-#chip .bg{position:absolute;background:var(--dm-surface);box-shadow:var(--dm-shadow-pop);border-radius:calc(10px * var(--dm-rk));corner-shape:squircle}
-:root[data-style="clean"] #chip .bg{border-radius:12px;corner-shape:round}
-:root:not([data-style]) #chip .bg{border-radius:0}
-#chip .tx{position:relative;display:block;color:var(--dm-fg)}
 /* the marks: rings and four-point sparks in the accent's mark colour and neutral grey; strokes and fills, no glow */
 #fx{position:absolute;left:0;top:0;width:1px;height:1px;overflow:visible;pointer-events:none}
 #fx svg{position:absolute;left:0;top:0;overflow:visible}
@@ -921,7 +915,6 @@ body.render .cap{display:none}
       <p class="dm-atr-f" id="ft"></p>
     </div>
   </div>
-  <div id="chip" aria-hidden="true"><span class="bg" id="chipbg"></span><span class="tx" id="chiptx">Redesign the pricing page</span></div>
   <div id="fx"></div>
 </div></div>
 <div class="cap"><span>Agent tree · showcase</span><a href="?v=soft-light">Soft light</a><a href="?v=clean-dark">Clean dark</a><a href="?v=bp-dark">Blueprint dark</a><a href="?v=soft-light&amp;f=4x5">Soft light 4:5</a></div>
@@ -947,13 +940,12 @@ const W = FMT.W, H = FMT.H, CL = (W - 440) / 2;
 const T = 10.8;
 const stage = $('#stage'), world = $('#world'), cw = $('#cw'), card = $('#card'), tree = $('#tree'), ln = $('#ln');
 const hd = $('#hd'), ttl = $('#ttl'), sline = $('#sline'), stat = $('#stat'), clockEl = $('#clock'), tot = $('#tot'), dot = $('#dot'), ft = $('#ft');
-const chip = $('#chip'), chipbg = $('#chipbg'), chiptx = $('#chiptx');
 stage.style.width = W + 'px'; stage.style.height = H + 'px'; cw.style.left = CL + 'px';
 
 // ---------- beats (seconds in a 10.8s loop) ----------
 const B = {
-  cardIn:.25,                 // the card rises in: an orchestrator alone, waiting for a task
-  chipIn:.42, lift:.92, drop:1.02, land:1.2,   // the task floats in above the card, winds up, and drops into the head
+  cardIn:.25,                 // the card rises in, its head already complete: the run's title, Starting and 0:00, and $0.00, over
+                              // the orchestrator alone, still queued
   go:1.32,                    // the orchestrator lights up and starts splitting the work
   camIn:2.8, camInD:.9, camOut:6.0, camOutD:.95,
   out:9.35,                   // everything leaves, top down, before the loop ends
@@ -961,7 +953,7 @@ const B = {
 
 // ---------- the run: the real demo's agents and steps; each has its open time, its run and its own spend in cents ----------
 const RUN = [
-  { id:'root', n:'Orchestrator', ic:'spark', own:6, spend:[1.62, 6.3], subs:[[0, 'Waiting for a task'], [1.36, 'Splitting the work'], [2.3, '3 agents at work'], ['DONE', 'Run finished']] },
+  { id:'root', n:'Orchestrator', ic:'spark', own:6, spend:[1.62, 6.3], subs:[[0, 'Queued'], [1.36, 'Splitting the work'], [2.3, '3 agents at work'], ['DONE', 'Run finished']] },
   { id:'res', p:'root', n:'Research', ic:'globe', av:'l', open:1.55, run:1.55, end:4.95, out:'done', own:5, leg:.42, subs:[[0, '5 competitor pages'], [4.95, 'Notes in Pricing v4']] },
   { id:'res1', p:'res', n:'Read the pages', ic:'file-text', open:2.24, run:2.24, end:4.5, out:'done', own:7, subs:[[0, 'Reading 1 of 5'], [3.1, 'Reading 3 of 5'], [3.8, 'Reading 5 of 5'], [4.5, '5 pages, 12k words']] },
   { id:'des', p:'root', n:'Design', ic:'palette', av:'p', open:1.72, run:1.72, end:6.35, out:'done', own:8, leg:.5, subs:[[0, 'Plan cards in Figma'], [6.35, 'Cards and tokens done']] },
@@ -1073,8 +1065,6 @@ const burst = (t0, at, n, a0, a1, d0, d1, size, dur = .8, vy = 1) => {
   }
   bursts.push({ t0, at, ps, dur, vy });
 };
-// (an outline round the task's card the moment it lands)
-const shock = mk('rect', { class:'ring n' }); fsvg.appendChild(shock);
 // (and one round the total when the last cent lands, opening out from round its figures)
 const totRing = mk('rect', { class:'ring' }); fsvg.appendChild(totRing);
 
@@ -1084,8 +1074,6 @@ const wc = el => { const b = el.getBoundingClientRect(); return { x: (b.left + b
 let finalH = 0;
 function measureLayout(){
   const cs = getComputedStyle(card); LR = parseFloat(cs.getPropertyValue('--dm-atr-r')) || 8; CUT = cs.getPropertyValue('--dm-atr-cut').trim() === '1';
-  const ts = getComputedStyle(ttl);
-  for (const k of ['fontFamily', 'fontSize', 'fontWeight', 'lineHeight', 'letterSpacing', 'fontFeatureSettings']) chiptx.style[k] = ts[k];
   renderAt(8.5); finalH = card.offsetHeight;
   window.LAYOUT = { finalH, LR, CUT };
 }
@@ -1096,7 +1084,6 @@ for (const n of N) if (n.lv) ring(n.end, .5, () => wc(n.g), 9, 19, true, 1.25); 
 ring(B.go, .55, () => wc(ROOT.g), 9, 24, false);                                                             // the orchestrator lights up
 ring(DONE, .7, () => wc(ROOT.g), 9, 30, false);
 burst(DONE, () => wc(tot), 13, -Math.PI * 1.02, Math.PI * .5, 30, 62, 1.05, .9, .62);                              // up, out and down round it
-burst(B.land, () => { const c = wc(chiptx); return { x: c.x, y: c.t - 4 }; }, 7, -Math.PI * .92, -Math.PI * .08, 10, 34, .75, .7);   // dust off the top of the task
 
 // ---------- render one moment ----------
 function renderAt(t){
@@ -1191,9 +1178,6 @@ function renderAt(t){
   const ck = clock(secs); if (clockEl.textContent !== ck) clockEl.textContent = ck;
   const de = .9 * hit(t - DONE, .07);
   dot.style.transform = de > .001 ? `scale(${(1 + de).toFixed(4)})` : '';
-  // the status line rises in once the task has landed
-  const se = eOutExpo(seg(t, B.land + .1, .6));
-  sline.style.opacity = se.toFixed(3); sline.style.transform = se < 1 ? `translateY(${((1 - se) * 8).toFixed(2)}px)` : ''; sline.style.filter = se < 1 ? `blur(${((1 - se) * 3).toFixed(2)}px)` : '';
 
   // the foot: the orchestrator's own spend and what its agents have sent home, and the tokens
   const kidsIn = ROOT.kids.filter(k => shown(k, t)).length, own = ownC(ROOT, t);
@@ -1202,7 +1186,7 @@ function renderAt(t){
 
   // ---------- the card: centred as it grows, with a firm give when the task lands and when the total lands ----------
   const ch = card.offsetHeight, cardTop = (H - ch) / 2;
-  const thud = 4.5 * hit(t - B.land, .07) + 2.4 * hit(t - DONE, .06);
+  const thud = 2.4 * hit(t - DONE, .06);
   cw.style.top = cardTop.toFixed(2) + 'px';
   cw.style.transform = `translateY(${(yCard + thud).toFixed(2)}px)`;
 
@@ -1262,41 +1246,8 @@ function renderAt(t){
     d.el.setAttribute('d', 'M' + q.map(p => p.x.toFixed(2) + ' ' + p.y.toFixed(2)).join('L'));
   }
 
-  // ---------- the task: it floats in above the card, winds up, drops into the head and becomes the title ----------
   wr = world.getBoundingClientRect(); wsc = wr.width / world.offsetWidth || 1;
-  const home = wc(ttl);
-  { const rg = document.createRange(); rg.selectNodeContents(ttl); const b = rg.getBoundingClientRect(); home.w = b.width / wsc; }
-  const cin = eOutExpo(seg(t, B.chipIn, .7));
-  const lift = eInOutCubic(seg(t, B.lift, B.drop - B.lift + .02)), fall = eInCubic(seg(t, B.drop, B.land - B.drop));
-  const hov = { x: 26, y: -78 };
-  const bob = Math.sin((t - B.chipIn) * 5.2) * 1.6 * (1 - lift);
-  let ox = lerp(hov.x, 0, fall) + (1 - cin) * 18, oy = lerp(hov.y - 7 * lift, 0, fall) - (1 - cin) * 26 + bob * (1 - fall);
-  const rot = lerp(-3.5 - 2 * lift, 0, fall) * (t < B.land ? 1 : 0);
-  const iq = t - B.land, sq = .11 * hit(iq, .045) - .025 * hit(iq - .12, .06);
-  const sc = lerp(1.06 + .03 * lift, 1, fall);
-  const chipOn = t >= B.chipIn && t < B.land + .55;
-  chip.style.display = chipOn ? '' : 'none';
-  ttl.style.opacity = t >= B.land + .55 ? '' : '0';
-  if (chipOn){
-    if (t >= B.land){ ox = 0; oy = 0; }
-    const bgk = eInCubic(seg(t, B.land + .14, .32));   // its card falls away round the words, which stay where they landed
-    const px = 12 * (1 - bgk), py = 7 * (1 - bgk);
-    chipbg.style.left = (-px) + 'px'; chipbg.style.top = (-py) + 'px'; chipbg.style.width = (home.w + 2 * px).toFixed(2) + 'px'; chipbg.style.height = (home.h + 2 * py).toFixed(2) + 'px';
-    chipbg.style.opacity = (1 - bgk).toFixed(3);
-    chip.style.opacity = cin.toFixed(3);
-    chip.style.filter = cin < 1 ? `blur(${((1 - cin) * 6).toFixed(2)}px)` : '';
-    chip.style.transformOrigin = `${(home.w / 2).toFixed(1)}px ${(home.h / 2).toFixed(1)}px`;
-    chip.style.transform = `translate(${(home.l + ox).toFixed(2)}px,${(home.t + oy).toFixed(2)}px) rotate(${rot.toFixed(2)}deg) scale(${(sc * (1 + sq)).toFixed(4)},${(sc * (1 - sq)).toFixed(4)})`;
-  }
-  // the shock round it as it lands
-  const su = seg(t, B.land, .5);
-  if (su > 0 && su < 1){
-    const e = eOutCubic(su), g = 7 + 16 * e;
-    shock.setAttribute('x', (home.l - g).toFixed(2)); shock.setAttribute('y', (home.t - g * .7).toFixed(2));
-    shock.setAttribute('width', (home.w + 2 * g).toFixed(2)); shock.setAttribute('height', (home.h + 1.4 * g).toFixed(2));
-    shock.setAttribute('rx', CUT ? 0 : (10 + g * .6).toFixed(2));
-    shock.style.opacity = ((1 - e) * .85).toFixed(3); shock.style.display = '';
-  } else shock.style.display = 'none';
+
 
   // ---------- rings and sparks ----------
   const tu = seg(t, DONE + .02, .75);
@@ -1330,7 +1281,7 @@ function renderAt(t){
   const zi = eInOutCubic(seg(t, B.camIn, B.camInD)), zo = eInOutCubic(seg(t, B.camOut, B.camOutD));
   const z = zi * (1 - zo);
   const S = 1 + (FMT.zoom - 1) * z + .022 * hit(t - by('des2').end, .06) + .035 * hit(t - DONE, .07);
-  const shake = 2.6 * hit(t - B.land, .05);
+  const shake = 0;
   const fyc = cardTop + ch / 2;
   const fxp = W / 2, fyp = lerp(H / 2, fyc, z);
   world.style.transform = `translate(${(W / 2 - fxp * S).toFixed(2)}px,${(H / 2 - fyp * S + shake).toFixed(2)}px) scale(${S.toFixed(4)})`;
