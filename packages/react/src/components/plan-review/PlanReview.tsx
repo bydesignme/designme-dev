@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { Spin, Swap, Think, Tip, useGrow } from '../../lib/motion';
+import { Spin, Swap, SwapIcon, Think, Tip, useGrow } from '../../lib/motion';
 import { useHoverGlide } from '../../lib/glide';
 import '../../designme.css';
 import './plan-review.css';
@@ -81,14 +81,14 @@ export function PlanReview({ title, steps, defaultSteps = [], onStepsChange, pha
   const [growRef, growIn] = useGrow();
 
   return (
-    <div data-dm="" ref={growRef} className={cx('dm-plx', 'dm-growing', !bare && 'dm-panel', className)}>
+    <div data-dm="" ref={growRef} className={cx('dm-plx', 'dm-growing dm-mx-grow', !bare && 'dm-panel', className)}>
       <div className="dm-grow" ref={growIn}>
       <div className="dm-plx-h">
         <Think on={phase === 'running'} className="dm-plx-mk" />
         <div className="dm-plx-ht"><b>{title}</b><Swap className={cx('dm-muted dm-plx-st', phase === 'running' && 'dm-shim')}>{status ?? `About ${Math.max(1, Math.round(included.length * .8))} min`}</Swap></div>
         {meta !== undefined && <span className="dm-plx-tm dm-num">{meta}</span>}
       </div>
-      <ol ref={listRef} className="dm-plx-list">
+      <ol ref={listRef} className="dm-plx-list dm-mx-glide dm-mx-ic">
         {list.map((s, i) => {
           const num = s.skipped ? '–' : String(++n);
           const entering = !entered.has(s.id);
@@ -96,7 +96,7 @@ export function PlanReview({ title, steps, defaultSteps = [], onStepsChange, pha
             <li key={s.id} className={cx('dm-plx-s', entering && 'dm-enter', s.skipped && 'dm-off', s.state && 'dm-' + s.state, s.edited && 'dm-edited')}
               style={entering ? { animationDelay: (first.current.has(s.id) ? 100 + i * 60 : 0) + 'ms' } : undefined}
               onAnimationEnd={e => { if (e.target === e.currentTarget) setEntered(prev => new Set(prev).add(s.id)); }}>
-              <span className="dm-n">{s.state === 'done' ? <Icon name="check" size="xs" /> : s.state === 'run' ? <Spin /> : s.state === 'retry' ? <Icon name="clock" size="xs" /> : num}</span>
+              <span className="dm-n">{s.state ? <SwapIcon id={s.state}>{s.state === 'done' ? <Icon name="check" size="xs" /> : s.state === 'run' ? <Spin /> : s.state === 'retry' ? <Icon name="clock" size="xs" /> : num}</SwapIcon> : num}</span>
               <span className="dm-b">
               <span className={cx('dm-t', s.state === 'run' && 'dm-shim')} ref={el => { if (el) textRefs.current.set(s.id, el); else textRefs.current.delete(s.id); }}
                 contentEditable={editable} suppressContentEditableWarning spellCheck={false} role={editable ? 'textbox' : undefined} aria-label={editable ? `Step ${num}` : undefined}
@@ -108,8 +108,8 @@ export function PlanReview({ title, steps, defaultSteps = [], onStepsChange, pha
               </span>
               {editable && (
                 <Tip label={s.skipped ? 'Include step' : 'Skip step'}>
-                  <button type="button" className="dm-ib dm-plx-x" aria-label={s.skipped ? 'Include step' : 'Skip step'} onClick={() => update(s.id, { skipped: !s.skipped })}>
-                    <Icon name={s.skipped ? 'undo' : 'x'} size="xs" />
+                  <button type="button" className="dm-ib dm-plx-x dm-mx-press" aria-label={s.skipped ? 'Include step' : 'Skip step'} onClick={() => update(s.id, { skipped: !s.skipped })}>
+                    <SwapIcon id={s.skipped ? 'undo' : 'x'}><Icon name={s.skipped ? 'undo' : 'x'} size="xs" /></SwapIcon>
                   </button>
                 </Tip>
               )}
@@ -125,11 +125,11 @@ export function PlanReview({ title, steps, defaultSteps = [], onStepsChange, pha
       <div className="dm-plx-f" key={phase}>
         <Swap className="dm-muted dm-plx-n">{note ?? NOTE[phase]}</Swap>
         {phase === 'review' && <>
-          <button type="button" className="dm-pill dm-ghost dm-sm dm-plx-chg" onClick={onRequestChanges}>Ask for changes</button>
+          <button type="button" className="dm-pill dm-ghost dm-sm dm-plx-chg dm-mx-press" onClick={onRequestChanges}>Ask for changes</button>
           <button type="button" className="dm-pill dm-primary dm-sm dm-plx-go" onClick={onApprove}>Approve plan</button>
         </>}
-        {phase === 'running' && <button type="button" className="dm-pill dm-ghost dm-sm dm-plx-stop dm-enter" style={{ animationDelay: '50ms' }} onClick={onStop}><Icon name="stop" size="xs" />Stop</button>}
-        {phase === 'done' && <button type="button" className="dm-pill dm-line dm-sm dm-enter" onClick={onSeeChanges}><Icon name="eye" size="xs" />See changes</button>}
+        {phase === 'running' && <button type="button" className="dm-pill dm-ghost dm-sm dm-plx-stop dm-mx-press dm-enter" style={{ animationDelay: '50ms' }} onClick={onStop}><Icon name="stop" size="xs" />Stop</button>}
+        {phase === 'done' && <button type="button" className="dm-pill dm-line dm-sm dm-mx-press dm-enter" onClick={onSeeChanges}><Icon name="eye" size="xs" />See changes</button>}
       </div>
       </div>
     </div>
