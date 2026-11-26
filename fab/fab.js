@@ -68,6 +68,69 @@
   var brand = function(){ document.querySelectorAll('.ahx-hi').forEach(function(h){ if (h.querySelector('.ahx-brand')) return;
     h.insertAdjacentHTML('afterbegin', LOGO.replace('<svg ', '<svg class="ahx-brand" ')); }); };
   var bt = 0; new MutationObserver(function(){ if (!bt) bt = requestAnimationFrame(function(){ bt = 0; brand(); }); }).observe(document.documentElement, { childList:true, subtree:true });
-  var add = function(){ document.body.appendChild(root); };
+  var add = function(){ if (document.querySelector('.lp-hero')) return landing(); document.body.appendChild(root); };
   if (document.body) add(); else document.addEventListener('DOMContentLoaded', add);
+
+  /* The landing page (owner, 26 Nov): the same smiley button, bottom right at every width, which comes in once the hero is
+     scrolled past and goes when it is back in view. It opens a small popover above it, in the motion pieces' .mx-pop manner
+     (it grows out of the button from a short blur and goes back into it quicker; no blur in Blueprint and Clean): who made the
+     library, Book a call (the landing page's own, square in Blueprint, a pill in Clean, a squircle rectangle in Soft) and the
+     email. The button opens and closes it; Escape, a click outside or the button put it away, and focus goes back to the
+     button. The landing page has no sidebar shell, so the colours are the page's (--pg-*), and the motion the core's (--dm-*) */
+  function landing(){
+    var BOOK = 'https://www.designme.agency/intro?utm_source=designme.dev&amp;utm_medium=referral&amp;utm_campaign=book_a_call';
+    var lc = ''
+      + '.dmf.dmf-lp{display:block;left:auto;right:16px;opacity:0;visibility:hidden;transform:translateY(12px) scale(.9);transform-origin:bottom right;'
+      + 'transition:opacity .2s var(--dm-ease-io,ease),transform .2s var(--dm-ease-io,ease),visibility 0s .2s}'
+      + '.dmf.dmf-lp.in{opacity:1;visibility:visible;transform:none;transition:opacity .3s var(--dm-ease,ease),transform .45s cubic-bezier(.34,1.56,.64,1),visibility 0s}'
+      + '.dmf-lp .dmf-b{border-color:var(--sh-line,var(--pg-line2));background:var(--sh-card,var(--pg-bg));color:var(--sh-text,var(--pg-fg))}'
+      + '.dmf-lp.open .dmf-b{transform:none;opacity:1;pointer-events:auto}'
+      + '.dmf-lp .dmf-b:focus-visible{outline-color:var(--sh-line-2,var(--pg-line2))}'
+      + '.dmf-p{position:absolute;right:0;bottom:calc(100% + 12px);width:min(304px,calc(100vw - 32px));box-sizing:border-box;padding:16px;border-radius:16px;border:1px solid var(--pg-line);background:var(--pg-bg);color:var(--pg-fg);'
+      + 'box-shadow:var(--dm-shadow-pop,0 1px 2px rgba(0,0,0,.06),0 24px 48px -16px rgba(0,0,0,.3));text-align:left;outline:0;'
+      + 'opacity:0;visibility:hidden;transform:scale(.95);filter:blur(var(--dm-blur-in,0px));transform-origin:bottom right;'
+      + 'transition:opacity var(--dm-t-out,.16s) var(--dm-ease-io,ease),transform var(--dm-t-out,.16s) var(--dm-ease-io,ease),filter var(--dm-t-out,.16s) var(--dm-ease-io,ease),visibility 0s var(--dm-t-out,.16s)}'
+      + '.dmf-lp.open .dmf-p{opacity:1;visibility:visible;transform:none;filter:none;'
+      + 'transition:opacity calc(var(--dm-t-in,.36s) * .6) var(--dm-ease,ease),transform var(--dm-t-in,.36s) var(--dm-ease-pop,ease),filter calc(var(--dm-t-in,.36s) * .7) var(--dm-ease,ease),visibility 0s}'
+      + ':root[data-style="clean"] .dmf-p{border-radius:var(--dm-r-card,22px)}'
+      + '@supports (corner-shape:squircle){:root[data-style="soft"] .dmf-p{corner-shape:squircle;border-radius:var(--dm-r-card,24px)}}'
+      + '.dmf-p .dmf-t{margin:0;font-size:14px;font-weight:500;line-height:20px}'
+      + '.dmf-p .dmf-d{margin:4px 0 0;font-size:13px;line-height:20px;color:var(--pg-dim)}'
+      + '.dmf-p .dmf-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:16px}'
+      + '.dmf-p .dmf-book{height:36px;padding:0 16px;font-size:14px;text-decoration:none;gap:8px;border-radius:10px}'
+      + '.dmf-p .dmf-book svg{width:14px;height:14px}'
+      + '@supports (corner-shape:squircle){.dmf-p .dmf-book{corner-shape:squircle;border-radius:16px}}'
+      + ':root[data-style="clean"] .dmf-p .dmf-book{corner-shape:round;border-radius:var(--dm-r-pill,999px)}'
+      + ':root[data-style="bp"] .dmf-p .dmf-book,:root:not([data-style]) .dmf-p .dmf-book{corner-shape:round;border-radius:0}'
+      + '.dmf-p .dmf-book:focus-visible,.dmf-p .dmf-mail a:focus-visible{outline:2px solid var(--pg-line2);outline-offset:2px}'
+      + '.dmf-p .dmf-mail{font-size:13px;line-height:20px;color:var(--pg-dim)}'
+      + '.dmf-p .dmf-mail a{color:var(--pg-fg);text-decoration:underline;text-decoration-color:var(--pg-line2);text-underline-offset:3px}'
+      + '.dmf-p .dmf-mail a:hover{text-decoration-color:currentColor}'
+      + '@media (prefers-reduced-motion:reduce){.dmf.dmf-lp,.dmf.dmf-lp.in,.dmf-p,.dmf-lp.open .dmf-p{transform:none!important;filter:none!important;transition:opacity .15s,visibility 0s!important}.dmf-lp.open .dmf-b,.dmf-lp .dmf-b{transform:none}}';
+    var ls = document.createElement('style'); ls.textContent = lc; document.head.appendChild(ls);
+    var fab = document.createElement('div'); fab.className = 'dmf dmf-lp';
+    fab.innerHTML = '<button class="dmf-b" type="button" aria-expanded="false" aria-controls="dmf-p" aria-haspopup="dialog" aria-label="DesignMe: who made this, and Book a call">' + LOGO + '</button>'
+      + '<div class="dmf-p" id="dmf-p" role="dialog" aria-labelledby="dmf-pt" tabindex="-1">'
+      + '<p class="dmf-t" id="dmf-pt">DesignMe made designme.dev</p>'
+      + '<p class="dmf-d">We design and build AI products, React apps and Astro sites.</p>'
+      + '<div class="dmf-row"><a class="pill primary dmf-book" href="' + BOOK + '" target="_blank" rel="noopener">Book a call' + ARROW + '</a>'
+      + '<span class="dmf-mail">or write to <a href="mailto:hello@designme.agency">hello@designme.agency</a></span></div>'
+      + '</div>';
+    var b = fab.querySelector('.dmf-b'), pop = fab.querySelector('.dmf-p');
+    pop.inert = true;
+    var isOpen = function(){ return fab.classList.contains('open'); };
+    var show = function(){ fab.classList.add('open'); b.setAttribute('aria-expanded', 'true'); pop.inert = false; pop.focus({ preventScroll:true }); };
+    var hide = function(back){ if (!isOpen()) return; fab.classList.remove('open'); b.setAttribute('aria-expanded', 'false'); pop.inert = true;
+      if (back) b.focus({ preventScroll:true }); };
+    b.addEventListener('click', function(){ if (isOpen()) hide(true); else show(); });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && isOpen()){ e.preventDefault(); hide(true); } });
+    document.addEventListener('pointerdown', function(e){ if (!fab.contains(e.target)) hide(false); }, true);
+    // in once the hero is scrolled past (its foot above the view's top), out again when it comes back
+    var hero = document.querySelector('.lp-hero');
+    var set = function(on){ fab.classList.toggle('in', on); fab.inert = !on; if (!on) hide(false); };
+    set(false);
+    if (window.IntersectionObserver) new IntersectionObserver(function(es){ var e = es[es.length - 1]; set(!e.isIntersecting && e.boundingClientRect.top < 0); }).observe(hero);
+    else set(true);
+    document.body.appendChild(fab);
+  }
 })();
