@@ -2487,6 +2487,10 @@ th:last-child>.col-rz{display:none}
    --row matches the stage in light mode and would not show); every hover box reaches out round its glyph or chip, which line
    up with the answer's words (owner, 18 Nov) */
 .lva{display:flex;flex-direction:column;gap:14px;--row:color-mix(in srgb,var(--fg) 5%,transparent)}
+/* its motion (the core's motion pieces, owner, 26 Nov): a press on an action shows at once, a step deeper than its hover
+   (.mx-press); Copy's icon and its tick crossfade (.mx-ic); the turn grows on the spring as the answer streams in (.mx-grow) */
+.lva{--row-press:color-mix(in srgb,var(--fg) 9%,transparent)}
+:root[data-style="clean"] .lva{--row-press:var(--row-on)}
 /* grow() keeps the hover boxes that reach out past the answer's edge */
 .lva.growing{overflow-clip-margin:12px}
 .lva-q{display:flex;justify-content:flex-end}
@@ -3637,6 +3641,8 @@ th:last-child>.col-rz{display:none}
 @media (prefers-reduced-motion:reduce){:root[data-style="clean"] .atx-ctx{transition:none}.atx-ctx-it.up .atx-ctx-rg .pg{animation:none;stroke-dasharray:1 0}}
 /* ---------- Response versions ---------- */
 .rvx{display:flex;flex-direction:column;gap:14px}
+/* its motion (the core's motion pieces, owner, 26 Nov): a press on its buttons shows at once (.mx-press); Copy's icon and its
+   tick crossfade (.mx-ic); the answer eases to its new height on the spring (.mx-grow) */
 .rvx-a{display:flex;flex-direction:column;gap:var(--s-2)}
 /* the answer is as tall as its words in every style (owner's notes, 18 Nov): the component grows with them (grow()), and a
    version streaming in keeps the height of the one it replaces, then eases to its own. The bar's first button reaches 6px
@@ -3680,6 +3686,9 @@ th:last-child>.col-rz{display:none}
 .rvx-cp.copied,.aab-cp.copied{color:var(--ok-mark)!important}
 /* ---------- Feedback sheet ---------- */
 .fbx{display:flex;flex-direction:column;gap:var(--s-2)}
+/* its motion (the core's motion pieces, owner, 26 Nov): a press on a thumb or Cancel shows at once (.mx-press); as the sheet
+   opens, its question, its reasons and the box rise in one after another (mxIn()); Send eases to the spinner's width on the
+   spring (mxWidth()); and it grows on the spring as the sheet opens and the thanks line comes in (.mx-grow) */
 /* the first thumb's icon starts where the answer does */
 .fbx-bar{display:flex;align-items:center;gap:2px;margin-left:-8px}
 .fbx-bar .ib svg{transition:transform .45s var(--ease)}
@@ -4607,6 +4616,13 @@ th:last-child>.col-rz{display:none}
 .itd-bar{position:absolute;left:0;top:0;z-index:5;display:flex;flex-direction:column;gap:var(--s-2);padding:var(--s-2);width:max-content;max-width:260px;border-radius:var(--r-in);background:var(--raised);box-shadow:var(--shadow-pop);opacity:0;transform:translateY(-4px);visibility:hidden;pointer-events:none;transition:opacity .16s,transform .32s var(--ease),visibility 0s .32s}
 .itd-bar.up{transform:translateY(4px)}
 .itd-bar.open{opacity:1;transform:none;visibility:visible;pointer-events:auto;transition-delay:0s}
+/* its motion (the core's motion pieces, owner, 26 Nov): the toolbar grows out of the edit's corner (.mx-pop) and goes back
+   quicker; a press on Reject all shows at once (.mx-press); the card eases to each new height on the spring (.mx-grow). Clean
+   keeps its own scale and fade below */
+.itd-bar.mx-pop{transform:scale(.95);filter:blur(var(--blur-in));transform-origin:top left;transition:opacity var(--t-out) var(--ease-io),transform var(--t-out) var(--ease-io),filter var(--t-out) var(--ease-io),visibility 0s var(--t-out)}
+.itd-bar.mx-pop.up{transform-origin:bottom left}
+.itd-bar.mx-pop.open{transform:none;filter:none;transition:opacity calc(var(--t-in) * .6) var(--ease),transform var(--t-in) var(--ease-pop),filter calc(var(--t-in) * .7) var(--ease),visibility 0s}
+@media (prefers-reduced-motion:reduce){.itd-bar.mx-pop{filter:none}}
 /* an edit the agent isn't sure of: its toolbar is a warning notice (owner, 18 Nov): a faint warning tint, the filled warning
    sign in the bright orange, the words in the text colour, and the answer that settles it, Reject, as .pill.warn, with Accept
    the white button beside it */
@@ -5156,6 +5172,12 @@ button.evr-vs-r:focus-visible{outline-offset:-2px;border-radius:calc(10px * var(
    avatar colour with its own ink); Clean keeps its marks one neutral grey. It sits on the stage, not on a card, so a row's
    hover fill is a quiet step darker than the stage (owner, 18 Nov), reaching out round the row's mark and words */
 .ssx{display:flex;flex-direction:column;gap:10px;align-items:flex-start;--row:color-mix(in srgb,var(--fg) 5%,transparent)}
+/* its motion (the core's motion pieces, owner, 26 Nov): one highlight glides from source to source in every style (.mx-glide);
+   a filter moves the rows (reflow()) as the list eases to its new height, its hover fills kept while it does; a press on Open
+   shows at once, a step deeper than its hover (.mx-press) */
+.ssx{--row-press:color-mix(in srgb,var(--fg) 9%,transparent)}
+:root[data-style="clean"] .ssx{--row-press:var(--row-on)}
+.ssx-list{overflow-clip-margin:8px}
 .ssx-pill{display:inline-flex;align-items:center;gap:var(--s-2);height:30px;padding:0 10px 0 6px;border-radius:var(--r-pill);background:var(--chip-fill);font-size:12.5px;color:var(--fg2);transition:background .25s,color .25s}
 .ssx-pill:hover{background:var(--chip-fill-h);color:var(--fg)}
 .ssx-pill>svg{transition:transform .4s var(--ease)}
@@ -6715,6 +6737,9 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 .mmx-list{display:flex;flex-direction:column;margin:0 calc(-1 * var(--s-2))}
 .mmx-m{display:flex;align-items:flex-start;gap:12px;padding:var(--s-2);border-radius:calc(10px * var(--rk-m,var(--rk)));font-size:13px;line-height:1.5;transition:background .3s}
 .mmx-m:hover{background:var(--row)}
+/* its motion (the core's motion pieces, owner, 26 Nov): one highlight glides from memory to memory in every style (.mx-glide);
+   a filter moves the rows (reflow()); a press on Edit or Forget shows at once (.mx-press); a source's spinner and mark, and the
+   footer's mark, crossfade (.mx-ic); the panel grows on the spring (.mx-grow) */
 .mmx-src{width:28px;height:28px;margin-top:1px;border-radius:calc(8px * var(--rk-m,var(--rk)));display:grid;place-items:center;flex:none;background:var(--surface);color:var(--fg2);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent)}
 .mmx-src .brand{width:15px;height:15px;color:var(--fg)}
 .mmx-src .spin{width:12px;height:12px}
@@ -6740,7 +6765,8 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 /* a memory an answer uses pulses once with a quiet grey fill, and its source lifts */
 .mmx-m.use{animation:mmxuse 1.4s var(--ease)}
 .mmx-m.use .mmx-src{animation:mmxlift .6s var(--ease)}
-@keyframes mmxuse{0%{background:var(--hover)}100%{background:transparent}}
+/* (the pulse is an inset shade, not the row's fill, so the gliding hover, which clears the rows' own fills, never hides it) */
+@keyframes mmxuse{0%{box-shadow:inset 0 0 0 99px var(--hover)}100%{box-shadow:inset 0 0 0 99px transparent}}
 @keyframes mmxlift{40%{transform:translateY(-2px) scale(1.08)}}
 /* a forgotten memory leaves a line with its Undo in its place: the words on the memories' mark column, Undo ending where their
    actions end */
@@ -6755,7 +6781,7 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 .mmx-ft{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mmx-ft.sw{display:block}
 :root[data-style="bp"] .mmx-m.use{animation:mmxusebp .9s steps(3,end)}
-@keyframes mmxusebp{0%{background:var(--hover)}100%{background:transparent}}
+@keyframes mmxusebp{0%{box-shadow:inset 0 0 0 99px var(--hover)}100%{box-shadow:inset 0 0 0 99px transparent}}
 :root[data-style="bp"] .mmx-m.use .mmx-src{animation:mmxbp .9s steps(1,end)}
 @keyframes mmxbp{0%,50%{box-shadow:inset 0 0 0 1px var(--line-strong)}51%,100%{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rail) 50%,transparent)}}
 /* nothing in it grows or shrinks when it is pressed (owner, 18 Nov) */
@@ -8402,6 +8428,11 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .ecx-msg{font-size:12.5px;margin-right:var(--s-2)}
 .ecx-pop{position:absolute;z-index:20;width:248px;padding:var(--s-3);background:var(--raised);border-radius:calc(14px * var(--rk-l,var(--rk)));box-shadow:var(--shadow-pop);opacity:0;visibility:hidden;transform:translateY(6px);filter:blur(3px);pointer-events:none;transition:opacity .2s var(--ease),transform .35s var(--ease),filter .2s,visibility 0s .2s}
 .ecx-pop.open{opacity:1;visibility:visible;transform:none;filter:none;pointer-events:auto;transition-property:opacity,transform,filter}
+/* its motion (the core's motion pieces, owner, 26 Nov): the event's card grows out of the event's side (.mx-pop) and goes back
+   quicker; a press shows at once (.mx-press); Ask's and Prep notes' boxes ease to the width of their new words (mxWidth()) */
+.ecx-pop.mx-pop{transform:scale(.95);filter:blur(var(--blur-in));transform-origin:var(--origin,top left);transition:opacity var(--t-out) var(--ease-io),transform var(--t-out) var(--ease-io),filter var(--t-out) var(--ease-io),visibility 0s var(--t-out)}
+.ecx-pop.mx-pop.open{transform:none;filter:none;transition:opacity calc(var(--t-in) * .6) var(--ease),transform var(--t-in) var(--ease-pop),filter calc(var(--t-in) * .7) var(--ease),visibility 0s}
+@media (prefers-reduced-motion:reduce){.ecx-pop.mx-pop{filter:none}}
 .ecx-ph{display:flex;align-items:center;gap:var(--s-2);font-size:13.5px}
 .ecx-ph>i{width:10px;height:10px;border-radius:var(--r-tiny,3px);flex:none}
 .ecx-ph b{font-weight:500;flex:1;min-width:0}
@@ -12178,7 +12209,7 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 <article class="card bare" data-c="live-answer" id="c-live-answer">
   <div class="card-h"><div><h3>Live answer</h3><p>Answers that stream in with numbered sources and next steps.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
-  <template><div class="lva">
+  <template><div class="lva mx-grow">
   <div class="lva-q"><div class="bub">Where are people dropping off in onboarding?</div></div>
   <div class="lva-a"></div>
 </div></template>
@@ -12393,14 +12424,14 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 <article class="card bare" data-c="response-versions" id="c-response-versions">
   <div class="card-h"><div><h3>Response versions</h3><p>Regenerate an answer and flip between versions.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
-  <template><div class="rvx">
+  <template><div class="rvx mx-grow">
   <div class="bub">Write a headline for the pricing page</div>
   <div class="rvx-a">
     <p class="msg rvx-t"></p>
-    <div class="rvx-bar">
-      <div class="rvx-pg"><button class="ib rvx-prev" aria-label="Previous version" data-tip="Previous">{l}</button><span class="rvx-n num">1 / 1</span><button class="ib rvx-next" aria-label="Next version" data-tip="Next">{rr}</button></div>
-      <button class="ib rvx-re" aria-label="Regenerate" data-tip="Regenerate" data-tip-k="⌘R">{re}</button>
-      <button class="ib rvx-cp" aria-label="Copy" data-tip="Copy">{cp}</button>
+    <div class="rvx-bar mx-ic">
+      <div class="rvx-pg"><button class="ib rvx-prev mx-press" aria-label="Previous version" data-tip="Previous">{l}</button><span class="rvx-n num">1 / 1</span><button class="ib rvx-next mx-press" aria-label="Next version" data-tip="Next">{rr}</button></div>
+      <button class="ib rvx-re mx-press" aria-label="Regenerate" data-tip="Regenerate" data-tip-k="⌘R">{re}</button>
+      <button class="ib rvx-cp mx-press" aria-label="Copy" data-tip="Copy">{cp}</button>
       <span class="rvx-st muted"></span>
     </div>
   </div>
@@ -12410,18 +12441,18 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 <article class="card bare" data-c="feedback-sheet" id="c-feedback-sheet">
   <div class="card-h"><div><h3>Feedback sheet</h3><p>Rate an answer and tell the agent what missed.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
-  <template><div class="fbx">
+  <template><div class="fbx mx-grow">
   <p class="msg">I tightened the hero spacing to 24px and swapped the CTA to the accent blue. The card grid now wraps at 720px.</p>
   <div class="fbx-bar">
-    <button class="ib fbx-up" aria-label="Good answer" data-tip="Good answer">{up}</button>
-    <button class="ib fbx-dn" aria-label="Bad answer" data-tip="Bad answer">{dn}</button>
+    <button class="ib fbx-up mx-press" aria-label="Good answer" data-tip="Good answer">{up}</button>
+    <button class="ib fbx-dn mx-press" aria-label="Bad answer" data-tip="Bad answer">{dn}</button>
     <span class="fbx-st muted"></span>
   </div>
   <div class="fold shut fbx-box"><div><div class="fbx-in panel keep">
     <div class="fbx-q">What went wrong?</div>
     <div class="fbx-ch"><button class="chip sm">Wrong spacing</button><button class="chip sm">Ignored my tokens</button><button class="chip sm">Too many changes</button><button class="chip sm">Broke the layout</button></div>
     <textarea class="fbx-ta" rows="2" placeholder="Anything else the agent should know"></textarea>
-    <div class="fbx-f"><span class="muted fbx-n">Shared with the agent for this project</span><button class="pill ghost sm fbx-x">Cancel</button><button class="pill primary sm fbx-go" disabled>Send</button></div>
+    <div class="fbx-f"><span class="muted fbx-n">Shared with the agent for this project</span><button class="pill ghost sm fbx-x mx-press">Cancel</button><button class="pill primary sm fbx-go" disabled>Send</button></div>
   </div></div></div>
 </div></template>
   <div class="card-f"><span>Thumbs down opens the reasons</span><span class="sp"></span><button class="replay" aria-label="Replay Feedback sheet"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
@@ -12600,11 +12631,11 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 <article class="card" data-c="inline-text-diff" id="c-inline-text-diff">
   <div class="card-h"><div><h3>Inline text diff</h3><p>The agent's edits to a piece of copy, accepted or rejected one by one.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
-  <template><div class="itd panel">
-  <div class="itd-h"><div class="itd-ht"><b>Pricing intro</b><span class="muted itd-st" aria-live="polite">4 edits to review</span></div><div class="itd-a"><button class="pill ghost sm itd-no">Reject all</button><button class="pill primary sm itd-ok">Accept all</button></div></div>
+  <template><div class="itd panel mx-grow">
+  <div class="itd-h"><div class="itd-ht"><b>Pricing intro</b><span class="muted itd-st" aria-live="polite">4 edits to review</span></div><div class="itd-a"><button class="pill ghost sm itd-no mx-press">Reject all</button><button class="pill primary sm itd-ok">Accept all</button></div></div>
   <p class="itd-t"></p>
   <p class="itd-f" aria-live="polite"></p>
-  <div class="itd-bar" role="dialog" aria-label="Edit">
+  <div class="itd-bar mx-pop" role="dialog" aria-label="Edit">
     <p class="itd-why"><svg class="itd-wi" viewBox="0 0 24 24" aria-hidden="true"><path class="a" d="M12 3.6 2.6 19.9h18.8z"/><path class="b" d="M12 9.6v4.4M12 17v.01"/></svg><span></span></p>
     <div class="itd-bb"><button class="pill primary sm itd-acc"><svg class="i xs"><use href="#i-check"/></svg>Accept</button><button class="pill ghost sm itd-rej"><svg class="i xs"><use href="#i-x"/></svg>Reject</button></div>
   </div>
@@ -12673,7 +12704,7 @@ button.pvb-row:focus-visible{outline-offset:-2px}
   <button class="ssx-pill" aria-expanded="false"><span class="ssx-ics"></span><span class="ssx-l">8 sources</span>{chev}</button>
   <div class="fold shut ssx-box"><div><div class="ssx-in">
     <div class="ssx-fl"><button class="chip sm on" data-f="all">All</button><button class="chip sm" data-f="web">Web</button><button class="chip sm" data-f="file">Files</button><button class="chip sm" data-f="figma">Figma</button></div>
-    <div class="ssx-list"></div>
+    <div class="ssx-list mx-glide"></div>
   </div></div></div>
 </div></template>
   <div class="card-f"><span>Open the stack, filter by type</span><span class="sp"></span><button class="replay" aria-label="Replay Source stack"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
@@ -12815,10 +12846,10 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 <article class="card" data-c="file-explorer" id="c-file-explorer">
   <div class="card-h"><div><h3>File explorer</h3><p>Project files, with the ones the agent touched marked.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
-  <template><div class="fxp panel" data-reveal="flat">
-  <div class="fxp-h"><div class="fxp-s"><svg class="i xs"><use href="#i-search"/></svg><input placeholder="Filter files" aria-label="Filter files" spellcheck="false"></div><button class="ib fxp-ch" aria-label="Only changed" aria-pressed="false" data-tip="Only changed files"><svg class="i xs"><use href="#i-filter"/></svg></button></div>
-  <div class="fxp-tree" role="tree" aria-label="Files"></div>
-  <div class="fxp-em" hidden><span class="fxp-em-art" aria-hidden="true"></span><b>No matching files</b><span></span><button class="pill line sm">Clear filter</button></div>
+  <template><div class="fxp panel mx-grow" data-reveal="flat">
+  <div class="fxp-h"><div class="fxp-s"><svg class="i xs"><use href="#i-search"/></svg><input placeholder="Filter files" aria-label="Filter files" spellcheck="false"></div><button class="ib fxp-ch mx-press" aria-label="Only changed" aria-pressed="false" data-tip="Only changed files"><svg class="i xs"><use href="#i-filter"/></svg></button></div>
+  <div class="fxp-tree mx-glide" role="tree" aria-label="Files"></div>
+  <div class="fxp-em" hidden><span class="fxp-em-art" aria-hidden="true"></span><b>No matching files</b><span></span><button class="pill line sm mx-press">Clear filter</button></div>
   <div class="fxp-f muted"><span class="fxp-st"></span></div>
 </div></template>
   <div class="card-f"><span>Open folders, filter to changed files</span><span class="sp"></span><button class="replay" aria-label="Replay File explorer"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
@@ -12935,9 +12966,9 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 <article class="card" data-c="memory-panel" id="c-memory-panel">
   <div class="card-h"><div><h3>Memory panel</h3><p>What the agent remembers about your team, editable and removable.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
-  <template><div class="mmx panel" data-reveal="flat">
+  <template><div class="mmx panel mx-grow mx-ic" data-reveal="flat">
   <div class="mmx-h"><span class="mmx-ic"><svg class="i s"><use href="#i-book"/></svg></span><b class="mmx-ht">Team memory</b><div class="seg2 mmx-tab" role="group" aria-label="Filter"><button aria-pressed="true" data-v="all">All</button><button aria-pressed="false" data-v="brand">Brand</button><button aria-pressed="false" data-v="process">Process</button></div></div>
-  <div class="mmx-list"></div>
+  <div class="mmx-list mx-glide"></div>
   <div class="mmx-f" aria-live="polite"><span class="mmx-fi" aria-hidden="true">{spark}</span><span class="mmx-ft">Used in 14 answers this week</span></div>
 </div></template>
   <div class="card-f"><span>Edit or forget a memory, watch it learn and get used</span><span class="sp"></span><button class="replay" aria-label="Replay Memory panel"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
@@ -13245,7 +13276,7 @@ button.pvb-row:focus-visible{outline-offset:-2px}
   <div class="card-h"><div><h3>Event calendar</h3><p>A week view where the agent finds a free slot for you.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
   <template><div class="ecx panel">
-  <div class="ecx-h"><b>Oct 19 – 23, 2026</b><span class="ecx-sp"></span><span class="ecx-msg muted"></span><button class="pill soft sm ecx-ask">{spark}Find 45 min for a design review</button></div>
+  <div class="ecx-h"><b>Oct 19 – 23, 2026</b><span class="ecx-sp"></span><span class="ecx-msg muted"></span><button class="pill soft sm ecx-ask mx-w">{spark}Find 45 min for a design review</button></div>
   <div class="ecx-days" role="group" aria-label="Day"></div>
   <div class="ecx-sc"><div class="ecx-grid"><div class="ecx-tm"></div></div></div>
 </div></template>
@@ -16973,7 +17004,7 @@ DM.def('live-answer', (r, c) => {
       else p.insertAdjacentHTML('beforeend', `<span class="w">${tok} </span>`);
       await c.wait(55 + Math.random() * 45);
     }
-    const src = html(`<div class="lva-src"><span class="lva-acts"><button class="ib" aria-label="Copy" data-tip="Copy">${I('copy')}</button><button class="ib" aria-label="Good answer" data-tip="Good answer">${I('up-thumb')}</button><button class="ib" aria-label="Bad answer" data-tip="Bad answer">${I('down-thumb')}</button><button class="ib" aria-label="Try again" data-tip="Try again">${I('refresh')}</button></span><button class="lva-sb" aria-expanded="false"><span class="lva-fav">${S.map(x => `<span class="vivid" style="background-color:${x[2]}">${x[1]}</span>`).join('')}</span>3 sources${I('chev-d','xs')}</button></div>`);
+    const src = html(`<div class="lva-src"><span class="lva-acts mx-ic"><button class="ib mx-press" aria-label="Copy" data-tip="Copy">${I('copy')}</button><button class="ib mx-press" aria-label="Good answer" data-tip="Good answer">${I('up-thumb')}</button><button class="ib mx-press" aria-label="Bad answer" data-tip="Bad answer">${I('down-thumb')}</button><button class="ib mx-press" aria-label="Try again" data-tip="Try again">${I('refresh')}</button></span><button class="lva-sb" aria-expanded="false"><span class="lva-fav">${S.map(x => `<span class="vivid" style="background-color:${x[2]}">${x[1]}</span>`).join('')}</span>3 sources${I('chev-d','xs')}</button></div>`);
     const ls = html(`<div class="fold shut lva-ls"><div><div class="lva-ll">${S.map(x => `<button class="lva-s" data-n="${x[0]}"><span class="n">${x[0]}</span><span class="t">${x[3]}</span><span class="d">${x[4]}</span>${I('ext','xs')}</button>`).join('')}</div></div></div>`);
     turn.appendChild(src); turn.appendChild(ls); enter(src);
     const sb = $('.lva-sb', src), open = o => { ls.classList.toggle('shut', !o); sb.setAttribute('aria-expanded', o); };
@@ -18844,13 +18875,13 @@ DM.def('feedback-sheet', (r, c) => {
   ta.oninput = ready;
   up.onclick = () => { const on = !up.classList.contains('on'); up.classList.toggle('on', on); dn.classList.remove('on'); box.classList.add('shut'); swap(st, on ? 'Thanks, noted' : ''); };
   // the demo opens the sheet without taking the focus from wherever you are on the page
-  const down = focus => { const on = !dn.classList.contains('on'); dn.classList.toggle('on', on); up.classList.remove('on'); box.classList.toggle('shut', !on); swap(st, ''); if (on && focus) c.later(350, () => ta.focus({ preventScroll:true })); };
+  // (as the sheet opens, its question, its reasons and the box rise in one after another: mxIn(), motion pieces)
+  const down = focus => { const on = !dn.classList.contains('on'); dn.classList.toggle('on', on); up.classList.remove('on'); box.classList.toggle('shut', !on); swap(st, ''); if (on) mxIn([$('.fbx-q', r), ...chips, ta], { base:60 }); if (on && focus) c.later(350, () => ta.focus({ preventScroll:true })); };
   dn.onclick = e => down(e.isTrusted);
   $('.fbx-x', r).onclick = () => { box.classList.add('shut'); dn.classList.remove('on'); };
   go.onclick = () => c.run(async () => {
     // the button is as wide as what it shows, and eases to the spinner's width
-    const w0 = go.offsetWidth; go.innerHTML = '<span class="spin"></span>'; const w1 = go.offsetWidth;
-    if (!REDUCE && w0 !== w1) go.animate([{ width:w0 + 'px' }, { width:w1 + 'px' }], { duration:220, easing:'cubic-bezier(.23,1,.32,1)' });
+    const w0 = go.offsetWidth; go.innerHTML = '<span class="spin"></span>'; if (!REDUCE) mxWidth(go, w0);
     await c.wait(800);
     box.classList.add('shut'); await c.wait(300);
     const n = chips.filter(x => x.classList.contains('on')).length;
@@ -19549,7 +19580,7 @@ DM.def('inline-text-diff', (r, c) => {
     why.hidden = !e.why; $('span', why).textContent = e.why || '';
     // an edit the agent isn't sure of: the toolbar is a warning notice, and Reject, which settles it, is .pill.warn
     bar.classList.toggle('unsure', !!e.why);
-    acc.className = 'pill sm itd-acc ' + (e.why ? 'line' : 'primary'); rej.className = 'pill sm itd-rej ' + (e.why ? 'warn' : 'ghost');
+    acc.className = 'pill sm itd-acc ' + (e.why ? 'line mx-press' : 'primary'); rej.className = 'pill sm itd-rej ' + (e.why ? 'warn' : 'ghost mx-press');
     const rb = root.getBoundingClientRect(), k = rb.width / root.offsetWidth || 1, rs = el.getClientRects(), cr = rs[rs.length - 1] || el.getBoundingClientRect(), c0 = rs[0] || cr;
     const room = popRoom(el), up = cr.bottom + 6 + bar.offsetHeight * k > room.bottom - 8 && c0.top - 6 - bar.offsetHeight * k >= room.top + 8;
     bar.inert = false; bar.classList.toggle('up', up); void bar.offsetWidth; bar.classList.add('open');
@@ -20280,13 +20311,20 @@ DM.def('source-stack', (r, c) => {
   const pill = $('.ssx-pill', r), box = $('.ssx-box', r), list = $('.ssx-list', r);
   if (!r.closest('.ahx')) c.offs.push(hoverGlide(list, '.ssx-s'));
   $('.ssx-ics', r).innerHTML = S.slice(0, 4).map(s => `<span style="background:${s[5]};color:${ink(s[5])}">${s[4][0]}</span>`).join('');
-  function paint(f){
+  const draw = f => {
     const items = S.filter(s => f === 'all' || s[0] === f);
-    list.innerHTML = items.map(s => `<div class="ssx-s"><span class="fv" style="background:${s[5]};color:${ink(s[5])}">${s[4]}</span><span class="t"><span>${s[1]}</span><span class="h"> · ${s[2]}</span></span><span class="rel" data-tip="Relevance ${Math.round(s[3] * 100)}%"><i style="width:${s[3] * 100}%"></i></span><button class="ib" aria-label="Open source" data-tip="Open">${I('ext','xs')}</button></div>`).join('');
-    stagger($$('.ssx-s', list), 40);
-  }
+    list.innerHTML = items.map(s => `<div class="ssx-s" data-key="${s[1]}"><span class="fv" style="background:${s[5]};color:${ink(s[5])}">${s[4]}</span><span class="t"><span>${s[1]}</span><span class="h"> · ${s[2]}</span></span><span class="rel" data-tip="Relevance ${Math.round(s[3] * 100)}%"><i style="width:${s[3] * 100}%"></i></span><button class="ib mx-press" aria-label="Open source" data-tip="Open">${I('ext','xs')}</button></div>`).join('');
+  };
+  function paint(f){ draw(f); stagger($$('.ssx-s', list), 40); }
+  // a filter moves the rows: the sources that stay glide to their new places, new ones rise in out of a short blur and the
+  // ones that go fade where they were (reflow()), and the list eases to its new height on the spring (motion pieces)
+  const refilter = f => { const h0 = list.offsetHeight;
+    reflow(() => $$('.ssx-s', list), () => draw(f), { root:$('.ssx', r) || r, host:list, blur:true });
+    const h1 = list.offsetHeight; if (REDUCE || Math.abs(h1 - h0) < 1) return;
+    list.style.overflow = 'clip'; const a = list.animate([{ height:h0 + 'px' }, { height:h1 + 'px' }], { duration:mxT(list, '--t-in', 360) * 1.4, easing:mxT(list, '--ease-spring', 'ease') });
+    a.onfinish = a.oncancel = () => { list.style.overflow = ''; }; };
   pill.onclick = () => { const open = box.classList.toggle('shut') === false; pill.setAttribute('aria-expanded', open); if (open) paint($('.ssx-fl .on', r).dataset.f); };
-  $$('.ssx-fl .chip', r).forEach(ch => ch.onclick = () => { $$('.ssx-fl .chip', r).forEach(x => x.classList.toggle('on', x === ch)); paint(ch.dataset.f); });
+  $$('.ssx-fl .chip', r).forEach(ch => ch.onclick = () => { $$('.ssx-fl .chip', r).forEach(x => x.classList.toggle('on', x === ch)); refilter(ch.dataset.f); });
   // the preview opens the sources once on its own, unless you take over first
   c.auto(1100, () => { if (pill.getAttribute('aria-expanded') === 'false') pill.click(); });
 });
@@ -21177,9 +21215,12 @@ DM.def('file-explorer', (r, c) => {
     });
     requestAnimationFrame(edge);
   }
-  inp.oninput = paint;
-  $('.pill', em).onclick = () => { inp.value = ''; paint(); stagger($$('.fxp-n', tree), 25); inp.focus({ preventScroll:true }); };
-  chB.onclick = () => { only = !only; chB.setAttribute('aria-pressed', only); swap(st, only ? '6 files changed by the agent' : sel); paint(); stagger($$('.fxp-n', tree), 25); };
+  // a filter or Only changed moves the rows: the ones that stay glide to their new places, new ones rise in out of a short blur
+  // and the ones that go fade where they were (reflow(), motion pieces); the card eases to its new height
+  const repaint = () => reflow(() => $$('.fxp-n', tree), paint, { by:'data-p', root, host:tree, blur:true });
+  inp.oninput = repaint;
+  $('.pill', em).onclick = () => { inp.value = ''; repaint(); inp.focus({ preventScroll:true }); };
+  chB.onclick = () => { only = !only; chB.setAttribute('aria-pressed', only); swap(st, only ? '6 files changed by the agent' : sel); repaint(); };
   st.textContent = sel; paint(); stagger($$('.fxp-n', tree), 25);
   // the card grows as folders open and shrinks as they close or the filter narrows (owner, 17 Nov: no room kept for later)
   c.offs.push(grow(root));
@@ -22249,7 +22290,7 @@ DM.def('memory-panel', (r, c) => {
   const meta = m => `<span class="k">${KIND[m.k][0]}</span><span aria-hidden="true">·</span><span class="s">${m.s}</span>${m.isNew ? '<span class="tag nw">New</span>' : ''}${m.used ? '<span class="tag nw">Used</span>' : ''}`;
   const rowOf = m => $(`.mmx-m[data-id="${m.id}"]`, list);
   function item(m){
-    const el = html(`<div class="mmx-m${m.learn ? ' learn' : ''}" data-id="${m.id}" style="--k:${KIND[m.k][1]}"><span class="mmx-src" aria-hidden="true">${m.learn ? '<span class="spin"></span>' : mark(m.from)}</span><span class="mmx-b"><span class="t${m.learn ? ' shim' : ''}" spellcheck="false">${m.t}</span><span class="mmx-meta">${meta(m)}</span></span><span class="acts"><button class="ib ed" aria-label="Edit" data-tip="Edit">${I('edit','xs')}</button><button class="ib rm" aria-label="Forget" data-tip="Forget">${I('trash','xs')}</button></span></div>`);
+    const el = html(`<div class="mmx-m${m.learn ? ' learn' : ''}" data-id="${m.id}" style="--k:${KIND[m.k][1]}"><span class="mmx-src" aria-hidden="true">${m.learn ? '<span class="spin"></span>' : mark(m.from)}</span><span class="mmx-b"><span class="t${m.learn ? ' shim' : ''}" spellcheck="false">${m.t}</span><span class="mmx-meta">${meta(m)}</span></span><span class="acts"><button class="ib ed mx-press" aria-label="Edit" data-tip="Edit">${I('edit','xs')}</button><button class="ib rm mx-press" aria-label="Forget" data-tip="Forget">${I('trash','xs')}</button></span></div>`);
     const t = $('.t', el);
     $('.ed', el).onclick = () => { t.contentEditable = 'true'; t.focus({ preventScroll:true }); const s = document.getSelection(); s.selectAllChildren(t); s.collapseToEnd();
       const done = () => { t.contentEditable = 'false'; m.t = t.textContent.trim() || m.t; m.s = 'Edited by you, just now'; m.from = 'edit'; t.textContent = m.t; update(m); count(); };
@@ -22264,16 +22305,19 @@ DM.def('memory-panel', (r, c) => {
   function update(m, pulse){
     const el = rowOf(m); if (!el) return;
     const src = $('.mmx-src', el), t = $('.t', el);
-    if (!m.learn && el.classList.contains('learn')){ el.classList.remove('learn'); t.classList.remove('shim'); swap(t, m.t); src.innerHTML = mark(m.from); enter(src.firstElementChild); }
+    if (!m.learn && el.classList.contains('learn')){ el.classList.remove('learn'); t.classList.remove('shim'); swap(t, m.t); iconSwap(src, () => { src.innerHTML = mark(m.from); }, { inner:true }); }
     else if (t.contentEditable !== 'true') src.innerHTML = mark(m.from);
     $('.mmx-meta', el).innerHTML = meta(m);
     if (pulse){ el.classList.remove('use'); void el.offsetWidth; el.classList.add('use'); }
   }
-  function paint(){ list.innerHTML = ''; M.filter(m => f === 'all' || m.k === f).forEach(m => list.appendChild(item(m))); stagger([...list.children], 40); }
+  const draw = () => { list.innerHTML = ''; M.filter(m => f === 'all' || m.k === f).forEach(m => list.appendChild(item(m))); };
+  function paint(){ draw(); stagger([...list.children], 40); }
   // a row that arrives opens its own height, so the panel grows smoothly instead of jumping
   const growRow = el => { if (REDUCE) return; const cs = getComputedStyle(el), gap = parseFloat(getComputedStyle(list).rowGap) || 0, ease = getComputedStyle(r).getPropertyValue('--ease').trim() || 'ease', blur = getComputedStyle(r).getPropertyValue('--motion').trim() === 'clean' ? 0 : 4;
     el.animate([{ height:'0px', paddingTop:'0px', paddingBottom:'0px', marginBottom:-gap + 'px', opacity:0, filter:`blur(${blur}px)`, overflow:'hidden' }, { height:cs.height, paddingTop:cs.paddingTop, paddingBottom:cs.paddingBottom, marginBottom:'0px', opacity:1, filter:'blur(0px)', overflow:'hidden' }], { duration:560, easing:ease }); };
-  seg($('.mmx-tab', r), v => { f = v; paint(); });
+  // a filter moves the rows: the memories that stay glide to their new places, new ones rise in out of a short blur and the
+  // ones that go fade where they were (reflow(), motion pieces), as the panel eases to its new height
+  seg($('.mmx-tab', r), v => { f = v; reflow(() => $$('.mmx-m', list), draw, { by:'data-id', root:list.closest('.mmx') || r, host:list, blur:true }); });
   count(); paint();
   // no room is kept for the memory still to come (owner, 17 Nov): the panel grows as the new one opens its row, and as a filter
   // or a forgotten memory changes the list (grow(), centred in its stage), once its entrance (which scales it) has ended
@@ -22285,14 +22329,14 @@ DM.def('memory-panel', (r, c) => {
     await c.step(2200);
     const m = { id:nid++, k:'brand', t:'Learning from your edit in Pricing v4', from:'figma', s:'Just now', learn:true };
     const learnt = () => Object.assign(m, { learn:false, t:'Use “Start free” instead of “Sign up” on CTAs', s:'Your edit in Pricing v4, just now' });
-    c.taken(() => { if (m.learn){ learnt(); update(m); } if (ft.classList.contains('shim')){ ft.classList.remove('shim'); fi.innerHTML = I('spark','xs'); swap(ft, 'Used in 14 answers this week'); } });
+    c.taken(() => { if (m.learn){ learnt(); update(m); } if (ft.classList.contains('shim')){ ft.classList.remove('shim'); iconSwap(fi, () => { fi.innerHTML = I('spark','xs'); }, { inner:true }); swap(ft, 'Used in 14 answers this week'); } });
     M.unshift(m); count(); if (f === 'brand' || f === 'all'){ const el = item(m); list.prepend(el); growRow(el); }
     await c.step(1500);
     learnt(); m.isNew = true; update(m);
     await c.step(2600);
     m.isNew = false; m.s = 'Your edit in Figma, today'; update(m);
     await c.step(1000);
-    fi.innerHTML = BRAND.gmail; enter(fi.firstElementChild);
+    iconSwap(fi, () => { fi.innerHTML = BRAND.gmail; }, { inner:true });
     ft.classList.add('shim'); swap(ft, 'Drafting the launch email in Gmail');
     await c.step(1100);
     let n = 0;
@@ -23979,7 +24023,7 @@ DM.def('event-calendar', (r, c) => {
   $$('button', days).forEach(b => b.onclick = () => showDay(+b.dataset.d));
   const tm = h => { const hh = Math.floor(h), mm = Math.round((h - hh) * 60); return `${hh > 12 ? hh - 12 : hh}:${String(mm).padStart(2, '0')}`; };
   const ev = (e, cls = '') => html(`<button class="ecx-e ${cls}" style="top:${at(e[1])};height:${tall(e[2])};background:var(--p${e[4]}-bg);color:var(--p${e[4]})"><b>${e[3]}</b><span>${tm(e[1])} – ${tm(e[1] + e[2])}</span></button>`);
-  const panel = $('.ecx', r), msg = $('.ecx-msg', r), pop = html('<div class="ecx-pop" role="dialog" aria-label="Event"></div>'); panel.appendChild(pop);
+  const panel = $('.ecx', r), msg = $('.ecx-msg', r), pop = html('<div class="ecx-pop mx-pop" role="dialog" aria-label="Event"></div>'); panel.appendChild(pop);
   const WHO = [['MK','var(--av-l)','MK-g03'],['JO','var(--av-m)','JO-g01'],['DA','var(--av-b)'],['AR','var(--av-p)','AR-g02']], DAYN = ['Mon','Tue','Wed','Thu','Fri'];
   let openFor = null;
   const say = t => swap(msg, t);
@@ -23988,7 +24032,7 @@ DM.def('event-calendar', (r, c) => {
   /* the details card opens beside the event and stays inside the calendar */
   function openPop(el){
     const e = el._e; if (openFor === el){ closePop(); return; } if (openFor) openFor.classList.remove('on'); openFor = el; el.classList.add('on'); const n = 2 + e[3].length % 3, fresh = e[3] === 'New event';
-    pop.innerHTML = `<div class="ecx-ph"><i style="background:var(--p${e[4]})"></i>${fresh ? '<input class="ecx-ti" placeholder="Add a title" aria-label="Event title">' : `<b>${e[3]}</b>`}<button class="ib ecx-px" aria-label="Close" data-tip="Close">${I('x','xs')}</button></div><div class="ecx-pt">${DAYN[e[0]]} ${DAYS[e[0]].split(' ')[1]} Oct · ${tm(e[1])} – ${tm(e[1] + e[2])}</div><div class="ecx-pw">${WHO.slice(0, n).map(w => AV(w[0], w[1], w[2])).join('')}<span class="muted">${n} people</span></div><div class="ecx-pa">${fresh ? '<button class="pill line sm ecx-del">Discard</button><button class="pill primary sm ecx-save">Save</button>' : `<button class="pill line sm ecx-prep">${I('spark','xs')}Prep notes</button><button class="pill primary sm">Join</button>`}</div>`;
+    pop.innerHTML = `<div class="ecx-ph"><i style="background:var(--p${e[4]})"></i>${fresh ? '<input class="ecx-ti" placeholder="Add a title" aria-label="Event title">' : `<b>${e[3]}</b>`}<button class="ib ecx-px mx-press" aria-label="Close" data-tip="Close">${I('x','xs')}</button></div><div class="ecx-pt">${DAYN[e[0]]} ${DAYS[e[0]].split(' ')[1]} Oct · ${tm(e[1])} – ${tm(e[1] + e[2])}</div><div class="ecx-pw">${WHO.slice(0, n).map(w => AV(w[0], w[1], w[2])).join('')}<span class="muted">${n} people</span></div><div class="ecx-pa">${fresh ? '<button class="pill line sm ecx-del mx-press">Discard</button><button class="pill primary sm ecx-save">Save</button>' : `<button class="pill line sm ecx-prep mx-press">${I('spark','xs')}Prep notes</button><button class="pill primary sm">Join</button>`}</div>`;
     const pr = panel.getBoundingClientRect(), er = el.getBoundingClientRect(), w = 248;
     let x = er.right - pr.left + 8; if (x + w > pr.width - 16) x = er.left - pr.left - w - 8; x = Math.max(16, x);
     let y = er.top - pr.top; y = Math.max(16, Math.min(y, pr.height - pop.offsetHeight - 24));
@@ -23998,7 +24042,9 @@ DM.def('event-calendar', (r, c) => {
     $('.ecx-px', pop).onclick = closePop;
     // Prep notes: its words shimmer while the agent writes; then the notes arrive above the buttons and the button stays, with
     // the green tick in place of its spark
-    const prep = $('.ecx-prep', pop); if (prep) prep.onclick = () => { if (prep._busy) return; prep._busy = true; prep.innerHTML = '<span class="think on"><i></i><i></i><i></i><i></i></span><span class="shim">Writing</span>'; c.later(1200, () => { if (!prep.isConnected) return; const nt = html(`<div class="ecx-note">${I('spark','xs')}<span>Last week's decisions and 3 open questions.</span></div>`); prep.closest('.ecx-pa').before(nt); enter(nt); prep.innerHTML = I('check','xs') + 'Prep notes'; prep.classList.add('done'); prep.setAttribute('aria-disabled', 'true'); }); };
+    // (the button eases to the width of what it says now: mxWidth(), motion pieces)
+    const relabel = (b, h) => { const w0 = b.offsetWidth; b.innerHTML = h; if (!REDUCE && w0) mxWidth(b, w0); };
+    const prep = $('.ecx-prep', pop); if (prep) prep.onclick = () => { if (prep._busy) return; prep._busy = true; relabel(prep, '<span class="think on"><i></i><i></i><i></i><i></i></span><span class="shim">Writing</span>'); c.later(1200, () => { if (!prep.isConnected) return; const nt = html(`<div class="ecx-note">${I('spark','xs')}<span>Last week's decisions and 3 open questions.</span></div>`); prep.closest('.ecx-pa').before(nt); enter(nt); relabel(prep, I('check','xs') + 'Prep notes'); prep.classList.add('done'); prep.setAttribute('aria-disabled', 'true'); }); };
     const ti = $('.ecx-ti', pop); if (ti){ ti.focus({ preventScroll:true });
       const save = () => { const v = ti.value.trim() || 'Untitled'; e[3] = v; $('b', el).textContent = v; el.dataset.tip = v + ', ' + tm(e[1]); closePop(); say('Added ' + v + ', ' + DAYN[e[0]] + ' ' + tm(e[1])); };
       ti.onkeydown = k => { if (k.key === 'Enter') save(); if (k.key === 'Escape'){ el.remove(); closePop(); } };
@@ -24036,11 +24082,11 @@ DM.def('event-calendar', (r, c) => {
   const tell = t => swap(ask, I('spark','xs') + t, true);
   ask.onclick = () => c.run(async () => {
     $$('.ecx-e.sug', grid).forEach(x => x.remove());
-    ask.innerHTML = '<span class="think on"><i></i><i></i><i></i><i></i></span><span class="shim">Checking 4 calendars</span>'; const sc = $('.ecx-scan', grid); sc.classList.remove('go'); void sc.offsetWidth; sc.classList.add('go');
+    const w0 = ask.offsetWidth; ask.innerHTML = '<span class="think on"><i></i><i></i><i></i><i></i></span><span class="shim">Checking 4 calendars</span>'; if (!REDUCE && w0) mxWidth(ask, w0); const sc = $('.ecx-scan', grid); sc.classList.remove('go'); void sc.offsetWidth; sc.classList.add('go');
     await c.wait(1300);
     const S = [[2,13.5,.75,'Design review','b'],[4,13,.75,'Design review','b']];
     S.forEach((s, i) => { const el = ev(s, 'sug' + (i ? ' alt' : '')); if (!i) el.insertAdjacentHTML('beforeend', '<div class="ecx-sg"><button class="y">Book</button><button class="n">Other</button></div>'); col(s[0]).appendChild(el); el.style.animationDelay = i * 120 + 'ms'; el.style.height = 'auto'; el.style.minHeight = tall(s[2]); });
-    ask.innerHTML = I('spark','xs') + 'Everyone is free Wed 1:30';
+    { const w0 = ask.offsetWidth; ask.innerHTML = I('spark','xs') + 'Everyone is free Wed 1:30'; if (!REDUCE && w0) mxWidth(ask, w0); }
     showDay(S[0][0]);
     const best = $('.ecx-e.sug:not(.alt)', grid);
     $('.y', best).onclick = e => { e.stopPropagation(); best.classList.remove('sug'); best.style.background = 'var(--pb-bg)'; best.style.color = 'var(--pb)'; best.style.boxShadow = ''; $('.ecx-sg', best).remove(); enter(best); bind(best, S[0]); $$('.ecx-e.sug', grid).forEach(x => x.remove()); tell('Booked, invites sent to 4 people'); };

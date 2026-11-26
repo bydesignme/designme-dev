@@ -94,13 +94,13 @@ export function InlineTextDiff({ title, parts, decisions, defaultDecisions = {},
   return (
     <div data-dm="" className={className} style={{ width: '100%' }}
       onKeyDown={e => { if (e.key === 'Escape' && cur) { const el = chunks.current.get(cur); setCur(null); el?.focus({ preventScroll: true }); } }}>
-      <div ref={root} className="dm-itd dm-panel dm-growing">
+      <div ref={root} className="dm-itd dm-panel dm-growing dm-mx-grow">
         <div ref={inner} className="dm-grow">
         <div className="dm-itd-h">
           <div className="dm-itd-ht"><b>{title}</b><Swap className="dm-muted dm-itd-st">{status}</Swap></div>
           {left > 0 && (
             <div className="dm-itd-a">
-              <button type="button" className="dm-pill dm-ghost dm-sm dm-itd-no" onClick={() => all('rejected')}>{L.rejectAll}</button>
+              <button type="button" className="dm-pill dm-ghost dm-sm dm-itd-no dm-mx-press" onClick={() => all('rejected')}>{L.rejectAll}</button>
               <button type="button" className="dm-pill dm-primary dm-sm dm-itd-ok" onClick={() => all('accepted')}>{L.acceptAll}</button>
             </div>
           )}
@@ -127,15 +127,15 @@ export function InlineTextDiff({ title, parts, decisions, defaultDecisions = {},
         </p>
         </div>
         {/* an edit the agent isn't sure of: the toolbar is a warning notice, and Reject, which settles it, is the warning's button */}
-        <div ref={bar} className={cx('dm-itd-bar', open && 'dm-open', at.up && 'dm-up', last.current?.note && 'dm-unsure')} role="dialog" aria-label="Edit" inert={!open} style={{ left: at.left, top: at.top }}
+        <div ref={bar} className={cx('dm-itd-bar dm-mx-pop', open && 'dm-open', at.up && 'dm-up', last.current?.note && 'dm-unsure')} role="dialog" aria-label="Edit" inert={!open} style={{ left: at.left, top: at.top }}
           // the left and right arrows move between Accept and Reject
           onKeyDown={e => { const bs = Array.from(bar.current?.querySelectorAll<HTMLElement>('button') ?? []), j = bs.indexOf(document.activeElement as HTMLElement); if (j < 0) return;
             const d = ({ ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 } as Record<string, number>)[e.key], to = d ? bs[(j + d + bs.length) % bs.length] : e.key === 'Home' ? bs[0] : e.key === 'End' ? bs[bs.length - 1] : null;
             if (to) { e.preventDefault(); to.focus({ preventScroll: true }); } }}>
           {last.current?.note && <p className="dm-itd-why"><WarnSign /><span>{last.current.note}</span></p>}
           <div className="dm-itd-bb">
-            <button type="button" className={cx('dm-pill dm-sm dm-itd-acc', last.current?.note ? 'dm-line' : 'dm-primary')} onClick={() => decide('accepted')}><Icon name="check" size="xs" />{L.accept}</button>
-            <button type="button" className={cx('dm-pill dm-sm dm-itd-rej', last.current?.note ? 'dm-warn' : 'dm-ghost')} onClick={() => decide('rejected')}><Icon name="x" size="xs" />{L.reject}</button>
+            <button type="button" className={cx('dm-pill dm-sm dm-itd-acc', last.current?.note ? 'dm-line dm-mx-press' : 'dm-primary')} onClick={() => decide('accepted')}><Icon name="check" size="xs" />{L.accept}</button>
+            <button type="button" className={cx('dm-pill dm-sm dm-itd-rej', last.current?.note ? 'dm-warn' : 'dm-ghost dm-mx-press')} onClick={() => decide('rejected')}><Icon name="x" size="xs" />{L.reject}</button>
           </div>
         </div>
       </div>
