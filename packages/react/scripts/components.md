@@ -36,12 +36,12 @@ Live credit and token spend, with a cap that pauses the run.
 `used`, `budget`, `capAt` (90), `capOn` / `defaultCapOn` / `onCapChange`, `status: 'idle' | 'running' | 'stopped' | 'paused' | 'spent'`, `statusLabel`, `rows: { label, value }[]`, `actionLabel`, `onAction`, `title`, `bare`.
 
 **Toast** · `toast/Toast.tsx`  
-One notification that changes shape with its state.  
-`toast: { id, tone?: 'success' | 'error' | 'info' | 'loading', title, description?, action?: { label, onClick, variant?: 'ghost' | 'primary', busy? } } | null`, `onDismiss(id)`. A new `id` slides the new toast in and the old one out; the same `id` changes the text in place.
+A background job in one toast, from start to finish.  
+`toast: { id, status?: 'working' | 'success' | 'error' | 'warning' | 'stopped' | 'info', title, description?, glyph?, steps?: { label, status, detail? }[], actions?: { label, onClick, variant?: 'primary' | 'secondary' | 'warn' }[], onStop?, duration?, announce? } | null`, `onDismiss(id, reason)`, `from` (the button it grows out of), `stepsOpen` / `defaultStepsOpen` / `onStepsOpenChange`. The same `id` changes the card in place; a new `id` brings in a new toast. Also exports `ToastCard` (one card on its own) and `DeckGlyph`.
 
 **ToastStack** · `toast-stack/ToastStack.tsx`  
 Agent notifications that stack and fan out on hover.  
-`toasts: { id, icon, tone?, title, detail?, time? }[]` (oldest first, the last one in front), `onDismiss(id)` (drop it from `toasts` and it slides away), `expanded` (fans out on hover when left out), `max` (6).
+`toasts: ToastData[]` (Toast's toasts, oldest first, the last one in front; the same `id` changes a card in place), `onDismiss(id, reason)` (`close`, `timeout`, `swipe` or `escape`), `expanded` (fans out under the pointer, the focus or a tap when left out), `max` (6). Each card is a `ToastCard`, so `npx designme add toast-stack --react` adds Toast too.
 
 **AgentLanes** · `agent-lanes/AgentLanes.tsx`  
 Several agents working in parallel, each with its own lane and hand-offs.  

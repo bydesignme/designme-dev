@@ -1,44 +1,19 @@
 /* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
 /* ---------- Toast stack ---------- */
-/* each toast is the same size as the one in Toast: width, padding, type and icons */
-/* the deck is as tall as the toasts in it (--dm-deckh, set as they arrive), growing with them, never keeping room for three
-   (owner, 18 Nov: containers grow with their content in every style) */
-.dm-tsk-stack{position:relative;width:100%;max-width:380px;height:var(--dm-deckh,96px);isolation:isolate}
-.dm-tsk-stack.dm-fan{height:var(--dm-fanh,96px)}
-@media (hover:hover) and (pointer:fine){.dm-tsk-stack:hover{height:var(--dm-fanh,96px)}}
-.dm-tsk-stack{transition:height .55s var(--dm-ease)}
-/* 16px in all round (owner, 19 Nov); the icon, the title and the time share the title's line, and Close takes the time's
-   place on it, its glyph on the content's right edge; hover fills are a quiet 5% so they show on the white toast */
-.dm-tsk-c{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:flex-start;gap:var(--dm-s-3);padding:var(--dm-s-4);--dm-row:color-mix(in srgb,var(--dm-fg) 5%,transparent);background:var(--dm-surface);border-radius:var(--dm-r-card);box-shadow:var(--dm-shadow-toast);transition:transform .55s var(--dm-ease),opacity .45s var(--dm-ease),filter .45s;transform-origin:bottom center}
-.dm-tsk-c .dm-g{width:28px;height:28px;margin-top:calc(8.775px - 14px);border-radius:50%;display:grid;place-items:center;flex:none}
-/* (the title and its time share one baseline; the icon keeps its place on the title's line) */
-.dm-tsk-w{flex:1;min-width:0;display:flex;align-items:baseline;gap:var(--dm-s-3)}
-.dm-tsk-c .dm-tx{flex:1;min-width:0;font-size:13px;line-height:1.35}
-.dm-tsk-c .dm-tx b{font-weight:500;display:block}
-.dm-tsk-c .dm-tx span{font-size:12px;color:var(--dm-muted)}
-.dm-tsk-c .dm-t{font-size:11.5px;line-height:17.55px;color:var(--dm-muted)}
-/* the time sits at the right edge; the close button takes its place on hover */
-.dm-tsk-c .dm-t{transition:opacity .2s}
-.dm-tsk-c .dm-ib{position:absolute;top:calc(var(--dm-s-4) + 8.775px - 14px);right:calc(var(--dm-s-4) - 6px);width:28px;height:28px;opacity:0;transition:opacity .2s}
-.dm-tsk-c .dm-ib:focus-visible{opacity:1}
-@media (hover:hover) and (pointer:fine){.dm-tsk-c:hover .dm-ib{opacity:1}}
-/* a toast behind the front one in the deck shows only its edge: its words are hidden under the front toast, never
-   showing through it, and come back as the stack fans out (and go once it has folded again) */
-.dm-tsk-c[inert]>*{visibility:hidden;transition:visibility 0s .5s}
-.dm-tsk-c:has(.dm-ib:focus-visible) .dm-t{opacity:0}
-@media (hover:hover) and (pointer:fine){.dm-tsk-c:hover .dm-t{opacity:0}}
-/* Clean (lead, 18 Nov): each toast is the same small card as Toast's: content 16px in from every edge, ordinary 16px corners,
-   no blur on the way in or behind the front one. Colour only for meaning: a passed check is green and a warning orange, on
-   the icon alone; every other notification (a PR, synced frames, a draft) is grey, never a hue of its own. With no blur to
-   hide it, a new toast turns opaque at once as it rises, so the words of the one it covers never show through */
-:root[data-style="clean"] .dm-tsk-stack,:root [data-style="clean"] .dm-tsk-stack,:root [data-style="clean"].dm-tsk-stack{transition:height var(--dm-t) var(--dm-ease)}
-/* a toast covered by a new one loses its words at once, not after the half second a stack folding back keeps them for, so
-   they never show through the new toast as it fades in */
-:root[data-style="clean"] .dm-tsk-c.dm-tsk-under>*,:root [data-style="clean"] .dm-tsk-c.dm-tsk-under>*,:root [data-style="clean"].dm-tsk-c.dm-tsk-under>*{visibility:hidden;transition:none}
-:root[data-style="clean"] .dm-tsk-c,:root [data-style="clean"] .dm-tsk-c,:root [data-style="clean"].dm-tsk-c{gap:12px;padding:16px;border-radius:calc(12px * var(--dm-rk-l,var(--dm-rk)));filter:none!important;transition:transform var(--dm-t) var(--dm-ease),opacity var(--dm-t-fast) var(--dm-ease)}
-:root[data-style="clean"] .dm-tsk-c .dm-g,:root [data-style="clean"] .dm-tsk-c .dm-g,:root [data-style="clean"].dm-tsk-c .dm-g{width:20px;height:20px;margin-top:calc(8.775px - 10px);background:none!important;color:var(--dm-fg2)!important}
-:root[data-style="clean"] .dm-tsk-c .dm-g .dm-i,:root [data-style="clean"] .dm-tsk-c .dm-g .dm-i,:root [data-style="clean"].dm-tsk-c .dm-g .dm-i{width:20px;height:20px}
-:root[data-style="clean"] .dm-tsk-c .dm-g[data-tone="ok"],:root [data-style="clean"] .dm-tsk-c .dm-g[data-tone="ok"],:root [data-style="clean"].dm-tsk-c .dm-g[data-tone="ok"]{color:var(--dm-ok-mark)!important}
-:root[data-style="clean"] .dm-tsk-c .dm-g[data-tone="warn"],:root [data-style="clean"] .dm-tsk-c .dm-g[data-tone="warn"],:root [data-style="clean"].dm-tsk-c .dm-g[data-tone="warn"]{color:var(--dm-warn-mark)!important}
-:root[data-style="clean"] .dm-tsk-c .dm-g[data-tone="bad"],:root [data-style="clean"] .dm-tsk-c .dm-g[data-tone="bad"],:root [data-style="clean"].dm-tsk-c .dm-g[data-tone="bad"]{color:var(--dm-bad-mark)!important}
-:root[data-style="clean"] .dm-tsk-c .dm-t,:root [data-style="clean"] .dm-tsk-c .dm-t,:root [data-style="clean"].dm-tsk-c .dm-t{font-variant-numeric:tabular-nums}
+/* each toast in the stack is a Toast card (owner, 26 Nov: "Let's launch toast stack and toasts as launch components too"): the
+   same head, steps and footer, Close with its countdown ring, swipe and Escape, in each style's own corners, dividers and
+   shadow (Toast's section, which its installs carry too). The stack only places them. Collapsed, the cards behind the front one
+   take its height and peek out 8px above it, a step narrower each; under the pointer or the focus they fan out into a list, each
+   at its own height, 8px apart. The stack is as tall as what it shows (--dm-tsk-h, set as cards come, go and change height), so it
+   stays centred in its stage as it grows and shrinks; the cards and the stack move together on the motion pieces' spring */
+.dm-tsk-stack{--dm-tsk-mv:calc(var(--dm-t-in) * 1.4) var(--dm-ease-spring);position:relative;width:100%;max-width:380px;height:var(--dm-tsk-h,0px);transition:height var(--dm-tsk-mv)}
+.dm-tsk-stack>.dm-tst-t{position:absolute;left:0;right:0;bottom:0;max-width:none;transform-origin:50% 0;transition:transform var(--dm-tsk-mv),height var(--dm-tsk-mv),opacity var(--dm-t-fast) var(--dm-ease),filter var(--dm-t-fast) var(--dm-ease)}
+/* a card arriving rises from 16px below out of a short blur (none in Blueprint and Clean); the cards behind it step back */
+.dm-tsk-stack>.dm-tst-t.dm-tsk-new{transform:translateY(16px) scale(.97);opacity:0;filter:blur(var(--dm-blur-in));transition:none}
+/* a card behind the front one in the deck shows only its edge: its words fade at once, so they never read through the card
+   that covers them, and come back as the stack fans out */
+.dm-tsk-stack>.dm-tst-t>*{transition:opacity var(--dm-t-fast) var(--dm-ease)}
+.dm-tsk-stack>.dm-tst-t.dm-tsk-back>*{opacity:0}
+/* going: Close, its countdown or Escape fades it 8px down as the rest close the gap; a swipe carries it on sideways */
+.dm-tsk-stack>.dm-tst-t.dm-tsk-out{pointer-events:none}
+@media (prefers-reduced-motion:reduce){.dm-tsk-stack,.dm-tsk-stack>.dm-tst-t{transition-property:opacity}}
