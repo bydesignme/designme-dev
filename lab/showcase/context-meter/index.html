@@ -860,12 +860,12 @@ body.render #stage{left:0;top:0;transform:none!important}
 .it-t{display:flex;flex-direction:column;min-width:0}
 .it-n{font-size:13px;line-height:18px;color:var(--dm-fg)}
 .it-s{font-size:12px;line-height:16px;color:var(--dm-muted)}
-/* the squeeze's marks: four-point sparks and dust, in the accent's mark colour and neutral grey; fills, no glow */
+/* the landing's mark: fine neutral compression lines, strokes only, no glow */
 #fx{position:absolute;left:0;top:0;overflow:visible}
 #fx svg{position:absolute;left:0;top:0;overflow:visible}
-.spk{fill:var(--dm-accent-mark,var(--dm-accent))}
-.spk.n{fill:var(--dm-line-strong,var(--dm-muted))}
-.dust{fill:var(--dm-muted)}
+.cl{stroke:var(--dm-muted);stroke-width:1.3;stroke-linecap:round}
+:root:not([data-style]) .cl{stroke-linecap:butt}
+#cw .dm-ctm-bar i{transform-origin:50% 50%}
 #cur{position:absolute;left:0;top:0;width:22px;height:26px;transform-origin:2px 2px;pointer-events:none}
 #rip{position:absolute;left:-14px;top:-14px;width:28px;height:28px;border-radius:50%;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-fg) 45%,transparent)}
 /* the window's caption (not in renders) */
@@ -1063,17 +1063,31 @@ function renderAt(t){
   pc.textContent = pct + '%';
   tg.setAttribute('aria-label', `Context, ${pct}% used`);
 
-  // anticipation, squeeze and landing on the bar: drawn out and thinned while it loads, pressed fat in the squeeze, a hard
-  // squash on the thud that settles with one small give
+  // anticipation, squeeze and landing on the bar: drawn out and thinned while it loads, pressed fat in the squeeze; the
+  // landing itself is a pressure wave through the parts (below)
   const ld = eOutCubic(seg(t, B.load, B.loadD)) * (1 - sq);
   const th = t - B.thud;
   const squash = hit(th, .06), give = hit(th - .16, .1);
-  const sx = 1 + .035 * ld + .035 * squash, sy = 1 - .22 * ld + .7 * Math.sin(Math.PI * sq) * (t < B.thud ? 1 : 0) - .3 * squash + .08 * give;
+  const sx = 1 + .035 * ld + .02 * squash, sy = 1 - .22 * ld + .7 * Math.sin(Math.PI * sq) * (t < B.thud ? 1 : 0);
   P.forEach((p, k) => { parts[k].style.width = (vb[k] / LIMIT * 100).toFixed(3) + '%'; });
   // each landing gives the bar a small swell
   let swell = 0; for (const a of allArr){ const q = t - a; if (q > 0 && q < .2) swell += .1 * Math.sin(Math.PI * q / .2); }
   swell = Math.min(swell, .22);
   bar.style.transform = `scale(${sx.toFixed(4)},${(sy + swell).toFixed(4)})`;
+  // the pressure wave: when the squeeze lands, a swell runs back along the stack from where it was pressed (its right end),
+  // each part flexing up once and settling with one small dip, the far end last. The bar lets the swell show past its edge
+  // only while it runs
+  const wv = th > 0 && th < .75;
+  const hx = parts[3].offsetLeft + parts[3].offsetWidth;
+  parts.forEach(p => {
+    if (!wv){ p.style.transform = ''; return; }
+    const d = Math.max(0, hx - (p.offsetLeft + p.offsetWidth / 2)), q = th - d / 300;
+    // it loses a little strength as it travels
+    const a = (.7 * hit(q, .06) - .2 * hit(q - .14, .08)) * Math.exp(-d / 260);
+    p.style.transform = Math.abs(a) > .002 ? `scaleY(${(1 + a).toFixed(4)})` : '';
+  });
+  bar.style.overflow = wv ? 'visible' : '';
+  parts[0].style.borderRadius = wv && BR ? `${BR}px 0 0 ${BR}px` : '';
 
   // the ring: its share, in the accent's mark, crossing to the warning mark at 85% and back after the squeeze
   arc.style.strokeDasharray = (totalB / LIMIT * 100).toFixed(2) + ' 100';
@@ -1208,24 +1222,17 @@ function renderAt(t){
     el.querySelector('.it-fill').style.opacity = clamp((uh - .68) / .3).toFixed(3);
   });
 
-  // ---------- the squeeze's marks: dust off the freed rail, sparks where the stack lands ----------
-  const bw = bar.offsetWidth;
-  const endFull = barX + bw * FULL / LIMIT + 6, endAfter = barX + bw * AFTER / LIMIT + 6, sparkY = barY + knock;
-  const mq = t - B.squeeze;
-  if (mq > 0 && mq < 1.3){
+  // ---------- the landing's mark: three fine compression lines at the stack's new end, pushed out over the freed rail as
+  // they fade (neutral hairlines on the bar's own line, clear of the head's and the legend's words) ----------
+  const endAfter = barX + hx, lineY = barY + knock;
+  if (th > 0 && th < .7){
     fx.style.display = '';
-    for (const d of dust){
-      const u = clamp((mq - d.delay) / d.life), e = eOutCubic(u);
-      const x0 = lerp(endAfter, endFull, d.f), x = x0 + d.dx * e, y = sparkY + d.dy * e;
-      const sz = d.s * (1 - u) * clamp(u * 8);
-      d.p.setAttribute('transform', `translate(${x.toFixed(2)} ${y.toFixed(2)}) scale(${Math.max(0, sz).toFixed(3)})`);
-      d.p.style.opacity = (.55 * (1 - u)).toFixed(3);
-    }
-    const sq2 = th;
-    for (const s of sparks){
-      const u = clamp((sq2 - s.delay) / .7), e = eOutCubic(u), dd = lerp(s.d0, s.d1, e);
-      const sz = sq2 > 0 ? s.s * Math.sin(Math.PI * Math.min(1, u * 1.05)) : 0;
-      s.p.setAttribute('transform', `translate(${(endAfter - 3 + Math.cos(s.a) * dd).toFixed(2)} ${(sparkY + Math.sin(s.a) * dd * .8).toFixed(2)}) rotate(${(s.rot * e).toFixed(1)}) scale(${Math.max(0, sz).toFixed(3)})`);
+    for (const c of clines){
+      const u = clamp((th - c.delay) / .42), e = eOutCubic(u);
+      const x = endAfter + c.x0 + c.dx * e, hh = c.h * Math.sin(Math.PI * Math.min(1, u * 1.15)) * (u > 0 ? 1 : 0);
+      c.p.setAttribute('x1', x.toFixed(2)); c.p.setAttribute('x2', x.toFixed(2));
+      c.p.setAttribute('y1', (lineY - hh / 2).toFixed(2)); c.p.setAttribute('y2', (lineY + hh / 2).toFixed(2));
+      c.p.style.opacity = (u > 0 ? .8 * (1 - eInCubic(u)) : 0).toFixed(3);
     }
   } else fx.style.display = 'none';
 
@@ -1257,21 +1264,13 @@ function renderAt(t){
   world.style.transform = `translate(${(W / 2 - fxp * Sc).toFixed(2)}px,${(H / 2 - fyp * Sc + shake).toFixed(2)}px) scale(${Sc.toFixed(4)})`;
 }
 
-// ---------- the marks' shapes ----------
+// ---------- the landing's mark ----------
 const fx = $('#fx'), NS = 'http://www.w3.org/2000/svg';
-const sparkPath = 'M0-7C.5-2.2 2.2-.5 7 0 2.2.5.5 2.2 0 7-.5 2.2-2.2.5-7 0-2.2-.5-.5-2.2 0-7z';
 const svg = document.createElementNS(NS, 'svg'); svg.setAttribute('width', 1); svg.setAttribute('height', 1); fx.appendChild(svg);
-const dust = [], sparks = [];
-for (let i = 0; i < 0; i++){
-  const p = document.createElementNS(NS, 'circle'); p.setAttribute('r', 2); p.setAttribute('class', 'dust'); svg.appendChild(p);
-  // dust stays in the rail's own band, drifting right over the room that was freed
-  dust.push({ p, f: rnd(), dx: 10 + rnd() * 26, dy: (rnd() - .5) * 9, s: .7 + rnd() * .7, delay: rnd() * .18, life: .55 + rnd() * .35 });
-}
-for (let i = 0; i < 7; i++){
-  const p = document.createElementNS(NS, 'path'); p.setAttribute('d', sparkPath); p.setAttribute('class', 'spk' + (i % 3 === 2 ? ' n' : '')); svg.appendChild(p);
-  // they burst upward only, into the empty middle of the head, never over its words or the legend's
-  sparks.push({ p, a: -Math.PI * .76 + i * (Math.PI * .66 / 6) + (rnd() - .5) * .12, d0: 9, d1: 22 + rnd() * 8, s: .8 + rnd() * .35, delay: rnd() * .06, rot: (rnd() - .5) * 140 });
-}
+const clines = [0, 1, 2].map(i => {
+  const p = document.createElementNS(NS, 'line'); p.setAttribute('class', 'cl'); svg.appendChild(p);
+  return { p, x0: 4 + i * 5, dx: 8 + i * 7, h: [11, 15, 9][i], delay: i * .03 };
+});
 
 window.renderAt = renderAt;
 window.TIMING = { T, FPS:60 };
