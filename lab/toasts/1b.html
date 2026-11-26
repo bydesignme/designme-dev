@@ -129,6 +129,17 @@ body{font-family:var(--dm-sans);font-size:14px;line-height:1.5;color:var(--dm-fg
 .ts1b-g .ag.pop{transform:scale(1.2)}
 :root:not([data-style="soft"],[data-style="clean"]) .ts1b-g :is(.trk,.arc){stroke-linecap:butt}
 
+/* a narrow toast (a phone) gives its action a row of its own under the words, ending under Close's glyph, and Close stays at
+   the top end, as Toast does */
+.ts1b-dk{container:ts1b/inline-size}
+@container ts1b (max-width:340px){
+  .ts1b-t{grid-template-columns:50px minmax(0,1fr) auto;align-items:start;row-gap:var(--dm-s-1)}
+  .ts1b-t .ts1b-g{grid-row:1/3;align-self:center}
+  .ts1b-acts{display:contents}
+  .ts1b-acts .ib{grid-area:1/3;margin:-5px -6px 0 0}
+  .ts1b-acts .pill{grid-area:2/2/3/4;justify-self:end;margin:0 -6px 0 0}
+  .ts1b-acts .pill.ghost{margin-right:-11px}
+}
 @media (max-width:640px){
   .ts1b-app{height:560px;border-radius:0;box-shadow:inset 0 1px 0 color-mix(in srgb,var(--dm-line) 50%,transparent),inset 0 -1px 0 color-mix(in srgb,var(--dm-line) 50%,transparent)}
   .ts1b-dk{left:var(--dm-s-4);width:auto}
@@ -252,10 +263,12 @@ DM.def('ts1b', (r, c) => {
     const fan = fanned(), n = items.length;
     const hs = items.map(t => t.offsetHeight);
     let y = 0, h = 0;
+    // a fanned deck shows the newest toasts that fit under the app's head; older ones wait behind them
+    const room = app.clientHeight - 56 - 16 - 16 - 40;
     items.slice().reverse().forEach((t, i) => {
       const k = Math.min(i, 3);
       if (t._drag) return;
-      if (fan){ t.style.transform = `translateY(${-y}px)`; t.style.opacity = 1; t.style.filter = 'none'; y += hs[n - 1 - i] + 8; t.classList.remove('under', 'now'); t.inert = false; }
+      if (fan){ const fits = y + hs[n - 1 - i] <= room; t.style.transform = `translateY(${-(fits ? y : Math.max(0, y - hs[n - 1 - i] - 8))}px)`; t.style.opacity = fits ? 1 : 0; t.style.filter = 'none'; if (fits) y += hs[n - 1 - i] + 8; t.classList.remove('under', 'now'); t.inert = !fits; }
       else { t.style.transform = `translateY(${-k * 10}px) scale(${1 - k * .05})`; t.style.opacity = i > 2 ? 0 : 1 - k * .12; t.style.filter = i && style() === 'soft' ? 'blur(.4px)' : 'none'; t.classList.toggle('under', i > 0); t.inert = i > 0; }
       t.style.zIndex = 100 - i;
     });
@@ -266,7 +279,7 @@ DM.def('ts1b', (r, c) => {
   }
   c.on(stk, 'pointerenter', e => { if (e.pointerType === 'mouse'){ hov = true; layout(); } });
   c.on(stk, 'pointerleave', e => { if (e.pointerType === 'mouse'){ hov = false; layout(); } });
-  c.on($('.ts1b-dk', r), 'focusin', () => { if (!foc){ foc = true; layout(); } });
+  c.on($('.ts1b-dk', r), 'focusin', e => { if (!foc && e.target.matches(':focus-visible')){ foc = true; layout(); } });
   c.on($('.ts1b-dk', r), 'focusout', e => { if (!$('.ts1b-dk', r).contains(e.relatedTarget)){ foc = false; layout(); } });
 
   function add(k){
@@ -281,6 +294,8 @@ DM.def('ts1b', (r, c) => {
     $('.ts1b-x', t).addEventListener('click', () => drop(t, 1));
     $('.ts1b-a', t).addEventListener('click', () => act(t));
     swipe(t);
+    // a toast that changes height (its action folds away, or its words wrap) moves the ones above it
+    const ro = new ResizeObserver(() => { if (t.isConnected) layout(); }); ro.observe(t); c.offs.push(() => ro.disconnect());
     requestAnimationFrame(() => requestAnimationFrame(() => { layout(); setTimeout(() => GL[k].play($('.ts1b-g', t)), REDUCE ? 0 : 260); }));
     const rk = k; status(rk, n.tone === 'warn' ? 'warn' : n.tone === 'bad' ? 'bad' : 'done', n.tone === 'warn' ? 'Needs you' : n.tone === 'bad' ? 'Failed' : 'Done');
     say(`${n.b}. ${n.s}`, n.tone === 'bad');

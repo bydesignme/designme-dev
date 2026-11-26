@@ -107,7 +107,7 @@ body{font-family:var(--dm-sans);font-size:14px;line-height:1.5;color:var(--dm-fg
 /* Undo opens and closes in place, easing the words beside it */
 .ts1a-ua{display:grid;grid-template-columns:0fr;transition:grid-template-columns .4s var(--dm-ease)}
 .ts1a-ua.on{grid-template-columns:1fr}
-.ts1a-ua>div{min-width:0;overflow:hidden}
+.ts1a-ua>div{min-width:0;overflow:clip;overflow-clip-margin:4px}
 .ts1a-ua .pill{transition:opacity .25s var(--dm-ease)}
 .ts1a-ua:not(.on) .pill{opacity:0}
 
@@ -212,7 +212,8 @@ DM.def('ts1a', (r, c) => {
     region.appendChild(t);
     t.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse'){ hov = true; onHold(); } });
     t.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse'){ hov = false; onHold(); } });
-    t.addEventListener('focusin', () => { foc = true; onHold(); });
+    // the keyboard's focus holds it; a click's focus doesn't (the mouse on it already does)
+    t.addEventListener('focusin', e => { if (e.target.matches(':focus-visible')){ foc = true; onHold(); } });
     t.addEventListener('focusout', e => { if (!t.contains(e.relatedTarget)){ foc = false; onHold(); } });
     $('.ts1a-undo', t).addEventListener('click', undo);
     $('.ts1a-x', t).addEventListener('click', () => dismiss());
@@ -302,6 +303,8 @@ DM.def('ts1a', (r, c) => {
   async function undo(){
     if (state !== 'window') return;
     const my = ++epoch, g = G(toast);
+    // the draft is coming back to the field, and so does the focus
+    if (toast.contains(document.activeElement)) ta.focus({ preventScroll:true });
     state = 'unsending'; updBtn(); undoOpen(false); words('Taking it back', '#launch-notes', true); msgStatus(msg, 'Unsending…', true); say('Taking the message back');
     g.rng.classList.remove('ok'); g.chk.classList.remove('on'); g.dot.style.opacity = 1;
     await tween(g.L, 0, REDUCE ? 1 : 1000, v => { if (my !== epoch) return; dotAt(g, v); trail(g, v, g.L); }, ease);
