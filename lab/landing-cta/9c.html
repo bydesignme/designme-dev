@@ -249,7 +249,7 @@
 .ct9a .bp-win.on{visibility:visible}
 .ct9a .ct-bp{position:absolute;left:0;top:0;overflow:visible;transform-origin:0 0;will-change:transform}
 .ct9a .ct-bp *{vector-effect:non-scaling-stroke}
-.ct9a .bp-dim{fill:var(--ct-bg);fill-opacity:.86}
+.ct9a .bp-dim{fill:var(--ct-bg);fill-opacity:1}
 .ct9a .bp-ghost{fill:#fff;fill-opacity:.06}
 .ct9a .bp-out{fill:none;stroke:#fff;stroke-width:1.25;stroke-linejoin:round}
 .ct9a .bp-g{fill:none;stroke:#fff;stroke-width:1}
@@ -981,7 +981,7 @@ const fitHits = window.dmFitHits || (() => {
     var gw = el('g', {}, wide);
     [[CAP, 'cap'], [BASE, 'base'], [(CAP + BASE) / 2, 'mid'], [OVT, 'over'], [OVB, 'over']].forEach(function(g){ el('line', { 'class':'bp-g ' + g[1], x1:L, x2:R, y1:g[0], y2:g[0] }, gw); });
     boxes.forEach(function(b){ [b.x, b.x + b.width].forEach(function(x){ el('line', { 'class':'bp-g edge', x1:x, x2:x, y1:CAP - 3.2, y2:BASE + 3.2 }, gw); }); });
-    // the lens: the letters themselves, dimmed towards a translucent fill (never a black disc), the same paths as outlines,
+    // the lens: the letters themselves, covered so the centre is fully see-through, the same paths as outlines,
     // the guides a little stronger, each curve's handles and every anchor, and the letters' widths under the base line
     var dimg = el('g', {}, lens);
     ps.forEach(function(p){ el('path', { 'class':'bp-dim', d:p.getAttribute('d') }, dimg); });
@@ -1012,8 +1012,8 @@ const fitHits = window.dmFitHits || (() => {
     // the drawing is shown through round windows that move with the lens. Each window and the drawing inside it only
     // move (the drawing the opposite way), so following the pointer never repaints anything
     lens.appendChild(tg.cloneNode(true));
-    // a long, soft falloff (a gaussian in many steps), so the letters dissolve into their drawing with no edge or ring
-    var soft = function(){ var s = [], z = Math.exp(-5); for (var i = 0; i <= 20; i++){ var t = i / 20, a = (Math.exp(-5 * Math.pow(t, 2.6)) - z) / (1 - z); s.push('rgba(0,0,0,' + a.toFixed(3) + ') ' + (t * 100).toFixed(0) + '%'); } return 'radial-gradient(closest-side,' + s.join(',') + ')'; }();
+    // a clear see-through centre, then a long, soft rim (a smootherstep in many steps) with no edge or ring
+    var soft = function(){ var s = [], z = Math.exp(-5); for (var i = 0; i <= 20; i++){ var t = i / 20, u = Math.max(0, (t - .42) / .58), a = 1 - u * u * u * (u * (u * 6 - 15) + 10); s.push('rgba(0,0,0,' + a.toFixed(3) + ') ' + (t * 100).toFixed(0) + '%'); } return 'radial-gradient(closest-side,' + s.join(',') + ')'; }();
     W = [[wide, 3.4, .85], [lens, 1.9, 1]].map(function(a){
       var d = document.createElement('div'); d.className = 'bp-win'; d.appendChild(a[0]); wrap.appendChild(d);
       d.style.webkitMaskImage = d.style.maskImage = soft;
