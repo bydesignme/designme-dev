@@ -1005,7 +1005,7 @@ patch("""    const LOG = [
         ['new','Templates: a Sales CRM and a Workflow editor, whole apps built from the components, in the sidebar under Templates'],
         ['improved','In dark mode each surface sits a step lighter than what it is on, so menus, popovers and toasts stand off the page, and tooltips are a raised dark chip'],
         ['improved','Sign-ups, roadmap votes and ideas are limited per visitor to stop flooding, and the privacy notice says how'] ] },
-      { v:'v0.16', d:'4 November 2026', t:'Astro, shadcn and twelve new components', items:[
+      { v:'v0.16', d:'4 November 2026', t:'Astro, shadcn and the theme bridge', items:[
         ['new','Run drawer, from the Workflow editor template: the steps, the log and the data of a run',['Run drawer']],
         ['new','Thinking states: six thinking indicators to pick from (Orbit, Morph, Scan, Stream, Matrix and Stack), each a small mark with a status line that steps through what the agent is doing',['Thinking states']],
         ['new','Web search, in HTML, React and Astro',['Web search']],
