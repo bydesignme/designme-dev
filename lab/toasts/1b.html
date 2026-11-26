@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Toast 1B · Deck · Designme.dev</title>
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<script>
+/* the style and theme: ?style=bp|soft|clean and ?theme=light|dark first (and kept), then what the site last stored; with no
+   style picked it follows the theme: light opens in Soft, dark in Blueprint */
+(function(){ var d = document.documentElement, q = new URLSearchParams(location.search), s = null, t = null;
+  try { var qs = q.get('style'), qt = q.get('theme');
+    if (qs === 'bp' || qs === 'soft' || qs === 'clean') localStorage.setItem('dmui-style', qs);
+    if (qt === 'light' || qt === 'dark') localStorage.setItem('dmui-theme', qt);
+    s = localStorage.getItem('dmui-style'); t = localStorage.getItem('dmui-theme'); } catch(e){}
+  if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  if (s === 'mine') s = 'soft';
+  if (s !== 'bp' && s !== 'soft' && s !== 'clean') s = t === 'dark' ? 'bp' : 'soft';
+  d.setAttribute('data-theme', t);
+  if (s === 'bp') d.removeAttribute('data-style'); else d.setAttribute('data-style', s); })();
+</script>
+<style>
+@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(../../fonts/inter-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(../../fonts/inter-latin-500-normal.woff2) format('woff2')}
+</style>
+<link rel="stylesheet" href="assets/core.css">
+<style>
+/* ---------- the page ---------- */
+html,body{margin:0;background:var(--dm-page)}
+body{font-family:var(--dm-sans);font-size:14px;line-height:1.5;color:var(--dm-fg);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+:where(.ts1b-lab) button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+:where(.ts1b-lab) :focus-visible{outline:2px solid var(--dm-focus);outline-offset:2px}
+[data-nofv]:focus-visible{outline:none!important}
+.ts1b-sr{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.ts1b-lab{max-width:760px;margin:0 auto;padding:var(--dm-s-8) var(--dm-s-6) 72px}
+.ts1b-h{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:var(--dm-s-4) var(--dm-s-6);padding-bottom:var(--dm-s-5)}
+.ts1b-h h1{margin:0;font-size:14px;font-weight:500;line-height:1.4}
+.ts1b-h h1 span{color:var(--dm-muted);font-weight:400}
+.ts1b-h p{margin:var(--dm-s-1) 0 0;max-width:460px;font-size:13px;line-height:1.55;color:var(--dm-muted);text-wrap:pretty}
+.ts1b-ctl{display:flex;flex-wrap:wrap;align-items:center;gap:var(--dm-s-2)}
+.ts1b-ctl .seg2 button{color:var(--dm-muted)}
+.ts1b-ctl .seg2 button[aria-pressed="true"]{color:var(--dm-fg)}
+.ts1b-rp{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:var(--dm-r-pill);background:var(--dm-chip);font-size:12.5px;color:var(--dm-fg);transition:background var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){.ts1b-rp:hover{background:var(--dm-hover)}}
+.ts1b-rp .i{color:var(--dm-fg2)}
+:root:not([data-style="soft"],[data-style="clean"]) :is(.ts1b-rp,.ts1b-ctl .seg2,.ts1b-ctl .seg2 *){border-radius:0}
+.ts1b-st{display:flex;align-items:center;justify-content:center;padding:var(--dm-s-8) var(--dm-s-5);border-radius:var(--dm-r-card);background:var(--dm-stage);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.ts1b-st>.card{width:100%;display:flex;justify-content:center}
+.ts1b-st .stage-in{max-width:720px}
+:root:not([data-style="soft"],[data-style="clean"]) .ts1b-st{border-radius:0;background-image:linear-gradient(var(--dm-grid) 1px,transparent 1px),linear-gradient(90deg,var(--dm-grid) 1px,transparent 1px);background-size:24px 24px;background-position:-1px -1px}
+@media (max-width:640px){
+  .ts1b-lab{padding:var(--dm-s-6) var(--dm-s-4) 56px}
+  .ts1b-st{margin:0 calc(-1 * var(--dm-s-4));padding:0;border-radius:0;box-shadow:none;background:none}
+}
+
+/* ---------- 1B · Deck ----------
+   Agents finish work in the background and each one's news lands as a toast at the corner, led by a small live picture of
+   what happened. They tuck into a deck, newest in front; the deck fans out into a list under the pointer or the focus, a
+   problem toast turns into its fix in place, a swipe sends one away and the rest close up, and Clear all empties it */
+.ts1b-app{position:relative;isolation:isolate;overflow:hidden;width:100%;height:540px;display:flex;flex-direction:column;background:var(--dm-surface);border-radius:var(--dm-r-card);box-shadow:var(--dm-shadow);font-size:13px;line-height:1.45}
+.ts1b-ah{flex:none;display:flex;align-items:center;gap:var(--dm-s-2);height:56px;box-sizing:border-box;padding:0 var(--dm-s-4);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.ts1b-ah b{font-weight:500}
+.ts1b-ah .ts1b-n{color:var(--dm-muted);font-size:12px}
+.ts1b-ah .pill{margin-left:auto}
+:root[data-style="clean"] .ts1b-ah{background:var(--dm-strip);border-bottom-color:var(--dm-hair)}
+/* the runs: a plain list, one agent to a row */
+.ts1b-rows{list-style:none;margin:0;padding:var(--dm-s-2) var(--dm-s-2) 0}
+.ts1b-r{display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:center;column-gap:var(--dm-s-3);padding:10px var(--dm-s-2);border-radius:var(--dm-r-in);transition:background var(--dm-t-fast) var(--dm-ease)}
+.ts1b-r+.ts1b-r{box-shadow:0 -1px 0 color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.ts1b-r.sel{background:var(--dm-row)}
+:root[data-style="clean"] .ts1b-r.sel{background:var(--dm-row-on,var(--dm-hover))}
+.ts1b-r.sel,.ts1b-r.sel+.ts1b-r{box-shadow:none}
+.ts1b-r .av{width:28px;height:28px}
+.ts1b-r .av .i{width:14px;height:14px}
+.ts1b-r .w{min-width:0;line-height:18px}
+.ts1b-r .w b{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ts1b-r .w span{display:block;font-size:12px;line-height:17px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ts1b-s{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--dm-muted);white-space:nowrap}
+.ts1b-s .i{color:var(--dm-ok-mark)}
+
+/* the deck at the app's bottom right corner: its count and Clear all above it, the toasts below */
+.ts1b-dk{position:absolute;z-index:5;right:var(--dm-s-4);bottom:var(--dm-s-4);width:min(360px,calc(100% - 2 * var(--dm-s-4)));display:flex;flex-direction:column;align-items:flex-end;gap:var(--dm-s-2);pointer-events:none}
+.ts1b-dh{display:flex;align-items:center;gap:var(--dm-s-1);height:32px;padding:0 2px 0 12px;border-radius:var(--dm-r-pill);background:var(--dm-raised);box-shadow:var(--dm-shadow-toast);font-size:12px;color:var(--dm-muted);pointer-events:auto;transition:opacity .3s var(--dm-ease),transform .4s var(--dm-ease)}
+.ts1b-dh .pill{height:28px}
+.ts1b-dh.off{opacity:0;transform:translateY(6px);pointer-events:none;visibility:hidden;transition:opacity .3s var(--dm-ease),transform .4s var(--dm-ease),visibility 0s .3s}
+.ts1b-dh .num{font-variant-numeric:tabular-nums}
+.ts1b-stk{position:relative;width:100%;height:var(--h,0px);transition:height .5s var(--dm-ease);pointer-events:auto}
+:root[data-style="clean"] .ts1b-stk{transition:height .56s cubic-bezier(.23,1,.32,1)}
+.ts1b-t{position:absolute;left:0;right:0;bottom:0;display:grid;grid-template-columns:50px minmax(0,1fr) auto;align-items:center;column-gap:var(--dm-s-3);padding:var(--dm-s-4);background:var(--dm-raised);border-radius:var(--dm-r-card);box-shadow:var(--dm-shadow-toast);--dm-row:color-mix(in srgb,var(--dm-fg) 5%,transparent);transform-origin:bottom center;transition:transform .5s var(--dm-ease),opacity .4s var(--dm-ease),filter .4s;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+:root[data-style="clean"] .ts1b-t{border-radius:calc(12px * var(--dm-rk-l,var(--dm-rk)));filter:none!important;transition:transform .56s cubic-bezier(.23,1,.32,1),opacity .3s cubic-bezier(.23,1,.32,1)}
+.ts1b-t.drag{transition:none}
+/* a toast behind the front one shows only its edge: its words never show through, and come back as the deck fans out */
+.ts1b-t.under>*{visibility:hidden;transition:visibility 0s .45s}
+.ts1b-t.under.now>*{transition:none}
+.ts1b-tx{min-width:0;font-size:13px;line-height:18px}
+.ts1b-tx b{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ts1b-tx span{display:block;font-size:12px;line-height:17px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ts1b-acts{display:flex;align-items:center;gap:var(--dm-s-1);margin-right:-6px}
+.ts1b-acts .ib{width:28px;height:28px}
+.ts1b-acts .pill{transition:opacity .25s var(--dm-ease)}
+.ts1b-acts .pill.go{opacity:0}
+.ts1b-acts .pill.line{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 100%,transparent)}
+
+/* the glyphs: each a small live picture of the news, grey where it carries nothing */
+.ts1b-g{display:block;width:50px;height:36px;overflow:visible}
+.ts1b-g .rl{fill:none;stroke:var(--dm-rail);stroke-width:1.2}
+.ts1b-g .dr{stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset .45s var(--dm-ease)}
+.ts1b-g .dr.on{stroke-dashoffset:0}
+.ts1b-g .pp{transform-box:fill-box;transform-origin:center;transform:scale(0);transition:transform .45s cubic-bezier(.3,1.5,.5,1),fill .3s}
+.ts1b-g .pp.on{transform:none}
+.ts1b-g .hubc{fill:var(--dm-accent-mark)}
+.ts1b-g .sat{fill:var(--dm-faint)}
+.ts1b-g .sat.cite{fill:var(--dm-accent-mark)}
+.ts1b-g .frm{fill:none;stroke:var(--dm-rail);stroke-width:1.2}
+.ts1b-g .scan{stroke:var(--dm-accent-mark);stroke-width:1.5}
+.ts1b-g .trk{fill:none;stroke:var(--dm-rail);stroke-width:4;stroke-linecap:round}
+.ts1b-g .arc{fill:none;stroke:var(--dm-warn-mark);stroke-width:4;stroke-linecap:round;transition:stroke .4s var(--dm-ease)}
+.ts1b-g .arc.calm{stroke:var(--dm-accent-mark)}
+.ts1b-g .cap{stroke:var(--dm-fg);stroke-width:1.6;stroke-linecap:round}
+.ts1b-g .pg{fill:var(--dm-surface);stroke:var(--dm-rail);stroke-width:1.2}
+.ts1b-g .ln{fill:none;stroke:var(--dm-faint);stroke-width:2;stroke-linecap:round;opacity:0;transition:stroke-dashoffset .3s linear,stroke .3s}
+.ts1b-g .ln.bad{stroke:var(--dm-bad-mark)}
+.ts1b-g .brk{fill:var(--dm-bad-mark)}
+.ts1b-g .okc{fill:var(--dm-ok-mark)}
+.ts1b-g .okk{fill:none;stroke:var(--dm-surface);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.ts1b-g .lane{fill:none;stroke:var(--dm-rail);stroke-width:1.2;stroke-dasharray:1.5 3;stroke-linecap:round}
+.ts1b-g .ag{transform-box:fill-box;transform-origin:center;transition:transform .45s cubic-bezier(.3,1.6,.5,1)}
+.ts1b-g .ag.pop{transform:scale(1.2)}
+:root:not([data-style="soft"],[data-style="clean"]) .ts1b-g :is(.trk,.arc){stroke-linecap:butt}
+
+/* a narrow toast (a phone) gives its action a row of its own under the words, ending under Close's glyph, and Close stays at
+   the top end, as Toast does */
+.ts1b-dk{container:ts1b/inline-size}
+@container ts1b (max-width:340px){
+  .ts1b-t{grid-template-columns:50px minmax(0,1fr) auto;align-items:start;row-gap:var(--dm-s-1)}
+  .ts1b-t .ts1b-g{grid-row:1/3;align-self:center}
+  .ts1b-acts{display:contents}
+  .ts1b-acts .ib{grid-area:1/3;margin:-5px -6px 0 0}
+  .ts1b-acts .pill{grid-area:2/2/3/4;justify-self:end;margin:0 -6px 0 0}
+  .ts1b-acts .pill.ghost{margin-right:-11px}
+}
+@media (max-width:640px){
+  .ts1b-app{height:560px;border-radius:0;box-shadow:inset 0 1px 0 color-mix(in srgb,var(--dm-line) 50%,transparent),inset 0 -1px 0 color-mix(in srgb,var(--dm-line) 50%,transparent)}
+  .ts1b-dk{left:var(--dm-s-4);width:auto}
+}
+</style>
+</head>
+<body>
+<main class="ts1b-lab">
+  <header class="ts1b-h">
+    <div>
+      <h1>Toast 1B <span>· Deck</span></h1>
+      <p>Each agent's news lands as a toast led by a tiny live picture of it; they tuck into a deck that fans out into a list, problems turn into their fix in place, and a swipe sends one away.</p>
+    </div>
+    <div class="ts1b-ctl">
+      <div class="seg2" id="ts1b-style" role="group" aria-label="Style"><button type="button" data-v="bp" aria-pressed="false">Blueprint</button><button type="button" data-v="soft" aria-pressed="true">Soft</button><button type="button" data-v="clean" aria-pressed="false">Clean</button></div>
+      <div class="seg2" id="ts1b-theme" role="group" aria-label="Theme"><button type="button" data-v="light" aria-pressed="true">Light</button><button type="button" data-v="dark" aria-pressed="false">Dark</button></div>
+      <button type="button" class="ts1b-rp" id="ts1b-replay"><svg class="i s" aria-hidden="true"><use href="#i-refresh"/></svg>Animate</button>
+    </div>
+  </header>
+
+  <div class="ts1b-st">
+    <div class="card" data-c="ts1b"><div class="stage-in"></div><template>
+      <div class="ts1b-app" data-reveal="flat">
+        <div class="ts1b-ah"><b>Runs</b><span class="ts1b-n">5 agents</span><button type="button" class="pill line sm ts1b-run"><svg class="i s" aria-hidden="true"><use href="#i-play"/></svg>Run again</button></div>
+        <ul class="ts1b-rows" aria-label="Runs"></ul>
+        <div class="ts1b-dk">
+          <div class="ts1b-dh off"><span><span class="num ts1b-cn">0</span> notifications</span><button type="button" class="pill ghost sm ts1b-clear">Clear all</button></div>
+          <div class="ts1b-stk" role="region" aria-label="Notifications"></div>
+        </div>
+        <p class="ts1b-sr ts1b-live" role="status" aria-live="polite"></p>
+        <p class="ts1b-sr ts1b-alert" role="alert"></p>
+      </div>
+    </template></div>
+  </div>
+</main>
+<script src="assets/core.js"></script>
+<script>
+/* ---------- 1B · Deck ---------- */
+DM.PLAYS.add('ts1b');
+DM.def('ts1b', (r, c) => {
+  const app = $('.ts1b-app', r), rowsEl = $('.ts1b-rows', r), stk = $('.ts1b-stk', r), dh = $('.ts1b-dh', r), cn = $('.ts1b-cn', r), live = $('.ts1b-live', r), alertEl = $('.ts1b-alert', r);
+  const style = () => document.documentElement.dataset.style || 'bp';
+  const EASE = () => getComputedStyle(app).getPropertyValue('--dm-ease').trim() || 'ease';
+  const say = (t, loud) => { const el = loud ? alertEl : live; el.textContent = ''; requestAnimationFrame(() => { el.textContent = t; }); };
+  let uid = 0;
+
+  /* ---- the agents and their runs ---- */
+  const RUNS = [
+    { k:'research', agent:'Research agent', task:'Competitor pricing scan', av:'b', icon:'search', busy:'Reading sources…' },
+    { k:'image', agent:'Image agent', task:'Hero picture for the launch', av:'k', icon:'image', busy:'Generating…' },
+    { k:'budget', agent:'Data agent', task:'Backfill of Q3 events', av:'p', icon:'db', busy:'Backfilling…' },
+    { k:'export', agent:'Export agent', task:'Board deck to PDF', av:'t', icon:'file', busy:'Exporting…' },
+    { k:'handoff', agent:'Writer agent', task:'Launch notes', av:'l', icon:'spark', busy:'Writing…' }
+  ];
+  rowsEl.innerHTML = RUNS.map(x => `<li class="ts1b-r" data-k="${x.k}"><span class="av" style="background:var(--dm-av-${x.av});color:var(--dm-av-${x.av}-ink)" aria-hidden="true"><svg class="i"><use href="#i-${x.icon}"/></svg></span><div class="w"><b>${x.agent}</b><span>${x.task}</span></div><span class="ts1b-s"></span></li>`).join('');
+  const row = k => $(`.ts1b-r[data-k="${k}"]`, rowsEl);
+  const status = (k, kind, words) => { const s = $('.ts1b-s', row(k));
+    const h = kind === 'run' ? `<span class="shim">${words}</span>` : kind === 'done' ? `<svg class="i s" aria-hidden="true"><use href="#i-check"/></svg>${words}` : kind === 'warn' ? `<span class="tag warn">${words}</span>` : kind === 'bad' ? `<span class="tag bad">${words}</span>` : words;
+    swap(s, h, true); };
+  const resetRows = () => RUNS.forEach(x => { status(x.k, 'run', x.busy); row(x.k).classList.remove('sel'); });
+  resetRows();
+
+  /* ---- the glyphs ---- */
+  const arcPt = (f, rad) => { const a = Math.PI * (1 - f); return [24 + rad * Math.cos(a), 27 - rad * Math.sin(a)]; };
+  const SATS = [-165, -118, -70, -22, 22, 70, 160].map((a, i) => { const t = a * Math.PI / 180; return { x:24 + 19 * Math.cos(t), y:16 + 11.5 * Math.sin(t), cite:i === 1 || i === 3 || i === 5 }; });
+  const GL = {
+    research:{
+      svg:() => `<svg class="ts1b-g" viewBox="2 0 44 32" aria-hidden="true">${SATS.map(s => `<path class="rl dr" pathLength="1" d="M24 16L${s.x.toFixed(1)} ${s.y.toFixed(1)}"/>`).join('')}${SATS.map(s => `<circle class="sat pp${s.cite ? ' c' : ''}" cx="${s.x.toFixed(1)}" cy="${s.y.toFixed(1)}" r="2.3"/>`).join('')}<circle class="hubc pp" cx="24" cy="16" r="4"/></svg>`,
+      // the hub lands, its spokes reach out one by one, and the cited sources light up in the accent
+      play:g => { const sp = $$('.dr', g), st = $$('.sat', g); $('.hubc', g).classList.add('on');
+        sp.forEach((p, i) => { p.style.transitionDelay = 120 + i * 80 + 'ms'; p.classList.add('on'); });
+        st.forEach((s, i) => { s.style.transitionDelay = 300 + i * 80 + 'ms'; s.classList.add('on'); });
+        setTimeout(() => st.forEach(s => { s.style.transitionDelay = '0ms'; s.classList.contains('c') && s.classList.add('cite'); }), REDUCE ? 0 : 1050); }
+    },
+    image:{
+      svg:id => `<svg class="ts1b-g" viewBox="2 0 44 32" aria-hidden="true"><defs><clipPath id="${id}"><rect class="rv" x="6" y="4" width="36" height="0"/></clipPath></defs><rect x="6" y="4" width="36" height="24" rx="3" fill="var(--dm-chip)"/><g clip-path="url(#${id})"><rect x="6" y="4" width="36" height="24" rx="3" fill="color-mix(in srgb,var(--dm-c1) 26%,var(--dm-surface))"/><circle cx="33" cy="11.5" r="3.6" fill="var(--dm-c4)"/><path d="M6 28v-6.5l9.5-7.5 7 5.5 5-3.5L42 24v4z" fill="var(--dm-c3)"/><path d="M6 28v-2.5l12-5.5 11 5.5V28z" fill="var(--dm-c2)"/></g><rect class="frm" x="6" y="4" width="36" height="24" rx="3"/><line class="scan" x1="6" x2="42" y1="4" y2="4" opacity="0"/></svg>`,
+      // the picture develops under a scan line, top to bottom
+      play:g => { const rv = $('.rv', g), sc = $('.scan', g); sc.setAttribute('opacity', 1);
+        tween(0, 24, 1100, v => { rv.setAttribute('height', v); sc.setAttribute('y1', 4 + v); sc.setAttribute('y2', 4 + v); }, t => t).then(() => sc.animate ? sc.animate([{ opacity:1 }, { opacity:0 }], { duration:240, fill:'forwards' }) : sc.setAttribute('opacity', 0)); }
+    },
+    budget:{
+      svg:() => { const [a1, b1] = arcPt(.83, 11.5), [a2, b2] = arcPt(.83, 20.5);
+        return `<svg class="ts1b-g" viewBox="2 0 44 32" aria-hidden="true"><path class="trk" d="M8 27A16 16 0 0 1 40 27" pathLength="100"/><path class="arc" d="M8 27A16 16 0 0 1 40 27" pathLength="100" stroke-dasharray="0 200"/><line class="cap" x1="${a1.toFixed(2)}" y1="${b1.toFixed(2)}" x2="${a2.toFixed(2)}" y2="${b2.toFixed(2)}"/></svg>`; },
+      // spend sweeps up the scale and stops just short of the cap, in the warning colour
+      play:g => { const a = $('.arc', g); g._v = 0; tween(0, 70, 1000, v => { g._v = v; a.setAttribute('stroke-dasharray', `${v} 200`); }); },
+      // a raised cap re-scales the meter: the same spend now sits well under it
+      calm:g => { const a = $('.arc', g); a.classList.add('calm'); tween(g._v || 70, 47, 900, v => { g._v = v; a.setAttribute('stroke-dasharray', `${v} 200`); }); }
+    },
+    export:{
+      svg:() => `<svg class="ts1b-g" viewBox="2 0 44 32" aria-hidden="true"><rect class="pg" x="13" y="2" width="22" height="28" rx="2.5"/>${[8, 12.5, 17, 21.5, 26].map((y, i) => `<path class="ln" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" d="M17.5 ${y}H${i === 4 ? 25.5 : 30.5}"/>`).join('')}<circle class="brk pp" cx="25.4" cy="17" r="1.7"/><g class="pp okg"><circle class="okc" cx="35" cy="25.5" r="5.5"/><path class="okk" d="M32.6 25.6l1.6 1.6 3-3.1"/></g></svg>`,
+      // the pages are written line by line, and the third breaks off in red where the export failed
+      play:g => { const ln = $$('.ln', g);
+        const go = (i, to, d) => setTimeout(() => { ln[i].style.opacity = 1; ln[i].style.strokeDashoffset = 1 - to; }, REDUCE ? 0 : d);
+        go(0, 1, 100); go(1, 1, 360); go(2, .55, 620);
+        setTimeout(() => { ln[2].classList.add('bad'); $('.brk', g).classList.add('on'); }, REDUCE ? 0 : 900); },
+      retry:g => { const ln = $$('.ln', g); ln[2].classList.remove('bad'); $('.brk', g).classList.remove('on');
+        const go = (i, d) => setTimeout(() => { ln[i].style.opacity = 1; ln[i].style.strokeDashoffset = 0; }, REDUCE ? 0 : d); go(2, 150); go(3, 600); go(4, 1050); },
+      done:g => $('.okg', g).classList.add('on')
+    },
+    handoff:{
+      svg:() => `<svg class="ts1b-g" viewBox="2 0 44 32" aria-hidden="true"><path class="lane" d="M14 16H34"/><circle class="ag" cx="8" cy="16" r="5.5" fill="var(--dm-av-l)"/><circle class="ag b" cx="40" cy="16" r="5.5" fill="var(--dm-av-y)"/><rect class="pk" x="11" y="13.5" width="5" height="5" rx="1.2" fill="var(--dm-av-l)" opacity="0"/></svg>`,
+      // the work leaves the writer in its colour, crosses the lane and lands with the reviewer
+      play:g => { const pk = $('.pk', g), b = $('.ag.b', g); pk.setAttribute('opacity', 1);
+        tween(11, 32, 900, v => pk.setAttribute('x', v), t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2).then(() => { pk.setAttribute('opacity', 0); b.classList.add('pop'); setTimeout(() => b.classList.remove('pop'), 300); }); }
+    }
+  };
+
+  /* ---- what each toast says, and its one action ---- */
+  const NEWS = {
+    research:{ b:'Research done', s:'7 sources read, 3 cited', act:'Open', how:'ghost' },
+    image:{ b:'Image ready', s:'Hero, 1536 × 1024', act:'View', how:'ghost' },
+    budget:{ b:'Backfill near its cap', s:'$16.80 of $20 spent', act:'Raise to $30', how:'warn', tone:'warn' },
+    export:{ b:'Export failed on page 7', s:'A font file is missing', act:'Retry', how:'line', tone:'bad' },
+    handoff:{ b:'Handed to Review agent', s:'Launch notes, 3 questions', act:'Follow', how:'ghost' }
+  };
+
+  /* ---- the deck ---- */
+  let items = [], hov = false, foc = false, demoFan = false, idx = 0;
+  const fanned = () => hov || foc || demoFan;
+  function layout(){
+    const fan = fanned(), n = items.length;
+    const hs = items.map(t => t.offsetHeight);
+    let y = 0, h = 0;
+    // a fanned deck shows the newest toasts that fit under the app's head; older ones wait behind them
+    const room = app.clientHeight - 56 - 16 - 16 - 40;
+    items.slice().reverse().forEach((t, i) => {
+      const k = Math.min(i, 3);
+      if (t._drag) return;
+      if (fan){ const fits = y + hs[n - 1 - i] <= room; t.style.transform = `translateY(${-(fits ? y : Math.max(0, y - hs[n - 1 - i] - 8))}px)`; t.style.opacity = fits ? 1 : 0; t.style.filter = 'none'; if (fits) y += hs[n - 1 - i] + 8; t.classList.remove('under', 'now'); t.inert = !fits; }
+      else { t.style.transform = `translateY(${-k * 10}px) scale(${1 - k * .05})`; t.style.opacity = i > 2 ? 0 : 1 - k * .12; t.style.filter = i && style() === 'soft' ? 'blur(.4px)' : 'none'; t.classList.toggle('under', i > 0); t.inert = i > 0; }
+      t.style.zIndex = 100 - i;
+    });
+    h = !n ? 0 : fan ? y - 8 : hs[n - 1] + Math.min(n - 1, 2) * 10;
+    stk.style.setProperty('--h', h + 'px');
+    cn.textContent = n; dh.classList.toggle('off', n < 2);
+    $('.ts1b-clear', dh).tabIndex = n < 2 ? -1 : 0;
+  }
+  c.on(stk, 'pointerenter', e => { if (e.pointerType === 'mouse'){ hov = true; layout(); } });
+  c.on(stk, 'pointerleave', e => { if (e.pointerType === 'mouse'){ hov = false; layout(); } });
+  c.on($('.ts1b-dk', r), 'focusin', e => { if (!foc && e.target.matches(':focus-visible')){ foc = true; layout(); } });
+  c.on($('.ts1b-dk', r), 'focusout', e => { if (!$('.ts1b-dk', r).contains(e.relatedTarget)){ foc = false; layout(); } });
+
+  function add(k){
+    const n = NEWS[k], id = 'ts1b-c' + (++uid);
+    const t = html(`<div class="ts1b-t" data-k="${k}">${GL[k].svg(id)}<div class="ts1b-tx"><b></b><span></span></div><div class="ts1b-acts"><button type="button" class="pill ${n.how} sm ts1b-a">${n.act}</button><button type="button" class="ib ts1b-x" aria-label="Dismiss" data-tip="Dismiss"><svg class="i s" aria-hidden="true"><use href="#i-x"/></svg></button></div></div>`);
+    $('.ts1b-tx b', t).textContent = n.b; $('.ts1b-tx span', t).textContent = n.s;
+    t.style.transform = 'translateY(28px) scale(.96)'; t.style.opacity = 0; if (style() === 'soft') t.style.filter = 'blur(6px)';
+    // the toasts it covers lose their words at once, so they never show through it as it rises
+    items.forEach(x => { if (!fanned()) x.classList.add('under', 'now'); });
+    stk.appendChild(t); items.push(t);
+    if (items.length > 5){ const old = items.shift(); old.remove(); }
+    $('.ts1b-x', t).addEventListener('click', () => drop(t, 1));
+    $('.ts1b-a', t).addEventListener('click', () => act(t));
+    swipe(t);
+    // a toast that changes height (its action folds away, or its words wrap) moves the ones above it
+    const ro = new ResizeObserver(() => { if (t.isConnected) layout(); }); ro.observe(t); c.offs.push(() => ro.disconnect());
+    requestAnimationFrame(() => requestAnimationFrame(() => { layout(); setTimeout(() => GL[k].play($('.ts1b-g', t)), REDUCE ? 0 : 260); }));
+    const rk = k; status(rk, n.tone === 'warn' ? 'warn' : n.tone === 'bad' ? 'bad' : 'done', n.tone === 'warn' ? 'Needs you' : n.tone === 'bad' ? 'Failed' : 'Done');
+    say(`${n.b}. ${n.s}`, n.tone === 'bad');
+    life(t);
+    return t;
+  }
+  // a toast with nothing left to ask goes by itself after a while; the deck under the pointer or the focus holds them all
+  function life(t){ if (NEWS[t.dataset.k].tone && !t._ok) return; let left = 16000, last = null;
+    c.loop(now => { if (!t.isConnected) return false; if (last !== null && !fanned()) left -= Math.min(100, now - last); last = now; if (left <= 0){ drop(t, 1); return false; } }); }
+  function drop(t, dir){
+    if (!items.includes(t)) return;
+    const front = items[items.length - 1] === t, hadFocus = t.contains(document.activeElement);
+    items = items.filter(x => x !== t); t._drag = false; t.inert = true;
+    const m = new DOMMatrix(getComputedStyle(t).transform);
+    t.style.transition = style() === 'clean' ? 'transform .42s cubic-bezier(.23,1,.32,1),opacity .3s' : 'transform .38s var(--dm-ease),opacity .3s';
+    t.style.transform = `translate(${m.m41 + dir * 140}px,${m.m42}px)`; t.style.opacity = 0;
+    setTimeout(() => t.remove(), 420);
+    layout();
+    // the focus stays in the deck: on the next toast's close, or on the run button when the deck is empty
+    if (hadFocus){ const nx = items[items.length - 1]; (nx ? $('.ts1b-x', nx) : $('.ts1b-run', r)).focus({ preventScroll:true }); }
+    if (front && !items.length) say('No notifications');
+  }
+  function clearAll(){
+    const all = items.slice().reverse(); const hadFocus = $('.ts1b-dk', r).contains(document.activeElement);
+    all.forEach((t, i) => setTimeout(() => drop(t, 1), REDUCE ? 0 : i * 70));
+    if (hadFocus) $('.ts1b-run', r).focus({ preventScroll:true });
+    say('Notifications cleared');
+  }
+  $('.ts1b-clear', r).addEventListener('click', clearAll);
+
+  /* ---- actions: the toast turns into what happens next, in place ---- */
+  const morph = (t, b, s, shim) => { const tb = $('.ts1b-tx b', t), ts = $('.ts1b-tx span', t); tb.classList.toggle('shim', !!shim); swap(tb, b); swap(ts, s); };
+  const quietAct = t => { const a = $('.ts1b-a', t); if (!a) return; a.classList.add('go'); a.disabled = true; const w = a.offsetWidth;
+    if (!REDUCE && a.animate) a.animate([{ width:w + 'px', marginLeft:'0px' }, { width:'0px', marginLeft:'-4px', paddingLeft:'0px', paddingRight:'0px' }], { duration:320, easing:EASE(), fill:'forwards' }).finished.then(() => a.remove(), () => a.remove()); else a.remove(); };
+  function act(t){
+    const k = t.dataset.k, g = $('.ts1b-g', t);
+    if (k === 'budget'){
+      quietAct(t); morph(t, 'Raising the cap', '$16.80 of $30', true); GL.budget.calm(g); status('budget', 'run', 'Backfilling…'); say('Raising the cap to $30');
+      c.later(REDUCE ? 50 : 1500, () => { if (!t.isConnected) return; morph(t, 'Cap raised to $30', 'Backfill running, $16.80 so far'); t._ok = true; life(t); say('Cap raised to $30. The backfill is running'); });
+      return;
+    }
+    if (k === 'export'){
+      quietAct(t); morph(t, 'Exporting again', 'Page 7 of 24', true); GL.export.retry(g); status('export', 'run', 'Exporting…'); say('Exporting again');
+      c.later(REDUCE ? 50 : 1500, () => { if (!t.isConnected) return; GL.export.done(g); morph(t, 'Deck exported', '24 pages, 3.1 MB'); status('export', 'done', 'Done'); t._ok = true; life(t); say('Deck exported. 24 pages'); });
+      return;
+    }
+    // Open, View and Follow take you to the run: its row is picked in the list, and the toast has done its job
+    $$('.ts1b-r', rowsEl).forEach(x => x.classList.toggle('sel', x.dataset.k === k));
+    drop(t, 1);
+  }
+
+  /* ---- swipe: drag a toast sideways to send it away; the others close up ---- */
+  function swipe(t){
+    let x0 = 0, dx = 0, id = null, base = '', tm = 0;
+    t.addEventListener('pointerdown', e => { if (e.button || e.target.closest('button') || t.inert) return; id = e.pointerId; x0 = e.clientX; dx = 0; tm = performance.now(); base = t.style.transform; t._drag = true; t.classList.add('drag'); t.setPointerCapture(id); });
+    t.addEventListener('pointermove', e => { if (e.pointerId !== id) return; dx = e.clientX - x0; const d = dx < 0 ? dx * .35 : dx; t.style.transform = `${base} translateX(${d}px)`; t.style.opacity = Math.max(.3, 1 - Math.max(0, d) / 260); });
+    const end = e => { if (e.pointerId !== id) return; id = null; t.classList.remove('drag'); const v = dx / Math.max(1, performance.now() - tm);
+      if (dx > 90 || (dx > 30 && v > .6)) drop(t, 1); else { t._drag = false; layout(); } };
+    t.addEventListener('pointerup', end); t.addEventListener('pointercancel', end);
+  }
+  // the demo's own swipe: the pointer takes the toast and slides it off
+  async function demoSwipe(s, t){
+    await s.point($('.ts1b-tx', t), false); const hand = $('.hand', r); const base = t.style.transform; t._drag = true; t.classList.add('drag');
+    const hb = hand.style.transform; const m = /translate\(([-\d.]+)px,\s*([-\d.]+)px\)/.exec(hb) || [0, 0, 0];
+    hand.style.transition = 'transform .5s cubic-bezier(.5,0,.3,1)'; hand.classList.add('down');
+    await tween(0, 1, 500, p => { const d = 150 * p * p; t.style.transform = `${base} translateX(${d}px)`; t.style.opacity = 1 - p * .7; hand.style.transform = `translate(${+m[1] + d}px,${+m[2]}px)`; });
+    hand.classList.remove('down'); hand.style.transition = ''; t.classList.remove('drag'); drop(t, 1);
+  }
+
+  c.on(document, 'keydown', e => { if (e.key === 'Escape' && items.length){ const t = items[items.length - 1]; drop(t, 1); } });
+  // Run again: the agents start over and report back one by one
+  let runT = [];
+  function runAll(){ runT.forEach(clearTimeout); runT = []; resetRows(); RUNS.forEach((x, i) => runT.push(setTimeout(() => { if (!c.dead) add(x.k); }, 1400 + i * 1500))); }
+  $('.ts1b-run', r).addEventListener('click', () => { c.mine = true; runAll(); });
+  c.offs.push(() => runT.forEach(clearTimeout));
+
+  /* ---- the demo: five agents report in, the deck fans out, two problems are fixed in place, one is swiped away, then Clear all ---- */
+  c.taken(() => { if (demoFan){ demoFan = false; layout(); } });
+  c.story(async s => {
+    for (const x of RUNS){ await s.beat(x.k === 'research' ? 3 : 2.5); add(x.k); }
+    await s.beat(3);
+    await s.point($('.ts1b-tx', items[items.length - 1]), false); demoFan = true; layout(); await s.beat(3);
+    const ex = items.find(t => t.dataset.k === 'export'); if (ex){ await s.tap($('.ts1b-a', ex)); await s.beat(4.5); }
+    const bu = items.find(t => t.dataset.k === 'budget'); if (bu){ await s.tap($('.ts1b-a', bu)); await s.beat(4.5); }
+    const im = items.find(t => t.dataset.k === 'image'); if (im){ await demoSwipe(s, im); await s.beat(2); }
+    s.away(); demoFan = false; layout(); await s.beat(3);
+    await s.tap($('.ts1b-clear', r)); s.away(); await s.beat(2);
+  });
+});
+
+/* ---------- the page: style, theme and replay ---------- */
+{
+  const d = document.documentElement;
+  const mark = (sel, v) => $$(sel + ' button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v)));
+  mark('#ts1b-style', d.dataset.style || 'bp'); mark('#ts1b-theme', d.dataset.theme === 'dark' ? 'dark' : 'light');
+  const remount = () => { const card = $('[data-c="ts1b"]'); DM.mount(card, true); };
+  seg($('#ts1b-style'), v => { if (v === 'bp') delete d.dataset.style; else d.dataset.style = v; try { localStorage.setItem('dmui-style', v); } catch(e){} remount(); });
+  seg($('#ts1b-theme'), v => { d.dataset.theme = v; try { localStorage.setItem('dmui-theme', v); } catch(e){} });
+  $('#ts1b-replay').addEventListener('click', () => { const card = $('[data-c="ts1b"]'); DM.mount(card, false); });
+}
+</script>
+</body>
+</html>

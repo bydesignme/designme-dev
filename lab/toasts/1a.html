@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Toast 1A · Boomerang · Designme.dev</title>
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<script>
+/* the style and theme: ?style=bp|soft|clean and ?theme=light|dark first (and kept), then what the site last stored; with no
+   style picked it follows the theme: light opens in Soft, dark in Blueprint */
+(function(){ var d = document.documentElement, q = new URLSearchParams(location.search), s = null, t = null;
+  try { var qs = q.get('style'), qt = q.get('theme');
+    if (qs === 'bp' || qs === 'soft' || qs === 'clean') localStorage.setItem('dmui-style', qs);
+    if (qt === 'light' || qt === 'dark') localStorage.setItem('dmui-theme', qt);
+    s = localStorage.getItem('dmui-style'); t = localStorage.getItem('dmui-theme'); } catch(e){}
+  if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  if (s === 'mine') s = 'soft';
+  if (s !== 'bp' && s !== 'soft' && s !== 'clean') s = t === 'dark' ? 'bp' : 'soft';
+  d.setAttribute('data-theme', t);
+  if (s === 'bp') d.removeAttribute('data-style'); else d.setAttribute('data-style', s); })();
+</script>
+<style>
+@font-face{font-family:Inter;font-style:normal;font-weight:400;font-display:swap;src:url(../../fonts/inter-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:Inter;font-style:normal;font-weight:500;font-display:swap;src:url(../../fonts/inter-latin-500-normal.woff2) format('woff2')}
+</style>
+<link rel="stylesheet" href="assets/core.css">
+<style>
+/* ---------- the page ---------- */
+html,body{margin:0;background:var(--dm-page)}
+body{font-family:var(--dm-sans);font-size:14px;line-height:1.5;color:var(--dm-fg);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+:where(.ts1a-lab) button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+:where(.ts1a-lab) :focus-visible{outline:2px solid var(--dm-focus);outline-offset:2px}
+[data-nofv]:focus-visible{outline:none!important}
+.ts1a-sr{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.ts1a-lab{max-width:760px;margin:0 auto;padding:var(--dm-s-8) var(--dm-s-6) 72px}
+.ts1a-h{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:var(--dm-s-4) var(--dm-s-6);padding-bottom:var(--dm-s-5)}
+.ts1a-h h1{margin:0;font-size:14px;font-weight:500;line-height:1.4}
+.ts1a-h h1 span{color:var(--dm-muted);font-weight:400}
+.ts1a-h p{margin:var(--dm-s-1) 0 0;max-width:460px;font-size:13px;line-height:1.55;color:var(--dm-muted);text-wrap:pretty}
+.ts1a-ctl{display:flex;flex-wrap:wrap;align-items:center;gap:var(--dm-s-2)}
+.ts1a-ctl .seg2 button{color:var(--dm-muted)}
+.ts1a-ctl .seg2 button[aria-pressed="true"]{color:var(--dm-fg)}
+.ts1a-rp{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:var(--dm-r-pill);background:var(--dm-chip);font-size:12.5px;color:var(--dm-fg);transition:background var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){.ts1a-rp:hover{background:var(--dm-hover)}}
+.ts1a-rp .i{color:var(--dm-fg2)}
+:root:not([data-style="soft"],[data-style="clean"]) :is(.ts1a-rp,.ts1a-ctl .seg2,.ts1a-ctl .seg2 *){border-radius:0}
+/* the stage: the app sits centred in it */
+.ts1a-st{display:flex;align-items:center;justify-content:center;padding:var(--dm-s-8) var(--dm-s-5);border-radius:var(--dm-r-card);background:var(--dm-stage);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.ts1a-st>.card{width:100%;display:flex;justify-content:center}
+.ts1a-st .stage-in{max-width:720px}
+:root:not([data-style="soft"],[data-style="clean"]) .ts1a-st{border-radius:0;background-image:linear-gradient(var(--dm-grid) 1px,transparent 1px),linear-gradient(90deg,var(--dm-grid) 1px,transparent 1px);background-size:24px 24px;background-position:-1px -1px}
+@media (max-width:640px){
+  .ts1a-lab{padding:var(--dm-s-6) var(--dm-s-4) 56px}
+  /* on a phone the app is the screen: the stage runs to the window's edges */
+  .ts1a-st{margin:0 calc(-1 * var(--dm-s-4));padding:0;border-radius:0;box-shadow:none;background:none}
+}
+
+/* ---------- 1A · Boomerang ----------
+   The Send button lifts off and becomes the toast; the toast's glyph is the message's trip: a dot leaves the draft, flies the
+   arc and lands in the ring. While Undo is open, the arc it flew is the time left, burning back towards the ring. Undo flies
+   the dot home, and the toast flies back into the button it came from, with the draft in the field again */
+.ts1a-app{position:relative;isolation:isolate;overflow:hidden;width:100%;height:468px;display:flex;flex-direction:column;background:var(--dm-surface);border-radius:var(--dm-r-card);box-shadow:var(--dm-shadow);font-size:13px;line-height:1.45}
+.ts1a-ah{flex:none;display:flex;align-items:center;gap:var(--dm-s-2);height:48px;padding:0 var(--dm-s-4);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.ts1a-ah .i{color:var(--dm-muted)}
+.ts1a-ah b{font-weight:500}
+.ts1a-ah .ts1a-n{margin-left:auto;color:var(--dm-muted);font-size:12px}
+:root[data-style="clean"] .ts1a-ah{background:var(--dm-strip);border-bottom-color:var(--dm-hair)}
+/* the thread: newest at the bottom, rows grow in and fold away */
+.ts1a-th{flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;padding:0 var(--dm-s-4) var(--dm-s-4)}
+.ts1a-mw{display:grid;grid-template-rows:1fr}
+.ts1a-mw.new{grid-template-rows:0fr;opacity:0}
+.ts1a-mw{transition:grid-template-rows .5s var(--dm-ease),opacity .35s var(--dm-ease)}
+.ts1a-m{min-height:0;overflow:hidden;display:grid;grid-template-columns:22px minmax(0,1fr);column-gap:var(--dm-s-3);padding-top:var(--dm-s-4)}
+.ts1a-m .av{margin-top:-2px}
+.ts1a-m .av .i{width:12px;height:12px;color:#fff}
+.ts1a-mh{display:flex;align-items:baseline;gap:var(--dm-s-2);line-height:18px}
+.ts1a-mh b{font-weight:500}
+.ts1a-mh span{font-size:12px;color:var(--dm-muted)}
+.ts1a-m p{margin:2px 0 0;color:var(--dm-fg2);text-wrap:pretty}
+/* the composer: a field with the agent's draft, and Send */
+.ts1a-cp{flex:none;margin:0 var(--dm-s-4) var(--dm-s-4);border-radius:var(--dm-r-in);background:var(--dm-surface);box-shadow:inset 0 0 0 1px var(--dm-field-line);transition:box-shadow var(--dm-t-fast)}
+.ts1a-cp:focus-within{box-shadow:inset 0 0 0 1px var(--dm-field-line-strong)}
+.ts1a-ta{display:block;width:100%;box-sizing:border-box;height:62px;padding:12px 12px 0;border:0;background:none;resize:none;outline:none;font:inherit;font-size:13px;line-height:1.45;color:var(--dm-fg)}
+.ts1a-ta::placeholder{color:var(--dm-muted)}
+.ts1a-ta.back{animation:ts1aback .5s var(--dm-ease)}
+@keyframes ts1aback{from{opacity:0}}
+.ts1a-cf{display:flex;align-items:center;gap:var(--dm-s-2);padding:var(--dm-s-2) var(--dm-s-2) var(--dm-s-2) 12px}
+.ts1a-by{display:flex;align-items:center;gap:6px;min-width:0;font-size:12px;color:var(--dm-muted)}
+.ts1a-by span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@container (max-width:400px){.ts1a-to{display:none}}
+.ts1a-by .i{color:var(--dm-av-l)}
+.ts1a-to{margin-left:auto;font-size:12px;color:var(--dm-muted);white-space:nowrap}
+.ts1a-send{gap:6px}
+
+/* the toasts' corner: under the app's head, at its right edge */
+.ts1a-tr{position:absolute;z-index:5;top:calc(48px + var(--dm-s-4));right:var(--dm-s-4);width:min(360px,calc(100% - 2 * var(--dm-s-4)));pointer-events:none}
+.ts1a-t{pointer-events:auto;display:grid;grid-template-columns:52px minmax(0,1fr) auto;align-items:center;column-gap:var(--dm-s-3);padding:var(--dm-s-4);background:var(--dm-raised);border-radius:var(--dm-r-card);box-shadow:var(--dm-shadow-toast);--dm-row:color-mix(in srgb,var(--dm-fg) 5%,transparent)}
+:root[data-style="clean"] .ts1a-t{border-radius:calc(12px * var(--dm-rk-l,var(--dm-rk)))}
+.ts1a-t.ghost{visibility:hidden}
+.ts1a-tx{min-width:0;font-size:13px;line-height:18px}
+.ts1a-tx b{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ts1a-tx span{display:block;font-size:12px;line-height:17px;color:var(--dm-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ts1a-tx .num{font-variant-numeric:tabular-nums}
+.ts1a-acts{display:flex;align-items:center;gap:var(--dm-s-1);margin-right:-6px}
+.ts1a-acts .ib{width:28px;height:28px}
+/* Undo opens and closes in place, easing the words beside it */
+.ts1a-ua{display:grid;grid-template-columns:0fr;transition:grid-template-columns .4s var(--dm-ease)}
+.ts1a-ua.on{grid-template-columns:1fr}
+.ts1a-ua>div{min-width:0;overflow:clip;overflow-clip-margin:4px}
+.ts1a-ua .pill{transition:opacity .25s var(--dm-ease)}
+.ts1a-ua:not(.on) .pill{opacity:0}
+
+/* the glyph: the message's trip */
+.ts1a-g{display:block;width:52px;height:36px;overflow:visible}
+.ts1a-g .trk{fill:none;stroke:var(--dm-rail);stroke-width:1.5;stroke-dasharray:1.5 3;stroke-linecap:round}
+.ts1a-g .trl{fill:none;stroke:var(--dm-accent-mark);stroke-width:2;stroke-linecap:round;opacity:0;transition:stroke .3s}
+.ts1a-g .org{fill:var(--dm-fg2);transition:fill .3s,opacity .3s}
+.ts1a-g .org.gone{fill:var(--dm-rail)}
+.ts1a-g .rng{fill:transparent;stroke:var(--dm-rail);stroke-width:1.5;transform-box:fill-box;transform-origin:center;transition:fill .3s var(--dm-ease),stroke .3s var(--dm-ease),transform .5s cubic-bezier(.3,1.6,.5,1)}
+.ts1a-g .rng.wait{stroke:var(--dm-accent-mark)}
+.ts1a-g .rng.ok{fill:var(--dm-ok-mark);stroke:var(--dm-ok-mark)}
+.ts1a-g .rng.pop{transform:scale(1.22)}
+.ts1a-g .chk{fill:none;stroke:var(--dm-surface);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset .35s var(--dm-ease) .1s}
+.ts1a-g .chk.on{stroke-dashoffset:0}
+.ts1a-g .dot{fill:var(--dm-accent-mark);opacity:0}
+:root:not([data-style="soft"],[data-style="clean"]) .ts1a-g .rng.pop{transform:scale(1.12)}
+
+/* the flight: the button's own fill and words, easing into the toast's card */
+.ts1a-fly{position:absolute;z-index:6;pointer-events:none;background:var(--dm-raised);box-shadow:var(--dm-shadow-toast);overflow:hidden}
+.ts1a-fly>i{position:absolute;inset:0;border-radius:inherit}
+.ts1a-fly>span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12.5px;font-weight:500;white-space:nowrap}
+
+@media (max-width:640px){
+  .ts1a-app{height:520px;border-radius:0;box-shadow:inset 0 1px 0 color-mix(in srgb,var(--dm-line) 50%,transparent),inset 0 -1px 0 color-mix(in srgb,var(--dm-line) 50%,transparent)}
+  .ts1a-tr{left:var(--dm-s-4);width:auto}
+}
+</style>
+</head>
+<body>
+<main class="ts1a-lab">
+  <header class="ts1a-h">
+    <div>
+      <h1>Toast 1A <span>· Boomerang</span></h1>
+      <p>The Send button lifts off and becomes the toast, whose glyph is the message's own trip; while Undo is open the arc it flew burns back as the time left, and Undo flies it home into the button.</p>
+    </div>
+    <div class="ts1a-ctl">
+      <div class="seg2" id="ts1a-style" role="group" aria-label="Style"><button type="button" data-v="bp" aria-pressed="false">Blueprint</button><button type="button" data-v="soft" aria-pressed="true">Soft</button><button type="button" data-v="clean" aria-pressed="false">Clean</button></div>
+      <div class="seg2" id="ts1a-theme" role="group" aria-label="Theme"><button type="button" data-v="light" aria-pressed="true">Light</button><button type="button" data-v="dark" aria-pressed="false">Dark</button></div>
+      <button type="button" class="ts1a-rp" id="ts1a-replay"><svg class="i s" aria-hidden="true"><use href="#i-refresh"/></svg>Animate</button>
+    </div>
+  </header>
+
+  <div class="ts1a-st">
+    <div class="card" data-c="ts1a"><div class="stage-in"></div><template>
+      <div class="ts1a-app" data-reveal="flat">
+        <div class="ts1a-ah"><svg class="i s" aria-hidden="true"><use href="#i-hash"/></svg><b>launch-notes</b><span class="ts1a-n">4 people</span></div>
+        <div class="ts1a-th" aria-label="Messages">
+          <div class="ts1a-mw"><div class="ts1a-m"><span class="av" style="background:var(--dm-av-b)">MK</span><div><div class="ts1a-mh"><b>Mara K.</b><span>9:12</span></div><p>Fixes are in for the pricing page and the table headers.</p></div></div></div>
+          <div class="ts1a-mw"><div class="ts1a-m"><span class="av" style="background:var(--dm-av-y);color:var(--dm-av-y-ink)">JO</span><div><div class="ts1a-mh"><b>Jon O.</b><span>9:20</span></div><p>Can the writer agent draft the launch notes?</p></div></div></div>
+          <div class="ts1a-mw"><div class="ts1a-m"><span class="av" style="background:var(--dm-av-l)" aria-hidden="true"><svg class="i"><use href="#i-spark"/></svg></span><div><div class="ts1a-mh"><b>Writer agent</b><span>9:21</span></div><p>Drafted them in your reply box. Have a look before they go out.</p></div></div></div>
+        </div>
+        <div class="ts1a-cp">
+          <label class="ts1a-sr" for="ts1a-ta">Reply to launch-notes</label>
+          <textarea class="ts1a-ta" id="ts1a-ta" placeholder="Reply to #launch-notes">Launch notes are ready: 3 fixes and 1 new component. Can you check them by 4pm?</textarea>
+          <div class="ts1a-cf">
+            <span class="ts1a-by"><svg class="i s" aria-hidden="true"><use href="#i-spark"/></svg><span>Drafted by Writer agent</span></span>
+            <span class="ts1a-to">To 4 people</span>
+            <button type="button" class="pill primary sm ts1a-send"><svg class="i s" aria-hidden="true"><use href="#i-send"/></svg>Send</button>
+          </div>
+        </div>
+        <div class="ts1a-tr"></div>
+        <p class="ts1a-sr ts1a-live" role="status" aria-live="polite"></p>
+      </div>
+    </template></div>
+  </div>
+</main>
+<script src="assets/core.js"></script>
+<script>
+/* ---------- 1A · Boomerang ---------- */
+DM.PLAYS.add('ts1a');
+DM.def('ts1a', (r, c) => {
+  const app = $('.ts1a-app', r), th = $('.ts1a-th', r), ta = $('.ts1a-ta', r), sendB = $('.ts1a-send', r), region = $('.ts1a-tr', r), live = $('.ts1a-live', r);
+  const WINDOW = 5000;
+  const EASE = () => getComputedStyle(app).getPropertyValue('--dm-ease').trim() || 'ease';
+  const style = () => document.documentElement.dataset.style || 'bp';
+  let state = 'idle', toast = null, msg = null, sentText = '', epoch = 0, hov = false, foc = false, demoHold = false, left = WINDOW;
+  const held = () => hov || foc || demoHold;
+  const say = t => { live.textContent = ''; requestAnimationFrame(() => { live.textContent = t; }); };
+  const busy = () => ['flying', 'unsending', 'undone', 'returning'].includes(state);
+  const updBtn = () => { sendB.disabled = busy() || !ta.value.trim(); };
+  c.on(ta, 'input', updBtn); updBtn();
+  c.on(ta, 'keydown', e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)){ e.preventDefault(); send(); } });
+
+  /* waits that count only while nothing holds the toast (a mouse on it, the focus in it); stale ones end quietly */
+  const hwait = (ms, my, tick) => new Promise((res, rej) => { let last = null, t = ms;
+    c.loop(now => { if (my !== epoch){ rej('stale'); return false; } if (last !== null && !held()) t -= Math.min(100, now - last); last = now;
+      tick && tick(Math.max(0, t)); if (t <= 0){ res(); return false; } }); });
+  const quiet = p => p.catch(e => { if (e !== 'stale' && e !== 'stop') console.error(e); });
+
+  /* ---- the glyph ---- */
+  const GLYPH = `<svg class="ts1a-g" viewBox="2 0 46 32" aria-hidden="true"><path class="trk" d="M6 25C11 9 25 4 34.5 11"/><path class="trl" d="M6 25C11 9 25 4 34.5 11"/><circle class="org" cx="6" cy="25" r="3"/><circle class="rng" cx="40.5" cy="14.5" r="6.5"/><path class="chk" pathLength="1" d="M37.7 14.8l1.9 1.9 3.6-3.7"/><circle class="dot" r="3" cx="6" cy="25"/></svg>`;
+  const G = t => { const s = $('.ts1a-g', t); const p = $('.trl', s); return { p, L:p.getTotalLength(), org:$('.org', s), rng:$('.rng', s), chk:$('.chk', s), dot:$('.dot', s) }; };
+  // the trail drawn from a to b along the arc, as a dash moved along it
+  const trail = (g, a, b) => { const n = Math.max(0, b - a); g.p.style.opacity = n < .4 ? 0 : 1; g.p.style.strokeDasharray = `${n} ${g.L * 2}`; g.p.style.strokeDashoffset = -a; };
+  const dotAt = (g, d) => { const q = g.p.getPointAtLength(Math.max(0, Math.min(g.L, d))); g.dot.setAttribute('cx', q.x); g.dot.setAttribute('cy', q.y); };
+  const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+  /* ---- the toast ---- */
+  function build(){
+    const t = html(`<div class="ts1a-t ghost">${GLYPH}<div class="ts1a-tx"><b class="shim">Sending to 4 people</b><span>#launch-notes</span></div><div class="ts1a-acts"><div class="ts1a-ua"><div><button type="button" class="pill ghost sm ts1a-undo">Undo</button></div></div><button type="button" class="ib ts1a-x" aria-label="Dismiss" data-tip="Dismiss"><svg class="i s" aria-hidden="true"><use href="#i-x"/></svg></button></div></div>`);
+    region.appendChild(t);
+    t.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse'){ hov = true; onHold(); } });
+    t.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse'){ hov = false; onHold(); } });
+    // the keyboard's focus holds it; a click's focus doesn't (the mouse on it already does)
+    t.addEventListener('focusin', e => { if (e.target.matches(':focus-visible')){ foc = true; onHold(); } });
+    t.addEventListener('focusout', e => { if (!t.contains(e.relatedTarget)){ foc = false; onHold(); } });
+    $('.ts1a-undo', t).addEventListener('click', undo);
+    $('.ts1a-x', t).addEventListener('click', () => dismiss());
+    return t;
+  }
+  const words = (b, s, shim) => { if (!toast) return; const tb = $('.ts1a-tx b', toast), ts = $('.ts1a-tx span', toast);
+    tb.classList.toggle('shim', !!shim); if (b !== null) swap(tb, b); if (s !== null) swap(ts, s); };
+  const detail = s => { if (toast) $('.ts1a-tx span', toast).textContent = s; };
+  const undoOpen = on => { if (!toast) return; const u = $('.ts1a-ua', toast); u.classList.toggle('on', on); $('.ts1a-undo', toast).tabIndex = on ? 0 : -1; $('.ts1a-undo', toast).setAttribute('aria-hidden', on ? 'false' : 'true'); };
+  function onHold(){ if (state === 'window') tickText(left); }
+  const tickText = ms => { const s = Math.ceil(ms / 1000); detail(held() ? `Paused, ${s}s to undo` : `${s}s to undo`); };
+
+  /* ---- the flight: from a box to a box, the button's fill fading into the card's ---- */
+  function fly(from, to, out){
+    const ar = app.getBoundingClientRect(), bs = getComputedStyle(sendB);
+    const box = (b, rad) => ({ x:b.left - ar.left, y:b.top - ar.top, w:b.width, h:b.height, rad });
+    const btnBox = box(sendB.getBoundingClientRect(), Math.min(parseFloat(bs.borderTopLeftRadius) || 0, sendB.offsetHeight / 2));
+    const tr = toast.getBoundingClientRect(), tRad = parseFloat(getComputedStyle(toast).borderTopLeftRadius) || 0, toastBox = box(tr, tRad);
+    const A = out ? btnBox : toastBox, B = out ? toastBox : btnBox;
+    if (REDUCE || !app.animate) return Promise.resolve();
+    const sh = html(`<div class="ts1a-fly" aria-hidden="true"><i></i><span>${sendB.innerHTML}</span></div>`), fill = $('i', sh), lab = $('span', sh);
+    fill.style.backgroundColor = bs.backgroundColor; fill.style.backgroundImage = bs.backgroundImage; fill.style.boxShadow = bs.boxShadow; lab.style.color = bs.color;
+    // when the button is the one that is disabled under it, its live look is the primary's: read it before Send went quiet
+    if (sendB._look){ fill.style.backgroundColor = sendB._look.bg; fill.style.backgroundImage = sendB._look.img; fill.style.boxShadow = sendB._look.sh; lab.style.color = sendB._look.fg; }
+    Object.assign(sh.style, { left:A.x + 'px', top:A.y + 'px', width:A.w + 'px', height:A.h + 'px', borderRadius:A.rad + 'px' });
+    app.appendChild(sh);
+    const D = style() === 'clean' ? 720 : style() === 'bp' ? 520 : 660;
+    const o = { duration:D, fill:'forwards' };
+    // two eases, one for each axis, bend the path into an arc: up and out first, then across
+    sh.animate([{ left:A.x + 'px', width:A.w + 'px' }, { left:B.x + 'px', width:B.w + 'px' }], { ...o, easing:out ? 'cubic-bezier(.55,0,.25,1)' : 'cubic-bezier(.3,0,.2,1)' });
+    sh.animate([{ top:A.y + 'px', height:A.h + 'px', borderRadius:A.rad + 'px' }, { top:B.y + 'px', height:B.h + 'px', borderRadius:B.rad + 'px' }], { ...o, easing:out ? 'cubic-bezier(.2,.7,.2,1)' : 'cubic-bezier(.6,0,.4,1)' });
+    sh.animate(out ? [{ transform:'none' }, { transform:'scale(1.03)', offset:.45 }, { transform:'none' }] : [{ transform:'none' }, { transform:'scale(.98)', offset:.5 }, { transform:'none' }], { duration:D, easing:'ease-in-out' });
+    fill.animate(out ? [{ opacity:1 }, { opacity:1, offset:.42 }, { opacity:0, offset:.78 }, { opacity:0 }] : [{ opacity:0 }, { opacity:0, offset:.4 }, { opacity:1, offset:.88 }, { opacity:1 }], { ...o, easing:'linear' });
+    lab.animate(out ? [{ opacity:1 }, { opacity:0, offset:.25 }, { opacity:0 }] : [{ opacity:0 }, { opacity:0, offset:.72 }, { opacity:1 }], { ...o, easing:'linear' });
+    return sh.getAnimations()[0].finished.then(() => sh, () => sh);
+  }
+  // the toast's pieces follow it in, one after another
+  const settleIn = t => { t.classList.remove('ghost'); if (REDUCE){ t.animate([{ opacity:0 }, { opacity:1 }], 200); return; }
+    [...t.children].forEach((el, i) => el.animate([{ opacity:0, transform:'translateY(4px)' }, { opacity:1, transform:'none' }], { duration:style() === 'clean' ? 560 : 420, delay:i * 50, easing:EASE(), fill:'backwards' })); };
+
+  /* ---- the message in the thread ---- */
+  function addMsg(text){
+    const m = html(`<div class="ts1a-mw new"><div class="ts1a-m"><span class="av" style="background:var(--dm-av-m);color:var(--dm-av-m-ink)">SR</span><div><div class="ts1a-mh"><b>Sam R.</b><span class="shim">Sending…</span></div><p></p></div></div></div>`);
+    $('p', m).textContent = text; th.appendChild(m); void m.offsetHeight; m.classList.remove('new');
+    // a long thread drops its oldest rows once they have gone past the top
+    const rows = $$('.ts1a-mw', th); if (rows.length > 6) rows[0].remove();
+    return m;
+  }
+  const msgStatus = (m, t, shim) => { if (!m) return; const s = $('.ts1a-mh span', m); s.classList.toggle('shim', !!shim); swap(s, t); };
+  const dropMsg = m => { if (!m) return; m.classList.add('new'); setTimeout(() => m.remove(), 520); };
+
+  /* ---- the states ---- */
+  async function send(){
+    const text = ta.value.trim(); if (!text || busy()) return;
+    // a toast still up gives way: its message goes out as it is
+    if (toast) commitNow();
+    const my = ++epoch; hov = foc = false;
+    const bs = getComputedStyle(sendB); sendB._look = { bg:bs.backgroundColor, img:bs.backgroundImage, sh:bs.boxShadow, fg:bs.color };
+    sentText = text; state = 'flying';
+    toast = build(); const t = toast;
+    const sh = fly(null, null, true);
+    ta.value = ''; updBtn(); msg = addMsg(text); say('Sending to 4 people');
+    const s = await sh; if (s) s.remove(); if (my !== epoch) return;
+    settleIn(t); state = 'sending'; updBtn();
+    quiet(trip(my));
+  }
+  async function trip(my){
+    const g = G(toast);
+    g.dot.style.opacity = 1; g.org.classList.add('gone'); g.rng.classList.add('wait');
+    await tween(0, g.L, REDUCE ? 1 : 1300, v => { if (my !== epoch) return; dotAt(g, v); trail(g, 0, v); }, ease);
+    if (my !== epoch) return;
+    g.dot.style.opacity = 0; g.rng.classList.remove('wait'); g.rng.classList.add('ok', 'pop'); g.chk.classList.add('on');
+    setTimeout(() => g.rng.classList.remove('pop'), 260);
+    msgStatus(msg, 'Sent'); state = 'window'; left = WINDOW;
+    words('Sent to 4 people', null, false); tickText(left); undoOpen(true); say('Sent to 4 people. You can undo for 5 seconds');
+    // the arc it flew is the time left: it burns back towards the ring
+    await hwait(WINDOW, my, ms => { left = ms; if (toast) trail(g, g.L * (1 - ms / WINDOW), g.L); tickText(ms); });
+    deliver(my);
+  }
+  function deliver(my){
+    state = 'delivered'; msgStatus(msg, '9:24'); undoOpen(false);
+    if (toast){ const g = G(toast); trail(g, g.L, g.L); words('Delivered to 4 people', '#launch-notes, just now', false); }
+    say('Delivered to 4 people');
+    quiet(hwait(3200, my).then(() => dismiss()));
+  }
+  function commitNow(){ ++epoch; if (state === 'window' || state === 'sending'){ msgStatus(msg, '9:24'); } const t = toast; toast = null; state = 'idle'; if (t) leave(t); }
+  async function undo(){
+    if (state !== 'window') return;
+    const my = ++epoch, g = G(toast);
+    // the draft is coming back to the field, and so does the focus
+    if (toast.contains(document.activeElement)) ta.focus({ preventScroll:true });
+    state = 'unsending'; updBtn(); undoOpen(false); words('Taking it back', '#launch-notes', true); msgStatus(msg, 'Unsending…', true); say('Taking the message back');
+    g.rng.classList.remove('ok'); g.chk.classList.remove('on'); g.dot.style.opacity = 1;
+    await tween(g.L, 0, REDUCE ? 1 : 1000, v => { if (my !== epoch) return; dotAt(g, v); trail(g, v, g.L); }, ease);
+    if (my !== epoch) return;
+    trail(g, 0, 0); g.dot.style.opacity = 0; g.org.classList.remove('gone');
+    g.org.animate && !REDUCE && g.org.animate([{ transform:'scale(1.6)' }, { transform:'none' }], { duration:420, easing:'cubic-bezier(.3,1.6,.5,1)', composite:'replace' });
+    dropMsg(msg); msg = null; state = 'undone'; words('Back in your draft', 'No one saw it', false); say('Undone. The message is back in your draft');
+    await quiet(hwait(1500, my)); if (my !== epoch) return;
+    goHome(my);
+  }
+  async function goHome(my){
+    state = 'returning'; const t = toast;
+    // its words fade first, then the empty card flies home
+    if (!REDUCE && t.animate){ await Promise.all([...t.children].map(el => el.animate([{ opacity:1 }, { opacity:0 }], { duration:160, easing:'ease-out', fill:'forwards' }).finished.catch(() => {}))); if (my !== epoch) return; }
+    const sh = fly(null, null, false); t.classList.add('ghost');
+    const s = await sh; if (my !== epoch){ if (s) s.remove(); return; }
+    t.remove(); if (toast === t) toast = null;
+    restore(); if (s) s.remove(); state = 'idle'; updBtn();
+  }
+  const restore = () => { if (!ta.value.trim()){ ta.value = sentText; ta.classList.remove('back'); void ta.offsetWidth; ta.classList.add('back'); } };
+  function leave(t){
+    if (REDUCE || !t.animate){ t.remove(); return; }
+    t.animate([{ opacity:1, transform:'none' }, { opacity:0, transform:'translateY(-6px) scale(.98)' }], { duration:style() === 'clean' ? 340 : 260, easing:EASE(), fill:'forwards' }).finished.then(() => t.remove(), () => t.remove());
+  }
+  function dismiss(){
+    const t = toast; if (!t) return;
+    const was = state; ++epoch; toast = null; hov = foc = false;
+    // closing never loses what the toast was about: a message still in its window goes out, an undone one goes back to the field
+    if (was === 'window' || was === 'sending'){ msgStatus(msg, '9:24'); say('Delivered to 4 people'); }
+    if (was === 'unsending'){ dropMsg(msg); msg = null; }
+    if (was === 'unsending' || was === 'undone' || was === 'returning') restore();
+    state = 'idle'; updBtn(); leave(t);
+  }
+  sendB.addEventListener('click', send);
+  c.on(document, 'keydown', e => { if (e.key === 'Escape' && toast && (r.contains(document.activeElement) || r.matches(':hover') || document.activeElement === document.body)){ const back = toast.contains(document.activeElement); dismiss(); if (back) ta.focus(); } });
+  c.offs.push(() => { ++epoch; });
+
+  /* ---- the demo: send and undo (the toast flies home), then send and let the window run out, resting on it a moment ---- */
+  c.taken(() => { if (demoHold){ demoHold = false; onHold(); } });
+  c.story(async s => {
+    await s.beat(3);
+    await s.tap(sendB); s.away();
+    await s.until(() => state === 'window'); await s.beat(3);
+    await s.tap($('.ts1a-undo', toast)); s.away();
+    await s.until(() => state === 'idle'); await s.beat(2);
+    await s.tap(sendB); s.away();
+    await s.until(() => state === 'window'); await s.beat(2);
+    await s.point($('.ts1a-tx', toast), false); demoHold = true; onHold(); await s.beat(3);
+    demoHold = false; onHold(); s.away();
+    await s.until(() => state === 'idle' && !toast); await s.beat(1);
+  });
+});
+
+/* ---------- the page: style, theme and replay ---------- */
+{
+  const d = document.documentElement;
+  const mark = (sel, v) => $$(sel + ' button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === v)));
+  mark('#ts1a-style', d.dataset.style || 'bp'); mark('#ts1a-theme', d.dataset.theme === 'dark' ? 'dark' : 'light');
+  const remount = () => { const card = $('[data-c="ts1a"]'); DM.mount(card, true); };
+  seg($('#ts1a-style'), v => { if (v === 'bp') delete d.dataset.style; else d.dataset.style = v; try { localStorage.setItem('dmui-style', v); } catch(e){} remount(); });
+  seg($('#ts1a-theme'), v => { d.dataset.theme = v; try { localStorage.setItem('dmui-theme', v); } catch(e){} });
+  $('#ts1a-replay').addEventListener('click', () => { const card = $('[data-c="ts1a"]'); DM.mount(card, false); });
+}
+</script>
+</body>
+</html>
