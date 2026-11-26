@@ -1084,16 +1084,17 @@ function renderAt(t){
   msgIn.style.background = `color-mix(in srgb,${S1.bg} ${((1 - sw) * 100).toFixed(1)}%,transparent)`;
   // the warning's words keep counting with the share until the pour stops
   $('#mpct').textContent = t < B.squeeze ? Math.max(85, pct) : Math.round(FULL / LIMIT * 100);
-  const wOut = eInCubic(clamp(sw / .5)), oIn = eOutExpo(clamp((sw - .4) / .6));
+  const wOut = eInCubic(clamp(sw / .45)), oIn = eOutExpo(clamp((sw - .5) / .5));
   const mw = $('#mw'), mo = $('#mo'), mtw = $('#mtw'), mto = $('#mto');
   mw.style.opacity = (1 - wOut).toFixed(3); mw.style.transform = `scale(${(1 - .4 * wOut).toFixed(3)})`;
   mtw.style.opacity = (1 - wOut).toFixed(3); mtw.style.transform = `translateY(${(-5 * wOut).toFixed(2)}px)`; mtw.style.filter = wOut > 0 && wOut < 1 ? `blur(${(wOut * 2.5).toFixed(2)}px)` : '';
-  mo.style.opacity = oIn.toFixed(3); mo.style.transform = `scale(${(.6 + .4 * eOutBack(clamp((sw - .4) / .6), 2.4)).toFixed(3)})`;
+  mo.style.opacity = oIn.toFixed(3); mo.style.transform = `scale(${(.6 + .4 * eOutBack(clamp((sw - .5) / .5), 2.4)).toFixed(3)})`;
   mto.style.opacity = oIn.toFixed(3); mto.style.transform = `translateY(${((1 - oIn) * 6).toFixed(2)}px)`; mto.style.filter = oIn > 0 && oIn < 1 ? `blur(${((1 - oIn) * 3).toFixed(2)}px)` : '';
 
   // ---------- the foot: Compact in the warning tint while the warning shows; the status while it runs; then Undo ----------
   const busy = t >= B.press + .05 && t < B.swap + .1;
-  go.classList.toggle('dm-warn', hk > .5 && t < B.press + .05); go.classList.toggle('dm-line', !(hk > .5 && t < B.press + .05));
+  const warnGo = hk > .5 && t < B.press + .2;
+  go.classList.toggle('dm-warn', warnGo); go.classList.toggle('dm-line', !warnGo);
   const goOut = eInCubic(seg(t, B.press + .05, .14)), runIn = eOutCubic(seg(t, B.press + .3, .3)), runOut = eInCubic(seg(t, B.swap, .14)), undoIn = eOutCubic(seg(t, B.swap + .2, .4));
   go.style.opacity = (1 - goOut).toFixed(3);
   run.style.opacity = (runIn * (1 - runOut)).toFixed(3); run.style.transform = `translateY(${((1 - runIn) * 4 - runOut * 4).toFixed(2)}px)`;
@@ -1105,7 +1106,7 @@ function renderAt(t){
   const shim = (100 - 260 * ((t % 2.2) / 2.2)).toFixed(2) + '% 0';
   $('#runs').style.backgroundPosition = shim; $('#h2s').style.backgroundPosition = shim;
   // the hint's three lines
-  const h1o = eInCubic(seg(t, B.press + .05, .2)), h2i = eOutCubic(seg(t, B.press + .15, .35)), h2o = eInCubic(seg(t, B.swap, .2)), h3i = eOutCubic(seg(t, B.swap + .15, .4));
+  const h1o = eInCubic(seg(t, B.press + .05, .14)), h2i = eOutCubic(seg(t, B.press + .2, .35)), h2o = eInCubic(seg(t, B.swap, .16)), h3i = eOutCubic(seg(t, B.swap + .17, .4));
   const hset = (el, o, y) => { el.style.opacity = o.toFixed(3); el.style.transform = `translateY(${y.toFixed(2)}px)`; };
   hset($('#h1'), 1 - h1o, -4 * h1o); hset($('#h2'), h2i * (1 - h2o), 5 * (1 - h2i) - 4 * h2o); hset($('#h3'), h3i, 5 * (1 - h3i));
 
@@ -1183,7 +1184,7 @@ function renderAt(t){
   cur.style.transform = `translate(${(c.x - 2.5).toFixed(2)}px,${(c.y - 2).toFixed(2)}px) scale(${press.toFixed(4)})`;
   // hover from where the pointer is
   const gr = { x: offsetIn(rt).x + rt.offsetWidth - BTN.go, y: offsetIn(rt).y + yPop };
-  const over = c.x >= gr.x && c.x <= gr.x + BTN.go && c.y >= gr.y && c.y <= gr.y + 28 && t < B.press + .05;
+  const over = c.x >= gr.x && c.x <= gr.x + BTN.go && c.y >= gr.y && c.y <= gr.y + 28 && t < B.press + .2;
   go.classList.toggle('hov', over);
   const ru = seg(t, B.press, .4);
   rip.style.opacity = (ru > 0 && ru < 1 ? (1 - ru) * .9 : 0).toFixed(3);
