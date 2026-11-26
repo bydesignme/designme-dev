@@ -254,10 +254,13 @@ const jsonld = [
          scale; one family of corners (r1 for fields and rows, r2 for tiles, windows and frames, r3 for backdrops): Soft's
          plush and squircled, Clean's a little rounder and never squircled, and Blueprint keeps the site's rounded page
          around its square components, as on a component page; one easing, Clean's */
-      .lp{--lp-sec:160px;--lp-ease:cubic-bezier(.23,1,.32,1);--lp-r1:10px;--lp-r2:16px;--lp-r3:28px;--lp-hair:color-mix(in srgb,var(--pg-line2) 50%,transparent)}
-      :root[data-style="clean"] .lp{--lp-r2:22px;--lp-r3:30px}
+      /* one radius for every panel and card (owner, 26 Nov: "all these have different corner radius on clean"): the big stages
+         (--lp-r3) take the components' own card radius (--dm-r-card), as do the windows (--lp-r2), so a demo card inside a stage
+         and the stage share one corner */
+      .lp{--lp-sec:160px;--lp-ease:cubic-bezier(.23,1,.32,1);--lp-r1:10px;--lp-r2:16px;--lp-r3:var(--lp-r2);--lp-hair:color-mix(in srgb,var(--pg-line2) 50%,transparent)}
+      :root[data-style="clean"] .lp{--lp-r1:var(--dm-r-in);--lp-r2:var(--dm-r-card)}
       @supports (corner-shape:squircle){
-        :root[data-style="soft"] .lp{--lp-r1:16px;--lp-r2:26px;--lp-r3:44px}
+        :root[data-style="soft"] .lp{--lp-r1:16px;--lp-r2:var(--dm-r-card)}
         :root[data-style="soft"] :is(.lp-bg,.lp-win,.lp-show,.lp-show .dvf-dev:not(.mobile),.lp-wt,.lp-wt img,.lp-line,.lp-prompt pre){corner-shape:squircle}
       }
       .lp-in{max-width:1464px;margin:0 auto;padding-inline:32px}
