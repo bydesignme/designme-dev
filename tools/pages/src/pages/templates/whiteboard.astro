@@ -1,0 +1,146 @@
+---
+// /templates/whiteboard: a shared whiteboard made of the library's own components, as a showcase of what they build. A dotted
+// canvas that pans and zooms, sticky notes in the core tag colours, shapes, connectors, pen strokes and text; a tool rail whose
+// tools all work (with keys), undo and redo, zoom and fit; the people on the board with their live cursors, and following one
+// of them; comments on the board; and an agent that groups the notes into labelled frames with a summary, or tidies a rough
+// sketch into shapes, as a run you can stop or undo. A short scripted session plays on its own until the visitor does
+// anything. Everything is drawn with the components' own classes and tokens, from their installed CSS, so the screen follows
+// Blueprint, Soft and Clean, light and dark, with the site's switches. The library's parts are Canvas toolbar (the tool rail
+// and the view bar), Comments (the threads), Command palette (Ask the agent), Status pill (the agent's run), Context menu (an
+// item's menu), Tooltip and Toast. Its data and interactions are one script (src/templates/whiteboard/wb.js); the layout and
+// the parts the library doesn't have yet (wbx-*) are src/templates/whiteboard/wb.css.
+import fs from 'node:fs';
+import path from 'node:path';
+import Page from '../../layouts/Page.astro';
+import { ROOT, COMPONENTS } from '../../lib/data.mjs';
+
+// the components the screen is made of, by their registry name: each one's installed CSS is on the page
+const USES = ['canvas-toolbar', 'comments', 'command-palette', 'status-pill', 'context-menu', 'tooltip', 'toast'];
+// the screen's type scale, as in the other templates: every component's text snaps to the nearest step at or below it (11, 12,
+// 13, 14px), nothing under 11px
+const SCALE = v => v >= 15 ? v : v >= 13.75 ? 14 : v >= 12.75 ? 13 : v >= 11.75 ? 12 : 11;
+const snap = t => t.replace(/font-size:\s*([\d.]+)px/g, (m, v) => 'font-size:' + SCALE(+v) + 'px');
+const css = snap(USES.map(reg => {
+  const c = COMPONENTS.find(x => x.reg === reg);
+  if (!c) throw new Error('whiteboard: no component called ' + reg);
+  return `/* ${c.title} */\n` + c.html.css;
+}).join('\n'));
+const DIR = path.join(ROOT, 'tools/pages/src/templates/whiteboard');
+const APP_CSS = snap(fs.readFileSync(path.join(DIR, 'wb.css'), 'utf8'));
+const APP_JS = fs.readFileSync(path.join(DIR, 'wb.js'), 'utf8');
+const title = 'Whiteboard template, free, open source | Designme.dev';
+const description = 'A free collaborative whiteboard template: sticky notes, shapes, connectors and a pen on a dotted canvas, live cursors, follow mode, comments and an agent that groups notes into themes.';
+const I = (n, c = 's') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
+// the tools on the rail: what each one is, its icon, its name and its key
+const TOOLS = [['select', 'cursor', 'Select', 'V'], ['hand', 'hand', 'Pan', 'H'], null, ['sticky', 'wb-note', 'Sticky note', 'S'],
+  ['pen', 'wb-pen', 'Pen', 'P'], ['eraser', 'wb-eraser', 'Eraser', 'E'], ['shape', 'wb-shape', 'Shape', 'R'], ['arrow', 'wb-arrow', 'Connector', 'A'],
+  ['text', 'wb-text', 'Text', 'T'], null, ['comment', 'comment', 'Comment', 'C']];
+// the icons the shared sprite doesn't have, drawn like its own: 24px, strokes only
+const SPRITE = `<svg style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
+<symbol id="i-wb-note" viewBox="0 0 24 24"><path d="M5 4.5h14a.5.5 0 0 1 .5.5v9.5l-5 5H5a.5.5 0 0 1-.5-.5V5a.5.5 0 0 1 .5-.5z"/><path d="M19.5 14.5H15a.5.5 0 0 0-.5.5v4.5"/></symbol>
+<symbol id="i-wb-pen" viewBox="0 0 24 24"><path d="M15.5 4.5l4 4L9 19l-4.8.8L5 15z"/><path d="M13.5 6.5l4 4"/></symbol>
+<symbol id="i-wb-eraser" viewBox="0 0 24 24"><path d="M9 19.5l-4.3-4.3a1.4 1.4 0 0 1 0-2l8.5-8.5a1.4 1.4 0 0 1 2 0l4.1 4.1a1.4 1.4 0 0 1 0 2L12 18.1"/><path d="M9 19.5h10.5M8.6 9.3l6.1 6.1"/></symbol>
+<symbol id="i-wb-shape" viewBox="0 0 24 24"><rect x="4" y="9.5" width="10.5" height="10.5" rx="1.5"/><path d="M10.2 9.5a5.5 5.5 0 1 1 4.3 6.5"/></symbol>
+<symbol id="i-wb-rect" viewBox="0 0 24 24"><rect x="4.5" y="6" width="15" height="12" rx="2"/></symbol>
+<symbol id="i-wb-ellipse" viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="8" ry="6.5"/></symbol>
+<symbol id="i-wb-diamond" viewBox="0 0 24 24"><path d="M12 4l8 8-8 8-8-8z"/></symbol>
+<symbol id="i-wb-arrow" viewBox="0 0 24 24"><path d="M5 19L18.5 5.5M11 5.5h7.5V13"/></symbol>
+<symbol id="i-wb-text" viewBox="0 0 24 24"><path d="M5.5 7V5h13v2M12 5v14M9 19h6"/></symbol>
+<symbol id="i-wb-board" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h4M8 12.5h8M8 16h5"/></symbol>
+<symbol id="i-wb-front" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M15 9V5.5a1.5 1.5 0 0 0-1.5-1.5h-8A1.5 1.5 0 0 0 4 5.5v8A1.5 1.5 0 0 0 5.5 15H9"/></symbol>
+</svg>`;
+---
+<Page title={title} description={description} path="/templates/whiteboard" app>
+  <Fragment slot="head">
+    <link rel="stylesheet" href="/components/assets/core.css">
+    <style is:inline set:html={css} />
+    <style is:inline set:html={APP_CSS} />
+  </Fragment>
+  <span slot="top" class="wb-name">Whiteboard template<button type="button" class="wb-replay" aria-label="Replay the demo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3M4.5 4.5v3.5H8"/></svg><span>Replay demo</span></button></span>
+
+  <div class="wb" data-c="whiteboard" data-tool="select">
+    <Fragment set:html={SPRITE} />
+    <!-- the board's bar: its name and save state, the people on it (a click follows one), the agent, comments, the menu, Share -->
+    <header class="wb-top">
+      <span class="wb-tile" aria-hidden="true"><Fragment set:html={I('wb-board')} /></span>
+      <div class="wb-title">
+        <h1 class="wb-h1" id="content" tabindex="-1"><button class="wb-h1b" aria-label="Rename the board" data-tip="Rename"><span class="wb-h1t">Interview synthesis</span></button></h1>
+        <span class="wb-saved muted" aria-live="polite"></span>
+      </div>
+      <span class="wb-sp"></span>
+      <div class="wb-people" role="group" aria-label="People on this board"></div>
+      <span class="wb-tsep" aria-hidden="true"></span>
+      <button class="pill ghost sm wb-ask" aria-label="Ask the agent" aria-keyshortcuts="Control+K Meta+K" data-tip="Ask the agent" data-tip-k="⌘K"><Fragment set:html={I('spark', 'xs')} /><span class="t">Ask the agent</span></button>
+      <button class="pill ghost sm wb-cmts" data-pop="#wb-p-cmts" data-pop-align="end" aria-haspopup="dialog" aria-label="Comments" data-tip="Comments"><Fragment set:html={I('comment', 'xs')} /><span class="num wb-cn"></span></button>
+      <button class="ib wb-more" data-pop="#wb-p-more" data-pop-align="end" aria-haspopup="menu" aria-label="Board menu" data-tip="More"><Fragment set:html={I('more')} /></button>
+      <button class="pill primary sm wb-share" aria-label="Share the board"><Fragment set:html={I('link', 'xs')} /><span class="t">Share</span></button>
+    </header>
+
+    <div class="wb-body">
+      <!-- the canvas: the board's world (frames, then the ink, then notes, shapes and text), and over it what stays one size at
+           any zoom (the selection, the box a drag draws, comment pins and the other people's cursors) -->
+      <div class="wb-cv" tabindex="0" role="application" aria-roledescription="whiteboard" aria-label="Board" aria-describedby="wb-help">
+        <div class="wb-world"><div class="wb-frames"></div><svg class="wb-ink" aria-hidden="true"></svg><div class="wb-items"></div></div>
+        <div class="wb-over">
+          <div class="wbx-sel" hidden><i data-h="nw"></i><i data-h="ne"></i><i data-h="sw"></i><i data-h="se"></i></div>
+          <div class="wbx-mq" hidden></div>
+          <div class="wb-pins"></div>
+          <div class="wb-curs" aria-hidden="true"></div>
+        </div>
+        <span class="wb-sr" id="wb-help">V selects, H pans, S adds a sticky note, P draws, E erases, R draws a shape, A connects two items, T adds text and C adds a comment. Double-click a note to write on it. The arrow keys move what is selected, or the view. Plus and minus zoom, Shift 1 fits the board and Command Z undoes.</span>
+      </div>
+
+      <!-- over the top of the canvas: whose view you follow, and the agent's run (Status pill) -->
+      <div class="wb-stack">
+        <div class="wbx-follow" role="status" hidden></div>
+        <div class="spl wb-run" hidden><div class="spl-pill" role="status" aria-live="polite"><div class="spl-in"></div></div></div>
+      </div>
+
+      <!-- the tools: Canvas toolbar's buttons, as a rail on the left (a bar along the bottom on phones) -->
+      <div class="ctb-bar wb-rail" role="toolbar" aria-label="Tools" aria-orientation="vertical">
+        <div class="ctb-tools wb-tools" role="radiogroup" aria-label="Tool">
+          {TOOLS.map(t => t ? <button class="ctb-b" role="radio" aria-checked={t[0] === 'select' ? 'true' : 'false'} tabindex={t[0] === 'select' ? 0 : -1} data-t={t[0]} aria-label={t[2]} aria-keyshortcuts={t[3]} data-tip={t[2]} data-tip-k={t[3]}><Fragment set:html={I(t[1])} /></button> : <span class="ctb-sep" aria-hidden="true"></span>)}
+        </div>
+      </div>
+      <!-- a tool's options beside it: the sticky note's colour, the pen's ink, the shape -->
+      <div class="wbx-opts" role="radiogroup" hidden></div>
+
+      <!-- the view: undo and redo, zoom and fit, as Canvas toolbar's bar -->
+      <div class="ctb-bar wb-view" role="toolbar" aria-label="View">
+        <button class="ctb-b wb-undo" aria-label="Undo" aria-keyshortcuts="Control+Z Meta+Z" data-tip="Undo" data-tip-k="⌘Z" aria-disabled="true"><Fragment set:html={I('undo')} /></button>
+        <button class="ctb-b wb-redo" aria-label="Redo" aria-keyshortcuts="Control+Shift+Z Meta+Shift+Z" data-tip="Redo" data-tip-k="⇧⌘Z" aria-disabled="true"><Fragment set:html={I('redo')} /></button>
+        <span class="ctb-sep" aria-hidden="true"></span>
+        <button class="ctb-b wb-zo" aria-label="Zoom out" data-tip="Zoom out" data-tip-k="−"><Fragment set:html={I('minus')} /></button>
+        <button class="ctb-z num wb-zl" aria-label="Zoom to 100%" data-tip="Zoom to 100%" data-tip-k="⇧0">100%</button>
+        <button class="ctb-b wb-zi" aria-label="Zoom in" data-tip="Zoom in" data-tip-k="+"><Fragment set:html={I('plus')} /></button>
+        <span class="ctb-sep wb-fsep" aria-hidden="true"></span>
+        <button class="ctb-b wb-fit" aria-label="Fit the board to the screen" data-tip="Fit to screen" data-tip-k="⇧1"><Fragment set:html={I('fit')} /></button>
+      </div>
+
+      <!-- a comment thread, opened from its pin: Comments -->
+      <div class="wb-thread" hidden></div>
+      <div class="wb-toasts" aria-live="polite"></div>
+    </div>
+
+    <!-- menus: the shared core opens each from its button (data-pop); an item's menu opens where it was right-clicked -->
+    <div class="pop wb-pop" id="wb-p-more" role="menu" aria-label="Board menu">
+      <button class="mi" role="menuitemcheckbox" aria-checked="true" data-a="dots"><Fragment set:html={I('grid')} /><span>Show dots</span><span class="ck"><Fragment set:html={I('check', 'xs')} /></span></button>
+      <button class="mi" role="menuitem" data-a="all" data-close><Fragment set:html={I('cursor')} /><span>Select all</span><span class="r">⌘A</span></button>
+      <button class="mi" role="menuitem" data-a="fit" data-close><Fragment set:html={I('fit')} /><span>Fit to screen</span><span class="r">⇧1</span></button>
+      <div class="sep" role="separator"></div>
+      <button class="mi" role="menuitem" data-a="replay" data-close><Fragment set:html={I('refresh')} /><span>Replay the demo</span></button>
+    </div>
+    <div class="pop wb-pop wbx-cl" id="wb-p-cmts" role="dialog" aria-label="Comments"></div>
+    <div class="pop wb-pop cxm-pop wb-ctx" role="menu" aria-label="Item actions"></div>
+
+    <!-- Ask the agent: the Command palette, over the board -->
+    <div class="wb-over-d wb-cmd" hidden><div class="cpl panel" role="dialog" aria-label="Ask the agent"><div class="cpl-in"><Fragment set:html={I('spark')} /><input class="cpl-q" placeholder="Ask the agent, or find a tool" aria-label="Ask the agent, or find a tool" spellcheck="false" autocomplete="off"><span class="kbd">esc</span></div><div class="cpl-list" role="listbox" aria-label="Results"></div><div class="cpl-f muted"><span><span class="kbd">↑</span><span class="kbd">↓</span> move</span><span><span class="kbd">↵</span> run</span><span class="cpl-st"></span></div></div></div>
+
+    <div class="wb-sr" id="wb-live" role="status" aria-live="polite"></div>
+  </div>
+
+  <Fragment slot="end">
+    <script is:inline src="/components/assets/core.js"></script>
+    <script is:inline set:html={APP_JS} />
+  </Fragment>
+</Page>

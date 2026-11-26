@@ -1,0 +1,256 @@
+/* Whiteboard template: the layout around the components, and the parts the library doesn't have yet. Every colour, radius and
+   space is a component token (--dm-*), so the screen follows Blueprint, Soft and Clean, light and dark. The library's parts
+   are their own classes: Canvas toolbar (the tool rail and the view bar, .ctb-bar and .ctb-b), Comments (a thread, .cmx),
+   Command palette (Ask the agent, .cpl), Status pill (the agent's run, .spl), Context menu (an item's menu, .cxm-pop), Toast
+   (.tst-t) and the core's avatars, tags, tooltips and menus.
+   The parts the library doesn't have yet are prefixed wbx- and self-contained, so each could be promoted to a component:
+     wbx-note, wbx-text, wbx-shape, wbx-frame, wbx-ink, wbx-arr   what sits on the board
+     wbx-sel                                                   the selection, with its handles
+     wbx-mq                                                    the box a drag draws to select
+     wbx-cur                                                   another person's cursor with their name, and the agent's
+     wbx-follow                                                whose view you are following, with Stop
+     wbx-face                                                  a person in the bar (a click follows them)
+     wbx-pin                                                   a comment's pin on the board
+     wbx-opts, wbx-sw                                          a tool's options beside it: colours and shapes
+   Blueprint is the page with no data-style, so its overrides are :root:not([data-style="soft"],[data-style="clean"]). Hover
+   styles are only for a mouse (hover:hover and pointer:fine). Motion uses the library's tokens (--dm-t, --dm-t-fast,
+   --dm-ease); reduced motion turns it off. */
+
+/* ---------- the page: the app fills the window under the site's header ---------- */
+.pg-app{display:block;height:calc(100dvh - var(--pg-head));overflow:hidden}
+.pg-app + .pg-foot{display:none}
+.pg-top .pg-top-in{max-width:none}
+.wb-name{display:inline-flex;align-items:center;gap:var(--dm-s-3);margin-left:var(--dm-s-3);font-size:13px;color:var(--pg-muted);white-space:nowrap}
+.wb-replay{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border:0;border-radius:999px;background:none;font:inherit;font-size:13px;color:var(--pg-muted);cursor:pointer;transition:background .2s,color .2s}
+.wb-replay svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+@media (hover:hover) and (pointer:fine){.wb-replay:hover{background:var(--pg-soft,rgba(0,0,0,.04));color:var(--pg-fg,inherit)}}
+@media (max-width:640px){.wb-name{display:none}}
+/* the site's smiley button would sit over the app's own controls */
+body:has(.wb) .dmf{display:none}
+
+/* ---------- the app ---------- */
+.wb[data-c]{--wb-hair:color-mix(in srgb,var(--dm-line) 50%,transparent);--wb-cv:var(--dm-stage);--wb-dot:color-mix(in srgb,var(--dm-fg) 13%,transparent);
+  /* a note's shadow: soft and layered, from outside only */
+  --wb-ns:0 0 0 1px rgba(0,0,0,.02),0 1px 2px rgba(0,0,0,.05),0 4px 10px -4px rgba(0,0,0,.08);
+  position:relative;width:100%;max-width:none;height:100%;display:flex;flex-direction:column;overflow:hidden;background:var(--dm-surface);color:var(--dm-fg);font-size:13px;text-align:left}
+:root[data-style="clean"] .wb[data-c]{--wb-ns:0 0 0 1px rgba(0,0,0,.035),0 1px 1px rgba(0,0,0,.02),0 2px 10px -4px rgba(0,0,0,.06)}
+:root[data-theme="dark"] .wb[data-c]{--wb-dot:color-mix(in srgb,var(--dm-fg) 11%,transparent);--wb-ns:0 0 0 1px rgba(255,255,255,.04),0 1px 2px rgba(0,0,0,.2),0 6px 14px -6px rgba(0,0,0,.3)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .wb[data-c]{--wb-dot:color-mix(in srgb,var(--dm-fg) 11%,transparent);--wb-ns:0 0 0 1px rgba(255,255,255,.04),0 1px 2px rgba(0,0,0,.2),0 6px 14px -6px rgba(0,0,0,.3)}}
+:root:not([data-style="soft"],[data-style="clean"]) .wb[data-c]{--wb-ns:0 0 0 1px color-mix(in srgb,var(--dm-line-strong) 35%,transparent)}
+:where(.wb) :where(h1,h2,h3,p,ul){margin:0;font:inherit}
+.wb .muted{color:var(--dm-muted)}
+.wb-sp{flex:1}
+.wb-sr{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+/* ---------- the board's bar ---------- */
+.wb-top{flex:none;position:relative;z-index:20;display:flex;align-items:center;gap:var(--dm-s-2);height:56px;padding:0 var(--dm-s-4);background:var(--dm-surface);border-bottom:1px solid var(--wb-hair)}
+.wb-tile{width:28px;height:28px;flex:none;display:grid;place-items:center;border-radius:var(--dm-r-sm);background:var(--dm-pb-bg);color:var(--dm-pb)}
+.wb-tile .i{color:inherit}
+.wb-title{display:flex;align-items:center;gap:var(--dm-s-2);min-width:0;flex:0 1 auto}
+.wb-h1{display:flex;min-width:0;font-size:14px;font-weight:500;letter-spacing:-.01em;outline:0}
+.wb-h1b{display:block;flex:0 1 auto;min-width:0;max-width:300px;height:30px;padding:0 6px;border-radius:var(--dm-r-sm);font:inherit;color:inherit;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:background var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){.wb-h1b:hover{background:var(--dm-row)}}
+.wb-h1i{width:240px;max-width:100%;height:30px;padding:0 6px;border:0;outline:0;border-radius:var(--dm-r-field);background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent);font:inherit;font-size:14px;font-weight:500;color:var(--dm-fg)}
+.wb-saved{display:inline-flex;align-items:center;gap:5px;font-size:12px;white-space:nowrap}
+.wb-saved .i{color:var(--dm-muted)}
+.wb-saved .spin{width:10px;height:10px}
+.wb-people{display:flex;align-items:center;padding-left:6px}
+.wbx-face{position:relative;width:28px;height:28px;margin-left:-4px;border-radius:50%;display:grid;place-items:center;transition:transform var(--dm-t-fast) var(--dm-ease)}
+.wbx-face .av{width:28px;height:28px;font-size:11px;box-shadow:0 0 0 2px var(--dm-surface);transition:box-shadow var(--dm-t-fast) var(--dm-ease)}
+/* the person you follow: a ring in their own colour round their face */
+.wbx-face[aria-pressed="true"]{z-index:2}
+.wbx-face[aria-pressed="true"] .av{box-shadow:0 0 0 2px var(--dm-surface),0 0 0 3.5px var(--wb-pc,var(--dm-fg2))}
+.wbx-face[data-who="AR"]{--wb-pc:var(--dm-av-b)}.wbx-face[data-who="JO"]{--wb-pc:var(--dm-av-k)}.wbx-face[data-who="SL"]{--wb-pc:var(--dm-av-m)}
+@media (hover:hover) and (pointer:fine){.wbx-face:hover{z-index:3}}
+.wbx-more{display:none;margin-left:6px;font-size:12px;color:var(--dm-muted)}
+.wb-tsep{width:1px;height:16px;margin:0 var(--dm-s-1);background:var(--dm-line);flex:none}
+.wb-ask{color:var(--dm-fg2)}
+.wb-ask .i{color:var(--dm-accent-fg,var(--dm-accent))}
+.wb-cmts .num:empty{display:none}
+/* the bar's buttons side by side are one height: the small pills' 28px */
+.wb-top>.ib{width:28px;height:28px;color:var(--dm-fg2)}
+
+/* ---------- the canvas ---------- */
+.wb-body{position:relative;flex:1;min-height:0}
+.wb-cv{position:absolute;inset:0;overflow:hidden;outline:0;user-select:none;-webkit-user-select:none;touch-action:none;cursor:default;
+  background-color:var(--wb-cv);background-image:radial-gradient(circle,var(--wb-dot) 1.1px,transparent 1.6px)}
+.wb-cv.nodots{background-image:none}
+/* in the homepage's frame, a finger scrolls the page until it taps the board */
+:root[data-embed] .wb-cv:not(.engaged){touch-action:pan-y}
+.wb-cv:focus-visible:not([data-nofv]){box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--dm-field-line-strong) 60%,transparent)}
+.wb[data-tool="hand"] .wb-cv,.wb-cv.space{cursor:grab}
+.wb .wb-cv.pan{cursor:grabbing}
+.wb:is([data-tool="pen"],[data-tool="shape"],[data-tool="arrow"],[data-tool="sticky"],[data-tool="comment"],[data-tool="eraser"]) .wb-cv:not(.space){cursor:crosshair}
+.wb[data-tool="text"] .wb-cv:not(.space){cursor:text}
+/* following someone: the canvas is edged in their colour */
+.wb-body.fol .wb-cv::after{content:"";position:absolute;inset:0;z-index:4;box-shadow:inset 0 0 0 2px var(--wb-fc);pointer-events:none}
+.wb-world{position:absolute;left:0;top:0;transform-origin:0 0}
+.wb-frames,.wb-items{position:absolute;left:0;top:0}
+.wb-ink{position:absolute;left:0;top:0;width:1px;height:1px;overflow:visible;pointer-events:none}
+.wb-it{position:absolute;left:0;top:0;transform-origin:center}
+/* the agent moving notes into their frames: they glide there */
+.wb-cv.glide .wb-it,.wb-cv.glide .wbx-pin{transition:transform .64s var(--dm-ease)}
+
+/* ---------- what sits on the board ---------- */
+.wbx-note{display:flex;padding:12px 14px;border-radius:calc(6px * var(--dm-rk));box-shadow:var(--wb-ns);
+  /* the tag's tint, lifted towards its avatar colour so a note reads as a vivid sticky, its words in the text colour */
+  background:color-mix(in srgb,var(--wb-nc,var(--dm-av-y)) var(--wb-nm,34%),var(--wb-note,var(--dm-py-bg)))}
+:root[data-theme="dark"] .wbx-note{--wb-nm:22%}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .wbx-note{--wb-nm:22%}}
+.wbx-note .tx,.wbx-text .tx,.wbx-shape .tx{width:100%;outline:0;font-size:13px;line-height:1.4;color:var(--dm-fg);white-space:pre-wrap;overflow-wrap:anywhere}
+.wbx-note .tx{overflow:hidden}
+.wbx-text .tx{padding:2px 0;line-height:1.45}
+.wbx-text.big .tx{font-size:14px;font-weight:500}
+.wbx-shape{display:grid;place-items:center;padding:8px 12px}
+.wbx-shape svg{position:absolute;inset:0;overflow:visible}
+.wbx-shape path{fill:var(--dm-surface);stroke:var(--dm-fg2);stroke-width:1.5}
+.wbx-shape .tx{position:relative;text-align:center}
+.wbx-frame{border-radius:var(--dm-r-card);background:color-mix(in srgb,var(--dm-fg) 2.5%,transparent);box-shadow:inset 0 0 0 1px var(--wb-hair);pointer-events:none}
+.wbx-frame .tag{position:absolute;left:20px;top:18px;pointer-events:auto}
+.wb-it.edit .tx{cursor:text;user-select:text;-webkit-user-select:text}
+.wbx-note .tx:empty::before{content:"Write something";color:var(--dm-muted)}
+.wbx-text .tx:empty::before{content:"Type here";color:var(--dm-muted)}
+.wbx-ink .ln{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.wbx-arr .ln{fill:none;stroke:var(--dm-fg2);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+/* the item a connector will end on, while it is drawn */
+.wb-it.aim{box-shadow:0 0 0 2px var(--dm-accent-mark),var(--wb-ns)}
+
+/* ---------- over the canvas: the selection, the drag box, pins and cursors ---------- */
+.wb-over{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.wbx-sel{position:absolute;left:0;top:0;border-radius:calc(8px * var(--dm-rk));box-shadow:0 0 0 1.5px var(--dm-accent-mark)}
+.wbx-sel i{display:none;position:absolute;width:10px;height:10px;border-radius:calc(2px * var(--dm-rk));background:var(--dm-surface);box-shadow:0 0 0 1.5px var(--dm-accent-mark);pointer-events:auto}
+.wbx-sel i::after{content:"";position:absolute;inset:-6px}
+.wbx-sel.one i{display:block}
+.wbx-sel [data-h="nw"]{left:-5px;top:-5px;cursor:nwse-resize}.wbx-sel [data-h="ne"]{right:-5px;top:-5px;cursor:nesw-resize}
+.wbx-sel [data-h="sw"]{left:-5px;bottom:-5px;cursor:nesw-resize}.wbx-sel [data-h="se"]{right:-5px;bottom:-5px;cursor:nwse-resize}
+@media (pointer:coarse){.wbx-sel i::after{inset:-14px}}
+.wbx-mq{position:absolute;left:0;top:0;box-shadow:inset 0 0 0 1px var(--dm-accent-mark);background:color-mix(in srgb,var(--dm-accent) 8%,transparent)}
+.wbx-pin{position:absolute;left:0;top:0;width:30px;height:30px;margin-top:-30px;padding:3px;display:grid;place-items:center;border-radius:999px 999px 999px calc(4px * var(--dm-rk));background:var(--dm-raised);box-shadow:var(--dm-shadow);pointer-events:auto;transition:box-shadow var(--dm-t-fast) var(--dm-ease)}
+.wbx-pin .av{width:24px;height:24px;font-size:10px}
+.wbx-pin[aria-expanded="true"]{box-shadow:0 0 0 1.5px color-mix(in srgb,var(--dm-field-line-strong) 70%,transparent),var(--dm-shadow)}
+@media (hover:hover) and (pointer:fine){.wbx-pin:hover{box-shadow:var(--dm-shadow-pop)}}
+.wbx-cur{position:absolute;left:0;top:0;opacity:0;transition:opacity .2s var(--dm-ease);--wb-cc:var(--dm-accent);--wb-ci:var(--dm-on-accent)}
+.wbx-cur.on{opacity:1}
+.wbx-cur svg{position:absolute;left:-2px;top:-1px;width:18px;height:18px;overflow:visible}
+.wbx-cur svg path{fill:var(--wb-cc);stroke:var(--dm-surface);stroke-width:1.3;stroke-linejoin:round}
+.wbx-cur .nm{position:absolute;left:13px;top:17px;display:inline-flex;align-items:center;gap:4px;height:20px;padding:0 8px;border-radius:999px;background:var(--wb-cc);color:var(--wb-ci);font-size:12px;font-weight:500;line-height:20px;white-space:nowrap}
+.wbx-cur .nm .i{color:inherit}
+
+/* ---------- over the top of the canvas: following someone, and the agent's run ---------- */
+.wb-stack{position:absolute;left:50%;top:var(--dm-s-3);z-index:15;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:var(--dm-s-2);max-width:calc(100% - 24px);pointer-events:none}
+.wb-stack>*{pointer-events:auto;max-width:100%}
+.wbx-follow{display:flex;align-items:center;gap:var(--dm-s-2);height:40px;padding:0 6px 0 8px;border-radius:var(--dm-r-pill);background:var(--dm-raised);box-shadow:var(--dm-shadow-pop);font-size:13px;white-space:nowrap;animation:wbin var(--dm-t) var(--dm-ease)}
+.wbx-follow .av{width:24px;height:24px;font-size:10px}
+.wbx-follow .t{min-width:0;overflow:hidden;text-overflow:ellipsis;color:var(--dm-fg2)}
+.wbx-follow b{font-weight:500;color:var(--dm-fg)}
+.wbx-follow .pill{margin-left:var(--dm-s-1)}
+@keyframes wbin{from{opacity:0;transform:translateY(-6px)}}
+.wb-run .spl-pill{box-shadow:var(--dm-shadow-pop)}
+.wb-run .spl-in .ib{width:28px;height:28px;margin-left:-2px}
+
+/* ---------- the tools: Canvas toolbar's bar as a rail ---------- */
+.ctb-bar.wb-rail{left:var(--dm-s-3);top:50%;bottom:auto;transform:translateY(-50%);flex-direction:column;z-index:12}
+.wb-rail .wb-tools{flex-direction:column;align-items:center}
+.wb-rail .ctb-sep{width:16px;height:1px;margin:var(--dm-s-1) auto}
+/* Clean's selected tool is its one selected fill, neutral, never a hue */
+:root[data-style="clean"] .wb .ctb-b[aria-checked="true"]{background:var(--dm-row-on);color:var(--dm-fg)}
+@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .wb .ctb-b[aria-checked="true"]:hover{background:var(--dm-row-on);color:var(--dm-fg)}}
+.wbx-opts{position:absolute;left:60px;top:0;z-index:12;display:flex;flex-direction:column;gap:2px;padding:var(--dm-s-1);border-radius:var(--dm-r-pill);background:var(--dm-raised);box-shadow:var(--dm-shadow-pop);animation:wbopt var(--dm-t-fast) var(--dm-ease)}
+@keyframes wbopt{from{opacity:0;transform:translateX(-4px)}}
+.wbx-sw{width:32px;height:32px;flex:none;display:grid;place-items:center;border-radius:var(--dm-r-pill);color:var(--dm-fg2);transition:background var(--dm-t-fast),box-shadow var(--dm-t-fast)}
+.wbx-sw i{width:18px;height:18px;border-radius:50%;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-fg) 14%,transparent)}
+@media (hover:hover) and (pointer:fine){.wbx-sw:hover{background:var(--dm-row)}}
+/* the picked colour or shape: a quiet grey ring, no hue */
+.wbx-sw[aria-checked="true"]{box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--dm-field-line-strong) 70%,transparent);color:var(--dm-fg)}
+:root[data-style="clean"] .wbx-sw[aria-checked="true"]{box-shadow:none;background:var(--dm-row-on)}
+
+/* ---------- the view: undo, redo, zoom and fit ---------- */
+.ctb-bar.wb-view{left:auto;right:var(--dm-s-3);bottom:var(--dm-s-3);transform:none;z-index:12}
+
+/* ---------- a comment thread, beside its pin ---------- */
+.wb-thread{position:absolute;left:0;top:0;z-index:30;width:320px;animation:wbin var(--dm-t) var(--dm-ease)}
+.wb-thread .cmx{width:100%;box-shadow:var(--dm-shadow-pop)}
+.wb-thread .cmx-h{gap:var(--dm-s-2)}
+.wb-thread .cmx-h b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wb-thread .cmx-h .wbx-thx{margin-right:-6px}
+
+/* ---------- menus ---------- */
+.wb-pop{min-width:220px}
+.wb-pop .mi .r,.wb-pop .mi .ck{margin-left:auto}
+.wb-pop .mi .r{color:var(--dm-muted);font-size:12px}
+.wb-pop .mi[aria-checked="false"] .ck{visibility:hidden}
+.wb-ctx{position:absolute;width:220px;z-index:60}
+.wbx-cc{display:flex;gap:2px;padding:2px var(--dm-s-1)}
+.wbx-cc .wbx-sw{width:28px;height:28px}
+.wbx-cc .wbx-sw i{width:16px;height:16px}
+.wbx-cl{width:320px;max-width:calc(100vw - 16px);padding:var(--dm-s-2)}
+.wbx-clh{display:flex;align-items:baseline;gap:var(--dm-s-2);padding:var(--dm-s-2) var(--dm-s-2) var(--dm-s-2)}
+.wbx-clh b{font-weight:500;font-size:13px}
+.wbx-cls{display:flex;flex-direction:column;gap:2px;max-height:320px;overflow-y:auto}
+.wbx-cr.mi{align-items:flex-start;height:auto;padding:var(--dm-s-2);gap:10px;white-space:normal}
+.wbx-cr .av{width:24px;height:24px;font-size:10px;flex:none}
+.wbx-cr .t{display:flex;flex-direction:column;gap:2px;min-width:0;line-height:1.35}
+.wbx-cr .n{display:flex;align-items:baseline;gap:6px}
+.wbx-cr .n b{font-weight:500}
+.wbx-cr .n .muted,.wbx-cr .d{font-size:12px}
+.wbx-cle{padding:var(--dm-s-2) var(--dm-s-2) var(--dm-s-3);font-size:13px}
+
+/* ---------- Ask the agent: the palette over the board ---------- */
+.wb-over-d{position:absolute;inset:0;z-index:70;display:flex;justify-content:center;align-items:flex-start;padding:88px var(--dm-s-4) var(--dm-s-4);background:color-mix(in srgb,var(--dm-page) 60%,transparent);animation:wbfade var(--dm-t-fast) var(--dm-ease)}
+.wb-over-d[hidden]{display:none}
+.wb-over-d .cpl{width:100%;max-width:560px;animation:wbpop var(--dm-t) var(--dm-ease) backwards}
+.wb-over-d.out{pointer-events:none;animation:wbfadeout var(--dm-t-fast) var(--dm-ease) both}
+.wb-over-d.out .cpl{animation:wbpopout var(--dm-t-fast) var(--dm-ease) both}
+.wb-cmd .cpl-list{height:auto;max-height:min(380px,calc(100dvh - var(--pg-head) - 220px))}
+.wb-cmd .cpl-in>.i{color:var(--dm-accent-fg,var(--dm-accent))}
+.wb-cmd .cpl-i[aria-disabled="true"]{color:var(--dm-dis);cursor:not-allowed}
+.wb-cmd .cpl-i[aria-disabled="true"] :is(.ic,.h){color:var(--dm-dis)}
+@keyframes wbfade{from{opacity:0}}
+@keyframes wbfadeout{to{opacity:0}}
+@keyframes wbpop{from{opacity:0;transform:translateY(6px) scale(.98)}}
+@keyframes wbpopout{to{opacity:0;transform:translateY(6px) scale(.98)}}
+:root:not([data-style="soft"],[data-style="clean"]) .wb-over-d .cpl{animation-name:wbpopbp}
+@keyframes wbpopbp{from{opacity:0;transform:translateY(4px)}}
+
+/* ---------- toasts ---------- */
+.wb-toasts{position:absolute;right:var(--dm-s-4);bottom:64px;z-index:40;display:flex;flex-direction:column;align-items:flex-end;gap:var(--dm-s-2);width:min(360px,calc(100% - 32px));pointer-events:none}
+.wb-toasts .tst-t{pointer-events:auto}
+
+/* the demo's pointer, over everything */
+.wbx-hand{z-index:100}
+
+/* ---------- Blueprint: square, flat and lined ---------- */
+:root:not([data-style="soft"],[data-style="clean"]) .wbx-note{border-radius:2px}
+:root:not([data-style="soft"],[data-style="clean"]) .wbx-sel{border-radius:0}
+:root:not([data-style="soft"],[data-style="clean"]) :is(.wbx-cur .nm,.wbx-sel i){border-radius:2px}
+:root:not([data-style="soft"],[data-style="clean"]) .wbx-frame{background:none;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line-strong) 45%,transparent)}
+
+/* ---------- phones: the tools along the bottom, the bar condensed ---------- */
+@media (max-width:640px){
+  .wb-top{gap:6px;height:52px;padding:0 var(--dm-s-3)}
+  .wb-tile,.wb-tsep,.wb-saved>span:not(.spin),.wb-ask .t,.wb-share .t{display:none}
+  .wb-h1b{max-width:none;padding:0 6px;margin-left:-6px}
+  .wb-ask,.wb-share{width:28px;padding:0}
+  .wb-cmts{padding:0 8px}
+  .wbx-face[data-who="SL"]{display:none}
+  .wbx-more{display:inline}
+  .ctb-bar.wb-rail{left:50%;top:auto;bottom:var(--dm-s-2);transform:translateX(-50%);flex-direction:row;max-width:calc(100% - 16px)}
+  .wb-rail .wb-tools{flex-direction:row}
+  .wb-rail .ctb-sep{width:1px;height:16px;margin:0 2px}
+  .wbx-opts{left:50%!important;top:auto!important;bottom:60px;transform:translateX(-50%);flex-direction:row;animation:none}
+  .ctb-bar.wb-view{top:var(--dm-s-2);right:var(--dm-s-2);bottom:auto}
+  .wb-view :is(.wb-zo,.wb-zl,.wb-zi,.wb-fsep){display:none}
+  .wb-stack{top:60px}
+  .wb-thread{left:var(--dm-s-2)!important;right:var(--dm-s-2);top:auto!important;bottom:60px;width:auto}
+  .wb-toasts{right:var(--dm-s-2);bottom:60px;width:calc(100% - 16px)}
+  .wb-over-d{padding:var(--dm-s-4) var(--dm-s-2)}
+}
+@media (max-width:380px){
+  .wb-rail .ctb-b{width:30px;height:30px}
+  .wb-rail .ctb-sep{margin:0 1px}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .wb-cv.glide .wb-it,.wb-cv.glide .wbx-pin,.wbx-cur,.wbx-face,.wbx-face .av,.wbx-pin,.wbx-sw,.wb-h1b{transition:none!important}
+  .wbx-follow,.wb-thread,.wbx-opts,.wb-over-d,.wb-over-d .cpl,.wb-over-d.out,.wb-over-d.out .cpl{animation:none!important}
+}
