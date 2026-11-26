@@ -194,7 +194,7 @@ export function InlineTextDiff({ title, parts, decisions, defaultDecisions = {},
   // the toolbar keeps the last edit's note while it fades out
   const last = useRef<TextEdit | undefined>(undefined); if (open) last.current = open;
   // the toolbar opens under the edit's last line, or over its first when the page (or a box that clips it) has no room
-  // below; inside a scaled preview the offsets are divided by its scale
+  // below and more above; inside a scaled preview the offsets are divided by its scale
   useLayoutEffect(() => {
     const r = root.current, b = bar.current, el = cur ? chunks.current.get(cur) : null; if (!r || !b || !el) return;
     const rb = r.getBoundingClientRect(), k = rb.width / r.offsetWidth || 1, rs = el.getClientRects(), cr = rs[rs.length - 1] ?? el.getBoundingClientRect(), c0 = rs[0] ?? cr;
@@ -203,7 +203,7 @@ export function InlineTextDiff({ title, parts, decisions, defaultDecisions = {},
       if (getComputedStyle(a).overflowY === 'visible') continue;
       const ar = a.getBoundingClientRect(); top = Math.max(top, ar.top); bottom = Math.min(bottom, ar.bottom);
     }
-    const h = b.offsetHeight * k, up = cr.bottom + 6 + h > bottom - 8 && c0.top - 6 - h >= top + 8;
+    const need = 6 + b.offsetHeight * k, below = bottom - 8 - cr.bottom, above = c0.top - top - 8, up = below < need && (above >= need || above > below);
     setAt({ left: Math.max(12, Math.min(((up ? c0 : cr).left - rb.left) / k, r.offsetWidth - b.offsetWidth - 12)), top: up ? (c0.top - rb.top) / k - 6 - b.offsetHeight : (cr.bottom - rb.top) / k + 6, up });
   }, [cur]);
   // Enter or Space opens an edit's toolbar with the focus on Accept, as a dialog takes the focus; Escape brings it back

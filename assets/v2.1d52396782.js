@@ -273,13 +273,20 @@ function grow(el){
    Timing: --grow-t (.55s; an .mx-grow box takes the motion pieces' --t-in × 1.4); 0s only follows, as reduced motion does.
    The offset is --grow-d on the box, which a foot marked .mx-foot rides, so it stays on the box's bottom edge */
 const GROW_SIZING = /^(all|height|min-height|max-height|block-size|min-block-size|max-block-size|grid-template-rows|grid-auto-rows|margin|margin-top|margin-bottom|margin-block(-start|-end)?|padding|padding-top|padding-bottom|padding-block(-start|-end)?|gap|row-gap|line-height|font-size|flex|flex-basis|flex-grow|border-width|border-top-width|border-bottom-width)$/;
+// sizingIn(): 0 when nothing inside w eases a size, 2 when something does, 1 when what does has only just started (still
+// pending, or less than a frame in), so it has not moved the content yet: a change in that frame was made at once
 function sizingIn(w){
+  let r = 0;
   for (const a of w.getAnimations({ subtree:true })){
     if (a.playState === 'finished' || a.playState === 'idle' || !a.effect || a.effect.pseudoElement) continue;
+    // (an element taken out of the flow, like a positioned underline growing, changes no height round it)
+    const tg = a.effect.target; if (tg && /^(absolute|fixed)$/.test(getComputedStyle(tg).position)) continue;
     const ps = typeof a.transitionProperty === 'string' ? [a.transitionProperty] : a.effect.getKeyframes ? a.effect.getKeyframes().flatMap(k => Object.keys(k)) : [];
-    if (ps.some(p => GROW_SIZING.test(p.replace(/[A-Z]/g, ch => '-' + ch.toLowerCase())))) return true;
+    if (!ps.some(p => GROW_SIZING.test(p.replace(/[A-Z]/g, ch => '-' + ch.toLowerCase())))) continue;
+    const ct = a.pending ? 0 : +a.currentTime - ((a.effect.getTiming && a.effect.getTiming().delay) || 0);
+    if (ct > 8) return 2; r = 1;
   }
-  return false;
+  return r;
 }
 function growFit(el, w){
   let H = null, d = 0, v = 0, raf = 0, last = 0;
@@ -305,7 +312,11 @@ function growFit(el, w){
     // a change made at once keeps the height on screen and springs from it; a content's own easing is followed as it goes.
     // While it eases, a step far from its speed (a line emptied at once as a fold opens) is a change made at once on top of it
     let jump = dh; if (dt > 50) vc = null;
-    if (sizingIn(w)){ const e = vc === null ? 0 : dh - vc * dt; jump = Math.abs(e) > Math.max(4, Math.abs(vc * dt)) ? e : 0; vc = (dh - jump) / (vc === null ? 1000 / 60 : dt); }
+    // (an easing that starts in the same frame as a change made at once, a row added as a fold starts to close, has not moved
+    // yet: the whole step is the change, and the easing is measured from the next frame. Taking that first step for the
+    // easing's own speed sent the card the wrong way and kept it growing while its content shrank)
+    const sz = sizingIn(w);
+    if (sz === 2){ const e = vc === null ? 0 : dh - vc * dt; jump = Math.abs(e) > Math.max(4, Math.abs(vc * dt)) ? e : 0; vc = (dh - jump) / (vc === null ? 1000 / 60 : dt); }
     else vc = null;
     if (jump){ d -= jump; if (!raf){ last = t; raf = requestAnimationFrame(step); } }
     put();
@@ -797,6 +808,8 @@ function popRoom(btn){
     if (getComputedStyle(a).overflowY === 'visible') continue;
     const r = a.getBoundingClientRect(); top = Math.max(top, r.top); bottom = Math.min(bottom, r.bottom);
   }
+  // a homepage bento card (.lp-bc) is a fixed-height tile that doesn't clip: a pop stays inside it as it would in a stage
+  const bc = btn.closest('.lp-bc'); if (bc){ const r = bc.getBoundingClientRect(); top = Math.max(top, r.top); bottom = Math.min(bottom, r.bottom); }
   return { top, bottom };
 }
 function placePop(btn, pop){
@@ -2991,7 +3004,7 @@ DM.def('permission-gate', (r, c) => {
   });
 });
 /* ---------- the sections' components, loaded the first time a section comes near (DEF_PARTS in build.js) ---------- */
-const PARTS = {"files":{"s-status":"/assets/v2-status.fd9efe7c91.js","s-review":"/assets/v2-review.bc0956cfd6.js","s-data":"/assets/v2-data.dfd10576d6.js","s-workspace":"/assets/v2-workspace.bfe41fa668.js","s-dates":"/assets/v2-dates.ca471b0cff.js"},"of":{"status-pill":"s-status","step-loader":"s-status","thinking-states":"s-status","reasoning-trail":"s-status","thinking":"s-status","context-meter":"s-status","toast":"s-status","toast-stack":"s-status","agent-run-timeline":"s-status","decision-prompt":"s-review","plan-review":"s-review","inline-text-diff":"s-review","source-stack":"s-data","terminal-stream":"s-data","citation-hover":"s-data","command-palette":"s-workspace","file-explorer":"s-workspace","run-drawer":"s-workspace","memory-panel":"s-workspace","tool-connections":"s-workspace","knowledge-sources":"s-workspace","scheduled-runs":"s-workspace","event-calendar":"s-dates","web-search":"s-status"},"all":[]};
+const PARTS = {"files":{"s-status":"/assets/v2-status.c2336118e5.js","s-review":"/assets/v2-review.7b21ccf7c5.js","s-data":"/assets/v2-data.dfd10576d6.js","s-workspace":"/assets/v2-workspace.c065b8851e.js","s-dates":"/assets/v2-dates.ca471b0cff.js"},"of":{"status-pill":"s-status","step-loader":"s-status","thinking-states":"s-status","reasoning-trail":"s-status","thinking":"s-status","context-meter":"s-status","toast":"s-status","toast-stack":"s-status","agent-run-timeline":"s-status","decision-prompt":"s-review","plan-review":"s-review","inline-text-diff":"s-review","source-stack":"s-data","terminal-stream":"s-data","citation-hover":"s-data","command-palette":"s-workspace","file-explorer":"s-workspace","run-drawer":"s-workspace","memory-panel":"s-workspace","tool-connections":"s-workspace","knowledge-sources":"s-workspace","scheduled-runs":"s-workspace","event-calendar":"s-dates","web-search":"s-status"},"all":[]};
 const partRun = src => eval(src);
 // the markup of the cards whose section has a file of its own comes with that file
 const TPLS = {};

@@ -14,8 +14,10 @@
 .ksx-h>div{flex:1;display:flex;flex-direction:column;min-width:0}
 .ksx-h b{font-weight:500;font-size:14px;line-height:20px}
 .ksx-st{font-size:12px;line-height:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ksx-list{display:flex;flex-direction:column}
-.ksx-s{display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:center;column-gap:var(--dm-s-3);padding:var(--dm-s-2) 0;font-size:13px}
+.ksx-list{display:flex;flex-direction:column;margin-inline:calc(-1 * var(--dm-s-2))}
+/* a source's hover fill reaches 8px out round its row, with the rows' corners, while its tile and words stay on the card's
+   16px column (owner, 26 Nov: "highlight here doesn't work for clean") */
+.ksx-s{display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:center;column-gap:var(--dm-s-3);padding:var(--dm-s-2);border-radius:var(--dm-r-in);font-size:13px}
 .ksx-s .ic{width:28px;height:28px;border-radius:calc(8px * var(--dm-rk-m,var(--dm-rk)));display:grid;place-items:center}
 .ksx-s .t{min-width:0;display:flex;flex-direction:column}
 .ksx-s .nm{line-height:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -44,6 +46,10 @@
 .ksx-add[aria-expanded="true"]{color:var(--dm-fg);background:var(--dm-row)}
 @media (hover:hover) and (pointer:fine){.ksx-add:hover{color:var(--dm-fg);background:var(--dm-row)}}
 .ksx-pop{width:248px}
+/* switching the open menu to another view (a website, a folder) shows its first line at once and settles the rest after it, so
+   the menu never shows empty for a moment (the 40ms lead of .mx-rows is for a menu opening from its button) */
+.ksx-pop.mx-sw>:first-child{animation:none}
+.ksx-pop.mx-sw>*{animation-delay:calc((var(--dm-mx-i,0) - 1) * var(--dm-mx-step))}
 /* its motion (the core's motion pieces, owner, 26 Nov): its menus grow out of their buttons and go back quicker, their rows
    settle one after another (a menu's next step too) and one highlight glides between them; one highlight glides from source to
    source in every style (.mx-glide); a press shows at once (.mx-press); the card grows on the spring (.mx-grow) */
@@ -86,7 +92,7 @@
 :root[data-style="clean"] .ksx.panel,:root [data-style="clean"] .ksx.panel,:root [data-style="clean"].ksx.panel{padding:0}
 :root[data-style="clean"] .ksx-h,:root [data-style="clean"] .ksx-h,:root [data-style="clean"].ksx-h{min-height:calc(28px + 2 * var(--dm-strip-y) + 1px);padding:var(--dm-strip-y) 16px;background:var(--dm-strip);border-bottom:1px solid var(--dm-line);border-radius:var(--dm-r-card) var(--dm-r-card) 0 0}
 :root[data-style="clean"] .ksx-hi,:root [data-style="clean"] .ksx-hi,:root [data-style="clean"].ksx-hi{background:var(--dm-surface);box-shadow:inset 0 0 0 1px var(--dm-hair);border-radius:10px}
-:root[data-style="clean"] .ksx-list,:root [data-style="clean"] .ksx-list,:root [data-style="clean"].ksx-list{padding:var(--dm-s-2) var(--dm-s-4)}
+:root[data-style="clean"] .ksx-list,:root [data-style="clean"] .ksx-list,:root [data-style="clean"].ksx-list{margin-inline:0;padding:var(--dm-s-2)}
 :root[data-style="clean"] .ksx-list:empty,:root [data-style="clean"] .ksx-list:empty,:root [data-style="clean"].ksx-list:empty{padding:0}
 :root[data-style="clean"] .ksx-s .ic,:root [data-style="clean"] .ksx-s .ic,:root [data-style="clean"].ksx-s .ic{background:var(--dm-surface)!important;color:var(--dm-fg2)!important;box-shadow:inset 0 0 0 1px var(--dm-hair);border-radius:10px}
 :root[data-style="clean"] .ksx-s[data-st="ready"] .d>.i,:root [data-style="clean"] .ksx-s[data-st="ready"] .d>.i,:root [data-style="clean"].ksx-s[data-st="ready"] .d>.i{color:color-mix(in srgb,var(--dm-ok-mark) 80%,var(--dm-ok))}
