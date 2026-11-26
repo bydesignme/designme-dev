@@ -812,15 +812,17 @@
     fr.forEach((f, j) => { const c = j % 2, r = j >> 1; f.x = Math.round(nb.x + (c ? colW[0] + FG : 0)); f.y = Math.round(nb.y + rowH.slice(0, r).reduce((s, v) => s + v + FG, 0)); });
     runSet(work('spin', `Grouping into ${k} frames`, `1 of ${k}`)); setN(`1 of ${k}`);
     await rc.wait(420);
+    // the frames appear one after another and each theme's notes glide straight into theirs, close together, so the notes
+    // are only on the move for a moment and never sit half-sorted over the frames
+    cv.classList.add('glide');
     for (let j = 0; j < k; j++){
       const f = fr[j], id = nid('f'), col = (THEMES.find(t => t[0] === f.t) || [0, 'k'])[1];
       S.items.unshift({ id, k:'frame', x:f.x, y:f.y, w:f.w, h:f.h, t:f.t, c:col, ai:true });
-      sync(); arrive(id); moveCur('AG', f.x + 60, f.y + 30, 300); setN(`${j + 1} of ${k}`);
-      await rc.wait(320);
-      cv.classList.add('glide');
       f.its.forEach((it, i) => { it.x = f.x + PAD + (i % cols) * (f.cw + GAP); it.y = f.y + HEAD + Math.floor(i / cols) * (f.ch + GAP); });
-      sync(); await rc.wait(REDUCE ? 0 : 640); cv.classList.remove('glide');
+      sync(); arrive(id); moveCur('AG', f.x + 60, f.y + 30, 260); setN(`${j + 1} of ${k}`);
+      await rc.wait(420);
     }
+    await rc.wait(REDUCE ? 0 : 480); cv.classList.remove('glide');
     // the summary, beside the frames, where nothing else sits
     runSet(work('spin', 'Writing the summary')); runN = '';
     const fb = union(fr.map(f => ({ x:f.x, y:f.y, w:f.w, h:f.h }))), sid = nid('t');
@@ -990,6 +992,7 @@
         await tap(c, askB); await c.step(700);
         await tap(c, $$('.cpl-i', list)[0]); await c.step(300); away();
         while (RUN) await c.step(200);
+        moveCur('JO', 430, 220, 900);
         await c.step(900); home(true); await c.step(700);
         // Sam comments on the Mobile frame
         const fm = S.items.find(i => i.k === 'frame' && i.t === 'Mobile');
