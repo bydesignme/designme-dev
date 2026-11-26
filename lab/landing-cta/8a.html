@@ -942,14 +942,16 @@ const fitHits = window.dmFitHits || (() => {
   var VS = 'attribute vec2 a;varying vec2 v;void main(){v=(a+1.0)*0.5;gl_Position=vec4(a,0.0,1.0);}';
   var FS = [
     'precision highp float;varying vec2 v;uniform sampler2D uTex;uniform vec2 uSize;uniform vec4 uL0,uL1,uL2;uniform vec2 uV;uniform float uT,uRip;uniform vec3 uCol;',
-    'vec2 lens(vec2 p,vec4 L,inout float h){vec2 d=p-L.xy;float f=exp(-dot(d,d)/(L.w*L.w));h+=L.z*f;return d*f*L.z*0.62;}',
+    'float hs(vec2 p,vec4 L){vec2 d=p-L.xy;return L.z*exp(-dot(d,d)/(L.w*L.w));}',
+    'float hsum(vec2 p){return hs(p,uL0)+hs(p,uL1)+hs(p,uL2);}',
+    'vec2 lens(vec2 p,vec4 L,inout float h){vec2 d=p-L.xy;float f=exp(-dot(d,d)/(L.w*L.w));h+=L.z*f;return d*f*L.z*0.5;}',
     'vec2 disp(vec2 p,out float h){h=0.0;vec2 o=lens(p,uL0,h)+lens(p,uL1,h)+lens(p,uL2,h);',
     ' vec2 d=p-uL0.xy;float r=length(d);float f=exp(-r*r/(uL0.w*uL0.w*1.6));o+=uV*f;',
-    ' float rr=r/uL0.w;float w=sin(rr*8.0-uT*7.5)*exp(-rr*rr*0.55)*uRip;if(r>0.001)o+=d/r*w*uL0.w*0.05;return o;}',
-    'void main(){vec2 p=vec2(v.x,1.0-v.y)*uSize;float h,hx,hy;vec2 o=disp(p,h);disp(p+vec2(1.5,0.0),hx);disp(p+vec2(0.0,1.5),hy);',
+    ' float rr=r/uL0.w;float w=sin(rr*8.0-uT*7.5)*exp(-rr*rr*0.55)*uRip;if(r>0.001)o+=d/r*w*uL0.w*0.06;return o;}',
+    'void main(){vec2 p=vec2(v.x,1.0-v.y)*uSize;float h;vec2 o=disp(p,h);float hx=hsum(p+vec2(1.5,0.0)),hy=hsum(p+vec2(0.0,1.5));',
     ' vec2 q=p-o;float a=texture2D(uTex,q/uSize).a;',
-    ' vec2 g=vec2(hx-h,hy-h)/1.5;float sh=clamp(-(g.x*0.45+g.y*0.9)*uL0.w*0.8,-0.2,0.12);',
-    ' vec2 c=mod(q,9.0)-4.5;float dv=1.0-smoothstep(0.5,1.1,length(c));float ga=dv*0.2*clamp(abs(h)*1.7,0.0,1.0);',
+    ' vec2 g=vec2(hx-h,hy-h)/1.5;float sh=clamp(-(g.x*0.45+g.y*0.9)*uL0.w*0.8,-0.09,0.06);',
+    ' vec2 c=mod(q,9.0)-4.5;float dv=1.0-smoothstep(0.5,1.1,length(c));float ga=dv*0.22*clamp(abs(h)*1.7,0.0,1.0);',
     ' vec3 col=clamp(uCol*(1.0+sh),0.0,1.0);gl_FragColor=vec4(col*a+vec3(0.8)*ga*(1.0-a),a+ga*(1.0-a));}'
   ].join('\n');
 
@@ -979,7 +981,7 @@ const fitHits = window.dmFitHits || (() => {
   function size(){
     if (!gl) return;
     var r = svg.getBoundingClientRect(); if (!r.width) return;
-    dpr = Math.min(2, window.devicePixelRatio || 1);
+    dpr = Math.min(1.5, window.devicePixelRatio || 1);
     PY = Math.round(r.height * 0.5); PX = Math.round(r.height * 0.35);
     W = r.width + PX * 2; H = r.height + PY * 2;
     cv.style.left = -PX + 'px'; cv.style.top = -PY + 'px'; cv.style.width = W + 'px'; cv.style.height = H + 'px';
@@ -1012,7 +1014,7 @@ const fitHits = window.dmFitHits || (() => {
     // the pointer's speed, smoothed; it falls away once the pointer stops
     var inst = moved / dt; moved = 0;
     sp += (inst - sp) * Math.min(1, dt * (inst > sp ? 10 : 7));
-    T = inside ? Math.min(1, sp / 520) : 0;
+    T = inside ? Math.min(1, sp / 650) : 0;
     // the strength springs toward the speed (under-damped: it overshoots into a soft dip, then settles)
     Av += (70 * (T - A) - 7.2 * Av) * dt; A += Av * dt;
     // the lenses: the first follows the pointer, the others follow the one before

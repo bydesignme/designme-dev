@@ -263,6 +263,8 @@
 .as-dim{position:absolute;padding:1px 6px;border-radius:4px;background:#262626;color:#e5e5e5;font-size:12px;line-height:18px;font-weight:500;white-space:nowrap;transform:translateX(-50%)}
 :root:not([data-style="soft"]):not([data-style="clean"]) .as-dim{border-radius:0}
 .as [data-as-hide]{visibility:hidden}
+/* the toast keeps no room for later states here; the window grows with it */
+.as .tst{min-height:0}
 
 @media (max-width:1199px){.ct8b .ct-band{padding:48px 40px 40px}}
 @media (max-width:1099px){.as-grid{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)}.as-c3{display:none}}
@@ -956,7 +958,7 @@ const fitHits = window.dmFitHits || (() => {
   var SPEC = {
     'composer':{ who:'victoria', frame:'.cpx-box', how:'draw', parts:[['.cpx-ta', 'carry', -150, -70], ['.cpx-ctx', 'carry', -130, 110], ['.cpx-add', 'slide', 0, 36], ['.cpx-mode', 'slide', 0, 36], ['.cpx-mic', 'slide', 0, 36], ['.cpx-send', 'slide', 0, 36]] },
     'agent-tree':{ who:'natalia', frame:'.atr', how:'draw', parts:[['.atr-t', 'carry', -60, -110], ['.atr-s', 'slide', -40, 0], ['.atr-tot', 'carry', 120, -90]] },
-    'run-cost':{ who:'luke', frame:'.rc', how:'carry', from:[220, -40], parts:[['.rc-h', 'slide', 48, 0], ['.rc-big', 'carry', 170, -30], ['.rc-track', 'slide', 64, 0], ['.rc-rows > div', 'slide', 64, 0], ['.rc-cap-t', 'slide', 0, 28], ['.rc-go', 'carry', 150, 90]] },
+    'run-cost':{ who:'luke', frame:'.rc', how:'carry', from:[150, -30], parts:[['.rc-h', 'slide', 48, 0], ['.rc-big', 'carry', 170, -30], ['.rc-track', 'slide', 64, 0], ['.rc-rows > div', 'slide', 64, 0], ['.rc-cap-t', 'slide', 0, 28], ['.rc-go', 'carry', 150, 90]] },
     'toast':{ who:'adrian', parts:[['.tst-make', 'carry', 140, 120]] }
   };
 
@@ -1110,25 +1112,24 @@ const fitHits = window.dmFitHits || (() => {
       adrian.x = wb.x + w - 2; adrian.y = wb.y + h - 2; place(adrian); },
       function(){ wcs = getComputedStyle(win); gh = div('as-gh', { left:wb.x + 'px', top:wb.y + 'px', width:'12px', height:'12px', background:wcs.backgroundColor, borderRadius:wcs.borderRadius, boxShadow:'0 0 0 1.5px ' + adrian.c }); });
     lift(adrian);
-    step(adrian, 240, function(p){ gh.style.opacity = 1 - p; }, function(){ win.style.visibility = ''; }, function(){ gh.remove(); });
+    step(adrian, 240, function(p){ gh.style.opacity = 1 - p; }, function(){ win.style.visibility = 'visible'; }, function(){ gh.remove(); });
     // the others join once the window is there
     var ti = as.querySelector('.as-ti');
     call(adrian, function(){
-      var v = cursor('victoria', -20, H * .7), n = cursor('natalia', W * .45, -26), l = cursor('luke', W + 10, H * .3);
-      [v, n, l].forEach(function(a, i){ wait(a, i * 260); show(a, true); });
-      build('composer', v); build('agent-tree', n); build('run-cost', l);
-      [v, n, l].forEach(function(a){ call(a, function(){ rest(a); }); });
+      // only the people whose component is on this screen (a phone shows the Agent tree alone)
+      var team = [['composer', 'victoria', -20, H * .7], ['agent-tree', 'natalia', W * .45, -26], ['run-cost', 'luke', W + 10, H * .3]].filter(function(t){ return visible(t[0]); });
+      team.forEach(function(t, i){ var a = cursor(t[1], t[2], t[3]); wait(a, i * 260); show(a, true); build(t[0], a); call(a, function(){ rest(a); }); });
     });
     carry(adrian, ti, box(ti), -90, 70);
     wait(adrian, 2600);
-    call(adrian, function(){ build('toast', adrian, function(){ rest(adrian); }); });
+    call(adrian, function(){ if (visible('toast')) build('toast', adrian, function(){ rest(adrian); }); else rest(adrian); });
     onAll = function(){ onAll = null; setTimeout(play, 200); loopAt(); };
     wake();
   };
   // after its part, a cursor moves out of the way and rests, drifting a little now and then, as someone watching would
   var rest = function(a){
     var W = as.clientWidth, H = as.clientHeight;
-    var spot = { adrian:[W * .9, H * .9], victoria:[W * .08, H * .2], natalia:[W * .58, H * .12], luke:[W * .94, H * .55] }[Object.keys(PEOPLE).filter(function(k){ return PEOPLE[k][1] === a.c; })[0]];
+    var spot = { adrian:[W * .82, H * .9], victoria:[W * .08, H * .2], natalia:[W * .58, H * .12], luke:[W * .88, H * .55] }[Object.keys(PEOPLE).filter(function(k){ return PEOPLE[k][1] === a.c; })[0]];
     go(a, F(spot[0]), F(spot[1]), 900);
     a.keep = true;
     var drift = function(){ wait(a, 1800 + Math.random() * 2200); go(a, F(spot[0] + (Math.random() - .5) * 60), F(spot[1] + (Math.random() - .5) * 40), 900); call(a, function(){ if (a.keep) drift(); }); };
@@ -1140,13 +1141,13 @@ const fitHits = window.dmFitHits || (() => {
       unmount(); ov.style.opacity = ''; requestAnimationFrame(function(){ story(); }); }); };
 
   // the end state at once: everything in, playing
-  var finish = function(){ actors = []; ov.innerHTML = ''; onAll = null; win.style.visibility = ''; win.style.opacity = '';
+  var finish = function(){ actors = []; ov.innerHTML = ''; onAll = null; win.style.visibility = 'visible'; win.style.opacity = '';
     as.querySelectorAll('[data-as-hide]').forEach(reveal); if (!playing) play(); };
 
   var started = false, loaded = null;
   var begin = function(){ if (started) return; started = true; loaded.then(function(){ if (REDUCE){ finish(); return; } story(); }).catch(function(){ finish(); }); };
   if ('IntersectionObserver' in window){
-    var near = new IntersectionObserver(function(es){ if (es[es.length - 1].isIntersecting){ near.disconnect(); loaded = load(); } }, { rootMargin:'300px 0px' });
+    var near = new IntersectionObserver(function(es){ if (es[es.length - 1].isIntersecting){ near.disconnect(); loaded = load(); loaded.then(function(){ if (seen) begin(); }, function(){}); } }, { rootMargin:'300px 0px' });
     near.observe(band);
     new IntersectionObserver(function(es){ var e = es[es.length - 1]; seen = e.isIntersecting && e.intersectionRatio > .3; if (seen && loaded) begin(); wake(); }, { threshold:[0, .3, .5] }).observe(as);
   } else { seen = true; loaded = load(); begin(); }
