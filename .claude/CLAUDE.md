@@ -209,6 +209,17 @@ every session and every agent.
   Agent run timeline, Status pill, Context meter, Run cost, Meeting card); the others render with Clean's tokens and get
   theirs later.
 
+## Showcase pieces for socials (owner, 26 Nov)
+- A showcase is a presentation made to promote a component on socials (a looping video and its published page), not the
+  component itself. Showcases may go over the top to wow and attract the right eyes, like the reference the owner shared:
+  things physically fly to where they go and the destination reacts (opens, bumps, counts up), objects break apart and
+  stream, a camera may push in on the key moment, and playful physics and sparkles are allowed. The calm-motion and
+  standard-UX rules above don't bind a showcase.
+- The component in the library, its demo and its installs keep regular motion and every rule above. A showcase never ships
+  in installs and never changes the component's design.
+- A showcase still uses the component's real design, the type and colour-contrast rules, the no-coloured-glow rule and the
+  no-copying rule. Only components the owner names get one (first: Knowledge sources).
+
 ## Spacing and radius
 - Soft is plush (owner, 3 Nov): every corner radius in a component is scaled by `--rk` (1.25, and 1.7 where the browser
   draws squircles), and every corner is a squircle (`corner-shape: squircle`, round corners as the fallback), pills,
