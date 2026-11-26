@@ -108,7 +108,7 @@ This runs on the site only. In your project, set the roles yourself as shown abo
 
 ## Charts follow the accent
 
-A chart's first colour is the accent's mark: `--dm-c1` is `--dm-accent-mark`. `--dm-a2` to `--dm-a4` mix it toward the surface for lighter steps. So [Line chart](https://designme.dev/components/line-chart.md), [Bar chart](https://designme.dev/components/bar-chart.md) and [Donut chart](https://designme.dev/components/donut-chart.md) change with the accent. Other series use fixed colours, `--dm-c2` to `--dm-c6`.
+A chart's first colour is the accent's mark: `--dm-c1` is `--dm-accent-mark`. `--dm-a2` to `--dm-a4` mix it toward the surface for lighter steps. Other series use fixed colours, `--dm-c2` to `--dm-c6`.
 
 ## Fonts
 

@@ -108,10 +108,12 @@ NEW.splice(0, NEW.length, ...NEW.filter(x => soft.includes(`data-c="${x.id}" id=
 for (const x of NEW){ MAP[x.cid] = x.id; EXTRA.push({ cid:x.cid, id:x.id, reg:x.id, title:x.title, section:x.section, after:x.after, icon:x.icon }); }
 /* the components taken out of the library (owner, 16 Nov: launch with fewer, each one polished). Their cards leave the page:
    a card cut from one of them is cut from the card that one was cut from, and the original page's cards for them go once
-   the new cards are in place. Their registry entries go with them (the registry build below drops entries with no card) */
-const REMOVED = new Set(['thread-panel', 'image-generation', 'tool-call', 'voice-capture', 'voice-orb', 'prompt-starters', 'prompt-library',
-  'browser-session', 'run-summary', 'agent-phases', 'action-log', 'run-queue', 'error-recovery', 'change-review', 'human-handoff', 'design-tuner',
-  'launch-checklist', 'steering', 'design-review', 'code-viewer', 'field-extraction', 'step-inspector', 'model-compare', 'color-picker', 'onboarding-checklist']);
+   the new cards are in place. Their registry entries go with them (the registry build below drops entries with no card).
+   Eight came back on 23 Nov for their Clean designs (owner): Hand-off to a person, Steering, Browser session, Voice orb, Image
+   generation, Tool call, Code viewer and Design tuner; they stay unlisted until they are live */
+const REMOVED = new Set(['thread-panel', 'voice-capture', 'prompt-starters', 'prompt-library', 'run-summary', 'agent-phases', 'action-log',
+  'run-queue', 'error-recovery', 'change-review', 'launch-checklist', 'design-review', 'field-extraction', 'step-inspector', 'model-compare',
+  'color-picker', 'onboarding-checklist']);
 /* ---------- what is live (owner, 24 Nov): live.js names the components the site lists and publishes, by registry name. The
    others keep their code (soft-2/index.html, the React package, the docs content) but leave the page as the trimmed ones above
    do: no card, no sidebar link, no search hit, no registry entry, no page. Their registry entries are still written, to
@@ -567,8 +569,8 @@ const done = [];
 // pairs its half-width cards evenly; NARROW ones were wide on the old site but are narrow components
 const REG_ITEMS = REGDIR ? JSON.parse(fs.readFileSync(path.join(REGDIR, 'index.json'), 'utf8')).items : [];
 // 16 Nov: after the trim each section keeps an even number of half-width cards: Web search, Data picker, Carousel and Stepper
-// (in a wide container, owner) take a full row, and Plan review is wide again
-const STRETCH = ['web-search', 'data-picker', 'carousel', 'stepper'];
+// (in a wide container, owner) take a full row, and Plan review is wide again. Code viewer, back on 23 Nov, stretches as it did
+const STRETCH = ['code-viewer', 'web-search', 'data-picker', 'carousel', 'stepper'];
 // 24 Nov: at launch (live.js) Conversation has seven half-width cards, so Live answer, its first, takes the full row and the
 // other six pair up. The build warns when a section's half-width cards don't pair up (below, after the launch row)
 STRETCH.push('live-answer');
@@ -630,10 +632,11 @@ main = main.replace(/<article([^>]*\bid="(c\d+)"[^>]*)>([\s\S]*?)<\/article>/g, 
    with what shows off an agent best. A wide card goes after an even number of half-width ones, so rows stay full ---------- */
 const SECTIONS_FIRST = ['s-conversation', 's-status'], GRP = {};
 const ORDER = {
-  's-conversation': ['live-answer', 'composer', 'artifact-card', 'rich-text-editor', 'answer-action-bar', 'response-versions', 'model-picker', 'attachment-tray', 'feedback-sheet'],
-  's-status': ['thinking', 'reasoning-trail', 'agent-lanes', 'agent-tree', 'agent-inbox', 'trace-view', 'agent-run-timeline', 'context-meter', 'run-cost', 'toast-stack', 'toast', 'status-pill', 'step-loader'],
-  's-review': ['plan-review', 'permission-gate', 'decision-prompt', 'proposal-card', 'rewrite-toolbar', 'inline-text-diff', 'draft-review', 'eval-results'],
-  's-data': ['terminal-stream', 'citation-hover', 'source-stack', 'metric-insight', 'details-panel', 'task-table'],
+  's-conversation': ['live-answer', 'composer', 'artifact-card', 'rich-text-editor', 'tool-call', 'voice-orb', 'answer-action-bar', 'response-versions', 'model-picker', 'attachment-tray', 'feedback-sheet'],
+  's-status': ['thinking', 'reasoning-trail', 'agent-lanes', 'agent-tree', 'agent-inbox', 'trace-view', 'browser-session', 'agent-run-timeline', 'context-meter', 'run-cost', 'toast-stack', 'toast', 'status-pill', 'step-loader'],
+  's-review': ['plan-review', 'permission-gate', 'human-handoff', 'decision-prompt', 'proposal-card', 'design-tuner', 'rewrite-toolbar', 'inline-text-diff',
+    'draft-review', 'steering', 'eval-results'],
+  's-data': ['code-viewer', 'terminal-stream', 'citation-hover', 'source-stack', 'metric-insight', 'details-panel', 'task-table'],
   's-workspace': ['automation-canvas', 'command-palette', 'memory-panel', 'agent-settings', 'tool-connections', 'knowledge-sources', 'scheduled-runs', 'file-explorer', 'workspace-rail'],
 };
 // Banner leads Collaboration (owner, 3 Nov); a half-width card further down fills the row the move opens (grid dense)

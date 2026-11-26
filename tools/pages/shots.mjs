@@ -29,7 +29,7 @@ const names = site.sections.flatMap(s => s.cards.map(c => c.reg)).filter(n => !o
 // passed and summed itself up, and Hand-off to a person once Alex has it and the agent is paused. Rich text editor is taken with the
 // shorter sentence streamed in beside the struck one, ready to accept. Context switcher is taken with the project's switcher open on
 // the search for "inv"
-const WAIT = { toast:2600, 'status-pill':3300, 'model-picker':13000, 'answer-action-bar':17000, composer:18000, thinking:11000, 'context-meter':10500, 'inline-text-diff':9500, 'agent-tree':16500, 'agent-inbox':5000, 'eval-results':7000, 'knowledge-sources':8200, 'scheduled-runs':4000, 'segmented-control':7000, 'otp-field':10800, 'multi-select':5500, 'profile-menu':11500, 'filter-menu':12500, 'trace-view':11500, 'terminal-stream':20000, 'rich-text-editor':16800, 'context-switcher':4600, banner:2600 };
+const WAIT = { toast:2600, 'status-pill':3300, 'model-picker':13000, 'answer-action-bar':17000, composer:18000, thinking:11000, 'context-meter':10500, 'inline-text-diff':9500, 'agent-tree':16500, 'agent-inbox':5000, 'eval-results':7000, 'knowledge-sources':8200, 'scheduled-runs':4000, 'segmented-control':7000, 'otp-field':10800, 'multi-select':5500, 'profile-menu':11500, 'filter-menu':12500, 'trace-view':11500, 'terminal-stream':20000, 'rich-text-editor':16800, 'context-switcher':4600, banner:2600, 'voice-orb':8500, steering:16800, 'browser-session':9500, 'human-handoff':15500 };
 // Canvas toolbar is taken mid-run, with Stop on the bar and the wires lighting up
 Object.assign(WAIT, { 'canvas-toolbar':12800 });
 // Agent lanes is taken as the light carries the brief down to the Designer
@@ -50,6 +50,8 @@ Object.assign(WAIT, { 'memory-panel':12500 });
 Object.assign(WAIT, { progress:6500, 'context-menu':4800, carousel:11500, 'radar-chart':5000, 'scatter-chart':4500, 'score-breakdown':7500, 'web-search':7000 });
 // Number field with the budget kept at its most
 Object.assign(WAIT, { 'number-field':9500 });
+// Image generation with three portraits made and the fourth, retried, coming out of its dots
+Object.assign(WAIT, { 'image-generation':11200 });
 // Kanban board while the agent's card is most of the way through, before it moves to Done
 Object.assign(WAIT, { 'kanban-board':3800 });
 // Thinking states between two lines, Orbit reading the files

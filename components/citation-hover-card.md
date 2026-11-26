@@ -2,7 +2,7 @@
 
 > Hover a citation to see the exact passage it came from.
 
-Agent components / Sources and output. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/citation-hover-card
+Components / Sources and output. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/citation-hover-card
 
 ## Install
 
@@ -286,8 +286,5 @@ export function CitationHoverCard({ text, sources, openLabel = 'Open source', on
 
 - [Terminal stream](https://designme.dev/components/terminal-stream.md): Shell commands the agent runs, with their output as it streams in.
 - [Source stack](https://designme.dev/components/source-stack.md): Everything the agent read, folded into one quiet pill.
-- [Metric insight](https://designme.dev/components/metric-insight.md): A number, its trend, and the agent's read on why it moved.
-- [Details panel](https://designme.dev/components/details-panel.md): Properties of a run you can change in place.
-- [Task table](https://designme.dev/components/task-table.md): Agent tasks in a sortable table with bulk actions.
 
 All components: https://designme.dev/llms.txt

@@ -27,7 +27,7 @@ DM.def('event-calendar', (r, c) => {
   const tm = h => { const hh = Math.floor(h), mm = Math.round((h - hh) * 60); return `${hh > 12 ? hh - 12 : hh}:${String(mm).padStart(2, '0')}`; };
   const ev = (e, cls = '') => html(`<button class="ecx-e ${cls}" style="top:${at(e[1])};height:${tall(e[2])};background:var(--dm-p${e[4]}-bg);color:var(--dm-p${e[4]})"><b>${e[3]}</b><span>${tm(e[1])} – ${tm(e[1] + e[2])}</span></button>`);
   const panel = $('.ecx', r), msg = $('.ecx-msg', r), pop = html('<div class="ecx-pop" role="dialog" aria-label="Event"></div>'); panel.appendChild(pop);
-  const WHO = [['MK','var(--dm-av-l)'],['JO','var(--dm-av-m)'],['DA','var(--dm-av-b)'],['AR','var(--dm-av-p)']], DAYN = ['Mon','Tue','Wed','Thu','Fri'];
+  const WHO = [['MK','var(--dm-av-l)','MK-g03'],['JO','var(--dm-av-m)','JO-g01'],['DA','var(--dm-av-b)'],['AR','var(--dm-av-p)','AR-g02']], DAYN = ['Mon','Tue','Wed','Thu','Fri'];
   let openFor = null;
   const say = t => swap(msg, t);
   // closing gives the focus back to the event when it was in the card
@@ -35,7 +35,7 @@ DM.def('event-calendar', (r, c) => {
   /* the details card opens beside the event and stays inside the calendar */
   function openPop(el){
     const e = el._e; if (openFor === el){ closePop(); return; } if (openFor) openFor.classList.remove('on'); openFor = el; el.classList.add('on'); const n = 2 + e[3].length % 3, fresh = e[3] === 'New event';
-    pop.innerHTML = `<div class="ecx-ph"><i style="background:var(--dm-p${e[4]})"></i>${fresh ? '<input class="ecx-ti" placeholder="Add a title" aria-label="Event title">' : `<b>${e[3]}</b>`}<button class="ib ecx-px" aria-label="Close" data-tip="Close">${I('x','xs')}</button></div><div class="ecx-pt">${DAYN[e[0]]} ${DAYS[e[0]].split(' ')[1]} Oct · ${tm(e[1])} – ${tm(e[1] + e[2])}</div><div class="ecx-pw">${WHO.slice(0, n).map(w => AV(w[0], w[1])).join('')}<span class="muted">${n} people</span></div><div class="ecx-pa">${fresh ? '<button class="pill line sm ecx-del">Discard</button><button class="pill primary sm ecx-save">Save</button>' : `<button class="pill line sm ecx-prep">${I('spark','xs')}Prep notes</button><button class="pill primary sm">Join</button>`}</div>`;
+    pop.innerHTML = `<div class="ecx-ph"><i style="background:var(--dm-p${e[4]})"></i>${fresh ? '<input class="ecx-ti" placeholder="Add a title" aria-label="Event title">' : `<b>${e[3]}</b>`}<button class="ib ecx-px" aria-label="Close" data-tip="Close">${I('x','xs')}</button></div><div class="ecx-pt">${DAYN[e[0]]} ${DAYS[e[0]].split(' ')[1]} Oct · ${tm(e[1])} – ${tm(e[1] + e[2])}</div><div class="ecx-pw">${WHO.slice(0, n).map(w => AV(w[0], w[1], w[2])).join('')}<span class="muted">${n} people</span></div><div class="ecx-pa">${fresh ? '<button class="pill line sm ecx-del">Discard</button><button class="pill primary sm ecx-save">Save</button>' : `<button class="pill line sm ecx-prep">${I('spark','xs')}Prep notes</button><button class="pill primary sm">Join</button>`}</div>`;
     const pr = panel.getBoundingClientRect(), er = el.getBoundingClientRect(), w = 248;
     let x = er.right - pr.left + 8; if (x + w > pr.width - 16) x = er.left - pr.left - w - 8; x = Math.max(16, x);
     let y = er.top - pr.top; y = Math.max(16, Math.min(y, pr.height - pop.offsetHeight - 24));

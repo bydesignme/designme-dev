@@ -2,7 +2,7 @@
 
 > A week view where the agent finds a free slot for you.
 
-App basics / Dates. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/event-calendar
+Components / Dates. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/event-calendar
 
 ## Install
 
@@ -555,13 +555,5 @@ export function EventCalendar({
   );
 }
 ```
-
-## More in Dates
-
-- [Date picker](https://designme.dev/components/date-picker.md): A field that opens a calendar, with quick picks and natural language.
-- [Segmented control](https://designme.dev/components/segmented-control.md): Switch between views of the same thing, with a sliding indicator.
-- [Date range picker](https://designme.dev/components/date-range-picker.md): Pick a start and end across two months, or use a preset.
-- [Agenda](https://designme.dev/components/agenda.md): Today's schedule with a live now line and agent prep notes.
-- [Meeting card](https://designme.dev/components/meeting-card.md): The next meeting from countdown to wrap-up, with the time already gone hatched out and a join that stays open.
 
 All components: https://designme.dev/llms.txt

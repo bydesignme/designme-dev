@@ -9,7 +9,7 @@ Designme.dev docs. The same page with navigation: https://designme.dev/docs/astr
 ### 1. Add them with the CLI
 
 ```sh
-npx designme add live-answer buttons --astro
+npx designme add live-answer status-pill --astro
 ```
 
 They land in `src/components/designme`, or `components/designme` when there is no `src` folder. The shared core, `core/designme.css` and `core/core.js`, is added once. Without `--astro`, the CLI says so when it finds an `astro.config` file in the folder you run it from.
@@ -25,10 +25,10 @@ src/components/designme/
     LiveAnswer.astro
     live-answer.css
     live-answer.js
-  buttons/
-    Buttons.astro
-    buttons.css
-    buttons.js
+  status-pill/
+    StatusPill.astro
+    status-pill.css
+    status-pill.js
 ```
 
 ### 2. Use them in a page
@@ -36,10 +36,10 @@ src/components/designme/
 ```astro
 ---
 import LiveAnswer from '../components/designme/live-answer/LiveAnswer.astro';
-import Buttons from '../components/designme/buttons/Buttons.astro';
+import StatusPill from '../components/designme/status-pill/StatusPill.astro';
 ---
 <LiveAnswer />
-<Buttons data-style="soft" class="my-buttons" />
+<StatusPill data-style="soft" class="my-pill" />
 ```
 
 The CLI prints the import line for each component. It uses your `@/` alias when your `tsconfig.json` has one, and a path from `src/pages` when it doesn't.
@@ -63,8 +63,6 @@ Its `<script>` imports its `.js`, which is the HTML version's script with one li
 ### Mounting
 
 The core starts each component when it scrolls into view and plays its demo, as on designme.dev. A click, a key or typing inside it stops the demo for good. With Astro's client router (`<ClientRouter />`), the core also starts the components on each page it brings in, and stops the ones it takes away.
-
-A component made of others, like the [Agent harness](https://designme.dev/components/agent-harness.md), imports them and places them hidden on the page, where its script finds their markup. The CLI adds them with it.
 
 ## Props
 

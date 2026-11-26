@@ -189,7 +189,7 @@ npx shadcn@latest add https://designme.dev/r/shadcn/status-pill.json
 npx shadcn@latest add https://designme.dev/r/shadcn/astro/status-pill.json
 ```
 
-The files land in a `designme` folder in your components folder (the `components` alias in `components.json`), laid out as the designme CLI lays them out. The shared core comes along as a registry dependency, and a component made of others, like the Agent harness, brings them too. The files are copied as they are.
+The files land in a `designme` folder in your components folder (the `components` alias in `components.json`), laid out as the designme CLI lays them out. The shared core comes along as a registry dependency. The files are copied as they are.
 
 ## Theme bridge
 
