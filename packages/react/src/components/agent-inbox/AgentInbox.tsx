@@ -89,7 +89,7 @@ export function AgentInbox({ runs, onApprove, onRetry, title = 'Inbox', classNam
   }, [sig]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div data-dm="" ref={root} className={cx('dm-aib dm-panel dm-growing', className)}>
+    <div data-dm="" ref={root} className={cx('dm-aib dm-panel dm-growing dm-mx-grow', className)}>
       <div ref={inner} className="dm-grow">
       <div className="dm-aib-h">
         {/* the head has a neutral mark in a tile, the column the agents' marks sit in; each group carries its own count */}

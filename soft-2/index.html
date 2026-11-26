@@ -1042,6 +1042,10 @@ th:last-child>.col-rz{display:none}
 .atr-nm{flex:0 0 auto;max-width:100%;overflow:hidden;text-overflow:ellipsis;font-weight:500}
 .atr-tg{align-self:center;width:16px;height:16px;margin-left:-6px;flex:none;display:grid;place-items:center;border-radius:calc(4px * var(--rk-s,var(--rk)));color:var(--muted);cursor:pointer;transition:background var(--t-fast),color var(--t-fast)}
 .atr-tg:hover{background:color-mix(in srgb,var(--fg) 9%,transparent);color:var(--fg)}
+/* its motion pieces (core's "motion pieces", 26 Nov): one highlight glides from row to row in Soft and Blueprint too (.mx-glide),
+   in the rows' own hover fill; a press on a branch's chevron shows at once (.mx-press) */
+.atr-tree.mx-glide{--hg-bg:color-mix(in srgb,var(--fg) 5%,transparent)}
+:root[data-style="clean"] .atr-tree.mx-glide{--hg-bg:var(--row)}
 .atr-tg svg{width:12px;height:12px;transition:transform .32s var(--ease)}
 .atr-n[aria-expanded="false"]>.atr-b .atr-tg svg{transform:rotate(-90deg)}
 .atr-sub{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;font-size:12px;color:var(--muted)}
@@ -1259,6 +1263,7 @@ th:last-child>.col-rz{display:none}
 .aib-gl{display:flex;flex-direction:column}
 .aib-i{display:flex;align-items:center;gap:12px;padding:8px 0;border-radius:calc(10px * var(--rk-m,var(--rk)));font-size:13px;transition:background .16s}
 .aib-i.mv{position:relative;z-index:1;background:var(--surface)}
+/* (as a group goes or comes back the panel springs to its new height at the motion pieces' pace, .mx-grow) */
 /* nothing in it grows or shrinks when it is pressed (owner, 18 Nov); Clean's ink primary alone presses */
 .aib :is(.ib,.pill):active,:root[data-style="clean"] .aib .ib:active{transform:none}
 .aib-av{width:28px;height:28px;border-radius:var(--r-sm);display:grid;place-items:center;flex:none;font-size:11px;font-weight:500}
@@ -1426,6 +1431,8 @@ th:last-child>.col-rz{display:none}
 .trv-r{width:calc(100% + 16px);margin:0 -8px;padding:0 8px;min-height:32px;border-radius:calc(10px * var(--rk-m,var(--rk)));font-size:13px;text-align:left;transition:background .16s}
 .trv-r:hover,.trv-r[aria-expanded="true"]{background:var(--row)}
 .trv-r[aria-expanded="true"] .trv-tk{color:var(--fg2)}
+/* its motion pieces (core's "motion pieces", 26 Nov): one highlight glides from span to span in every style (.mx-glide), the
+   picked span keeps its own fill; the details' parts settle one after another as they open (.mx-rows); Close presses at once */
 .trv-r:focus-visible{outline:0;box-shadow:inset 0 0 0 2px var(--focus)}
 .trv-n{position:relative;display:flex;align-items:center;gap:19px;min-width:0;align-self:stretch;padding-left:calc(7px + var(--lv,0) * 16px)}
 .trv-k{position:relative;z-index:1;width:18px;height:18px;display:grid;place-items:center;flex:none;border-radius:var(--r-tiny,5px);color:color-mix(in srgb,var(--k) 70%,var(--fg));background:color-mix(in srgb,var(--k) 13%,var(--surface))}
@@ -12045,7 +12052,7 @@ button.pvb-row:focus-visible{outline-offset:-2px}
   <template><div class="dm atr-dm" data-designs="card"><div class="dm-main">
 <div class="atr panel" data-s="run">
   <div class="atr-h"><div class="atr-hd"><b class="atr-t">Redesign the pricing page</b><span class="atr-s"><span class="atr-dot" aria-hidden="true"></span><span class="atr-m">Starting</span><span aria-hidden="true">·</span><span class="atr-time num">0:00</span></span></div><span class="atr-tot num">$0.00</span></div>
-  <div class="atr-tree" role="tree" aria-label="Agents"><svg class="atr-ln" aria-hidden="true"></svg></div>
+  <div class="atr-tree mx-glide" role="tree" aria-label="Agents"><svg class="atr-ln" aria-hidden="true"></svg></div>
   <p class="atr-f"></p>
   <p class="atr-sr" role="status"></p>
 </div>
@@ -12057,7 +12064,7 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 <article class="card" data-c="agent-inbox" id="c-agent-inbox">
   <div class="card-h"><div><h3>Agent inbox</h3><p>Every run that needs you, is running or is done, in one list.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
-  <template><div class="aib panel">
+  <template><div class="aib panel mx-grow">
   <div class="aib-h"><b>Inbox</b></div>
   <div class="aib-gs"></div>
 </div></template>
@@ -12091,8 +12098,8 @@ button.pvb-row:focus-visible{outline-offset:-2px}
   <div class="trv-h"><div class="trv-ht"><b>Pricing research</b><span class="muted trv-st" aria-live="polite"></span></div><span class="trv-nums"><span class="trv-tot num">0.00s</span></span></div>
   <div class="trv-lg" role="list" aria-label="Spans by kind"></div>
   <div class="trv-ax" aria-hidden="true"><span>Span</span><span class="trv-sc"></span><span class="trv-tk">Tokens</span><span class="trv-ms">Time</span></div>
-  <div class="trv-rows" role="group" aria-label="Spans"></div>
-  <div class="fold shut trv-dt" inert><div><div class="trv-dc" role="region" aria-label="Span details"></div></div></div>
+  <div class="trv-rows mx-glide" role="group" aria-label="Spans"></div>
+  <div class="fold shut trv-dt" inert><div><div class="trv-dc mx-rows mx-play" role="region" aria-label="Span details"></div></div></div>
 </div></template>
   <div class="card-f"><span>Open a span to see its input and output</span><span class="sp"></span><button class="replay" aria-label="Replay Trace view"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
@@ -12100,7 +12107,7 @@ button.pvb-row:focus-visible{outline-offset:-2px}
   <div class="card-h"><div><h3>Run cost</h3><p>Live credit and token spend, with a cap that pauses the run.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
   <template><div class="rc panel">
-  <div class="rc-h"><span class="muted">Credits used</span><span class="rc-st tag"><span class="dot"></span><span class="rc-stt">Idle</span></span></div>
+  <div class="rc-h"><span class="muted">Credits used</span><span class="rc-st tag"><span class="dot"></span><span class="rc-stt mx-w">Idle</span></span></div>
   <div class="rc-big"><span class="rc-n num">0</span><span class="muted"> / 2,000</span></div>
   <div class="rc-track"><div class="rc-fill"></div><div class="rc-cap" data-tip="The agent pauses here"></div></div>
   <div class="rc-rows">
@@ -12153,7 +12160,7 @@ button.pvb-row:focus-visible{outline-offset:-2px}
   <div class="card-h"><div><h3>Agent lanes</h3><p>Several agents working in parallel, each with its own lane and hand-offs.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
   <template><div class="dm aln-dm" data-designs="card"><div class="dm-main"><div class="aln panel">
-  <div class="aln-h"><span class="aln-ic">{users}</span><span class="aln-tx"><span class="aln-t">3 agents working</span><span class="aln-m muted num">0:00</span><span class="aln-ct num">0 of 9 steps</span></span><button class="pill line sm aln-pause">{pause}Pause all</button></div>
+  <div class="aln-h"><span class="aln-ic">{users}</span><span class="aln-tx"><span class="aln-t">3 agents working</span><span class="aln-m muted num">0:00</span><span class="aln-ct num">0 of 9 steps</span></span><button class="pill line sm aln-pause mx-ic"><span class="mx-icon">{pause}</span><span class="aln-pl mx-w">Pause all</span></button></div>
   <div class="aln-rows"></div>
   <div class="aln-say" aria-live="polite">3 agents queued</div>
 </div></div>
@@ -12919,18 +12926,18 @@ button.pvb-row:focus-visible{outline-offset:-2px}
   <div class="rdr-dw" role="region" aria-label="Run">
     <div class="rdr-grip" role="separator" aria-orientation="horizontal" aria-label="Resize the run drawer" tabindex="0" aria-valuemin="120" aria-valuemax="408" aria-valuenow="312"><i></i></div>
     <div class="rdr-h">
-      <button class="rdr-tg" aria-expanded="true">{chev-u.xs}<span><span class="w">Test run </span><span class="rdr-id num">#2088</span></span><span class="rdr-st tag run"><span class="spin"></span>Running</span></button>
+      <button class="rdr-tg mx-press" aria-expanded="true">{chev-u.xs}<span><span class="w">Test run </span><span class="rdr-id num">#2088</span></span><span class="rdr-st tag run"><span class="spin"></span>Running</span></button>
       <span class="rdr-meta num"></span>
       <span class="rdr-sp"></span>
       <div class="seg2 rdr-tabs" role="group" aria-label="Show"><button aria-pressed="true" data-v="steps">Steps</button><button aria-pressed="false" data-v="log">Log</button><button aria-pressed="false" data-v="data">Data</button></div>
-      <button class="pill ghost sm rdr-stop" aria-label="Stop the run" data-tip="Stop the run">{stop.xs}<span>Stop</span></button>
-      <button class="pill ghost sm rdr-again" aria-label="Run again" data-tip="Run again" hidden>{refresh.xs}<span>Run again</span></button>
-      <button class="ib rdr-follow" aria-pressed="true" aria-label="Follow the run" data-tip="Follow the run">{target}</button>
+      <button class="pill ghost sm rdr-stop mx-press" aria-label="Stop the run" data-tip="Stop the run">{stop.xs}<span>Stop</span></button>
+      <button class="pill ghost sm rdr-again mx-press" aria-label="Run again" data-tip="Run again" hidden>{refresh.xs}<span>Run again</span></button>
+      <button class="ib rdr-follow mx-press" aria-pressed="true" aria-label="Follow the run" data-tip="Follow the run">{target}</button>
     </div>
     <div class="rdr-b">
-      <div class="rdr-v" data-v="steps"><div class="rdr-ax" aria-hidden="true"><span>Step</span><span class="rdr-sc"></span><span class="ms">Time</span></div><div class="rdr-rows" role="group" aria-label="Steps of the run"></div></div>
+      <div class="rdr-v" data-v="steps"><div class="rdr-ax" aria-hidden="true"><span>Step</span><span class="rdr-sc"></span><span class="ms">Time</span></div><div class="rdr-rows mx-glide" role="group" aria-label="Steps of the run"></div></div>
       <div class="rdr-v" data-v="log" hidden><div class="rdr-lf"><div class="seg2 rdr-lvs" role="group" aria-label="Level"><button aria-pressed="true" data-v="all">All</button><button aria-pressed="false" data-v="warn">Warnings</button><button aria-pressed="false" data-v="error">Errors</button></div><span class="n num"></span></div><ol class="rdr-log" aria-label="Run log"></ol></div>
-      <div class="rdr-v" data-v="data" hidden><div class="rdr-data"><div class="rdr-ds" role="group" aria-label="Steps"></div><div class="rdr-io"></div></div></div>
+      <div class="rdr-v" data-v="data" hidden><div class="rdr-data"><div class="rdr-ds mx-glide" role="group" aria-label="Steps"></div><div class="rdr-io"></div></div></div>
     </div>
     <p class="rdr-live" aria-live="polite"></p>
   </div>
@@ -15363,7 +15370,7 @@ DM.def('agent-tree', (r, c) => {
   const build = n => {
     const who = n.app ? `<span class="atr-av app" aria-hidden="true">${BRAND[n.app]}</span>` : `<span class="atr-av${n.av || !n.lv ? '' : ' app'}" aria-hidden="true"${n.av ? ` style="--a:var(--av-${n.av});--ai:var(--av-${n.av}-ink)"` : ''}>${I(n.ic, 'xs')}</span>`;
     const m = n.lv ? n.s : 'src';
-    n.el = html(`<div class="atr-n" role="treeitem" aria-level="${n.lv + 1}" aria-selected="false" tabindex="${n.lv ? -1 : 0}" data-id="${n.id}" data-s="${n.s}" style="--lv:${n.lv}"><div class="atr-b"><div class="atr-r"><span class="atr-g" data-m="${m}" aria-hidden="true">${atrMark(m)}</span>${who}<span class="atr-w"><span class="atr-tx"><span class="atr-nm"></span>${n.kids.length ? `<span class="atr-tg" aria-hidden="true">${I('chev-d', 'xs')}</span>` : ''}<span class="atr-sub"></span></span><span class="atr-q num"><span class="atr-c"></span></span></span></div></div></div>`);
+    n.el = html(`<div class="atr-n" role="treeitem" aria-level="${n.lv + 1}" aria-selected="false" tabindex="${n.lv ? -1 : 0}" data-id="${n.id}" data-s="${n.s}" style="--lv:${n.lv}"><div class="atr-b"><div class="atr-r"><span class="atr-g" data-m="${m}" aria-hidden="true">${atrMark(m)}</span>${who}<span class="atr-w"><span class="atr-tx"><span class="atr-nm"></span>${n.kids.length ? `<span class="atr-tg mx-press" aria-hidden="true">${I('chev-d', 'xs')}</span>` : ''}<span class="atr-sub"></span></span><span class="atr-q num"><span class="atr-c"></span></span></span></div></div></div>`);
     $('.atr-nm', n.el).textContent = n.n; $('.atr-sub', n.el).textContent = n.t;
     n.tg = $('.atr-tg', n.el); if (n.tg) n.tg.hidden = true;
     if (n.kids.length){ n.fold = html('<div class="fold atr-kids"><div role="group"></div></div>'); n.kids.forEach(k => n.fold.firstElementChild.appendChild(build(k))); n.el.appendChild(n.fold); }
@@ -15604,7 +15611,7 @@ DM.def('agent-tree', (r, c) => {
   const ATR_COST = `<div class="atr atr-ct panel" data-s="run">
     ${ATR_HEAD('<b class="atr-t">Redesign the pricing page</b>')}
     <div class="atr-ct-mix" aria-hidden="true"></div>
-    <div class="atr-tree" role="tree" aria-label="Agents"><svg class="atr-ln" aria-hidden="true"></svg></div>
+    <div class="atr-tree mx-glide" role="tree" aria-label="Agents"><svg class="atr-ln" aria-hidden="true"></svg></div>
     <p class="atr-sr" role="status"></p>
   </div>`;
   function atrCost(r, c){
@@ -15613,7 +15620,7 @@ DM.def('agent-tree', (r, c) => {
     let M, L, head;
     const here = n => !n.late, under = n => n.kids.filter(here);
     function build(n){
-      n.el = html(`<div class="atr-n" role="treeitem" aria-level="${n.lv + 1}" aria-selected="false" tabindex="${n.lv ? -1 : 0}" data-id="${n.id}" data-s="${n.s}" style="--lv:${n.lv};--k:var(--k${n.k})"><div class="atr-b"><div class="atr-r">${atrG(atrM(n))}${atrWho(n)}<span class="atr-w"><span class="atr-tx"><span class="atr-nm"></span>${n.kids.length ? `<span class="atr-tg" aria-hidden="true">${I('chev-d', 'xs')}</span>` : ''}<span class="atr-sub"></span></span><span class="atr-q num"><span class="atr-c"></span><i class="atr-ct-bar" aria-hidden="true"><span></span></i></span></span></div></div></div>`);
+      n.el = html(`<div class="atr-n" role="treeitem" aria-level="${n.lv + 1}" aria-selected="false" tabindex="${n.lv ? -1 : 0}" data-id="${n.id}" data-s="${n.s}" style="--lv:${n.lv};--k:var(--k${n.k})"><div class="atr-b"><div class="atr-r">${atrG(atrM(n))}${atrWho(n)}<span class="atr-w"><span class="atr-tx"><span class="atr-nm"></span>${n.kids.length ? `<span class="atr-tg mx-press" aria-hidden="true">${I('chev-d', 'xs')}</span>` : ''}<span class="atr-sub"></span></span><span class="atr-q num"><span class="atr-c"></span><i class="atr-ct-bar" aria-hidden="true"><span></span></i></span></span></div></div></div>`);
       $('.atr-nm', n.el).textContent = n.n; $('.atr-sub', n.el).textContent = n.t;
       if (n.kids.length){ n.el.setAttribute('aria-expanded', 'true'); n.fold = html('<div class="fold atr-kids"><div role="group"></div></div>'); n.kids.forEach(k => n.fold.firstElementChild.appendChild(build(k))); n.el.appendChild(n.fold); }
       if (n.late) n.el.hidden = true;
@@ -16107,13 +16114,14 @@ DM.def('trace-view', (r, c) => {
     if (!x) return;
     x.el.setAttribute('aria-expanded', 'true');
     const [kind, icon, col] = K[x.k];
-    dc.innerHTML = `<div class="trv-dh"><span class="trv-k" style="--k:${col}">${I(icon,'xs')}</span><b>${x.n}</b>${x.slow ? '<span class="tag warn">slow</span>' : ''}<button class="ib trv-x" aria-label="Close details" data-tip="Close">${I('x')}</button></div>
+    dc.innerHTML = `<div class="trv-dh"><span class="trv-k" style="--k:${col}">${I(icon,'xs')}</span><b>${x.n}</b>${x.slow ? '<span class="tag warn">slow</span>' : ''}<button class="ib trv-x mx-press" aria-label="Close details" data-tip="Close">${I('x')}</button></div>
       <div class="trv-pos" aria-hidden="true" style="--k:${col}"><i style="left:${x.s / SPAN * 100}%"></i></div>
       <div class="trv-kv"><div><span>Kind</span><b>${kind}</b></div><div><span>Starts at</span><b class="num">${sec(x.s)}</b></div><div><span>Latency</span><b class="num trv-lt"></b></div><div><span>Tokens</span><b class="num trv-tn"></b></div></div>
       <div class="trv-io"><span>Input</span><code>${x.in}</code><span>Output</span><code class="out"></code></div>`;
     // closing hands focus back to the span, if it was inside the details
     $('.trv-x', dc).onclick = () => { const el = sel.el, back = dc.contains(document.activeElement); open(null); if (back) el.focus({ preventScroll:true }); };
-    fill(); enter(dc);
+    // (its parts settle one after another as it opens: .mx-rows on the card, motion pieces)
+    fill();
   }
   function fill(){
     const x = sel, done = T >= x.s + x.d;
@@ -16633,6 +16641,12 @@ DM.def('currency-converter', (r, c) => {
   });
 });
 /* ---------- Agent lanes ---------- */
+// Pause and Resume: the icon crossfades and the words ease the pill to their width (motion pieces, 26 Nov)
+function alnPause(b, on, word){
+  const ic = $('.mx-icon', b), w = $('.aln-pl', b);
+  if (!ic || !w){ b.innerHTML = I(on ? 'play' : 'pause','xs') + (on ? 'Resume' : word); return; }
+  iconSwap(ic, () => { ic.innerHTML = I(on ? 'play' : 'pause','xs'); }, { inner:true }); swap(w, on ? 'Resume' : word);
+}
 DM.def('agent-lanes', (r, c) => {
   r.innerHTML = r.innerHTML.replace('{users}', I('users')).replace('{pause}', I('pause','xs'));
   // each agent has a hue of its own (t names the palette slot): its badge, its track, its tag and its stretch of the relay line
@@ -16643,7 +16657,7 @@ DM.def('agent-lanes', (r, c) => {
   ];
   const root = $('.aln', r), rows = $('.aln-rows', r), ct = $('.aln-ct', r), say = $('.aln-say', r), STEPS = L.length * 3;
   L.forEach(l => {
-    l.el = html(`<div class="aln-lane" data-s="queued" style="--c:var(--${l.t});--cb:var(--${l.t}-bg);--cm:var(--aln-${l.t},var(--${l.t}))"><button class="aln-row" aria-expanded="false"><span class="aln-av">${I(l.ic)}</span><span class="aln-who"><span class="aln-n">${l.n}</span><span class="aln-a">${l.wait || 'Queued'}</span></span><span class="aln-tr" aria-hidden="true"><i></i><i></i><i></i></span><span class="aln-st"><span class="tag">Queued</span></span></button><div class="fold shut"><div><div class="aln-det"></div></div></div></div>`);
+    l.el = html(`<div class="aln-lane" data-s="queued" style="--c:var(--${l.t});--cb:var(--${l.t}-bg);--cm:var(--aln-${l.t},var(--${l.t}))"><button class="aln-row mx-press" aria-expanded="false"><span class="aln-av">${I(l.ic)}</span><span class="aln-who"><span class="aln-n">${l.n}</span><span class="aln-a">${l.wait || 'Queued'}</span></span><span class="aln-tr" aria-hidden="true"><i></i><i></i><i></i></span><span class="aln-st"><span class="tag">Queued</span></span></button><div class="fold shut"><div><div class="aln-det"></div></div></div></div>`);
     rows.appendChild(l.el); const b = $('.aln-row', l.el), f = $('.fold', l.el);
     b.onclick = () => { const s = f.classList.toggle('shut'); b.setAttribute('aria-expanded', !s); };
   });
@@ -16664,7 +16678,7 @@ DM.def('agent-lanes', (r, c) => {
   const pb = $('.aln-pause', r);
   // Pause all is the white outlined secondary (owner, 23 Nov); inside Agent harness (Phase II) it keeps its grey one for now
   if (r.closest('.ahx')) pb.classList.replace('line', 'soft');
-  pb.onclick = () => { paused = !paused; pb.innerHTML = I(paused ? 'play' : 'pause','xs') + (paused ? 'Resume' : 'Pause all'); swap($('.aln-t', r), paused ? 'All agents paused' : '3 agents working');
+  pb.onclick = () => { paused = !paused; alnPause(pb, paused, 'Pause all'); swap($('.aln-t', r), paused ? 'All agents paused' : '3 agents working');
     L.forEach(l => { if (l.running){ state(l, paused ? 'paused' : 'working'); $('.aln-a', l.el).classList.toggle('shim', !paused); } }); tell(); };
   c.every(1000, () => { if (!paused && !finished){ secs++; $('.aln-m', r).textContent = clk(); } });
   // time only passes for the agents while they aren't paused; each() hears how far through the wait they are
@@ -16745,7 +16759,7 @@ DM.def('agent-lanes', (r, c) => {
   }
 
   const alnSwTpl = () => `<div class="aln-sw panel keep">
-    <div class="aln-sw-h"><div class="aln-sw-ht"><b class="aln-sw-tt">3 agents working</b><span class="aln-sw-st num">0:00 of 0:12</span></div><span class="aln-sw-key" aria-hidden="true"><span><i class="next"></i>Next</span><span><i class="run"></i>Working</span><span><i class="done"></i>Done</span><span><i class="wait"></i>Waiting</span></span><button class="pill line sm aln-sw-pause" type="button">${I('pause','xs')}Pause</button></div>
+    <div class="aln-sw-h"><div class="aln-sw-ht"><b class="aln-sw-tt">3 agents working</b><span class="aln-sw-st num">0:00 of 0:12</span></div><span class="aln-sw-key" aria-hidden="true"><span><i class="next"></i>Next</span><span><i class="run"></i>Working</span><span><i class="done"></i>Done</span><span><i class="wait"></i>Waiting</span></span><button class="pill line sm aln-sw-pause mx-ic" type="button"><span class="mx-icon">${I('pause','xs')}</span><span class="aln-pl mx-w">Pause</span></button></div>
     <div class="aln-sw-grid">
       <div class="aln-sw-ax num" aria-hidden="true"><span class="aln-sw-ticks"></span></div>
       <div class="aln-sw-rows"></div>
@@ -16810,7 +16824,7 @@ DM.def('agent-lanes', (r, c) => {
       T = Math.min(ALN_END, Math.round(T * 10 + 1) / 10); paint(); text(); fire();
       if (T >= ALN_END){ fin = true; clearInterval(iv); root.classList.add('fin'); swap(tt, 'All 3 agents finished'); pb.hidden = true; text(); }
     });
-    pb.onclick = () => { paused = !paused; root.classList.toggle('paused', paused); pb.innerHTML = I(paused ? 'play' : 'pause','xs') + (paused ? 'Resume' : 'Pause'); swap(tt, paused ? 'All agents paused' : '3 agents working'); text(); };
+    pb.onclick = () => { paused = !paused; root.classList.toggle('paused', paused); alnPause(pb, paused, 'Pause'); swap(tt, paused ? 'All agents paused' : '3 agents working'); text(); };
     // dragging the playhead's time, clicking a lane, or the arrow keys on the playhead look back through the run; Back to
     // now follows the run again
     const seek = v => { v = Math.max(0, Math.min(T, v)); V = v >= T - .05 ? null : v; live.hidden = V === null; paint(); text(); };
@@ -16842,14 +16856,14 @@ DM.def('agent-lanes', (r, c) => {
     let fin = false, ticks = 0;
     A.forEach((a, i) => {
       a.held = false; a.tk = 0; a.spent = 0; a.t = 0; const N = a.steps.length;
-      a.el = html(`<div class="aln-cw-c" data-s="idle" style="--a:var(--av-${a.av});--ai:var(--av-${a.av}-ink)"><div class="aln-cw-top"><span class="aln-cw-av" aria-hidden="true">${I(a.ic)}</span><span class="aln-cw-tx"><b>${a.n}</b><span>Starts soon</span></span><span class="tag aln-cw-tag">Up next</span><span class="aln-cw-acts"><button class="ib aln-cw-hold" type="button" aria-pressed="false" aria-label="Pause ${a.n}" data-tip="Pause this agent">${I('pause','xs')}</button><button class="ib aln-cw-sb" type="button" aria-expanded="false" aria-label="Steer ${a.n}" data-tip="Steer">${I('wand','xs')}</button></span></div><div class="aln-cw-meter"><span class="aln-cw-tr" role="progressbar" aria-label="${a.n}’s steps" aria-valuemin="0" aria-valuemax="${N}" aria-valuenow="0" style="--n:${N}"><span class="aln-cw-ln"><i></i></span>${'<b></b>'.repeat(N)}</span><span class="aln-cw-num"><span><b class="aln-cw-sn">0</b> of ${N} steps</span><span class="aln-cw-tkn"><b class="aln-cw-tk">0</b> tokens</span><b class="aln-cw-cs">$0.00</b></span></div><div class="fold shut"><div><form class="aln-cw-steer"><input aria-label="A note for the ${a.n.toLowerCase()}" placeholder="Tell the ${a.n.toLowerCase()} what to change"><button class="ib aln-cw-go" type="submit" aria-label="Send" data-tip="Send" disabled>${I('send','xs')}</button></form></div></div><div class="aln-cw-nts"></div></div>`);
+      a.el = html(`<div class="aln-cw-c" data-s="idle" style="--a:var(--av-${a.av});--ai:var(--av-${a.av}-ink)"><div class="aln-cw-top"><span class="aln-cw-av" aria-hidden="true">${I(a.ic)}</span><span class="aln-cw-tx"><b>${a.n}</b><span>Starts soon</span></span><span class="tag aln-cw-tag">Up next</span><span class="aln-cw-acts"><button class="ib aln-cw-hold mx-ic mx-press" type="button" aria-pressed="false" aria-label="Pause ${a.n}" data-tip="Pause this agent">${I('pause','xs')}</button><button class="ib aln-cw-sb mx-press" type="button" aria-expanded="false" aria-label="Steer ${a.n}" data-tip="Steer">${I('wand','xs')}</button></span></div><div class="aln-cw-meter"><span class="aln-cw-tr" role="progressbar" aria-label="${a.n}’s steps" aria-valuemin="0" aria-valuemax="${N}" aria-valuenow="0" style="--n:${N}"><span class="aln-cw-ln"><i></i></span>${'<b></b>'.repeat(N)}</span><span class="aln-cw-num"><span><b class="aln-cw-sn">0</b> of ${N} steps</span><span class="aln-cw-tkn"><b class="aln-cw-tk">0</b> tokens</span><b class="aln-cw-cs">$0.00</b></span></div><div class="fold shut"><div><form class="aln-cw-steer"><input aria-label="A note for the ${a.n.toLowerCase()}" placeholder="Tell the ${a.n.toLowerCase()} what to change"><button class="ib aln-cw-go" type="submit" aria-label="Send" data-tip="Send" disabled>${I('send','xs')}</button></form></div></div><div class="aln-cw-nts"></div></div>`);
       list.appendChild(a.el);
       a.tr = $('.aln-cw-tr', a.el); a.ln = $('.aln-cw-ln i', a.el); a.dots = $$('.aln-cw-tr b', a.el); a.sn = $('.aln-cw-sn', a.el); a.tkEl = $('.aln-cw-tk', a.el); a.csEl = $('.aln-cw-cs', a.el);
       // no hand-off row between the cards (owner, 18 Nov): each waiting card already says what it waits for
       const hold = $('.aln-cw-hold', a.el), sb = $('.aln-cw-sb', a.el), fold = $('.fold', a.el), form = $('.aln-cw-steer', a.el), inp = $('input', form), go = $('.aln-cw-go', form);
       inp.oninput = () => { go.disabled = !inp.value.trim(); };
       fold.inert = true;
-      hold.onclick = () => { a.held = !a.held; hold.setAttribute('aria-pressed', String(a.held)); hold.innerHTML = I(a.held ? 'play' : 'pause','xs'); hold.dataset.tip = a.held ? 'Resume this agent' : 'Pause this agent'; hold.setAttribute('aria-label', (a.held ? 'Resume ' : 'Pause ') + a.n); paint(a); };
+      hold.onclick = () => { a.held = !a.held; hold.setAttribute('aria-pressed', String(a.held)); iconSwap(hold, () => { hold.innerHTML = I(a.held ? 'play' : 'pause','xs'); }, { inner:true }); hold.dataset.tip = a.held ? 'Resume this agent' : 'Pause this agent'; hold.setAttribute('aria-label', (a.held ? 'Resume ' : 'Pause ') + a.n); paint(a); };
       // the note's field takes the focus only when you open it yourself; the demo never moves your focus
       sb.onclick = e => { const on = sb.getAttribute('aria-expanded') !== 'true'; sb.setAttribute('aria-expanded', String(on)); fold.classList.toggle('shut', !on); fold.inert = !on; if (on && e.isTrusted) requestAnimationFrame(() => inp.focus({ preventScroll:true })); };
       // the note shows once its field has shut, so the card never holds both at once
@@ -22123,6 +22137,9 @@ DM.def('run-drawer', (r, c) => {
   const uid = 'rdr' + Math.random().toString(36).slice(2, 7);
   const frame = $('.rdr', r), dw = $('.rdr-dw', r), flow = $('.rdr-flow', r), tg = $('.rdr-tg', r), stT = $('.rdr-st', r), idT = $('.rdr-id', r), meta = $('.rdr-meta', r);
   const bd = $('.rdr-b', r), rowsEl = $('.rdr-rows', r), sc = $('.rdr-sc', r), logEl = $('.rdr-log', r), cnt = $('.rdr-lf .n', r), ds = $('.rdr-ds', r), io = $('.rdr-io', r);
+  // its motion pieces (26 Nov): one highlight glides from step to step in both lists, in every style; the picked step keeps its
+  // own fill
+  if (!r.closest('.ahx')) ['.rdr-rows', '.rdr-ds'].forEach(s => c.offs.push(hoverGlide($(s, r), s === '.rdr-rows' ? '.rdr-r' : 'button', { keep:'[aria-pressed="true"]' })));
   const stopB = $('.rdr-stop', r), againB = $('.rdr-again', r), followB = $('.rdr-follow', r), grip = $('.rdr-grip', r), live = $('.rdr-live', r);
   bd.id = uid + '-b'; tg.setAttribute('aria-controls', bd.id);
   // the workflow: each step with what it took in and handed on; an AI step's model and tool calls are its kids, as
