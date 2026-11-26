@@ -79,11 +79,22 @@
      button. The landing page has no sidebar shell, so the colours are the page's (--pg-*), and the motion the core's (--dm-*) */
   function landing(){
     var BOOK = 'https://www.designme.agency/intro?utm_source=designme.dev&amp;utm_medium=referral&amp;utm_campaign=book_a_call';
+    var MASK = 'url("data:image/svg+xml,' + encodeURIComponent(LOGO.replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ').replace('currentColor', '#000')) + '")';
     var lc = ''
       + '.dmf.dmf-lp{display:block;left:auto;right:16px;opacity:0;visibility:hidden;transform:translateY(12px) scale(.9);transform-origin:bottom right;'
       + 'transition:opacity .2s var(--dm-ease-io,ease),transform .2s var(--dm-ease-io,ease),visibility 0s .2s}'
       + '.dmf.dmf-lp.in{opacity:1;visibility:visible;transform:none;transition:opacity .3s var(--dm-ease,ease),transform .45s cubic-bezier(.34,1.56,.64,1),visibility 0s}'
-      + '.dmf-lp .dmf-b{border-color:var(--sh-line,var(--pg-line2));background:var(--sh-card,var(--pg-bg));color:var(--sh-text,var(--pg-fg))}'
+      // the landing page has no SiteShell, so the shell's tokens the button uses are mapped from the page's (the shell's values)
+      + '.dmf-lp{--sh-card:var(--pg-bg);--sh-line:var(--pg-line2);--sh-line-2:var(--pg-line2);--sh-text:var(--pg-fg);--sh-muted:var(--pg-muted);--sh-chip:var(--pg-chip);--sh-act:var(--pg-soft)}'
+      + ':root[data-theme="dark"] .dmf-lp{--sh-card:#181818}'
+      + '@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .dmf-lp{--sh-card:#181818}}'
+      + '.dmf-lp .dmf-b{border-color:var(--sh-line);background:var(--sh-card);color:var(--sh-text)}'
+      // the sidebar sticker's gloss (SiteShell .sticker .gloss, the same gradient and timing), passing through the smiley
+      + '.dmf-gl{position:absolute;left:50%;top:50%;width:26px;height:22px;margin:-11px 0 0 -13px;pointer-events:none;-webkit-mask:' + MASK + ' center/contain no-repeat;mask:' + MASK + ' center/contain no-repeat;'
+      + 'background:linear-gradient(115deg,transparent 38%,rgba(255,255,255,.85) 50%,transparent 62%);background-size:260% 100%;background-position:160% 0;animation:dmf-gloss 5s ease-in-out 1.6s infinite}'
+      + '@keyframes dmf-gloss{0%{background-position:160% 0}22%{background-position:-60% 0}100%{background-position:-60% 0}}'
+      + ':root[data-theme="dark"] .dmf-gl{background-image:linear-gradient(115deg,transparent 38%,rgba(17,17,17,.35) 50%,transparent 62%)}'
+      + '@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .dmf-gl{background-image:linear-gradient(115deg,transparent 38%,rgba(17,17,17,.35) 50%,transparent 62%)}}'
       + '.dmf-lp.open .dmf-b{transform:none;opacity:1;pointer-events:auto}'
       + '.dmf-lp .dmf-b:focus-visible{outline-color:var(--sh-line-2,var(--pg-line2))}'
       + '.dmf-p{position:absolute;right:0;bottom:calc(100% + 12px);width:min(304px,calc(100vw - 32px));box-sizing:border-box;padding:16px;border-radius:16px;border:1px solid var(--pg-line);background:var(--pg-bg);color:var(--pg-fg);'
@@ -106,10 +117,10 @@
       + '.dmf-p .dmf-mail{font-size:13px;line-height:20px;color:var(--pg-dim)}'
       + '.dmf-p .dmf-mail a{color:var(--pg-fg);text-decoration:underline;text-decoration-color:var(--pg-line2);text-underline-offset:3px}'
       + '.dmf-p .dmf-mail a:hover{text-decoration-color:currentColor}'
-      + '@media (prefers-reduced-motion:reduce){.dmf.dmf-lp,.dmf.dmf-lp.in,.dmf-p,.dmf-lp.open .dmf-p{transform:none!important;filter:none!important;transition:opacity .15s,visibility 0s!important}.dmf-lp.open .dmf-b,.dmf-lp .dmf-b{transform:none}}';
+      + '@media (prefers-reduced-motion:reduce){.dmf-gl{animation:none;display:none}.dmf.dmf-lp,.dmf.dmf-lp.in,.dmf-p,.dmf-lp.open .dmf-p{transform:none!important;filter:none!important;transition:opacity .15s,visibility 0s!important}.dmf-lp.open .dmf-b,.dmf-lp .dmf-b{transform:none}}';
     var ls = document.createElement('style'); ls.textContent = lc; document.head.appendChild(ls);
     var fab = document.createElement('div'); fab.className = 'dmf dmf-lp';
-    fab.innerHTML = '<button class="dmf-b" type="button" aria-expanded="false" aria-controls="dmf-p" aria-haspopup="dialog" aria-label="DesignMe: who made this, and Book a call">' + LOGO + '</button>'
+    fab.innerHTML = '<button class="dmf-b" type="button" aria-expanded="false" aria-controls="dmf-p" aria-haspopup="dialog" aria-label="DesignMe: who made this, and Book a call">' + LOGO + '<span class="dmf-gl" aria-hidden="true"></span></button>'
       + '<div class="dmf-p" id="dmf-p" role="dialog" aria-labelledby="dmf-pt" tabindex="-1">'
       + '<p class="dmf-t" id="dmf-pt">DesignMe made designme.dev</p>'
       + '<p class="dmf-d">We design and build AI products, React apps and Astro sites.</p>'
