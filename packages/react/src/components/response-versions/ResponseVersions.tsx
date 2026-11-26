@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable, useCopied, useIsoLayoutEffect, useReducedMotion } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { Swap, SwapIcon, Tip } from '../../lib/motion';
+import { growFit, Swap, SwapIcon, Tip } from '../../lib/motion';
 import '../../designme.css';
 import './response-versions.css';
 
@@ -48,22 +48,10 @@ export function ResponseVersions({ prompt, versions, version, defaultVersion = 0
   }, [at, shown, streaming, reduce]);
   const text = versions[shown] ?? '';
   const words = text.split(' ').filter(Boolean);
-  // the container grows with what it holds, eased (grow() on the site), and stays centred wherever it is centred, in every
-  // style (owner, 18 Nov)
+  // the container grows with what it holds, in one smooth motion (growFit, grow() on the site), and stays centred wherever it
+  // is centred, in every style (owner, 18 Nov; 26 Nov: no jitter)
   const root = useRef<HTMLDivElement>(null), inner = useRef<HTMLDivElement>(null);
-  useIsoLayoutEffect(() => {
-    const el = root.current, w = inner.current;
-    if (!el || !w || typeof ResizeObserver === 'undefined') return;
-    let first = true;
-    const box = () => { const cs = getComputedStyle(el); return parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth); };
-    const fit = () => {
-      const h = Math.ceil(w.offsetHeight + box());
-      if (first) { el.style.transition = 'none'; el.style.height = h + 'px'; void el.offsetHeight; el.style.transition = ''; first = false; }
-      else el.style.height = h + 'px';
-    };
-    const ro = new ResizeObserver(fit); ro.observe(w); fit();
-    return () => { ro.disconnect(); el.style.height = ''; };
-  }, []);
+  useIsoLayoutEffect(() => { const el = root.current, w = inner.current; if (el && w) return growFit(el, w); }, []);
   // while a new version streams in, the answer keeps the height of the one it replaces, then eases to its own
   const tRef = useRef<HTMLParagraphElement>(null), prevT = useRef({ at: -1, h: 0 });
   useIsoLayoutEffect(() => {
