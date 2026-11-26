@@ -35,7 +35,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--mini-bg)}
 body{font:14px/1.6 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;letter-spacing:-.006em;-webkit-font-smoothing:antialiased;color:var(--dm-fg)}
 /* laid out at its own width and scaled to the frame, always centred, so it grows and shrinks about its middle */
 .z{position:absolute;top:50%;left:50%;transform-origin:50% 50%;display:grid;grid-template-columns:minmax(0,1fr)}
-.z>.card{display:grid;place-items:center;min-width:0}
+.z>.card{display:grid;place-items:center;justify-self:center;min-width:0}
 </style>
 </head>
 <body>
@@ -49,7 +49,8 @@ body{font:14px/1.6 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto
   var fit = function(){ var k = Math.min(innerWidth / W, innerHeight / H); z.style.transform = 'translate(-50%,-50%) scale(' + k + ')'; };
   fit(); addEventListener('resize', fit);
   // play (and play again): the page calls it for its cards together, so the three miniatures move in step
-  window.miniPlay = function(){ wanted = true; if (card && window.DM && DM.defs[card.dataset.c]) DM.mount(card); };
+  window.miniPlay = function(){ wanted = true; // (DM is the core's top-level const, so it is not on window)
+    if (card && typeof DM !== 'undefined' && DM.defs[card.dataset.c]) DM.mount(card); };
   fetch('/r/' + reg + '.json').then(function(r){ if (!r.ok) throw new Error(r.status); return r.json(); }).then(function(d){
     var f = function(ext){ var x = d.files.filter(function(x){ return x.path.slice(-ext.length) === ext; })[0]; return x ? x.content : ''; };
     var st = document.createElement('style'); st.textContent = f('.css'); document.head.appendChild(st);
