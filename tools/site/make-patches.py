@@ -1676,5 +1676,13 @@ CSS += """
 .dm-lf button{font:inherit;font-weight:500;color:var(--fg);background:var(--surface,#fff);border:1px solid color-mix(in srgb,var(--line) 50%,transparent);border-radius:8px;padding:6px 12px;cursor:pointer}
 """
 
+CSS += """
+/* Soft's site popovers (the accent picker, the filter menu, the code view, the nudge, the copy toast) take the drop layers of
+   Soft's --shadow-pop (lighter since 26 Nov, owner: "shadows in Soft style are too strong"); their own 1px border is the edge */
+:root[data-style="soft"] :is(.acc-pop,.flt-menu,.cdm-box,.nudge,.toast){box-shadow:0 1px 2px rgba(0,0,0,.03),0 4px 8px -4px rgba(0,0,0,.04),0 10px 20px -8px rgba(0,0,0,.05),0 20px 36px -16px rgba(0,0,0,.07)}
+:root[data-style="soft"][data-theme="dark"] :is(.acc-pop,.flt-menu,.cdm-box,.nudge,.toast){box-shadow:0 2px 4px rgba(0,0,0,.26),0 8px 20px -8px rgba(0,0,0,.34),0 20px 40px -18px rgba(0,0,0,.4)}
+@media (prefers-color-scheme:dark){:root[data-style="soft"]:not([data-theme="light"]) :is(.acc-pop,.flt-menu,.cdm-box,.nudge,.toast){box-shadow:0 2px 4px rgba(0,0,0,.26),0 8px 20px -8px rgba(0,0,0,.34),0 20px 40px -18px rgba(0,0,0,.4)}}
+"""
+
 json.dump({ 'patches': P, 'css': CSS },open(os.path.join(HERE, 'site-patches.json'), 'w'), indent=1)
 print(len(P), 'patches')
