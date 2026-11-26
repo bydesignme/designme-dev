@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Hold to keep · Toasts 3b · Designme.dev lab</title>
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<!-- Toast variation 3b, "compact pill to rich card" (b): a toast you can feel. Its bottom edge drains as its time runs out;
+     press and hold it and the edge fills back up until it clicks into place and stays; drag it sideways and it gives, then
+     lets go past a point and flies off. Each toast leads with a small picture frame whose contents are the news: it develops,
+     empties, stops at the line that failed, or takes a pin. Nothing ships from here -->
+<script>
+(function(){
+  var d = document.documentElement, q = new URLSearchParams(location.search), t = q.get('theme'), s = q.get('style');
+  try { if (!t) t = localStorage.getItem('dmui-theme'); } catch(e){}
+  if (t !== 'dark' && t !== 'light') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  try { if (!s) s = localStorage.getItem('dmui-style'); } catch(e){}
+  if (s === 'blueprint') s = 'bp';
+  if (s !== 'soft' && s !== 'clean' && s !== 'bp') s = t === 'dark' ? 'bp' : 'soft';
+  d.setAttribute('data-theme', t);
+  if (s === 'bp') d.removeAttribute('data-style'); else d.setAttribute('data-style', s);
+})();
+</script>
+<link rel="stylesheet" href="assets/core.css">
+<style>
+@font-face{font-family:"Inter";font-weight:400;font-display:swap;src:url(../../fonts/inter-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"Inter";font-weight:500;font-display:swap;src:url(../../fonts/inter-latin-500-normal.woff2) format("woff2")}
+
+/* ---------- the lab page around the stage ---------- */
+html,body{margin:0;background:var(--dm-page);color:var(--dm-fg);font-family:var(--dm-sans);-webkit-font-smoothing:antialiased}
+body{min-height:100vh;overflow-x:hidden}
+.ts3b-top{width:auto;max-width:792px;margin:0 auto;padding:32px 16px 20px;display:flex;flex-wrap:wrap;align-items:flex-end;gap:16px}
+.ts3b-top .ts3b-id{flex:1 1 320px;min-width:0}
+.ts3b-top .ts3b-k{margin:0 0 4px;font-size:12px;color:var(--dm-muted)}
+.ts3b-top h1{margin:0;font-size:14px;line-height:20px;font-weight:500}
+.ts3b-top .ts3b-say{margin:4px 0 0;font-size:13px;line-height:20px;color:var(--dm-muted);max-width:520px}
+.ts3b-ctl{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.ts3b-main{max-width:792px;margin:0 auto;padding:0 16px 48px}
+.ts3b-foot{margin:16px 0 0;font-size:12px;line-height:18px;color:var(--dm-muted);max-width:620px}
+
+/* ---------- the stage: a small image studio, the toasts arriving at its bottom right corner ---------- */
+[data-c="ts3b"]{width:100%;max-width:760px;margin:0 auto}
+[data-c="ts3b"]>.stage-in{max-width:none}
+.ts3b-stage{background:var(--dm-stage);border-radius:var(--dm-r-card);padding:32px;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.ts3b-scr{position:relative;height:440px;background:var(--dm-surface);border-radius:var(--dm-r-card);box-shadow:var(--dm-shadow);overflow:hidden;display:flex;flex-direction:column;isolation:isolate}
+.ts3b-bar{height:48px;flex:none;display:flex;align-items:center;gap:8px;padding:0 16px;border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:13px;color:var(--dm-fg2)}
+.ts3b-bar .i{color:var(--dm-muted)}
+.ts3b-bar .ts3b-bar-r{margin-left:auto;display:flex;align-items:center;gap:8px}
+.ts3b-bar .ts3b-cnt{font-size:12px;color:var(--dm-muted);font-variant-numeric:tabular-nums}
+.ts3b-body{flex:1;min-height:0;display:flex;flex-direction:column;padding:16px}
+.ts3b-grid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-content:start;gap:12px}
+.ts3b-tile{position:relative;min-width:0;display:flex;flex-direction:column;gap:6px}
+.ts3b-img{position:relative;aspect-ratio:1;border-radius:calc(12px * var(--dm-rk-m,var(--dm-rk)));overflow:hidden;background:var(--dm-chip)}
+.ts3b-img svg{display:block;width:100%;height:100%}
+.ts3b-cap{font-size:12px;line-height:18px;color:var(--dm-fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ts3b-tile .ts3b-del{position:absolute;top:8px;right:8px;opacity:0;transition:opacity var(--dm-t-fast) var(--dm-ease),background var(--dm-t-fast)}
+.ts3b-tile .ts3b-del.ib.fill{width:28px;height:28px;background:var(--dm-surface);box-shadow:var(--dm-on-tint-btn)}
+@media (hover:hover) and (pointer:fine){.ts3b-tile .ts3b-del.ib.fill:hover{background:var(--dm-surface);box-shadow:var(--dm-on-tint-btn-h);color:var(--dm-fg)}}
+.ts3b-tile:hover .ts3b-del,.ts3b-tile.hov .ts3b-del,.ts3b-del:focus-visible{opacity:1}
+@media (hover:none){.ts3b-tile .ts3b-del{opacity:1}}
+.ts3b-tile.gen .ts3b-img{background:linear-gradient(100deg,var(--dm-chip) 30%,var(--dm-hover) 50%,var(--dm-chip) 70%);background-size:260% 100%;animation:shim 1.6s linear infinite}
+.ts3b-tile.gen .ts3b-img svg{opacity:0}
+.ts3b-cmp{flex:none;display:flex;align-items:center;gap:8px;margin-top:12px;padding:6px 6px 6px 12px;background:var(--dm-surface);border-radius:var(--dm-r-box);box-shadow:inset 0 0 0 1px var(--dm-field-line);transition:box-shadow var(--dm-t-fast) var(--dm-ease)}
+@supports (corner-shape:squircle){.ts3b-cmp{border-radius:var(--dm-r-box-sq)}}
+.ts3b-cmp:focus-within{box-shadow:inset 0 0 0 1px var(--dm-field-line-strong)}
+.ts3b-cmp input{flex:1;min-width:0;border:0;background:none;outline:0;font-size:13px;line-height:20px;height:28px;color:var(--dm-fg)}
+
+/* the viewer an Open opens: the picture large, over a scrim */
+.ts3b-view{position:absolute;inset:0;z-index:20;display:grid;place-items:center;background:color-mix(in srgb,var(--dm-page) 72%,transparent);animation:ts3bfade var(--dm-t) var(--dm-ease) both}
+.ts3b-view figure{margin:0;display:flex;flex-direction:column;gap:8px;width:min(280px,72%)}
+.ts3b-view .ts3b-img{box-shadow:var(--dm-shadow-pop)}
+.ts3b-view figcaption{display:flex;align-items:center;gap:8px;font-size:13px;line-height:20px}
+.ts3b-view figcaption span{flex:1;min-width:0}
+.ts3b-view figcaption .ib{width:28px;height:28px;margin-right:-6px}
+@keyframes ts3bfade{from{opacity:0}}
+
+/* ---------- the toasts ---------- */
+.ts3b-tray{position:absolute;z-index:10;right:16px;bottom:76px;width:var(--tw,360px);display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.ts3b-tray>*{pointer-events:auto}
+/* 16px in from every edge; the glyph on the left, the title and its detail beside it, Keep and Close on the title's line,
+   the one action on a row of its own under the words; the bottom edge is the time left */
+.ts3b-t{position:relative;display:grid;grid-template-columns:48px minmax(0,1fr) auto;column-gap:12px;align-items:start;padding:16px;background:var(--dm-raised);border-radius:var(--dm-r-card);box-shadow:var(--dm-shadow-toast);overflow:hidden;touch-action:pan-y;user-select:none;-webkit-user-select:none;cursor:grab;transform-origin:50% 100%;--row:color-mix(in srgb,var(--dm-fg) 5%,transparent)}
+.ts3b-t.drag{cursor:grabbing}
+.ts3b-t .ts3b-g{grid-row:1/3;grid-column:1;display:block;width:48px;height:36px;overflow:visible}
+.ts3b-t .ts3b-tx{grid-column:2;min-width:0;font-size:13px;line-height:20px}
+.ts3b-t .ts3b-tx b{display:block;font-weight:500;color:var(--dm-fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ts3b-t .ts3b-tx span{display:block;font-size:12px;line-height:18px;color:var(--dm-muted);font-variant-numeric:tabular-nums}
+.ts3b-t .ts3b-ic{grid-column:3;grid-row:1;display:flex;align-items:center;gap:2px;margin:-4px -6px 0 0}
+.ts3b-t .ts3b-ic .ib{width:28px;height:28px}
+.ts3b-t .ts3b-act{grid-column:2/4;grid-row:2;display:flex;align-items:center;gap:8px;min-height:0}
+.ts3b-t .ts3b-act:empty{display:none}
+.ts3b-t .ts3b-act .pill{margin:8px 0 -6px -11px}
+.ts3b-t .ts3b-act .pill .n{font-weight:400;color:var(--dm-muted);font-variant-numeric:tabular-nums;min-width:8px}
+/* the time left, along the bottom edge: a neutral grey that runs out to the left; a press and hold fills it back */
+.ts3b-edge{position:absolute;left:0;right:0;bottom:0;height:3px;background:color-mix(in srgb,var(--dm-line) 70%,transparent);transition:opacity var(--dm-t) var(--dm-ease)}
+.ts3b-edge i{position:absolute;left:0;top:0;bottom:0;width:calc(var(--k,1) * 100%);background:var(--dm-muted)}
+.ts3b-t.hold .ts3b-edge i{background:var(--dm-fg)}
+.ts3b-t.kept .ts3b-edge,.ts3b-t.notime .ts3b-edge{opacity:0}
+/* the glyph: a small picture frame; what happens inside it is the news */
+.ts3b-g .fr{fill:none;stroke:color-mix(in srgb,var(--dm-line-strong) 60%,transparent);stroke-width:1.25}
+.ts3b-g .fr.empty{stroke-dasharray:3 2.5;stroke:var(--dm-line-strong)}
+.ts3b-g .veil{fill:var(--dm-chip)}
+.ts3b-g .scan{stroke:var(--dm-accent-mark);stroke-width:1.5}
+.ts3b-g .scan.bad{stroke:var(--dm-bad-mark)}
+.ts3b-g .hatch line{stroke:color-mix(in srgb,var(--dm-line-strong) 45%,transparent);stroke-width:1}
+.ts3b-g .pin path{fill:var(--dm-fg)}
+.ts3b-g .pin circle{fill:var(--dm-raised)}
+.ts3b-g .tk circle{fill:var(--dm-ok-mark)}
+.ts3b-g .tk path{fill:none;stroke:#fff;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.ts3b-g .bd circle{fill:var(--dm-bad-mark)}
+.ts3b-g .bd path{fill:none;stroke:#fff;stroke-width:1.6;stroke-linecap:round}
+
+.ts3b-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+/* Clean: a hairline card with Clean's round corners (16px for a toast), monochrome chrome, its calm motion */
+:root[data-style="clean"] .ts3b-stage{box-shadow:none}
+:root[data-style="clean"] .ts3b-t{border-radius:calc(12px * var(--dm-rk-l,var(--dm-rk)));box-shadow:var(--dm-shadow-pop)}
+:root[data-style="clean"] .ts3b-img{border-radius:12px}
+:root[data-style="clean"] .ts3b-edge i{background:var(--dm-fg2)}
+
+/* phones: the stage is the screen, edge to edge; a toast is the screen's width less 16px on each side */
+@media (max-width:600px){
+  .ts3b-main{padding:0 0 40px}
+  .ts3b-stage{padding:0;border-radius:0;box-shadow:none;background:none}
+  .ts3b-scr{border-radius:0;height:560px;box-shadow:0 0 0 1px color-mix(in srgb,var(--dm-line) 50%,transparent)}
+  .ts3b-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ts3b-tray{left:16px;right:16px;width:auto}
+  .ts3b-foot{padding:0 16px}
+}
+</style>
+</head>
+<body>
+<header class="ts3b-top" data-c="ts3b-chrome">
+  <div class="ts3b-id">
+    <p class="ts3b-k">Toasts · variation 3b</p>
+    <h1>Hold to keep</h1>
+    <p class="ts3b-say">A toast you can feel: its edge drains as its time runs out, a press and hold fills it back until it clicks into place, and a sideways drag gives before it lets go.</p>
+  </div>
+  <div class="ts3b-ctl">
+    <div class="seg2" id="ts3b-style" role="group" aria-label="Style"><button type="button" data-v="bp">Blueprint</button><button type="button" data-v="soft">Soft</button><button type="button" data-v="clean">Clean</button></div>
+    <div class="seg2" id="ts3b-theme" role="group" aria-label="Theme"><button type="button" data-v="light">Light</button><button type="button" data-v="dark">Dark</button></div>
+    <button class="pill line sm" id="ts3b-replay" type="button"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button>
+  </div>
+</header>
+<main class="ts3b-main">
+  <div data-c="ts3b">
+    <div class="stage-in"></div>
+    <template>
+      <div class="ts3b-stage">
+        <div class="ts3b-scr">
+          <div class="ts3b-bar"><svg class="i s"><use href="#i-image"/></svg><span>Studio</span><span class="ts3b-bar-r"><span class="ts3b-cnt"></span><span class="av" style="background:var(--dm-av-b)">AR</span></span></div>
+          <div class="ts3b-body">
+            <div class="ts3b-grid"></div>
+            <form class="ts3b-cmp" autocomplete="off"><input class="ts3b-q" aria-label="Describe a picture" value="Lighthouse at dusk"><button class="pill primary sm ts3b-gen" type="submit">Generate</button></form>
+          </div>
+          <div class="ts3b-tray" aria-label="Notifications"></div>
+          <div class="ts3b-sr" role="status" aria-live="polite"></div>
+          <div class="ts3b-sr" role="alert" aria-live="assertive"></div>
+        </div>
+      </div>
+    </template>
+  </div>
+  <p class="ts3b-foot">Try it: Generate a picture, delete one with its bin. Press and hold a toast to keep it (or use its pin), drag it sideways to throw it away, point at it or focus it to stop its clock, Escape to close the newest. Undo, Retry and Open really do what they say.</p>
+</main>
+<script src="assets/core.js"></script>
+<script>
+/* ---------- the lab chrome: style, theme, replay ---------- */
+(() => {
+  const d = document.documentElement;
+  const cur = () => ({ s:d.getAttribute('data-style') || 'bp', t:d.getAttribute('data-theme') || 'light' });
+  const { s, t } = cur();
+  $$('#ts3b-style button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === s)); $$('#ts3b-theme button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === t));
+  const remount = () => { const card = $('[data-c="ts3b"]'); if (card._c) DM.mount(card); };
+  seg($('#ts3b-style'), v => { if (v === 'bp') d.removeAttribute('data-style'); else d.setAttribute('data-style', v); try { localStorage.setItem('dmui-style', v); } catch(e){} remount(); });
+  seg($('#ts3b-theme'), v => { d.setAttribute('data-theme', v); try { localStorage.setItem('dmui-theme', v); } catch(e){} });
+  $('#ts3b-replay').addEventListener('click', () => DM.mount($('[data-c="ts3b"]')));
+})();
+
+/* ---------- Hold to keep ---------- */
+DM.def('ts3b', (st, c) => {
+  const scr = $('.ts3b-scr', st), grid = $('.ts3b-grid', st), tray = $('.ts3b-tray', st), form = $('.ts3b-cmp', st), q = $('.ts3b-q', st), genBtn = $('.ts3b-gen', st);
+  const say = $$('.ts3b-sr', st), cnt = $('.ts3b-cnt', st);
+  const style = () => document.documentElement.getAttribute('data-style') || 'bp';
+  let uid = 0;
+  /* the pictures: small vector scenes, each two hues from the chart palette over a soft sky */
+  const PAL = { dusk:['--dm-c2', '--dm-c4'], road:['--dm-c4', '--dm-c5'], lake:['--dm-c6', '--dm-c3'], city:['--dm-c3', '--dm-c2'] };
+  const scene = (p, id) => { const [a, b] = PAL[p]; return `<defs><linearGradient id="sk${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(${a})" stop-opacity=".22"/><stop offset="1" stop-color="var(${b})" stop-opacity=".3"/></linearGradient></defs>`
+    + `<rect width="48" height="36" fill="var(--dm-surface)"/><rect width="48" height="36" fill="url(#sk${id})"/>`
+    + (p === 'dusk' ? `<circle cx="31" cy="15" r="4.6" fill="var(${b})"/><path d="M0 27c7-3 14-3 21-1s16 2 27-1v11H0z" fill="var(${a})"/><path d="M11 26V15.5h3V26z" fill="var(--dm-fg)"/><path d="M10.2 15.6l2.3-2.4 2.3 2.4z" fill="var(--dm-fg)"/>`
+      : p === 'road' ? `<circle cx="14" cy="13" r="4.2" fill="var(${b})"/><path d="M0 24l12-6 10 4 9-5 17 7v12H0z" fill="var(${a})"/><path d="M21 36l3-11 3 11z" fill="var(--dm-fg)" opacity=".75"/>`
+      : p === 'lake' ? `<path d="M0 22l9-11 7 7 8-11 10 12 6-5 8 8v14H0z" fill="var(${b})"/><path d="M0 27h48v9H0z" fill="var(${a})"/>`
+      : `<path d="M3 30V17h6v13zM11 30V10h7v20zM20 30V20h5v10zM27 30V13h7v17zM36 30V19h8v11z" fill="var(${a})"/><path d="M0 30h48v6H0z" fill="var(${b})"/>`); };
+  const pic = (p, cls = '') => { const id = 'ts3b' + (++uid); return `<svg viewBox="0 0 48 36" preserveAspectRatio="xMidYMid slice" aria-hidden="true" class="${cls}">${scene(p, id)}</svg>`; };
+  const tileHTML = (p, name) => `<div class="ts3b-tile" data-p="${p}"><div class="ts3b-img">${pic(p)}</div><span class="ts3b-cap">${name}</span><button class="ib fill ts3b-del" type="button" aria-label="Delete ${name}" data-tip="Delete">${I('trash')}</button></div>`;
+  [['road', 'Desert road at noon'], ['lake', 'Pine lake, early mist'], ['city', 'Rooftops after rain']].forEach(([p, n]) => grid.insertAdjacentHTML('beforeend', tileHTML(p, n)));
+  const count = () => { cnt.textContent = `${$$('.ts3b-tile:not(.gen)', grid).length} pictures`; };
+  count();
+  // tiles that move because one came or went glide to their new places
+  const flip = (els, change) => { const r0 = new Map(els.map(e => [e, e.getBoundingClientRect()])); change();
+    if (REDUCE) return; r0.forEach((a, e) => { if (!e.isConnected) return; const b = e.getBoundingClientRect(), dx = a.left - b.left, dy = a.top - b.top;
+      if (Math.abs(dx) + Math.abs(dy) > .5) e.animate([{ transform:`translate(${dx}px,${dy}px)` }, { transform:'none' }], { duration:420, easing:'cubic-bezier(.22,1,.36,1)', composite:'add' }); }); };
+  const announce = (m, loud) => { const el = say[loud ? 1 : 0]; el.textContent = ''; setTimeout(() => { el.textContent = m; }, 60); };
+
+  /* ---------- a toast ---------- */
+  const TOASTS = [];
+  const glyphSVG = p => { const id = 'ts3bg' + (++uid); return `<svg class="ts3b-g" viewBox="0 0 48 36" aria-hidden="true"><defs><clipPath id="${id}"><rect x="1" y="1" width="46" height="34" rx="7"/></clipPath></defs>`
+    + `<g clip-path="url(#${id})"><g class="sc">${scene(p, id + 's')}</g><rect class="veil" x="0" width="48"/><g class="hatch">${Array.from({ length:12 }, (_, i) => `<line x1="${i * 6 - 18}" y1="40" x2="${i * 6 + 6}" y2="-4"/>`).join('')}</g><line class="scan" x1="0" x2="48"/></g>`
+    + `<rect class="fr" x="1" y="1" width="46" height="34" rx="7"/>`
+    + `<g class="pin"><path d="M0-7.5a3.6 3.6 0 0 1 3.6 3.6c0 1.7-1.2 2.7-2.4 3.3L.6 3.2h-1.2L-1.2-.6C-2.4-1.2-3.6-2.2-3.6-3.9A3.6 3.6 0 0 1 0-7.5z"/><circle cy="-3.9" r="1.2"/></g>`
+    + `<g class="tk"><circle r="6"/><path d="M-2.6.1l1.8 1.8 3.4-3.6"/></g><g class="bd"><circle r="6"/><path d="M0-2.8v3M0 2.6v.2"/></g></svg>`; };
+  // the glyph's state: how much of the picture has developed (rev), where the scan stopped (stop, red), how far the picture has
+  // dropped out (drop), the pin, the tick and the error badge, each easing to its target every frame
+  const G0 = () => ({ rev:0, revTo:1, drop:0, dropTo:0, pin:0, pinTo:0, tk:0, tkTo:0, bd:0, bdTo:0, scanOn:true, bad:false, empty:false, speed:1 });
+  function toast(o){
+    const el = html(`<div class="ts3b-t" role="group" aria-roledescription="notification">${glyphSVG(o.pic)}<div class="ts3b-tx"><b></b><span></span></div><div class="ts3b-ic"><button class="ib ts3b-pin" type="button" aria-label="Keep this notification" aria-pressed="false" data-tip="Keep · or press and hold">${I('pin')}</button><button class="ib ts3b-x" type="button" aria-label="Dismiss" data-tip="Dismiss">${I('x')}</button></div><div class="ts3b-act"></div><i class="ts3b-edge" aria-hidden="true"><i></i></i></div>`);
+    const T = { el, g:G0(), left:0, total:0, kept:false, hold:null, gone:false, sx:null, parts:{ b:$('.ts3b-tx b', el), s:$('.ts3b-tx span', el), act:$('.ts3b-act', el), edge:$('.ts3b-edge i', el), sc:$('.sc', el), veil:$('.veil', el), hatch:$('.hatch', el), scan:$('.scan', el), fr:$('.fr', el), pin:$('.pin', el), tk:$('.tk', el), bd:$('.bd', el) } };
+    T.set = s => { const P = T.parts;
+      if (s.title != null){ if (P.b.textContent && P.b.textContent !== s.title && !REDUCE) P.b.animate([{ opacity:0, transform:'translateY(4px)' }, { opacity:1, transform:'none' }], { duration:260, easing:'cubic-bezier(.22,1,.36,1)' }); P.b.textContent = s.title; el.setAttribute('aria-label', s.title); }
+      if (s.detail != null) P.s.textContent = s.detail;
+      P.b.classList.toggle('shim', !!s.shim);
+      if ('act' in s){ P.act.innerHTML = ''; if (s.act){ const b = html(`<button class="pill ghost sm" type="button">${s.act.label}${s.act.n ? ' <span class="n"></span>' : ''}</button>`); b.onclick = e => { e.stopPropagation(); s.act.fn(T); }; P.act.append(b); T.actBtn = b; } else T.actBtn = null; }
+      if ('time' in s){ T.total = T.left = s.time || 0; el.classList.toggle('notime', !s.time); }
+      if (s.g) Object.assign(T.g, s.g);
+      if (s.say) announce(s.say, s.loud);
+    };
+    T.set(o);
+    $('.ts3b-x', el).onclick = e => { e.stopPropagation(); leave(T, 'close'); };
+    $('.ts3b-pin', el).onclick = e => { e.stopPropagation(); T.kept ? unkeep(T) : keep(T); };
+    bindGesture(T);
+    // the newest arrives at the corner and the others make room above it
+    flip(TOASTS.map(t => t.el), () => { tray.append(el); });
+    TOASTS.push(T);
+    while (TOASTS.filter(t => !t.gone).length > 3) leave(TOASTS.find(t => !t.gone && !t.kept) || TOASTS.find(t => !t.gone), 'close');
+    const s = style();
+    if (!REDUCE) el.animate(s === 'bp' ? [{ opacity:0, clipPath:'inset(100% 0 0 0)' }, { opacity:1, clipPath:'inset(0 0 0 0)' }]
+      : s === 'clean' ? [{ opacity:0, transform:'translateY(8px) scale(.98)' }, { opacity:1, transform:'none' }]
+      : [{ opacity:0, transform:'translateY(16px) scale(.96)', filter:'blur(4px)' }, { opacity:1, transform:'none', filter:'blur(0)' }],
+      { duration:s === 'bp' ? 300 : s === 'clean' ? 560 : 620, easing:s === 'bp' ? 'cubic-bezier(.65,0,.25,1)' : 'cubic-bezier(.22,1,.36,1)' });
+    else el.animate([{ opacity:0 }, { opacity:1 }], { duration:200 });
+    return T;
+  }
+  function leave(T, how, dir = 1){
+    if (!T || T.gone) return; T.gone = true; const el = T.el, s = style();
+    if (el.contains(document.activeElement)) genBtn.focus({ preventScroll:true });
+    const kf = how === 'swipe' ? [{ transform:el.style.transform || 'none', opacity:getComputedStyle(el).opacity }, { transform:`translateX(${dir * (el.offsetWidth + 48)}px) rotate(${dir * 4}deg)`, opacity:0 }]
+      : s === 'bp' ? [{ opacity:1, clipPath:'inset(0 0 0 0)' }, { opacity:0, clipPath:'inset(100% 0 0 0)' }]
+      : [{ opacity:1, transform:'none' }, { opacity:0, transform:'translateY(8px) scale(.97)', ...(s === 'soft' ? { filter:'blur(3px)' } : {}) }];
+    const a = el.animate(REDUCE ? [{ opacity:1 }, { opacity:0 }] : kf, { duration:REDUCE ? 200 : how === 'swipe' ? 320 : s === 'bp' ? 220 : 300, easing:'cubic-bezier(.4,0,.2,1)', fill:'forwards' });
+    a.finished.then(() => { const i = TOASTS.indexOf(T); flip(TOASTS.filter(t => t !== T && !t.gone).map(t => t.el), () => { el.remove(); if (i >= 0) TOASTS.splice(i, 1); }); }).catch(() => {});
+  }
+  // the moment it settles: the edge fills, the card gives a small press and comes back, a pin drops into the frame's corner
+  function keep(T){
+    if (T.kept || T.gone) return; T.kept = true; T.hold = null; T.el.classList.remove('hold'); T.el.getAnimations().filter(a => a.id === 'press').forEach(a => a.cancel()); T.el.classList.add('kept'); T.el.style.transform = '';
+    const pb = $('.ts3b-pin', T.el); pb.classList.add('on'); pb.setAttribute('aria-pressed', 'true'); pb.setAttribute('aria-label', 'Kept. Let it go'); pb.dataset.tip = 'Let it go';
+    T.g.pinTo = 1; T.keptDetail = T.parts.s.textContent; T.set({ detail:'Kept · stays until you close it', say:'Kept. It stays until you close it.' });
+    const s = style();
+    if (!REDUCE) T.el.animate(s === 'bp' ? [{ transform:'translateY(2px)' }, { transform:'none' }] : [{ transform:'scale(.975)' }, { transform:'scale(1.015)', offset:.5 }, { transform:'none' }], { duration:s === 'bp' ? 160 : 520, easing:s === 'bp' ? 'steps(2,end)' : 'cubic-bezier(.3,1.4,.5,1)' });
+  }
+  function unkeep(T){
+    if (!T.kept || T.gone) return; T.kept = false; T.el.classList.remove('kept'); T.g.pinTo = 0; T.left = T.total = 5000; T.el.classList.remove('notime');
+    const pb = $('.ts3b-pin', T.el); pb.classList.remove('on'); pb.setAttribute('aria-pressed', 'false'); pb.setAttribute('aria-label', 'Keep this notification'); pb.dataset.tip = 'Keep · or press and hold';
+    T.set({ detail:T.keptDetail || '' });
+  }
+  /* press and hold to keep; drag sideways to throw away, with resistance, past 96px of finger it goes */
+  const HOLD = 700;
+  const resist = dx => Math.sign(dx) * 140 * (1 - Math.exp(-Math.abs(dx) / 170));
+  function bindGesture(T){
+    const el = T.el;
+    c.on(el, 'pointerdown', e => { if (e.button !== 0 || T.gone || e.target.closest('button')) return; T.sx = { x:e.clientX, y:e.clientY, id:e.pointerId, t:e.timeStamp, dx:0, mode:'?' }; if (!T.kept) startHold(T); });
+    c.on(el, 'pointermove', e => { const g = T.sx; if (!g || e.pointerId !== g.id) return; const dx = e.clientX - g.x, dy = e.clientY - g.y;
+      if (g.mode === '?' && Math.abs(dx) > 6 && Math.abs(dx) > Math.abs(dy)){ g.mode = 'swipe'; endHold(T); try { el.setPointerCapture(e.pointerId); } catch(x){} el.classList.add('drag'); }
+      if (g.mode === '?' && Math.abs(dy) > 10) { g.mode = 'none'; endHold(T); }
+      if (g.mode === 'swipe') dragTo(T, dx, e.timeStamp); });
+    const up = e => { const g = T.sx; if (!g || e.pointerId !== g.id) return; T.sx = null; el.classList.remove('drag');
+      if (g.mode === 'swipe') release(T); else endHold(T); };
+    c.on(el, 'pointerup', up); c.on(el, 'pointercancel', up); c.on(el, 'lostpointercapture', up);
+  }
+  function startHold(T){ T.hold = { t0:performance.now(), from:T.total ? T.left / T.total : 1 }; T.el.classList.add('hold');
+    if (!REDUCE && style() !== 'bp') T.el.animate([{ transform:'none' }, { transform:'scale(.985)' }], { duration:HOLD, easing:'cubic-bezier(.22,1,.36,1)', fill:'forwards' }).id = 'press'; }
+  function endHold(T){ if (!T.hold) return; T.hold = null; T.el.classList.remove('hold'); T.el.getAnimations().filter(a => a.id === 'press').forEach(a => a.cancel()); }
+  let drag = null;
+  function dragTo(T, dx, ts){ const x = resist(dx); T.drag = { dx, x, ts, v:T.drag ? (dx - T.drag.dx) / Math.max(1, ts - T.drag.ts) : 0 };
+    const past = Math.abs(dx) > 96; T.el.style.transform = `translateX(${x}px) rotate(${(x / 140) * (past ? 2.5 : 1)}deg)`; T.el.style.opacity = String(past ? .62 : 1 - Math.abs(x) / 400);
+    T.el.style.transition = 'opacity .18s'; }
+  function release(T){ const d = T.drag; T.drag = null; T.el.style.transition = ''; if (!d) return;
+    if (Math.abs(d.dx) > 96 || Math.abs(d.v) > .7){ leave(T, 'swipe', Math.sign(d.dx) || 1); return; }
+    const from = T.el.style.transform; T.el.style.transform = ''; T.el.style.opacity = '';
+    if (!REDUCE) T.el.animate([{ transform:from }, { transform:'none' }], { duration:style() === 'bp' ? 200 : 520, easing:style() === 'bp' ? 'cubic-bezier(.65,0,.25,1)' : 'cubic-bezier(.3,1.5,.5,1)' }); }
+
+  /* every frame: the clocks run down (not while pointed at, focused or held), the edges follow, the glyphs ease */
+  let last = performance.now();
+  c.loop(now => {
+    const dt = Math.min(64, now - last); last = now;
+    const k = REDUCE ? 1 : 1 - Math.pow(.002, dt / 1000), kq = REDUCE ? 1 : 1 - Math.pow(.0001, dt / 1000);
+    for (const T of TOASTS){ if (T.gone) continue; const el = T.el, g = T.g, P = T.parts;
+      const paused = el.matches(':hover') || el.matches(':focus-within') || T.sx || document.hidden || scr.querySelector('.ts3b-view');
+      let shown = T.total ? T.left / T.total : 1;
+      if (T.hold){ const h = Math.min(1, (now - T.hold.t0) / HOLD), e = 1 - Math.pow(1 - h, 3); shown = T.hold.from + (1 - T.hold.from) * e; if (h >= 1) keep(T); }
+      else if (T.total && !T.kept && !paused){ T.left -= dt; if (T.left <= 0){ T.left = 0; leave(T, 'time'); } shown = T.left / T.total; }
+      P.edge.style.setProperty('--k', shown.toFixed(4));
+      if (T.secs !== undefined && T.actBtn){ const n = $('.n', T.actBtn); if (n){ const v = Math.ceil(T.left / 1000); if (n.textContent !== String(v)) n.textContent = v; } }
+      // the glyph
+      g.rev += (g.revTo - g.rev) * (REDUCE ? 1 : Math.min(1, dt / 1000 * 1.25 * g.speed)) ; if (Math.abs(g.revTo - g.rev) < .002) g.rev = g.revTo;
+      g.drop += (g.dropTo - g.drop) * kq; g.pin += (g.pinTo - g.pin) * kq; g.tk += (g.tkTo - g.tk) * kq; g.bd += (g.bdTo - g.bd) * kq;
+      const y = 36 * g.rev;
+      P.veil.setAttribute('y', y.toFixed(2)); P.veil.setAttribute('height', Math.max(0, 36 - y).toFixed(2));
+      P.hatch.style.clipPath = `inset(${y.toFixed(2)}px 0 0 0)`; P.hatch.style.opacity = g.bad ? 1 : 0;
+      P.scan.setAttribute('y1', y.toFixed(2)); P.scan.setAttribute('y2', y.toFixed(2)); P.scan.style.opacity = g.scanOn && (g.rev < .999 || g.bad) ? 1 : 0; P.scan.classList.toggle('bad', g.bad);
+      P.sc.setAttribute('transform', `translate(0 ${(g.drop * 38).toFixed(2)})`); P.fr.classList.toggle('empty', g.empty);
+      const pe = g.pin; P.pin.setAttribute('transform', `translate(44 ${(5 - (1 - pe) * 7).toFixed(2)}) scale(${(.3 + .7 * pe).toFixed(3)})`); P.pin.style.opacity = pe.toFixed(3);
+      P.tk.setAttribute('transform', `translate(44 32) scale(${g.tk.toFixed(3)})`); P.bd.setAttribute('transform', `translate(44 32) scale(${g.bd.toFixed(3)})`);
+    }
+  });
+
+  /* ---------- what the toasts are about ---------- */
+  let gens = 0, upscales = 0;
+  const NAMES = { dusk:'Lighthouse at dusk' };
+  async function generate(){
+    const tiles = $$('.ts3b-tile', grid);
+    if (tiles.length >= 4){ toast({ pic:'dusk', title:'No room for another picture', detail:'Delete one to make room', time:5000, g:{ revTo:0, rev:0, empty:true, scanOn:false }, say:'No room for another picture. Delete one to make room.' }); return; }
+    const name = (q.value.trim() || 'Untitled').replace(/^./, m => m.toUpperCase()), p = 'dusk'; gens++;
+    genBtn.disabled = true;
+    const tile = html(tileHTML(p, name)); tile.classList.add('gen'); $('.ts3b-cap', tile).innerHTML = '<span class="shim">Generating…</span>';
+    flip($$('.ts3b-tile', grid), () => grid.append(tile)); announce('Generating ' + name);
+    await c.wait(1400);
+    tile.classList.remove('gen'); $('.ts3b-cap', tile).textContent = name; count(); genBtn.disabled = false;
+    if (!REDUCE) $('.ts3b-img svg', tile).animate([{ clipPath:'inset(0 0 100% 0)' }, { clipPath:'inset(0 0 0 0)' }], { duration:900, easing:'cubic-bezier(.22,1,.36,1)' });
+    const T = toast({ pic:p, title:'Picture ready', detail:`${name} · 1024 × 1024`, time:7000, act:{ label:'Open', fn:() => view(tile) }, say:`Picture ready: ${name}` });
+    T.tile = tile;
+    // the agent then upscales it in the background; the first one in a visit stops partway, so its error shows
+    c.later(4200, () => upscale(tile, name));
+    return T;
+  }
+  function upscale(tile, name){
+    if (!tile.isConnected) return; upscales++;
+    const fails = upscales === 1;
+    const T = toast({ pic:'dusk', title:'Upscaling to 4×', shim:true, detail:name, time:0, g:{ rev:0, revTo:fails ? .62 : 1, speed:.9 } });
+    T.el.setAttribute('aria-busy', 'true');
+    const done = () => { T.el.removeAttribute('aria-busy'); T.set({ title:'Upscaled to 4×', shim:false, detail:`${name} · 4096 × 4096`, time:6000, act:{ label:'Open', fn:() => view(tile) }, g:{ tkTo:1, bdTo:0, bad:false }, say:`Upscaled to 4 times: ${name}` }); };
+    if (!fails){ c.later(1700, done); return T; }
+    c.later(1350, () => { if (T.gone) return; T.el.removeAttribute('aria-busy');
+      T.g.bad = true; T.g.bdTo = 1; T.set({ title:'Couldn’t finish upscaling', shim:false, detail:'Stopped at 62% · connection lost', time:9000,
+        act:{ label:'Retry', fn:() => { T.g.bad = false; T.g.bdTo = 0; T.g.revTo = 1; T.g.speed = 1.1; T.el.setAttribute('aria-busy', 'true');
+          T.set({ title:'Upscaling to 4×', shim:true, detail:'Carrying on from 62%', act:null, time:0 }); c.later(1500, () => { if (!T.gone) done(); }); } },
+        say:'Couldn’t finish upscaling. It stopped at 62% when the connection was lost.', loud:true }); });
+    return T;
+  }
+  function del(tile){
+    const name = $('.ts3b-cap', tile).textContent, p = tile.dataset.p, at = $$('.ts3b-tile', grid).indexOf(tile);
+    flip($$('.ts3b-tile', grid), () => tile.remove()); count();
+    if (scr.contains(document.activeElement) && !document.activeElement.isConnected) genBtn.focus({ preventScroll:true });
+    const T = toast({ pic:p, title:'Picture deleted', detail:name, time:6000, g:{ rev:1, revTo:1, dropTo:1, empty:true, scanOn:false }, say:`${name} deleted. Undo is available for 6 seconds.`,
+      act:{ label:'Undo', n:true, fn:() => {
+        const before = $$('.ts3b-tile', grid)[at];
+        flip($$('.ts3b-tile', grid), () => { before ? grid.insertBefore(tile, before) : grid.append(tile); }); count();
+        if (!REDUCE) tile.animate([{ opacity:0, transform:'scale(.94)' }, { opacity:1, transform:'none' }], { duration:420, easing:'cubic-bezier(.22,1,.36,1)' });
+        T.g.dropTo = 0; T.g.empty = false; T.g.tkTo = 1; T.secs = undefined;
+        T.set({ title:'Picture restored', detail:name, act:null, time:1800, say:`${name} restored` }); } } });
+    T.secs = true;
+    return T;
+  }
+  function view(tile){
+    if (!tile || !tile.isConnected || $('.ts3b-view', scr)) return;
+    const name = $('.ts3b-cap', tile).textContent;
+    const v = html(`<div class="ts3b-view" role="dialog" aria-label="${name}"><figure><div class="ts3b-img">${pic(tile.dataset.p)}</div><figcaption><span>${name}</span><button class="ib ts3b-vx" type="button" aria-label="Close">${I('x')}</button></figcaption></figure></div>`);
+    scr.append(v); const x = $('.ts3b-vx', v); x.onclick = () => { v.remove(); };
+    c.on(v, 'click', e => { if (e.target === v) v.remove(); });
+    return v;
+  }
+  c.on(grid, 'click', e => { const b = e.target.closest('.ts3b-del'); if (b) del(b.closest('.ts3b-tile')); });
+  c.on(form, 'submit', e => { e.preventDefault(); c.run(generate); });
+  c.on(st, 'keydown', e => { if (e.key !== 'Escape') return; const v = $('.ts3b-view', scr); if (v){ v.remove(); e.preventDefault(); return; }
+    const front = [...TOASTS].reverse().find(t => !t.gone); if (front){ e.preventDefault(); leave(front, 'close'); } });
+
+  /* ---------- the demo ---------- */
+  const hand = () => $('.hand', st);
+  // press and hold with the demo's pointer: the same hold a person makes, started and ended by the story
+  const holdOn = async (s, T, ms) => { await s.point(T.parts.b, false); const h = hand(); h && h.classList.add('down'); startHold(T); await s.beat(ms / 500); };
+  // a sideways drag with the demo's pointer: the toast follows with its resistance, then is let go
+  const swipe = async (s, T, dist, ms) => {
+    await s.point(T.parts.b, false); const h = hand(); if (!h) return; h.classList.add('down');
+    const m = /translate\(([-\d.]+)px,\s*([-\d.]+)px\)/.exec(h.style.transform) || [0, 0, 0], hx = +m[1], hy = +m[2];
+    T.sx = { mode:'swipe' }; T.el.classList.add('drag'); h.style.transition = 'opacity .16s';
+    const t0 = performance.now();
+    await new Promise(res => { const f = now => { if (c.dead || c.mine){ res(); return; } const p = Math.min(1, (now - t0) / ms), e = p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2, dx = dist * e;
+      dragTo(T, dx, now); h.style.transform = `translate(${hx + resist(dx)}px,${hy}px)`; p < 1 ? requestAnimationFrame(f) : res(); }; requestAnimationFrame(f); });
+    T.sx = null; T.el.classList.remove('drag'); T.drag && (T.drag.v = 0); release(T); h.classList.remove('down'); h.style.transition = '';
+  };
+  c.story(async s => {
+    await s.beat(2);
+    await s.tap(genBtn);
+    await s.until(() => TOASTS.some(t => !t.gone && t.parts.b.textContent === 'Picture ready'));
+    const A = TOASTS.find(t => t.parts.b.textContent === 'Picture ready');
+    await s.beat(1.6);
+    await holdOn(s, A, HOLD + 200); hand() && hand().classList.remove('down'); endHold(A);
+    await s.beat(1.4);
+    const tile = $$('.ts3b-tile', grid)[0]; tile.classList.add('hov');
+    await s.tap($('.ts3b-del', tile)); tile.classList.remove('hov');
+    await s.beat(2.6);
+    const B = TOASTS.find(t => !t.gone && t.parts.b.textContent === 'Picture deleted');
+    if (B && B.actBtn) await s.tap(B.actBtn);
+    await s.until(() => TOASTS.some(t => !t.gone && t.g.bad));
+    const C = TOASTS.find(t => !t.gone && t.g.bad);
+    await s.beat(2.4);
+    if (C.actBtn) await s.tap(C.actBtn);
+    await s.until(() => C.parts.b.textContent === 'Upscaled to 4×');
+    await s.beat(2.2);
+    await swipe(s, C, 220, 900);
+    await s.beat(2);
+    await s.tap($('.ts3b-x', A.el));
+    s.away();
+    await s.beat(1);
+  });
+});
+</script>
+</body>
+</html>
