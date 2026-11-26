@@ -1081,6 +1081,13 @@ Every CSS variable starts with \`--dm-\` in every version, and in the React vers
       md += sec.cards.map(c => `- [${c.t}](https://designme.dev/components/${c.reg}.md): ${c.d} Install: \`npx designme add ${c.reg}\``).join('\n') + '\n';
     }
   }
+  // the templates (tools/pages/src/pages/templates, also in the sitemap): whole apps made of the components, each with the
+  // line its page describes itself with
+  const TEMPLATES = [['sales-crm', 'Sales CRM'], ['workflow-editor', 'Workflow editor'], ['dashboard-builder', 'Dashboard builder'], ['whiteboard', 'Whiteboard']];
+  md += `\n## Templates\n\nWhole apps made of the components, each a live page.\n\n` + TEMPLATES.map(([slug, name]) => {
+    const src = fs.readFileSync(path.resolve(__dirname, `../pages/src/pages/templates/${slug}.astro`), 'utf8'), d = src.match(/^const description = '((?:[^'\\]|\\.)*)';$/m);
+    if (!d) throw new Error(`llms.txt: the ${slug} template has no description line`);
+    return `- [${name}](https://designme.dev/templates/${slug}): ${d[1].replace(/\\'/g, "'")}`; }).join('\n') + '\n';
   md += `\n## Optional\n\n- [Component pages](https://designme.dev/components/composer): one page per component, at /components/<name>, with its demo, install, usage, props and code.\n- [The library](https://designme.dev/library): every demo on one page, in all three styles.\n- [Registry](https://designme.dev/r/react/composer.json): each component's React source as JSON, at /r/react/<name>.json (HTML at /r/<name>.json, Astro at /r/astro/<name>.json, shadcn items at /r/shadcn/<name>.json).\n`;
   if (count !== done.length) warn.push(`llms.txt lists ${count} of ${done.length} components`);
   // the same sections and cards, in page order, for the component pages that tools/pages builds
@@ -1135,7 +1142,7 @@ Every CSS variable starts with \`--dm-\` in every version, and in the React vers
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Page not found · Designme.dev</title><meta name="robots" content="noindex">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<script>try{var t=localStorage.getItem('dmui-theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+<script>try{var t=localStorage.getItem('dmui-theme'),s=localStorage.getItem('dmui-style');if(t)document.documentElement.setAttribute('data-theme',t);if(s==='blueprint')s='bp';if(s==='mine')s='soft';if(s!=='bp'&&s!=='soft'&&s!=='clean')s=(t||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'))==='dark'?'bp':'soft';document.documentElement.setAttribute('data-style',s)}catch(e){}</script>
 <style>
 ${fonts}
 :root{--bg:#fff;--fg:#121212;--dim:#525252;--stage:#fafafa;--line:rgba(18,18,18,.08);--ink:#121212;--on-ink:#fff;--focus:#858585;color-scheme:light}
@@ -1145,7 +1152,8 @@ ${fonts}
 body{margin:0;min-height:100vh;display:flex;flex-direction:column;background:var(--bg);color:var(--fg);font:14px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
 header{padding:18px 24px;border-bottom:1px solid var(--line)}
 header a{display:inline-block;color:var(--fg)}
-header svg{display:block;height:21px;width:auto}
+header svg{display:block;height:21px;width:auto;fill:currentColor}
+/* (the wordmark's paths take the text colour, so it shows in dark mode too) */
 main{flex:1;width:100%;max-width:560px;margin:0 auto;padding:12vh 24px 64px}
 /* the page's title is the one text over 14px, at the site's page-title size (.pg-h1: 20px, weight 500); the rest is 14px
    or less, nothing heavier than 500, and no monospace outside code */
@@ -1162,7 +1170,14 @@ p code{font:12.5px ui-monospace,Menlo,monospace;color:var(--fg);background:var(-
 .hit i{font-style:normal;color:var(--dim)}
 .acts{display:flex;flex-wrap:wrap;gap:8px;margin:28px 0 0}
 .btn{display:inline-flex;align-items:center;height:36px;padding:0 16px;border-radius:999px;font-weight:500;text-decoration:none;color:var(--fg);box-shadow:inset 0 0 0 1px var(--line)}
-.btn.ink{background:var(--ink);color:var(--on-ink);box-shadow:none}
+/* the primary button is on the style's accent (Blueprint's lime, Soft's blue), as .pill.primary is on the site; Clean's is
+   its ink button. Until a visitor picks a style it follows their theme: light opens in Soft, dark in Blueprint */
+:root{--pri:#c2f23c;--on-pri:#121212}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--pri:#d4f84a}}
+:root[data-theme="dark"]{--pri:#d4f84a}
+:root[data-style="soft"]{--pri:#116ff8;--on-pri:#fff}
+:root[data-style="clean"]{--pri:var(--ink);--on-pri:var(--on-ink)}
+.btn.primary{background:var(--pri);color:var(--on-pri);box-shadow:none}
 /* keyboard focus: the site's quiet grey ring, never black */
 .btn:focus-visible,.hit:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 /* Skip to content: out of sight until Tab reaches it (it is the first thing there), then a small pill top left */
@@ -1178,7 +1193,7 @@ main:focus{outline:none}
   <h1 class="pg-h1">Page not found</h1>
   <p>There's no page at <code id="where">this address</code>.</p>
   <div class="hits" id="hits" hidden></div>
-  <div class="acts"><a class="btn ink" href="/library">All components</a><a class="btn" href="/library#/changelog">Changelog</a></div>
+  <div class="acts"><a class="btn primary" href="/library">All components</a><a class="btn" href="/library#/changelog">Changelog</a></div>
 </main>
 <script>
 (function(){
