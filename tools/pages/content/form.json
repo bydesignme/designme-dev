@@ -1,5 +1,5 @@
 {
-  "summary": "Form is a short form, set up as a project brief by default, with a Draft with agent button that fills the fields in for the person. Fields the agent filled carry a Drafted mark beside their label until the person edits them, so it is clear what still needs a human read. On submit every field is checked, and a confirmation replaces the form once it goes through.",
+  "summary": "Form is a short form, set up as a project brief by default, with a Draft with agent button that fills the fields in for the person. Fields the agent filled carry a small sparkle after their label until the person edits them, and the line by the submit button says to review what the agent drafted, so it is clear what still needs a human read. On submit every field is checked, and a confirmation replaces the form once it goes through.",
   "use": [
     "When an agent can fill in a brief, ticket or request from context and a person should review it",
     "When people need to see which answers they typed and which the agent wrote",
@@ -7,27 +7,27 @@
     "When creating something should hand off to the agent, as in \"the agent is gathering references now\""
   ],
   "features": [
-    "Fields can be text, textarea or `choice`, a row of chips that picks one value.",
+    "Fields can be text, textarea or `choice`, a row of chips that picks one value. A choice option's `tone` gives it a core tag colour: a dot in that colour at rest, and its tint and text colour once picked.",
     "A `maxLength` on a text field shows a live counter like 0/40 and stops typing there.",
-    "Passing `onDraft` adds the Draft with agent button, which shows Drafting (the words shimmer) while your promise runs and then Drafted with a green tick, easing to the width of its words each time.",
-    "Text fields that change while the draft runs are marked Drafted until the person edits them; choice fields are not marked.",
+    "Passing `onDraft` adds the Draft with agent button, which shows Drafting (the words shimmer) while your promise runs and then goes back to Draft with agent, easing to the width of its words each time.",
+    "Text fields that change while the draft runs get a sparkle after their label until the person edits them; pointing at it says \"Drafted by the agent\" (`draftedLabel`). Choice fields are not marked.",
     "Each field's `validate` runs on submit, shows its message under the field, and clears as soon as the value changes.",
     "If `onSubmit` returns a promise, the button shows a spinner and `submittingLabel` (\"Creating\") until it settles; a rejection shows its message, and success shows the done screen with a green tick. The card grows with field messages and eases to the done screen's height, keeping no room for either."
   ],
   "a11y": [
     "Field messages render with `role=\"alert\"`, and invalid inputs set `aria-invalid`.",
     "Choice chips sit in a `group` labelled with the field name, and each chip reports `aria-pressed`.",
-    "The Drafted mark beside a label is `aria-hidden`, so it is not read into the field's name.",
+    "The sparkle after a drafted field's label is an image named \"Drafted by the agent\", so screen readers hear it with the field's name; it leaves the accessibility tree once the person edits the field.",
     "The confirmation after submit has `role=\"status\"`."
   ],
   "faq": [
     {
       "q": "How does the agent fill in the fields?",
-      "a": "Control the form with `values` and `onValuesChange`, and update the values inside your `onDraft` promise. Any text field that changes while the draft runs gets the Drafted mark."
+      "a": "Control the form with `values` and `onValuesChange`, and update the values inside your `onDraft` promise. Any text field that changes while the draft runs gets the drafted sparkle."
     },
     {
       "q": "Can I start the agent's draft without a click?",
-      "a": "Yes. Put a ref on the form and call `ref.current.draft()`. It runs `onDraft` with the same Drafting and Drafted states as the button."
+      "a": "Yes. Put a ref on the form and call `ref.current.draft()`. It runs `onDraft` with the same Drafting state and drafted marks as the button."
     },
     {
       "q": "How do I validate a field against another field?",
