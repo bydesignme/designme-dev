@@ -53,7 +53,9 @@ every session and every agent.
 - All text is 14px or smaller, and nothing is heavier than weight 500. Page titles (`.pg-h1`) are one exception; the
   one big number in a data card (Health score's score) is the other (owner, 3 Nov). The landing page's section headings
   (`.lp-sh h2`: large, centred, weight 500, with one grey line under them) are a third, on the landing page only (owner,
-  19 Nov); the library, the docs and every other page keep 14px. `/?headings=small` shows the landing page with them at 14px.
+  19 Nov); the library, the docs and every other page keep 14px. `/?headings=small` shows the landing page with them at 14px. Each landing section's description under its heading runs at most two lines at 1440 and 768 (owner,
+  27 Nov: "description should be 2 lines not 3, I told you about this hundreds of times"); widen it (up to the hero lead's 640px) or
+  shorten it, never let it wrap to a third line.
   Radial goals' centre figure (22px, weight 600, with no "of targets" under it) is a fourth (owner, 20 Nov: "bigger bolder
   text").
 - No monospace fonts in the interface, keyboard hints included. Code blocks and inline code are the exception.

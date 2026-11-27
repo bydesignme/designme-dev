@@ -128,3 +128,7 @@ Paste these rules into the brief:
 - "commit sources only, push after every commit".
 
 Don't accept an agent's "misread" or "fine" without checking a close crop yourself.
+
+## Landing section descriptions
+- Count the lines of every description under a landing section heading (`.lp-sh p`, the hero lead) at 1440 and 768: height
+  divided by line height. Anything over two lines fails (owner, 27 Nov). Fix by widening (max 640px) or shortening the copy.
