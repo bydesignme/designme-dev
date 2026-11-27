@@ -1,0 +1,36 @@
+{
+  "summary": "Zoom bar is the floating view bar from the Whiteboard template: Undo and Redo, then Zoom out, the zoom level and Zoom in, then Fit to screen, in one raised pill. Minus and plus step the level it shows, a press on the level sets it back to 100%, and Undo, Redo and Fit press and call you, so your canvas does the work.",
+  "use": [
+    "When a board or canvas needs its undo history and its zoom in one place, out of the way in a corner.",
+    "When people should always see how far in they are zoomed, and get back to 100% in one press.",
+    "Next to Tool rail, which holds the tools while this holds the view.",
+    "Not when the canvas already has a full toolbar with zoom in it: Canvas toolbar has its own."
+  ],
+  "features": [
+    "Zoom out and Zoom in step through 25%, 33%, 50%, 67%, 75%, 90%, 100%, 125%, 150%, 200%, 300% and 400%. At 25% Zoom out greys out and at 400% Zoom in does, each keeping its place.",
+    "The level between them shows the zoom as a percentage in tabular figures, and a press on it sets it back to 100%.",
+    "Undo, Redo and Fit to screen show their hover and press and nothing more in HTML; in React `onUndo`, `onRedo` and `onFit` call you.",
+    "Tooltips name each button with its shortcut (⌘Z, ⇧⌘Z, −, ⇧0, + and ⇧1). While the focus is in the bar, minus and plus step the level and Shift 0 resets it; bind the others in your app.",
+    "Hover is the quiet row fill in the button's own shape, and a press shows at once as a deeper fill, with no scale.",
+    "In React, `ZoomBar` takes `zoom` or `defaultZoom` (1 is 100%) and calls `onZoomChange` with the new level."
+  ],
+  "a11y": [
+    "The bar is a `toolbar`, and every button has an `aria-label`; the level's says the zoom and that a press sets it to 100%.",
+    "A greyed step is `aria-disabled`, so it stays in the tab order and keeps the focus where it was.",
+    "Each new level is read out through a polite live region."
+  ],
+  "faq": [
+    {
+      "q": "How do I connect it to my canvas?",
+      "a": "In React, keep the level in your state with `zoom` and `onZoomChange`, and scale your canvas by it; `onFit` is where you work out the level that fits and set it. In HTML, read the level from the `.zmb-zl` button's text and listen for clicks on `.zmb-undo`, `.zmb-redo` and `.zmb-fit`."
+    },
+    {
+      "q": "Can I use other zoom steps?",
+      "a": "In React pass `steps`, a list of levels where 1 is 100%. In HTML change `STEPS` in its script."
+    },
+    {
+      "q": "Why are Undo and Redo never greyed out?",
+      "a": "The bar doesn't know your history. In React pass `canUndo={false}` or `canRedo={false}` to grey one out when there is nothing to undo or redo."
+    }
+  ]
+}

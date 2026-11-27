@@ -102,7 +102,12 @@ const NEW = [
   { cid:'c167', id:'data-picker', title:'Data picker', section:'Workspace', after:'c166', icon:'link', next:'canvas-toolbar' },
   { cid:'c168', id:'run-drawer', title:'Run drawer', section:'Workspace', after:'c167', icon:'history', next:'data-picker' },
   // the next meeting with a countdown and a join link, after Agenda (owner, 17 Nov)
-  { cid:'c169', id:'meeting-card', title:'Meeting card', section:'Dates', after:'c63', icon:'videocam' }
+  { cid:'c169', id:'meeting-card', title:'Meeting card', section:'Dates', after:'c63', icon:'videocam' },
+  // three from the templates (owner, 27 Nov): the Whiteboard's tool rail and zoom bar after Canvas toolbar with the other canvas
+  // parts, and the Sales CRM forecast's action cards after Proposal card with what waits on a person
+  { cid:'c170', id:'tool-rail', title:'Tool rail', section:'Workspace', after:'c141', icon:'tune', next:'canvas-toolbar' },
+  { cid:'c171', id:'zoom-bar', title:'Zoom bar', section:'Workspace', after:'c170', icon:'tune', next:'tool-rail' },
+  { cid:'c172', id:'action-cards', title:'Action cards', section:'Review and approve', after:'c9', icon:'stars', next:'proposal-card' }
 ];
 // a card placed after a new one that isn't there yet goes where that one would have gone
 for (const x of NEW){ let a = NEW.find(y => y.cid === x.after); while (a && !soft.includes(`data-c="${a.id}" id="c-${a.id}"`)){ x.after = a.after; a = NEW.find(y => y.cid === x.after); } }
