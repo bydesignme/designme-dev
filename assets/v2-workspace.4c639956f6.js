@@ -5,6 +5,8 @@ TPLS["tool-connections"] = "<div class=\"hnx panel mx-grow\" data-reveal=\"flat\
 TPLS["memory-panel"] = "<div class=\"mmx panel mx-grow mx-ic\" data-reveal=\"flat\">\n  <div class=\"mmx-h\"><span class=\"mmx-ic\"><svg class=\"i s\"><use href=\"#v2i-book\"/></svg></span><b class=\"mmx-ht\">Team memory</b><div class=\"seg2 mmx-tab\" role=\"group\" aria-label=\"Filter\"><button aria-pressed=\"true\" data-v=\"all\">All</button><button aria-pressed=\"false\" data-v=\"brand\">Brand</button><button aria-pressed=\"false\" data-v=\"process\">Process</button></div></div>\n  <div class=\"mmx-list mx-glide\"></div>\n  <div class=\"mmx-f\" aria-live=\"polite\"><span class=\"mmx-fi\" aria-hidden=\"true\">{spark}</span><span class=\"mmx-ft\">Used in 14 answers this week</span></div>\n</div>";
 TPLS["command-palette"] = "<div class=\"cpl panel mx-ic mx-grow\" data-reveal=\"pop\">\n  <div class=\"cpl-in\">{search}<input class=\"cpl-q\" placeholder=\"Search or ask the agent\" aria-label=\"Command\" spellcheck=\"false\"><span class=\"kbd\" data-k=\"Escape\">esc</span></div>\n  <div class=\"cpl-list\" role=\"listbox\"></div>\n  <div class=\"cpl-f muted mx-foot\"><span class=\"cpl-st\"></span><span><span class=\"kbd\" data-k=\"ArrowUp\">↑</span><span class=\"kbd\" data-k=\"ArrowDown\">↓</span> move</span><span><span class=\"kbd\" data-k=\"Enter\">↵</span> run</span></div>\n</div>";
 TPLS["run-drawer"] = "<div class=\"rdr\" data-reveal=\"flat\">\n  <div class=\"rdr-cv\"><div class=\"rdr-flow\" role=\"group\" aria-label=\"Steps of the workflow\"></div></div>\n  <div class=\"rdr-dw\" role=\"region\" aria-label=\"Run\">\n    <div class=\"rdr-grip\" role=\"separator\" aria-orientation=\"horizontal\" aria-label=\"Resize the run drawer\" tabindex=\"0\" aria-valuemin=\"120\" aria-valuemax=\"408\" aria-valuenow=\"312\"><i></i></div>\n    <div class=\"rdr-h\">\n      <button class=\"rdr-tg mx-press\" aria-expanded=\"true\">{chev-u.xs}<span><span class=\"w\">Test run </span><span class=\"rdr-id num\">#2088</span></span><span class=\"rdr-st tag run\"><span class=\"spin\"></span>Running</span></button>\n      <span class=\"rdr-meta num\"></span>\n      <span class=\"rdr-sp\"></span>\n      <div class=\"seg2 rdr-tabs\" role=\"group\" aria-label=\"Show\"><button aria-pressed=\"true\" data-v=\"steps\">Steps</button><button aria-pressed=\"false\" data-v=\"log\">Log</button><button aria-pressed=\"false\" data-v=\"data\">Data</button></div>\n      <button class=\"pill ghost sm rdr-stop mx-press\" aria-label=\"Stop the run\" data-tip=\"Stop the run\">{stop.xs}<span>Stop</span></button>\n      <button class=\"pill ghost sm rdr-again mx-press\" aria-label=\"Run again\" data-tip=\"Run again\" hidden>{refresh.xs}<span>Run again</span></button>\n      <button class=\"ib rdr-follow mx-press\" aria-pressed=\"true\" aria-label=\"Follow the run\" data-tip=\"Follow the run\">{target}</button>\n    </div>\n    <div class=\"rdr-b\">\n      <div class=\"rdr-v\" data-v=\"steps\"><div class=\"rdr-ax\" aria-hidden=\"true\"><span>Step</span><span class=\"rdr-sc\"></span><span class=\"ms\">Time</span></div><div class=\"rdr-rows mx-glide\" role=\"group\" aria-label=\"Steps of the run\"></div></div>\n      <div class=\"rdr-v\" data-v=\"log\" hidden><div class=\"rdr-lf\"><div class=\"seg2 rdr-lvs\" role=\"group\" aria-label=\"Level\"><button aria-pressed=\"true\" data-v=\"all\">All</button><button aria-pressed=\"false\" data-v=\"warn\">Warnings</button><button aria-pressed=\"false\" data-v=\"error\">Errors</button></div><span class=\"n num\"></span></div><ol class=\"rdr-log\" aria-label=\"Run log\"></ol></div>\n      <div class=\"rdr-v\" data-v=\"data\" hidden><div class=\"rdr-data\"><div class=\"rdr-ds mx-glide\" role=\"group\" aria-label=\"Steps\"></div><div class=\"rdr-io\"></div></div></div>\n    </div>\n    <p class=\"rdr-live\" aria-live=\"polite\"></p>\n  </div>\n</div>";
+TPLS["zoom-bar"] = "<div class=\"zmb\">\n  <div class=\"zmb-bar\" role=\"toolbar\" aria-label=\"View\">\n    <button class=\"zmb-b mx-press zmb-undo\" aria-label=\"Undo\" data-tip=\"Undo\" data-tip-k=\"⌘Z\">{undo}</button>\n    <button class=\"zmb-b mx-press zmb-redo\" aria-label=\"Redo\" data-tip=\"Redo\" data-tip-k=\"⇧⌘Z\">{redo}</button>\n    <span class=\"zmb-sep\" aria-hidden=\"true\"></span>\n    <button class=\"zmb-b mx-press zmb-zo\" aria-label=\"Zoom out\" data-tip=\"Zoom out\" data-tip-k=\"−\">{minus}</button>\n    <button class=\"zmb-z mx-press num zmb-zl\" aria-label=\"Zoom 100%, zoom to 100%\" data-tip=\"Zoom to 100%\" data-tip-k=\"⇧0\">100%</button>\n    <button class=\"zmb-b mx-press zmb-zi\" aria-label=\"Zoom in\" data-tip=\"Zoom in\" data-tip-k=\"+\">{plus}</button>\n    <span class=\"zmb-sep\" aria-hidden=\"true\"></span>\n    <button class=\"zmb-b mx-press zmb-fit\" aria-label=\"Fit to screen\" data-tip=\"Fit to screen\" data-tip-k=\"⇧1\">{fit}</button>\n  </div>\n  <p class=\"zmb-live\" aria-live=\"polite\"></p>\n</div>";
+TPLS["tool-rail"] = "<div class=\"tlr\">\n  <div class=\"tlr-bar\" role=\"toolbar\" aria-label=\"Tools\" aria-orientation=\"vertical\">\n    <div class=\"tlr-tools\" role=\"radiogroup\" aria-label=\"Tool\">\n      <button class=\"tlr-b mx-press\" role=\"radio\" aria-checked=\"true\" data-t=\"select\" aria-label=\"Select\" data-tip=\"Select\" data-tip-k=\"V\">{cursor}</button>\n      <button class=\"tlr-b mx-press\" role=\"radio\" aria-checked=\"false\" tabindex=\"-1\" data-t=\"hand\" aria-label=\"Pan\" data-tip=\"Pan\" data-tip-k=\"H\">{hand}</button>\n      <span class=\"tlr-sep\" aria-hidden=\"true\"></span>\n      <button class=\"tlr-b mx-press\" role=\"radio\" aria-checked=\"false\" tabindex=\"-1\" data-t=\"sticky\" aria-label=\"Sticky note\" data-tip=\"Sticky note\" data-tip-k=\"S\">{sticky}</button>\n      <button class=\"tlr-b mx-press\" role=\"radio\" aria-checked=\"false\" tabindex=\"-1\" data-t=\"pen\" aria-label=\"Pen\" data-tip=\"Pen\" data-tip-k=\"P\">{pen}</button>\n      <button class=\"tlr-b mx-press\" role=\"radio\" aria-checked=\"false\" tabindex=\"-1\" data-t=\"eraser\" aria-label=\"Eraser\" data-tip=\"Eraser\" data-tip-k=\"E\">{eraser}</button>\n      <button class=\"tlr-b mx-press\" role=\"radio\" aria-checked=\"false\" tabindex=\"-1\" data-t=\"shape\" aria-label=\"Shape\" data-tip=\"Shape\" data-tip-k=\"R\">{shape}</button>\n      <button class=\"tlr-b mx-press\" role=\"radio\" aria-checked=\"false\" tabindex=\"-1\" data-t=\"arrow\" aria-label=\"Connector\" data-tip=\"Connector\" data-tip-k=\"A\">{connector}</button>\n      <button class=\"tlr-b mx-press\" role=\"radio\" aria-checked=\"false\" tabindex=\"-1\" data-t=\"text\" aria-label=\"Text\" data-tip=\"Text\" data-tip-k=\"T\">{text}</button>\n      <span class=\"tlr-sep\" aria-hidden=\"true\"></span>\n      <button class=\"tlr-b mx-press\" role=\"radio\" aria-checked=\"false\" tabindex=\"-1\" data-t=\"comment\" aria-label=\"Comment\" data-tip=\"Comment\" data-tip-k=\"C\">{comment}</button>\n    </div>\n  </div>\n</div>";
 
 /* ---------- Command palette ---------- */
 DM.def('command-palette', (r, c) => {
@@ -133,6 +135,59 @@ DM.def('file-explorer', (r, c) => {
   st.textContent = sel; paint(); stagger($$('.fxp-n', tree), 25);
   // the card grows as folders open and shrinks as they close or the filter narrows (owner, 17 Nov: no room kept for later)
   c.offs.push(grow(root));
+});
+/* ---------- Tool rail ---------- */
+DM.def('tool-rail', (r, c) => {
+  r.innerHTML = r.innerHTML.replace(/\{([\w-]+)\}/g, (m, k) => I(k));
+  const bs = $$('.tlr-b', r), keys = Object.fromEntries(bs.map(b => [b.dataset.tipK.toLowerCase(), b]));
+  // one tool at a time, like radio buttons: the picked one is checked and is the one Tab stops on
+  const pick = b => bs.forEach(x => { const on = x === b; x.setAttribute('aria-checked', String(on)); x.tabIndex = on ? 0 : -1; });
+  bs.forEach(b => c.on(b, 'click', () => pick(b)));
+  // the arrows move the pick along the rail, and a tool's letter picks it, while the focus is in the rail
+  c.on($('.tlr-bar', r), 'keydown', e => {
+    const d = { ArrowDown:1, ArrowRight:1, ArrowUp:-1, ArrowLeft:-1 }[e.key];
+    const n = d ? bs[(bs.indexOf(document.activeElement) + d + bs.length) % bs.length] : !e.metaKey && !e.ctrlKey && !e.altKey && keys[e.key.toLowerCase()];
+    if (!n) return; e.preventDefault(); pick(n); n.focus();
+  });
+  // the preview's story: try the pen, a sticky note and a comment, then back to Select
+  const t = k => $(`.tlr-b[data-t="${k}"]`, r);
+  c.story(async s => {
+    await s.beat(2);
+    await s.point(t('pen')); await s.beat(1.5); await s.tap(t('pen')); await s.beat(2.5);
+    await s.point(t('sticky')); await s.beat(1.5); await s.tap(t('sticky')); await s.beat(2.5);
+    await s.tap(t('comment')); await s.beat(2.5);
+    await s.tap(t('select')); s.away(); await s.beat(2);
+  });
+});
+/* ---------- Zoom bar ---------- */
+DM.def('zoom-bar', (r, c) => {
+  r.innerHTML = r.innerHTML.replace(/\{([\w-]+)\}/g, (m, k) => I(k));
+  const zo = $('.zmb-zo', r), zi = $('.zmb-zi', r), zl = $('.zmb-zl', r), live = $('.zmb-live', r);
+  // the levels minus and plus step through, as the Whiteboard's
+  const STEPS = [.25, .33, .5, .67, .75, .9, 1, 1.25, 1.5, 2, 3, 4];
+  let z = 1;
+  const paint = say => { const p = Math.round(z * 100) + '%';
+    zl.textContent = p; zl.setAttribute('aria-label', `Zoom ${p}, zoom to 100%`);
+    zo.setAttribute('aria-disabled', String(z <= STEPS[0])); zi.setAttribute('aria-disabled', String(z >= STEPS[STEPS.length - 1]));
+    if (say) live.textContent = 'Zoom ' + p; };
+  const step = d => { const n = d > 0 ? STEPS.find(x => x > z + .001) : [...STEPS].reverse().find(x => x < z - .001); if (n){ z = n; paint(true); } };
+  c.on(zo, 'click', () => step(-1)); c.on(zi, 'click', () => step(1)); c.on(zl, 'click', () => { z = 1; paint(true); });
+  // minus, plus and Shift 0 step and reset the level while the focus is in the bar
+  c.on($('.zmb-bar', r), 'keydown', e => {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const a = e.key === '-' || e.key === '−' ? () => step(-1) : e.key === '+' || e.key === '=' ? () => step(1) : e.shiftKey && (e.key === ')' || e.code === 'Digit0') ? () => { z = 1; paint(true); } : null;
+    if (a){ e.preventDefault(); a(); }
+  });
+  paint();
+  // the preview's story: zoom in twice, out once, undo, fit, and back to 100%
+  c.story(async s => {
+    await s.beat(2);
+    await s.tap(zi); await s.beat(1.5); await s.tap(zi); await s.beat(2);
+    await s.tap(zo); await s.beat(2);
+    await s.point($('.zmb-undo', r)); await s.beat(1); await s.tap($('.zmb-undo', r)); await s.beat(2);
+    await s.tap($('.zmb-fit', r)); await s.beat(2);
+    await s.tap(zl); s.away(); await s.beat(2);
+  });
 });
 /* ---------- Run drawer ---------- */
 DM.def('run-drawer', (r, c) => {

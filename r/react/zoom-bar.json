@@ -1,0 +1,39 @@
+{
+ "name": "zoom-bar",
+ "title": "Zoom bar",
+ "description": "Undo, redo, zoom and fit in one floating bar for a canvas.",
+ "framework": "react",
+ "component": "ZoomBar",
+ "needs": [
+  "designme.css",
+  "lib/cx.ts",
+  "lib/hits.ts",
+  "lib/hooks.ts",
+  "lib/icons.tsx",
+  "lib/motion.tsx"
+ ],
+ "files": [
+  {
+   "path": "zoom-bar/ZoomBar.tsx",
+   "content": "'use client';\nimport { useState, type KeyboardEvent as ReactKeyboardEvent } from 'react';\nimport { cx } from '../lib/cx';\nimport { useControllable } from '../lib/hooks';\nimport { Icon } from '../lib/icons';\nimport { Tip } from '../lib/motion';\nimport '../designme.css';\nimport './zoom-bar.css';\n\n/** The levels Zoom out and Zoom in step through, as the Whiteboard's. 1 is 100% */\nexport const ZOOM_STEPS = [0.25, 0.33, 0.5, 0.67, 0.75, 0.9, 1, 1.25, 1.5, 2, 3, 4];\n\nexport interface ZoomBarProps {\n  /** The zoom level, 1 being 100%, when you keep it in your state */\n  zoom?: number;\n  /** The level at first, when the bar keeps it. Defaults to 1 */\n  defaultZoom?: number;\n  /** Called with the level Zoom out, Zoom in or a press on the level (100%) sets */\n  onZoomChange?: (zoom: number) => void;\n  /** The levels to step through, smallest first. Defaults to ZOOM_STEPS */\n  steps?: number[];\n  onUndo?: () => void;\n  onRedo?: () => void;\n  onFit?: () => void;\n  /** False greys Undo out. Defaults to true */\n  canUndo?: boolean;\n  /** False greys Redo out. Defaults to true */\n  canRedo?: boolean;\n  className?: string;\n}\n\n/** Undo, redo, zoom and fit in one floating bar for a canvas, from the Whiteboard template. Minus and plus step the level,\n    a press on the level sets it to 100%; Undo, Redo and Fit call you */\nexport function ZoomBar({ zoom: zoomProp, defaultZoom = 1, onZoomChange, steps = ZOOM_STEPS, onUndo, onRedo, onFit, canUndo = true, canRedo = true, className }: ZoomBarProps) {\n  const [zoom, setZoom] = useControllable(zoomProp, defaultZoom, onZoomChange);\n  const [said, setSaid] = useState('');\n  const pct = Math.round(zoom * 100) + '%';\n  const lo = zoom <= steps[0] + 1e-3, hi = zoom >= steps[steps.length - 1] - 1e-3;\n  const set = (z: number) => { setZoom(z); setSaid('Zoom ' + Math.round(z * 100) + '%'); };\n  const step = (d: 1 | -1) => { const n = d > 0 ? steps.find(x => x > zoom + 1e-3) : [...steps].reverse().find(x => x < zoom - 1e-3); if (n !== undefined) set(n); };\n  // minus, plus and Shift 0 step and reset the level while the focus is in the bar\n  const onKey = (e: ReactKeyboardEvent) => {\n    if (e.metaKey || e.ctrlKey || e.altKey) return;\n    if (e.key === '-' || e.key === '−') { e.preventDefault(); step(-1); }\n    else if (e.key === '+' || e.key === '=') { e.preventDefault(); step(1); }\n    else if (e.shiftKey && (e.key === ')' || e.code === 'Digit0')) { e.preventDefault(); set(1); }\n  };\n  const off = (on: boolean, fn?: () => void) => () => { if (on) fn?.(); };\n  return (\n    <div className={cx('dm-zmb', className)} data-dm=\"\">\n      <div className=\"dm-zmb-bar\" role=\"toolbar\" aria-label=\"View\" onKeyDown={onKey}>\n        <Tip label=\"Undo\" kbd=\"⌘Z\"><button type=\"button\" className=\"dm-zmb-b dm-mx-press\" aria-label=\"Undo\" aria-disabled={!canUndo} onClick={off(canUndo, onUndo)}><Icon name=\"undo\" /></button></Tip>\n        <Tip label=\"Redo\" kbd=\"⇧⌘Z\"><button type=\"button\" className=\"dm-zmb-b dm-mx-press\" aria-label=\"Redo\" aria-disabled={!canRedo} onClick={off(canRedo, onRedo)}><Icon name=\"redo\" /></button></Tip>\n        <span className=\"dm-zmb-sep\" aria-hidden=\"true\" />\n        <Tip label=\"Zoom out\" kbd=\"−\"><button type=\"button\" className=\"dm-zmb-b dm-mx-press\" aria-label=\"Zoom out\" aria-disabled={lo} onClick={() => step(-1)}><Icon name=\"minus\" /></button></Tip>\n        <Tip label=\"Zoom to 100%\" kbd=\"⇧0\"><button type=\"button\" className=\"dm-zmb-z dm-mx-press dm-num\" aria-label={`Zoom ${pct}, zoom to 100%`} onClick={() => set(1)}>{pct}</button></Tip>\n        <Tip label=\"Zoom in\" kbd=\"+\"><button type=\"button\" className=\"dm-zmb-b dm-mx-press\" aria-label=\"Zoom in\" aria-disabled={hi} onClick={() => step(1)}><Icon name=\"plus\" /></button></Tip>\n        <span className=\"dm-zmb-sep\" aria-hidden=\"true\" />\n        <Tip label=\"Fit to screen\" kbd=\"⇧1\"><button type=\"button\" className=\"dm-zmb-b dm-mx-press\" aria-label=\"Fit to screen\" onClick={onFit}><Icon name=\"fit\" /></button></Tip>\n      </div>\n      <p className=\"dm-zmb-live\" aria-live=\"polite\">{said}</p>\n    </div>\n  );\n}\n"
+  },
+  {
+   "path": "zoom-bar/zoom-bar.css",
+   "content": "/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */\n/* ---------- Zoom bar ---------- */\n/* the Whiteboard template's view bar (owner, 27 Nov): undo and redo, zoom out, the level and zoom in, and fit, as Canvas\n   toolbar's bar. Minus and plus step the level shown between them, the level resets it to 100%; undo, redo and fit only\n   press. At 25% and 400% the step that has nowhere to go greys out and keeps its place */\n.dm-zmb{position:relative;display:flex;justify-content:center}\n.dm-zmb-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}\n.dm-zmb-bar{display:inline-flex;align-items:center;padding:var(--dm-s-1);border-radius:var(--dm-r-pill);background:var(--dm-raised);box-shadow:var(--dm-shadow-pop);white-space:nowrap}\n.dm-zmb-bar :focus-visible{border-radius:var(--dm-r-pill)}\n.dm-zmb-b{width:32px;height:32px;flex:none;display:grid;place-items:center;border-radius:var(--dm-r-pill);color:var(--dm-fg2);transition:background var(--dm-t-fast),color var(--dm-t-fast)}\n.dm-zmb-z{min-width:48px;height:32px;padding:0 var(--dm-s-1);flex:none;border-radius:var(--dm-r-pill);font-size:12.5px;color:var(--dm-fg2);transition:background var(--dm-t-fast),color var(--dm-t-fast)}\n@media (hover:hover) and (pointer:fine){.dm-zmb-b:hover,.dm-zmb-z:hover{background:var(--dm-row);color:var(--dm-fg)}}\n.dm-zmb-b[aria-disabled=\"true\"],.dm-zmb-b[aria-disabled=\"true\"]:active{color:var(--dm-dis);background:none;cursor:not-allowed}\n@media (hover:hover) and (pointer:fine){.dm-zmb-b[aria-disabled=\"true\"]:hover{color:var(--dm-dis);background:none;cursor:not-allowed}}\n.dm-zmb-sep{width:1px;height:16px;margin:0 var(--dm-s-1);flex:none;background:var(--dm-line)}\n"
+  }
+ ],
+ "example": {
+  "path": "zoom-bar/ZoomBar.example.tsx",
+  "content": "'use client';\n// The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.\nimport { useRef, useState } from 'react';\nimport { ZoomBar } from './ZoomBar';\nimport { Demo } from '../lib/Demo';\nimport { useStory } from '../lib/useScript';\n\n/* ---------- Zoom bar: zoom in twice, out once, undo, fit, and back to 100% ---------- */\nexport default function ZoomBarDemo() {\n  const ref = useRef<HTMLDivElement>(null);\n  const [zoom, setZoom] = useState(1);\n  useStory(ref, async ({ wait, press }) => {\n    await wait(1000);\n    for (const b of ['Zoom in', 'Zoom in', 'Zoom out', 'Undo', 'Fit to screen']) { await wait(1000); press(`button[aria-label=\"${b}\"]`); }\n    await wait(1000); press('.dm-zmb-z');\n  });\n  return <Demo ref={ref} switcher={null}><ZoomBar zoom={zoom} onZoomChange={setZoom} /></Demo>;\n}\n",
+  "needs": [
+   "designme.css",
+   "lib/Demo.tsx",
+   "lib/cx.ts",
+   "lib/hits.ts",
+   "lib/hooks.ts",
+   "lib/icons.tsx",
+   "lib/motion.tsx",
+   "lib/useScript.ts"
+  ]
+ }
+}

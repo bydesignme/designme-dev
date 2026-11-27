@@ -325,6 +325,8 @@ export function CommandPalette({ items, query, defaultQuery = '', onQueryChange,
 
 ## More in Workspace
 
+- [Tool rail](https://designme.dev/components/tool-rail.md): A board's tools in one vertical rail: pick one, and its name and key show on hover.
+- [Zoom bar](https://designme.dev/components/zoom-bar.md): Undo, redo, zoom and fit in one floating bar for a canvas.
 - [Run drawer](https://designme.dev/components/run-drawer.md): A workflow's run under its canvas: the steps, the log and the data.
 - [Memory panel](https://designme.dev/components/memory-panel.md): What the agent remembers about your team, editable and removable.
 - [Tools and connections](https://designme.dev/components/tool-connections.md): The tools the agent can reach, and how much it may do with each.

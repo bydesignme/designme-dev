@@ -328,6 +328,7 @@ export function PlanReview({ title, steps, defaultSteps = [], onStepsChange, pha
 
 - [Permission gate](https://designme.dev/components/permission-gate.md): The agent asks before it touches something new.
 - [Decision prompt](https://designme.dev/components/decision-prompt.md): The agent asks a few quick questions before it starts.
+- [Action cards](https://designme.dev/components/action-cards.md): What is waiting on you, each card with its button and a small picture of what it opens.
 - [Inline text diff](https://designme.dev/components/inline-text-diff.md): The agent's edits to a piece of copy, accepted or rejected one by one.
 
 All components: https://designme.dev/llms.txt

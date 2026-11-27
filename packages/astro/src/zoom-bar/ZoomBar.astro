@@ -1,0 +1,35 @@
+---
+// Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync.
+// Zoom bar: Undo, redo, zoom and fit in one floating bar for a canvas.
+// The markup, CSS and script are designme.dev's own, run by the shared core in ../core, which mounts the component when it scrolls
+// into view and plays its demo. To show your own data, change zoom-bar.js. The markup is kept exactly as it is (is:raw).
+import type { HTMLAttributes } from 'astro/types';
+import '../core/designme.css';
+import './zoom-bar.css';
+
+export interface Props extends HTMLAttributes<'div'> {
+  /** "soft" or "clean" draws it in that style. Leave it out for Blueprint, or for the style set on <html> (data-style="soft" or "clean") */
+  'data-style'?: 'soft' | 'clean';
+}
+const { class: className, ...rest } = Astro.props;
+---
+<div class:list={['card', className]} data-c="zoom-bar" {...rest}>
+  <div class="stage-in"><Fragment is:raw>
+<div class="zmb">
+  <div class="zmb-bar" role="toolbar" aria-label="View">
+    <button class="zmb-b mx-press zmb-undo" aria-label="Undo" data-tip="Undo" data-tip-k="⌘Z"><svg class="i s"><use href="#i-undo"/></svg></button>
+    <button class="zmb-b mx-press zmb-redo" aria-label="Redo" data-tip="Redo" data-tip-k="⇧⌘Z"><svg class="i s"><use href="#i-redo"/></svg></button>
+    <span class="zmb-sep" aria-hidden="true"></span>
+    <button class="zmb-b mx-press zmb-zo" aria-label="Zoom out" data-tip="Zoom out" data-tip-k="−"><svg class="i s"><use href="#i-minus"/></svg></button>
+    <button class="zmb-z mx-press num zmb-zl" aria-label="Zoom 100%, zoom to 100%" data-tip="Zoom to 100%" data-tip-k="⇧0">100%</button>
+    <button class="zmb-b mx-press zmb-zi" aria-label="Zoom in" data-tip="Zoom in" data-tip-k="+"><svg class="i s"><use href="#i-plus"/></svg></button>
+    <span class="zmb-sep" aria-hidden="true"></span>
+    <button class="zmb-b mx-press zmb-fit" aria-label="Fit to screen" data-tip="Fit to screen" data-tip-k="⇧1"><svg class="i s"><use href="#i-fit"/></svg></button>
+  </div>
+  <p class="zmb-live" aria-live="polite"></p>
+</div>
+  </Fragment></div>
+</div>
+<script>
+  import './zoom-bar.js';
+</script>

@@ -1,6 +1,6 @@
 # designme.dev
 
-Free, MIT-licensed UI components for products built around AI agents. 37 of them: status pills,
+Free, MIT-licensed UI components for products built around AI agents. 40 of them: status pills,
 reasoning trails, agent trees, permission gates, plan reviews, run costs and more.
 
 Each one comes as plain HTML, CSS and JavaScript, as a typed React component, or as an Astro component. Every component

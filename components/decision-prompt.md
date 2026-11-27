@@ -277,6 +277,7 @@ export function DecisionPrompt({
 
 - [Plan review](https://designme.dev/components/plan-review.md): Check the agent's plan, edit steps, then let it run.
 - [Permission gate](https://designme.dev/components/permission-gate.md): The agent asks before it touches something new.
+- [Action cards](https://designme.dev/components/action-cards.md): What is waiting on you, each card with its button and a small picture of what it opens.
 - [Inline text diff](https://designme.dev/components/inline-text-diff.md): The agent's edits to a piece of copy, accepted or rejected one by one.
 
 All components: https://designme.dev/llms.txt

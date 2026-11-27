@@ -360,6 +360,8 @@ export function ToolConnections({ tools, defaultTools = [], onToolsChange, avail
 
 ## More in Workspace
 
+- [Tool rail](https://designme.dev/components/tool-rail.md): A board's tools in one vertical rail: pick one, and its name and key show on hover.
+- [Zoom bar](https://designme.dev/components/zoom-bar.md): Undo, redo, zoom and fit in one floating bar for a canvas.
 - [Run drawer](https://designme.dev/components/run-drawer.md): A workflow's run under its canvas: the steps, the log and the data.
 - [Command palette](https://designme.dev/components/command-palette.md): Jump anywhere or hand a task to the agent from one box.
 - [Memory panel](https://designme.dev/components/memory-panel.md): What the agent remembers about your team, editable and removable.

@@ -10,4 +10,6 @@ module.exports = [
   'response-versions', 'feedback-sheet', 'tool-connections', 'knowledge-sources', 'run-drawer', 'status-pill',
   // owner, 26 Nov: Toast (the Job toast) and Toast stack launch too
   'toast', 'toast-stack',
+  // owner, 27 Nov: from the templates, approved
+  'tool-rail', 'zoom-bar', 'action-cards',
 ];
