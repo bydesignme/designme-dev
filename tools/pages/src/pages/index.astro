@@ -129,12 +129,6 @@ if (ROWS.flat().length !== total) throw new Error('landing: the wall shows ' + R
 // while it plays, in each style (tools/site/measure-wall.js writes wall-sizes.json), so its card frames it the way its picture
 // does (the component, 40px round it, at 16:10) at its largest, and nothing in it is cut off or jumps as it grows and shrinks.
 // A component missing there is framed by what it shows as it plays
-// each card's line under its name: the first sentence of the component's summary in its docs copy, without the name it
-// starts with ("Status pill is a single line…" reads "A single line…" under "Status pill")
-const WALL_DESC = Object.fromEntries(COMPONENTS.map(c => { const f = path.join(ROOT, 'tools/pages/content', c.reg + '.json');
-  let t = fs.existsSync(f) ? (JSON.parse(fs.readFileSync(f, 'utf8')).summary || '').split(/(?<=\.)\s/)[0] : '';
-  if (t.startsWith(c.title + ' ')) { t = t.slice(c.title.length + 1).replace(/^(is|are) /, ''); t = t.charAt(0).toUpperCase() + t.slice(1); }
-  return [c.reg, t]; }));
 const WALL_SIZES = (() => { const f = path.join(ROOT, 'tools/site/wall-sizes.json'); return fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, 'utf8')) : {}; })();
 const WALL = JSON.stringify({ font:FONT_CSS, sizes:Object.fromEntries(COMPONENTS.map(c => [c.reg, Object.fromEntries(Object.keys(KEYS).map(st => [st, (WALL_SIZES[st] || {})[c.reg] || null]))])) }).replace(/</g, '\\u003c');
 const STYLE_DEMO = comp('decision-prompt');
@@ -442,34 +436,32 @@ const jsonld = [
       :root[data-style="clean"] .lp-panes{background:var(--dm-stage)}
       .lp-pane{display:flex;flex-direction:column;min-width:0}
 
-      /* ---- the wall (owner, 27 Nov: "go with the full-width slider for the wall, just make sure only like 5-6 components are
-         showing at a time"): every component as a large card (its picture at 16:10 in a framed preview, its name and one line
-         about it under it), in two rows the full width of the window, the second half a card along from the first. The rows
-         drift slowly in turn left and right, hold still under the pointer or while a card in them has the focus, and the
-         previous and next buttons under them move both by a card. With reduced motion they don't drift, and the buttons
-         step at once. About 5.5 cards show at a time from 1100 up, then fewer as the window narrows ---- */
-      .lp .lp-rows{--lp-wn:5.5;--lp-wgap:20px;--lp-ww:clamp(176px,calc(100cqw / var(--lp-wn) - var(--lp-wgap)),360px);container-type:inline-size;display:flex;flex-direction:column;gap:40px;padding:8px 0 0}
-      @media (max-width:1099px){.lp .lp-rows{--lp-wn:4.5}}
-      @media (max-width:899px){.lp .lp-rows{--lp-wn:3.5}}
-      @media (max-width:639px){.lp .lp-rows{--lp-wn:2.5;--lp-wgap:16px}}
-      @media (max-width:479px){.lp .lp-rows{--lp-wn:1.5}}
+      /* ---- the wall (owner, 27 Nov: "go with the full-width slider for the wall"): every component as a large card (its
+         picture at 16:10, its name under it), in two rows the full width of the window, the second half a card along from
+         the first. The rows drift slowly in turn left and right, hold still under the pointer or while a card in them has
+         the focus, and the previous and next buttons centred under them move both by a card. With reduced motion they don't
+         drift, and the buttons step at once ---- */
+      /* five cards across the content column at rest (owner, 27 Nov: "make sure 5 components are showing, not 5.5"), four,
+         three, two and one as the window narrows; the cards past the column's edges are the rows bleeding off the window */
+      .lp .lp-rows{--lp-wn:5;--lp-wgap:20px;--lp-wgut:32px;--lp-ww:calc((min(100cqw,1464px) - 2 * var(--lp-wgut) - (var(--lp-wn) - 1) * var(--lp-wgap)) / var(--lp-wn));container-type:inline-size;display:flex;flex-direction:column;gap:24px;padding:8px 0 0}
+      @media (max-width:1099px){.lp .lp-rows{--lp-wn:4}}
+      @media (max-width:960px){.lp .lp-rows{--lp-wgut:24px}}
+      @media (max-width:899px){.lp .lp-rows{--lp-wn:3}}
+      @media (max-width:640px){.lp .lp-rows{--lp-wn:2;--lp-wgap:16px;--lp-wgut:16px}}
+      @media (max-width:479px){.lp .lp-rows{--lp-wn:1;--lp-ww:calc(100cqw - 2 * var(--lp-wgut) - 48px)}}
       /* each row clips the cards that drift past its ends, with room above and below for their shadows; the script moves it */
       .lp-row{overflow:hidden;padding:16px 0;margin:-16px 0}
       .lp-track{display:flex;width:max-content;will-change:transform}
       .lp-set{display:flex;gap:var(--lp-wgap);padding-right:var(--lp-wgap)}
-      .lp-wt{position:relative;flex:none;display:flex;flex-direction:column;width:var(--lp-ww);border-radius:var(--lp-r2);color:var(--pg-fg);text-decoration:none}
-      .lp-wp{position:relative;display:block;overflow:hidden;border-radius:var(--lp-r2);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pg-line) 50%,transparent);background:#fafafa;transition:box-shadow 220ms var(--lp-ease)}
-      :root[data-theme="dark"] .lp-wp{background:#1c1c1c}
-      @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .lp-wp{background:#1c1c1c}}
-      :root[data-style="clean"] .lp-wp{background:var(--dm-stage)}
+      /* each card as the wall's cards have always been (owner, 27 Nov: "I don't like that you removed the containers"): raised
+         on the page, its picture inset 6px, its name under it, only bigger */
+      .lp-wt{position:relative;flex:none;display:flex;flex-direction:column;gap:8px;width:var(--lp-ww);padding:6px 6px 10px;box-sizing:border-box;border-radius:var(--lp-r2);background:var(--pg-bg);box-shadow:var(--dm-shadow);color:var(--pg-fg);text-decoration:none;transition:background-color 220ms var(--lp-ease),transform 220ms var(--lp-ease),box-shadow 220ms var(--lp-ease)}
+      /* a card under the pointer lifts a little, with the neutral shadow, and its demo starts again from the beginning */
+      @media (hover:hover) and (pointer:fine){.lp-wt:hover{background:var(--pg-soft);transform:translateY(-2px);box-shadow:var(--dm-shadow-pop)}}
+      .lp-wt:focus-visible{outline:2px solid var(--pg-focus);outline-offset:-2px}
+      .lp-wp{position:relative;display:block;overflow:hidden;border-radius:max(0px,calc(var(--lp-r2) - 6px));background:var(--pg-soft)}
       :root:not([data-style="soft"],[data-style="clean"]) :is(.lp-wt,.lp-wp,.lp-wp img,.lp-wl){border-radius:0}
-      /* the picture sits inside the preview's hairline (drawn over it), so the edge stays the same half-strength grey */
-      .lp-wp::after{content:"";position:absolute;inset:0;z-index:1;border-radius:inherit;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pg-line) 50%,transparent);pointer-events:none;transition:box-shadow 220ms var(--lp-ease)}
       .lp-wt img,.lp-wl{display:block;width:100%;height:auto;aspect-ratio:16/10;border-radius:inherit}
-      /* a card under the pointer: its preview's edge one step stronger and the neutral shadow, and its demo starts again */
-      @media (hover:hover) and (pointer:fine){.lp-wt:hover .lp-wp{box-shadow:var(--dm-shadow)}.lp-wt:hover .lp-wp::after{box-shadow:inset 0 0 0 1px var(--pg-line)}}
-      .lp-wt:focus-visible{outline:none}
-      .lp-wt:focus-visible .lp-wp::after{box-shadow:inset 0 0 0 2px var(--pg-focus)}
       /* the card's component, live, over its picture: the installed HTML, CSS and JS on the shared core, in a frame of its own
          laid out at the size the picture frames it and scaled down to the picture's box. It shows once it has started, and
          the picture stands in while it loads and while the card is out of view (dm-idle, as in the library: nothing in it is
@@ -479,12 +471,14 @@ const jsonld = [
       .lp-wl.on{opacity:1}
       .lp-wl iframe{position:absolute;top:0;left:0;border:0;transform-origin:0 0;pointer-events:none;color-scheme:normal}
       .lp-wt.dm-idle .lp-wl{content-visibility:hidden}
-      .lp-wn,.lp-wd{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-      .lp-wn{margin-top:12px;font-size:14px;line-height:20px;font-weight:500}
-      .lp-wd{margin-top:2px;font-size:13px;line-height:20px;color:var(--pg-muted)}
-      /* previous and next, under the rows, ending on the content's right edge */
-      .lp-wnav{display:flex;justify-content:flex-end;gap:8px;padding-top:32px;padding-bottom:8px}
-      .lp-wib{width:36px;height:36px;padding:0;display:grid;place-items:center;border-radius:999px}
+      .lp-wn{padding:0 4px;font-size:13px;line-height:18px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      /* previous and next, centred under the rows (owner, 27 Nov: "maybe center align it below"): the outlined button's own
+         half-strength edge and nothing else, so a click leaves no ring; the keyboard gets the quiet grey one */
+      .lp-wnav{display:flex;justify-content:center;gap:8px;padding-top:32px;padding-bottom:8px}
+      .lp-wib{width:36px;height:36px;padding:0;display:grid;place-items:center;border:0;border-radius:999px;cursor:pointer;font:inherit;-webkit-tap-highlight-color:transparent}
+      @media (hover:hover) and (pointer:fine){.lp-wib:hover{background:var(--dm-row)}}
+      .lp-wib:focus{outline:none}
+      .lp-wib:focus-visible{outline:2px solid var(--pg-focus);outline-offset:2px}
       .lp-wib .lp-ar{margin:0}
       .lp-wib[data-d="-1"] .lp-ar{transform:rotate(180deg)}
       @media (prefers-reduced-motion:reduce){.lp-wl{display:none}}
@@ -1048,8 +1042,8 @@ const jsonld = [
       <div class="lp-rows">
         {ROWS.map((row, i) => <div class:list={['lp-row', { rev:i % 2 === 1 }]} style={`--dur:${[420, 480][i]}s`}>
           <div class="lp-track">
-            <div class="lp-set">{row.map(c => <a class="lp-wt" href={c.url} data-reg={c.reg}><span class="lp-wp"><img alt="" width="480" height="300" loading="lazy" decoding="async"></span><span class="lp-wn">{c.title}</span><span class="lp-wd">{WALL_DESC[c.reg]}</span></a>)}</div>
-            <div class="lp-set" aria-hidden="true">{row.map(c => <a class="lp-wt" href={c.url} data-reg={c.reg} tabindex="-1"><span class="lp-wp"><img alt="" width="480" height="300" loading="lazy" decoding="async"></span><span class="lp-wn">{c.title}</span><span class="lp-wd">{WALL_DESC[c.reg]}</span></a>)}</div>
+            <div class="lp-set">{row.map(c => <a class="lp-wt" href={c.url} data-reg={c.reg}><span class="lp-wp"><img alt="" width="480" height="300" loading="lazy" decoding="async"></span><span class="lp-wn">{c.title}</span></a>)}</div>
+            <div class="lp-set" aria-hidden="true">{row.map(c => <a class="lp-wt" href={c.url} data-reg={c.reg} tabindex="-1"><span class="lp-wp"><img alt="" width="480" height="300" loading="lazy" decoding="async"></span><span class="lp-wn">{c.title}</span></a>)}</div>
           </div>
         </div>)}
       </div>
@@ -1087,7 +1081,7 @@ const jsonld = [
           return ((ay * u + by) * u + cy) * u; };
         var rows = [].map.call(wall.querySelectorAll('.lp-row'), function(el, i){
           var r = { el:el, track:el.querySelector('.lp-track'), set:el.querySelector('.lp-set'), dir:el.classList.contains('rev') ? 1 : -1,
-            dur:parseFloat(getComputedStyle(el).getPropertyValue('--dur')) || 420, x:0, hov:false, foc:false, step:null, start:i ? -.75 : -.25 };
+            dur:parseFloat(getComputedStyle(el).getPropertyValue('--dur')) || 420, x:0, hov:false, foc:false, step:null, start:i ? -.5 : 0 };
           el.addEventListener('mouseenter', function(){ r.hov = true; });
           el.addEventListener('mouseleave', function(){ r.hov = false; });
           el.addEventListener('focusin', function(e){ r.foc = true; el.scrollLeft = 0;
@@ -1100,7 +1094,8 @@ const jsonld = [
         var pitch = function(r){ var c = r.set.firstElementChild; return c ? c.getBoundingClientRect().width + parseFloat(getComputedStyle(r.set).columnGap || 0) : 0; };
         var width = function(r){ return r.set.getBoundingClientRect().width; };
         var put = function(r){ var w = width(r); if (w){ r.x %= w; if (r.x > 0) r.x -= w; } r.track.style.transform = 'translate3d(' + r.x.toFixed(2) + 'px,0,0)'; };
-        var place = function(){ rows.forEach(function(r){ r.x = r.start * pitch(r); put(r); }); };
+        var col = function(){ var g = parseFloat(getComputedStyle(wall).getPropertyValue('--lp-wgut')) || 32; return Math.max(0, (wall.clientWidth - 1464) / 2) + g; };
+        var place = function(){ rows.forEach(function(r){ r.x = col() + r.start * pitch(r); put(r); }); };
         place();
         var last = 0, raf = 0, on = false;
         var tick = function(t){ raf = 0; var dt = last ? Math.min(t - last, 64) / 1000 : 0; last = t;
