@@ -2,7 +2,7 @@
 
 > Message input with attachments, what to work on, a mode and dictation.
 
-Components / Conversation. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/composer
+Agent components / Conversation. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/composer
 
 ## Install
 

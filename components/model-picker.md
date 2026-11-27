@@ -2,7 +2,7 @@
 
 > Pick a model by speed, quality and cost, and how hard it thinks.
 
-Components / Conversation. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/model-picker
+Agent components / Conversation. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/model-picker
 
 ## Install
 

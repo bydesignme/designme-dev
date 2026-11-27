@@ -2,7 +2,7 @@
 
 > Several agents working in parallel, each with its own lane and hand-offs.
 
-Components / Agent status. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/agent-lanes
+Agent components / Agent status. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/agent-lanes
 
 ## Install
 

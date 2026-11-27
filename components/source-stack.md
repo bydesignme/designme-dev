@@ -2,7 +2,7 @@
 
 > Everything the agent read, folded into one quiet pill.
 
-Components / Sources and output. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/source-stack
+Agent components / Sources and output. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/source-stack
 
 ## Install
 

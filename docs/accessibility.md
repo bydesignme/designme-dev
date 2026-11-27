@@ -15,12 +15,12 @@ Components use the ARIA pattern that fits what they do. For example:
 | A single choice | A `radiogroup` | [Decision prompt](https://designme.dev/components/decision-prompt.md) |
 | Tabs | `tablist`, `tab` and `aria-selected` | [Terminal stream](https://designme.dev/components/terminal-stream.md) |
 | File trees | A `tree` of `treeitem` rows | [File explorer](https://designme.dev/components/file-explorer.md) |
-| Popovers | A labelled `dialog` | [Citation hover card](https://designme.dev/components/citation-hover-card.md) |
+| Popovers | A labelled `dialog`, like the calendar | [Date picker](https://designme.dev/components/date-picker.md), [Citation hover card](https://designme.dev/components/citation-hover-card.md) |
 | Toggle and icon buttons | Toggles report their state with `aria-pressed`. Icon-only buttons have a label | [Answer action bar](https://designme.dev/components/answer-action-bar.md) |
 
 ## Live updates
 
-Agent work changes while you watch. The parts that change are `aria-live="polite"` regions, so the change is read out: [Status pill](https://designme.dev/components/status-pill.md), the thread above [Composer](https://designme.dev/components/composer.md) and the message line of [Context meter](https://designme.dev/components/context-meter.md).
+Agent work changes while you watch. The parts that change are `aria-live="polite"` regions, so the change is read out: [Status pill](https://designme.dev/components/status-pill.md), the thread above [Composer](https://designme.dev/components/composer.md), the message line of [Context meter](https://designme.dev/components/context-meter.md) and the month in [Date picker](https://designme.dev/components/date-picker.md).
 
 Decorative motion, like status glyphs and the wires of a canvas, is `aria-hidden`, so screen readers hear the words, not the animation.
 
@@ -28,12 +28,15 @@ Decorative motion, like status glyphs and the wires of a canvas, is `aria-hidden
 
 | Keys | What they do | Where |
 | --- | --- | --- |
-| Esc | Closes menus and popovers | [Composer](https://designme.dev/components/composer.md) |
-| Esc | Also returns focus to the button or field that opened them | [Model picker](https://designme.dev/components/model-picker.md) |
+| Esc | Closes menus and popovers | [Composer](https://designme.dev/components/composer.md), [Date picker](https://designme.dev/components/date-picker.md) |
+| Esc | Also returns focus to the button or field that opened them | [Date picker](https://designme.dev/components/date-picker.md), [Model picker](https://designme.dev/components/model-picker.md) |
 | Enter Space ↓ | Open a menu with the focus on its picked or first item; ↑ opens it on its last | [Model picker](https://designme.dev/components/model-picker.md) |
 | Tab | Closes a menu and moves on | [Model picker](https://designme.dev/components/model-picker.md) |
 | ↑ ↓ ← → | Move through lists, menus and toolbars, wrapping at the ends | [Command palette](https://designme.dev/components/command-palette.md), [Answer action bar](https://designme.dev/components/answer-action-bar.md) |
 | Home End | Go to the first and last item of a menu | [Model picker](https://designme.dev/components/model-picker.md) |
+| ← → ↑ ↓ | In the date pickers, move a day or a week | [Date picker](https://designme.dev/components/date-picker.md) |
+| Home End | Go to the start and end of the week | [Date picker](https://designme.dev/components/date-picker.md) |
+| Page Up Page Down | Move a month, or a year with Shift | [Date picker](https://designme.dev/components/date-picker.md) |
 | 1 … 9 | Pick an option | [Decision prompt](https://designme.dev/components/decision-prompt.md) |
 
 Focus from the keyboard shows as one 2px ring in `--dm-focus`, a grey that reaches 3:1 on the page: an outline 2px outside the control, or a 2px ring drawn with `box-shadow` where an outline would be cut off. It uses `:focus-visible`, so a click or a tap on a button doesn't show it. Fields take no ring: their dimmed grey edge steps up to that same grey while they have the focus, and goes back once you leave them.
