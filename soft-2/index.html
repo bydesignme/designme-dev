@@ -132,7 +132,7 @@
 :root{--rk:1.7}
 :root[data-style="bp"]{--rk:1}
 *,*::before,*::after{corner-shape:squircle}
-.acc-p button,.acc-sw,.acx-n .s,.afx-pen,.afx-r b,.agx-now i,.aln-cw-tr b,.aln-pk,.asx-lp-stop,.asx-lp-th,.asx-lp-th i,.asx-tb-dot,.atx-cmp-ok,.atx-cmp-send,.atx-cmp-x,.av,.bdg-dot,.bdg-x,.bdg-x:focus-visible,.btx-live,.ccx-fl .flag,.ccx-sw,.cmx-go,.cmx-pin,.cpx-att .fchip .rt,.cpx-att .fchip .x,.cpx-dot,.cpx-send,.ctb-n .s,.dot,.ecx-days b,.ecx-dh.t b,.evr-dot,.evr-jg-arc .tr,.evr-jg-arc i,.fxp-n .ag,.ib,.lnx-k i,.lnx-pt,.mix-dot,.msc-c button,.ntx-n .u,.plx-s .n,.pulse,.rxx-add,.sgc-wr .e i,.spin,.ssx-ics span,.stx-conf i.d,.stx-st .n,.think i,.tk-st .mk,.tsk-c .g,.tst-t .g,.ttp-av,.cxm-av,.crs-dots button,.rdx-lg i,.scx-lg i.c,.cvq-lg i.c,.rgx-r i,.wsx-marks span,.ths-dg i,.ths-mtx i,.hsc-dot,.hsc-pt i,.mtx-now i,.bws-dots i,.dtx-sl .k,.hox-av,.ste-go,.tcx[data-d="inline"] .tcb-wire i,.vor .vor-orb i,.vor-dot,.vor-gl,.vor-orb i,.igx-steps i{corner-shape:round}
+.acc-p button,.acc-sw,.acx-n .s,.afx-pen,.afx-r b,.agx-now i,.aln-cw-tr b,.aln-pk,.asx-lp-stop,.asx-lp-th,.asx-lp-th i,.asx-tb-dot,.atx-cmp-ok,.atx-cmp-send,.atx-cmp-x,.av,.bdg-dot,.bdg-x,.bdg-x:focus-visible,.btx-live,.ccx-fl .flag,.ccx-sw,.cmx-go,.cmx-pin,.cpx-att .fchip .rt,.cpx-att .fchip .x,.cpx-dot,.cpx-send,.ctb-n .s,.dot,.ecx-days b,.ecx-dh.t b,.evr-dot,.evr-jg-arc .tr,.evr-jg-arc i,.fxp-n .ag,.ib,.lnx-k i,.lnx-pt,.mix-dot,.msc-c button,.ntx-n .u,.plx-s .n,.pulse,.rxx-add,.sgc-wr .e i,.spin,.ssx-ics span,.stx-conf i.d,.stx-st .n,.think i,.tk-st .mk,.tsk-c .g,.tst-t .g,.ttp-av,.cxm-av,.crs-dots button,.rdx-lg i,.scx-lg i.c,.cvq-lg i.c,.rgx-r i,.wsx-marks span,.ths-dg i,.ths-mtx i,.hsc-dot,.hsc-pt i,.mtx-now i,.bws-dots i,.dtx-sl .k,.hox-av,.ste-go,.tcx[data-d="inline"] .tcb-wire i,.vor .vor-orb i,.vor-dot,.vor-gl,.vor-orb i,.igx-steps i,.axc-m{corner-shape:round}
 .aln-det div::before{corner-shape:round}
 .asx-lp-rg::-moz-range-thumb{corner-shape:round}
 .asx-lp-rg::-webkit-slider-thumb{corner-shape:round}
@@ -6471,6 +6471,98 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 :root[data-theme="dark"] .ctb{--ctb-stop:#c43535;--ctb-stop-2:#d34646}
 :root[data-style="bp"] .ctb-n.run{box-shadow:0 0 0 1px var(--accent-mark),0 0 0 4px color-mix(in srgb,var(--accent) 22%,transparent)}
 :root[data-style="bp"] .ctb-n.sel{box-shadow:0 0 0 1px color-mix(in srgb,var(--pick-on) 50%,transparent)}
+/* ---------- Tool rail ---------- */
+/* the Whiteboard template's tool rail (owner, 27 Nov): Canvas toolbar's bar stood on its end. One tool is picked at a time;
+   the picked one sits on Canvas toolbar's soft accent tint (Clean: its one neutral selected fill), the others take the quiet
+   hover. Its buttons do nothing else: what a tool does is the board's */
+.tlr{display:flex;justify-content:center}
+.tlr-bar{display:inline-flex;flex-direction:column;align-items:center;padding:var(--s-1);border-radius:var(--r-pill);background:var(--raised);box-shadow:var(--shadow-pop)}
+.tlr-bar :focus-visible{border-radius:var(--r-pill)}
+.tlr-tools{display:flex;flex-direction:column;align-items:center}
+.tlr-b{width:32px;height:32px;flex:none;display:grid;place-items:center;border-radius:var(--r-pill);color:var(--fg2);transition:background var(--t-fast),color var(--t-fast)}
+.tlr-b:hover{background:var(--row);color:var(--fg)}
+.tlr-b[aria-checked="true"],.tlr-b[aria-checked="true"]:hover{background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--accent-fg)}
+.tlr-sep{width:16px;height:1px;margin:var(--s-1) auto;flex:none;background:var(--line)}
+/* Clean's picked tool is its one selected fill, neutral, never a hue (as on the Whiteboard) */
+:root[data-style="clean"] .tlr-b[aria-checked="true"],:root[data-style="clean"] .tlr-b[aria-checked="true"]:hover{background:var(--row-on);color:var(--fg)}
+/* ---------- Zoom bar ---------- */
+/* the Whiteboard template's view bar (owner, 27 Nov): undo and redo, zoom out, the level and zoom in, and fit, as Canvas
+   toolbar's bar. Minus and plus step the level shown between them, the level resets it to 100%; undo, redo and fit only
+   press. At 25% and 400% the step that has nowhere to go greys out and keeps its place */
+.zmb{position:relative;display:flex;justify-content:center}
+.zmb-live{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.zmb-bar{display:inline-flex;align-items:center;padding:var(--s-1);border-radius:var(--r-pill);background:var(--raised);box-shadow:var(--shadow-pop);white-space:nowrap}
+.zmb-bar :focus-visible{border-radius:var(--r-pill)}
+.zmb-b{width:32px;height:32px;flex:none;display:grid;place-items:center;border-radius:var(--r-pill);color:var(--fg2);transition:background var(--t-fast),color var(--t-fast)}
+.zmb-z{min-width:48px;height:32px;padding:0 var(--s-1);flex:none;border-radius:var(--r-pill);font-size:12.5px;color:var(--fg2);transition:background var(--t-fast),color var(--t-fast)}
+.zmb-b:hover,.zmb-z:hover{background:var(--row);color:var(--fg)}
+.zmb-b[aria-disabled="true"],.zmb-b[aria-disabled="true"]:hover,.zmb-b[aria-disabled="true"]:active{color:var(--dis);background:none;cursor:not-allowed}
+.zmb-sep{width:1px;height:16px;margin:0 var(--s-1);flex:none;background:var(--line)}
+/* ---------- Action cards ---------- */
+/* the Sales CRM forecast's next steps (owner, 27 Nov; designed 16 Nov): each card says what is waiting, with a button that opens
+   it, beside a small picture of what that button leads to. The picture is a short list: the item in focus is a window, its
+   neighbours grey slips above and below. In a loop a pointer glides to the item, presses, the item changes (a commit ticks
+   in, a new date is approved, a draft is sent), then the list scrolls up to the next. The three run at different speeds so
+   they never move together, a resting pointer holds them, and with reduced motion they stay still. Three across; one under
+   another below 900px */
+.card.wide .stage-in:has(>.axc){max-width:none}
+/* installed, its card takes the room it is given, so the row can be three across */
+[data-c]:has(>.stage-in>.axc),[data-c]>.stage-in:has(>.axc){width:100%;max-width:none}
+.axc{--axc-hair:color-mix(in srgb,color-mix(in srgb,var(--line),var(--fg) 9%) 50%,transparent);width:100%;container:axc/inline-size}
+.axc-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s-3)}
+.axc-c.panel{overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr) 50%;min-height:156px;border-radius:var(--r-card);box-shadow:inset 0 0 0 1px var(--axc-hair)}
+.axc-tx{position:relative;z-index:1;display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:var(--s-4)}
+.axc-tx b{font-size:14px;font-weight:500;color:var(--fg);line-height:1.35}
+.axc-tx p{margin:0 0 var(--s-4);font-size:13px;line-height:1.45;color:var(--muted)}
+.axc-tx .pill{margin-top:auto}
+.axc-v{position:relative;min-width:0;overflow:hidden}
+.axc-k{position:absolute;left:10px;right:var(--s-4);top:0;display:flex;flex-direction:column;gap:15px;will-change:transform}
+.axc-k.mv{transition:transform var(--ax-mv,.7s) cubic-bezier(.65,0,.35,1)}
+/* an item: a window when it's in focus, a grey slip when it's not (its content hidden). The windows end 16px in from the
+   card's right edge, on its content column (the template's 10px there is a near miss) */
+.axc-w{display:flex;flex-direction:column;gap:8px;padding:10px 12px;flex:none;border-radius:calc(var(--r-card) - 10px);background:color-mix(in srgb,var(--fg) 4%,var(--surface));box-shadow:0 0 0 1px var(--axc-hair);transition:background-color .45s var(--ease),box-shadow .45s var(--ease)}
+.axc-w>*{opacity:0;transition:opacity .35s var(--ease)}
+/* the window in focus takes Soft's card shadow */
+.axc-w.on{background:var(--surface);box-shadow:0 0 0 1px var(--axc-hair),0 1px 1px rgba(0,0,0,.02),0 2px 4px -2px rgba(0,0,0,.025),0 6px 12px -6px rgba(0,0,0,.03),0 12px 24px -12px rgba(0,0,0,.035)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .axc-w.on{box-shadow:0 0 0 1px var(--axc-hair),0 1px 2px rgba(0,0,0,.22),0 4px 10px -4px rgba(0,0,0,.24),0 12px 24px -12px rgba(0,0,0,.28)}}
+:root[data-theme="dark"] .axc-w.on{box-shadow:0 0 0 1px var(--axc-hair),0 1px 2px rgba(0,0,0,.22),0 4px 10px -4px rgba(0,0,0,.24),0 12px 24px -12px rgba(0,0,0,.28)}
+.axc-w.on>*{opacity:1}
+.axc-t{font-size:12px;font-weight:500;color:var(--fg);line-height:15px}
+.axc-r{display:flex;align-items:center;gap:8px;min-width:0;min-height:18px}
+.axc-l{display:block;height:6px;flex:none;border-radius:3px;background:var(--chip)}
+/* a rep's commit: a ring until it's in, then a grey disc with a tick (grey, not green) */
+.axc-m{position:relative;margin-left:auto;width:14px;height:14px;flex:none;display:grid;place-items:center;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--faint);color:var(--surface);transition:background-color .25s var(--ease),box-shadow .25s var(--ease)}
+.axc-m svg{width:9px;height:9px;fill:none;stroke:currentColor;stroke-width:3.6;stroke-linecap:round;stroke-linejoin:round;opacity:0;transform:scale(.5);transition:opacity .25s var(--ease),transform .3s var(--ease)}
+.axc-m.in{background:var(--faint);box-shadow:none}
+.axc-m.in svg{opacity:1;transform:none}
+.axc-i{width:22px;height:22px;flex:none;display:grid;place-items:center;border-radius:calc(6px * var(--rk));background:var(--a);color:var(--ai)}
+.axc-n{font-size:12px;font-weight:500;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.axc-d{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);white-space:nowrap}
+.axc-d s{text-decoration-color:currentColor}
+/* a new date is grey until approved, then green; a draft is the accent tint until sent, then green */
+.axc .tag.axc-g{height:20px;font-size:11px;gap:4px;transition:background-color .25s var(--ease),color .25s var(--ease)}
+.axc .tag.axc-g.ok{background:var(--ok-bg);color:var(--ok)}
+.axc .tag.axc-g.dr{background:color-mix(in srgb,var(--accent) 10%,transparent);color:var(--accent-fg,var(--accent))}
+.axc .tag.axc-g.dr.ok{background:var(--ok-bg);color:var(--ok)}
+.axc-g svg{width:10px;height:10px}
+.axc-g .sw{display:inline-grid}
+.axc-g .sw>*{grid-area:1/1;transition:opacity .25s var(--ease),transform .3s var(--ease)}
+.axc-g .sw>.b{opacity:0;transform:translateY(5px)}
+.axc-g.ok .sw>.a{opacity:0;transform:translateY(-5px)}
+.axc-g.ok .sw>.b{opacity:1;transform:none}
+/* the pointer: glides to the thing, presses, glides off */
+.axc-cur{position:absolute;z-index:3;left:0;top:0;width:18px;height:18px;fill:var(--accent-mark,var(--accent));stroke:var(--surface);stroke-width:1.5;stroke-linejoin:round;opacity:0;pointer-events:none;transition:transform .65s cubic-bezier(.22,1,.36,1),opacity .3s var(--ease)}
+.axc-cur.press{transition:transform .14s var(--ease),opacity .3s var(--ease)}
+/* Blueprint: square, a hairline, no shadow; the draft tag in the lime tint */
+:root[data-style="bp"] .axc-c.panel,:root[data-style="bp"] :is(.axc-w,.axc-i){border-radius:0}
+:root[data-style="bp"] .axc-w.on{box-shadow:0 0 0 1px color-mix(in srgb,var(--fg) 18%,transparent)}
+:root[data-style="bp"] .axc .tag.axc-g.dr:not(.ok){background:color-mix(in srgb,var(--accent) 40%,transparent)}
+@media (prefers-color-scheme:dark){:root[data-style="bp"]:not([data-theme="light"]) .axc .tag.axc-g.dr:not(.ok){background:color-mix(in srgb,var(--accent) 14%,transparent)}}
+:root[data-style="bp"][data-theme="dark"] .axc .tag.axc-g.dr:not(.ok){background:color-mix(in srgb,var(--accent) 14%,transparent)}
+@media (prefers-reduced-motion:reduce){.axc-k.mv,.axc-w,.axc-w>*,.axc-cur,.axc-m,.axc-m svg{transition:none}}
+/* one under another on a narrow stage, the picture beside the words */
+@container axc (max-width:899px){.axc-row{grid-template-columns:minmax(0,1fr)}.axc-c.panel{grid-template-columns:minmax(0,1fr) minmax(200px,40%)}}
+@container axc (max-width:479px){.axc-c.panel{grid-template-columns:minmax(0,1fr) 46%;min-height:168px}.axc-k{left:8px}}
 /* ---------- Data picker ---------- */
 /* maps data from earlier steps into a step's fields. Each field holds tokens, the step and then its field, and a + that opens
    the picker: only what earlier steps hand on, grouped by step under each step's tile in its kind's colour, each field with
@@ -12018,6 +12110,12 @@ button.pvb-row:focus-visible{outline-offset:-2px}
 <symbol id="i-lasso" viewBox="0 0 24 24"><path d="M12 4.5c4.4 0 8 2.5 8 5.5s-3.6 5.5-8 5.5-8-2.5-8-5.5 3.6-5.5 8-5.5z"/><path d="M7.6 14.6c-1 1.2-.7 2.9.8 3.3 1.3.3 1.6 1.5.6 2.6"/></symbol>
 <symbol id="i-comment" viewBox="0 0 24 24"><path d="M5.5 5h13A1.5 1.5 0 0 1 20 6.5v8a1.5 1.5 0 0 1-1.5 1.5H11l-4.2 3.3V16H5.5A1.5 1.5 0 0 1 4 14.5v-8A1.5 1.5 0 0 1 5.5 5z"/></symbol>
 <symbol id="i-fit" viewBox="0 0 24 24"><path d="M4 8.5v-3A1.5 1.5 0 0 1 5.5 4h3M15.5 4h3A1.5 1.5 0 0 1 20 5.5v3M20 15.5v3a1.5 1.5 0 0 1-1.5 1.5h-3M8.5 20h-3A1.5 1.5 0 0 1 4 18.5v-3"/><rect x="8.5" y="9" width="7" height="6" rx="1"/></symbol>
+<symbol id="i-sticky" viewBox="0 0 24 24"><path d="M5 4.5h14a.5.5 0 0 1 .5.5v9.5l-5 5H5a.5.5 0 0 1-.5-.5V5a.5.5 0 0 1 .5-.5z"/><path d="M19.5 14.5H15a.5.5 0 0 0-.5.5v4.5"/></symbol>
+<symbol id="i-pen" viewBox="0 0 24 24"><path d="M15.5 4.5l4 4L9 19l-4.8.8L5 15z"/><path d="M13.5 6.5l4 4"/></symbol>
+<symbol id="i-eraser" viewBox="0 0 24 24"><path d="M9 19.5l-4.3-4.3a1.4 1.4 0 0 1 0-2l8.5-8.5a1.4 1.4 0 0 1 2 0l4.1 4.1a1.4 1.4 0 0 1 0 2L12 18.1"/><path d="M9 19.5h10.5M8.6 9.3l6.1 6.1"/></symbol>
+<symbol id="i-shape" viewBox="0 0 24 24"><rect x="4" y="9.5" width="10.5" height="10.5" rx="1.5"/><path d="M10.2 9.5a5.5 5.5 0 1 1 4.3 6.5"/></symbol>
+<symbol id="i-connector" viewBox="0 0 24 24"><path d="M5 19L18.5 5.5M11 5.5h7.5V13"/></symbol>
+<symbol id="i-text" viewBox="0 0 24 24"><path d="M5.5 7V5h13v2M12 5v14M9 19h6"/></symbol>
 <symbol id="i-history" viewBox="0 0 24 24"><path d="M3.5 12a8.5 8.5 0 1 0 2.5-6M3.5 4v4h4M12 7.5V12l3 2"/></symbol>
 <symbol id="i-brain" viewBox="0 0 24 24"><path d="M9.5 4.5a2.5 2.5 0 0 0-2.5 2.5 3 3 0 0 0-2.2 5 3 3 0 0 0 1.7 5A3 3 0 0 0 12 18V6.5a2 2 0 0 0-2.5-2zM14.5 4.5A2.5 2.5 0 0 1 17 7a3 3 0 0 1 2.2 5 3 3 0 0 1-1.7 5A3 3 0 0 1 12 18"/></symbol>
 <symbol id="i-dollar" viewBox="0 0 24 24"><path d="M12 3v18M16.5 7.5c-.6-1.6-2.3-2.5-4.5-2.5-2.5 0-4.3 1.2-4.3 3.2 0 4.6 9 2.4 9 7.2 0 2-1.9 3.4-4.7 3.4-2.4 0-4.2-1-4.8-2.8"/></symbol>
@@ -12998,6 +13096,67 @@ button.pvb-row:focus-visible{outline-offset:-2px}
   <p class="ctb-live" aria-live="polite"></p>
 </div></template>
   <div class="card-f"><span>Pan with the hand, zoom in, fit, then run</span><span class="sp"></span><button class="replay" aria-label="Replay Canvas toolbar"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
+</article>
+<article class="card" data-c="tool-rail" id="c-tool-rail">
+  <div class="card-h"><div><h3>Tool rail</h3><p>A board's tools in one vertical rail: pick one, and its name and key show on hover.</p></div></div>
+  <div class="stage"><div class="stage-in"></div></div>
+  <template><div class="tlr">
+  <div class="tlr-bar" role="toolbar" aria-label="Tools" aria-orientation="vertical">
+    <div class="tlr-tools" role="radiogroup" aria-label="Tool">
+      <button class="tlr-b mx-press" role="radio" aria-checked="true" data-t="select" aria-label="Select" data-tip="Select" data-tip-k="V">{cursor}</button>
+      <button class="tlr-b mx-press" role="radio" aria-checked="false" tabindex="-1" data-t="hand" aria-label="Pan" data-tip="Pan" data-tip-k="H">{hand}</button>
+      <span class="tlr-sep" aria-hidden="true"></span>
+      <button class="tlr-b mx-press" role="radio" aria-checked="false" tabindex="-1" data-t="sticky" aria-label="Sticky note" data-tip="Sticky note" data-tip-k="S">{sticky}</button>
+      <button class="tlr-b mx-press" role="radio" aria-checked="false" tabindex="-1" data-t="pen" aria-label="Pen" data-tip="Pen" data-tip-k="P">{pen}</button>
+      <button class="tlr-b mx-press" role="radio" aria-checked="false" tabindex="-1" data-t="eraser" aria-label="Eraser" data-tip="Eraser" data-tip-k="E">{eraser}</button>
+      <button class="tlr-b mx-press" role="radio" aria-checked="false" tabindex="-1" data-t="shape" aria-label="Shape" data-tip="Shape" data-tip-k="R">{shape}</button>
+      <button class="tlr-b mx-press" role="radio" aria-checked="false" tabindex="-1" data-t="arrow" aria-label="Connector" data-tip="Connector" data-tip-k="A">{connector}</button>
+      <button class="tlr-b mx-press" role="radio" aria-checked="false" tabindex="-1" data-t="text" aria-label="Text" data-tip="Text" data-tip-k="T">{text}</button>
+      <span class="tlr-sep" aria-hidden="true"></span>
+      <button class="tlr-b mx-press" role="radio" aria-checked="false" tabindex="-1" data-t="comment" aria-label="Comment" data-tip="Comment" data-tip-k="C">{comment}</button>
+    </div>
+  </div>
+</div></template>
+  <div class="card-f"><span>Pick a tool; the arrows and its letter pick one too</span><span class="sp"></span><button class="replay" aria-label="Replay Tool rail"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
+</article>
+<article class="card" data-c="zoom-bar" id="c-zoom-bar">
+  <div class="card-h"><div><h3>Zoom bar</h3><p>Undo, redo, zoom and fit in one floating bar for a canvas.</p></div></div>
+  <div class="stage"><div class="stage-in"></div></div>
+  <template><div class="zmb">
+  <div class="zmb-bar" role="toolbar" aria-label="View">
+    <button class="zmb-b mx-press zmb-undo" aria-label="Undo" data-tip="Undo" data-tip-k="⌘Z">{undo}</button>
+    <button class="zmb-b mx-press zmb-redo" aria-label="Redo" data-tip="Redo" data-tip-k="⇧⌘Z">{redo}</button>
+    <span class="zmb-sep" aria-hidden="true"></span>
+    <button class="zmb-b mx-press zmb-zo" aria-label="Zoom out" data-tip="Zoom out" data-tip-k="−">{minus}</button>
+    <button class="zmb-z mx-press num zmb-zl" aria-label="Zoom 100%, zoom to 100%" data-tip="Zoom to 100%" data-tip-k="⇧0">100%</button>
+    <button class="zmb-b mx-press zmb-zi" aria-label="Zoom in" data-tip="Zoom in" data-tip-k="+">{plus}</button>
+    <span class="zmb-sep" aria-hidden="true"></span>
+    <button class="zmb-b mx-press zmb-fit" aria-label="Fit to screen" data-tip="Fit to screen" data-tip-k="⇧1">{fit}</button>
+  </div>
+  <p class="zmb-live" aria-live="polite"></p>
+</div></template>
+  <div class="card-f"><span>Zoom in and out, or press the level for 100%</span><span class="sp"></span><button class="replay" aria-label="Replay Zoom bar"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
+</article>
+<article class="card wide" data-c="action-cards" id="c-action-cards">
+  <div class="card-h"><div><h3>Action cards</h3><p>What is waiting on you, each card with its button and a small picture of what it opens.</p></div></div>
+  <div class="stage"><div class="stage-in"></div></div>
+  <template><div class="axc">
+<div class="axc-row">
+  <div class="panel axc-c" data-ax="commit">
+    <div class="axc-tx"><b>Submit the Q4 commit</b><p>5 reps to go, due Friday.</p><button class="pill line sm">Review commit</button></div>
+    <div class="axc-v" aria-hidden="true"><div class="axc-k"><div class="axc-w"><span class="axc-t">Key accounts</span><span class="axc-r"><span class="axc-l" style="width:60%"></span><span class="axc-m in"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></span><span class="axc-r"><span class="axc-l" style="width:44%"></span><span class="axc-m" data-go><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></span></div><div class="axc-w"><span class="axc-t">Growth</span><span class="axc-r"><span class="axc-l" style="width:52%"></span><span class="axc-m in"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></span><span class="axc-r"><span class="axc-l" style="width:38%"></span><span class="axc-m" data-go><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></span></div><div class="axc-w"><span class="axc-t">New business</span><span class="axc-r"><span class="axc-l" style="width:56%"></span><span class="axc-m in"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></span><span class="axc-r"><span class="axc-l" style="width:46%"></span><span class="axc-m" data-go><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></span></div></div><svg class="axc-cur" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 2.5l12 6.2-5.3 1.5-2.4 5.1z"/></svg></div>
+  </div>
+  <div class="panel axc-c" data-ax="dates">
+    <div class="axc-tx"><b>Move 4 close dates</b><p>New dates are ready to be approved.</p><button class="pill line sm">Review dates</button></div>
+    <div class="axc-v" aria-hidden="true"><div class="axc-k"><div class="axc-w"><span class="axc-r"><span class="axc-i" style="--a:var(--av-r);--ai:var(--av-r-ink)">{cal}</span><span class="axc-n">Renewal</span></span><span class="axc-d"><s class="num">Nov 25</s>{right}<span class="tag axc-g num" data-go>Dec 9</span></span><span class="axc-l" style="width:72%"></span></div><div class="axc-w"><span class="axc-r"><span class="axc-i" style="--a:var(--av-r);--ai:var(--av-r-ink)">{cal}</span><span class="axc-n">Renewal</span></span><span class="axc-d"><s class="num">Nov 23</s>{right}<span class="tag axc-g num" data-go>Dec 11</span></span><span class="axc-l" style="width:72%"></span></div><div class="axc-w"><span class="axc-r"><span class="axc-i" style="--a:var(--av-r);--ai:var(--av-r-ink)">{cal}</span><span class="axc-n">Studio seats</span></span><span class="axc-d"><s class="num">Nov 20</s>{right}<span class="tag axc-g num" data-go>Dec 15</span></span><span class="axc-l" style="width:72%"></span></div><div class="axc-w"><span class="axc-r"><span class="axc-i" style="--a:var(--av-r);--ai:var(--av-r-ink)">{cal}</span><span class="axc-n">Pilot</span></span><span class="axc-d"><s class="num">Nov 17</s>{right}<span class="tag axc-g num" data-go>Dec 17</span></span><span class="axc-l" style="width:72%"></span></div></div><svg class="axc-cur" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 2.5l12 6.2-5.3 1.5-2.4 5.1z"/></svg></div>
+  </div>
+  <div class="panel axc-c" data-ax="follow">
+    <div class="axc-tx"><b>Send 4 follow-ups</b><p>Drafts are ready to send. Review them.</p><button class="pill line sm">Review drafts</button></div>
+    <div class="axc-v" aria-hidden="true"><div class="axc-k"><div class="axc-w"><span class="axc-r"><span class="axc-i" style="--a:var(--av-b);--ai:var(--av-b-ink)">{mail}</span><span class="axc-n">Saltmarsh Foods</span></span><span class="axc-l" style="width:88%"></span><span class="axc-r"><span class="tag axc-g dr" data-go>{spark}<span class="sw"><span class="a">Drafted</span><span class="b">Sent</span></span></span></span></div><div class="axc-w"><span class="axc-r"><span class="axc-i" style="--a:var(--av-b);--ai:var(--av-b-ink)">{mail}</span><span class="axc-n">Moss &amp; Ember</span></span><span class="axc-l" style="width:76%"></span><span class="axc-r"><span class="tag axc-g dr" data-go>{spark}<span class="sw"><span class="a">Drafted</span><span class="b">Sent</span></span></span></span></div><div class="axc-w"><span class="axc-r"><span class="axc-i" style="--a:var(--av-b);--ai:var(--av-b-ink)">{mail}</span><span class="axc-n">Marrow &amp; Finch</span></span><span class="axc-l" style="width:82%"></span><span class="axc-r"><span class="tag axc-g dr" data-go>{spark}<span class="sw"><span class="a">Drafted</span><span class="b">Sent</span></span></span></span></div><div class="axc-w"><span class="axc-r"><span class="axc-i" style="--a:var(--av-b);--ai:var(--av-b-ink)">{mail}</span><span class="axc-n">Arbor &amp; Vine</span></span><span class="axc-l" style="width:70%"></span><span class="axc-r"><span class="tag axc-g dr" data-go>{spark}<span class="sw"><span class="a">Drafted</span><span class="b">Sent</span></span></span></span></div></div><svg class="axc-cur" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 2.5l12 6.2-5.3 1.5-2.4 5.1z"/></svg></div>
+  </div>
+</div>
+</div></template>
+  <div class="card-f"><span>Each picture shows what its button opens</span><span class="sp"></span><button class="replay" aria-label="Replay Action cards"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
 <article class="card" data-c="data-picker" id="c-data-picker">
   <div class="card-h"><div><h3>Data picker</h3><p>Map a field from earlier steps into a step's input.</p></div></div>
@@ -22425,6 +22584,101 @@ DM.def('canvas-toolbar', (r, c) => {
     await s.tap(runB); s.away();
     await s.until(() => !running); await s.beat(3);
   });
+});
+/* ---------- Tool rail ---------- */
+DM.def('tool-rail', (r, c) => {
+  r.innerHTML = r.innerHTML.replace(/\{([\w-]+)\}/g, (m, k) => I(k));
+  const bs = $$('.tlr-b', r), keys = Object.fromEntries(bs.map(b => [b.dataset.tipK.toLowerCase(), b]));
+  // one tool at a time, like radio buttons: the picked one is checked and is the one Tab stops on
+  const pick = b => bs.forEach(x => { const on = x === b; x.setAttribute('aria-checked', String(on)); x.tabIndex = on ? 0 : -1; });
+  bs.forEach(b => c.on(b, 'click', () => pick(b)));
+  // the arrows move the pick along the rail, and a tool's letter picks it, while the focus is in the rail
+  c.on($('.tlr-bar', r), 'keydown', e => {
+    const d = { ArrowDown:1, ArrowRight:1, ArrowUp:-1, ArrowLeft:-1 }[e.key];
+    const n = d ? bs[(bs.indexOf(document.activeElement) + d + bs.length) % bs.length] : !e.metaKey && !e.ctrlKey && !e.altKey && keys[e.key.toLowerCase()];
+    if (!n) return; e.preventDefault(); pick(n); n.focus();
+  });
+  // the preview's story: try the pen, a sticky note and a comment, then back to Select
+  const t = k => $(`.tlr-b[data-t="${k}"]`, r);
+  c.story(async s => {
+    await s.beat(2);
+    await s.point(t('pen')); await s.beat(1.5); await s.tap(t('pen')); await s.beat(2.5);
+    await s.point(t('sticky')); await s.beat(1.5); await s.tap(t('sticky')); await s.beat(2.5);
+    await s.tap(t('comment')); await s.beat(2.5);
+    await s.tap(t('select')); s.away(); await s.beat(2);
+  });
+});
+/* ---------- Zoom bar ---------- */
+DM.def('zoom-bar', (r, c) => {
+  r.innerHTML = r.innerHTML.replace(/\{([\w-]+)\}/g, (m, k) => I(k));
+  const zo = $('.zmb-zo', r), zi = $('.zmb-zi', r), zl = $('.zmb-zl', r), live = $('.zmb-live', r);
+  // the levels minus and plus step through, as the Whiteboard's
+  const STEPS = [.25, .33, .5, .67, .75, .9, 1, 1.25, 1.5, 2, 3, 4];
+  let z = 1;
+  const paint = say => { const p = Math.round(z * 100) + '%';
+    zl.textContent = p; zl.setAttribute('aria-label', `Zoom ${p}, zoom to 100%`);
+    zo.setAttribute('aria-disabled', String(z <= STEPS[0])); zi.setAttribute('aria-disabled', String(z >= STEPS[STEPS.length - 1]));
+    if (say) live.textContent = 'Zoom ' + p; };
+  const step = d => { const n = d > 0 ? STEPS.find(x => x > z + .001) : [...STEPS].reverse().find(x => x < z - .001); if (n){ z = n; paint(true); } };
+  c.on(zo, 'click', () => step(-1)); c.on(zi, 'click', () => step(1)); c.on(zl, 'click', () => { z = 1; paint(true); });
+  // minus, plus and Shift 0 step and reset the level while the focus is in the bar
+  c.on($('.zmb-bar', r), 'keydown', e => {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const a = e.key === '-' || e.key === '−' ? () => step(-1) : e.key === '+' || e.key === '=' ? () => step(1) : e.shiftKey && (e.key === ')' || e.code === 'Digit0') ? () => { z = 1; paint(true); } : null;
+    if (a){ e.preventDefault(); a(); }
+  });
+  paint();
+  // the preview's story: zoom in twice, out once, undo, fit, and back to 100%
+  c.story(async s => {
+    await s.beat(2);
+    await s.tap(zi); await s.beat(1.5); await s.tap(zi); await s.beat(2);
+    await s.tap(zo); await s.beat(2);
+    await s.point($('.zmb-undo', r)); await s.beat(1); await s.tap($('.zmb-undo', r)); await s.beat(2);
+    await s.tap($('.zmb-fit', r)); await s.beat(2);
+    await s.tap(zl); s.away(); await s.beat(2);
+  });
+});
+/* ---------- Action cards ---------- */
+DM.def('action-cards', (r, c) => {
+  r.innerHTML = r.innerHTML.replace(/\{([\w-]+)\}/g, (m, k) => I(k, 'xs'));
+  // each picture's pace: how long an item stays, how long the list takes to move on, and how late it starts
+  const PACE = { commit:{ step:3600, mv:700, at:0 }, dates:{ step:3000, mv:600, at:700 }, follow:{ step:4200, mv:800, at:1400 } };
+  const loop = async card => {
+    const P = PACE[card.dataset.ax] || PACE.commit, vis = $('.axc-v', card), k = $('.axc-k', card), cur = $('.axc-cur', vis);
+    // the track: the last item first (the slip above), the list, then its first two again so the loop can wrap unseen
+    const own = $$('.axc-w', k), n = own.length;
+    k.prepend(own[n - 1].cloneNode(true)); k.append(own[0].cloneNode(true), own[1 % n].cloneNode(true));
+    const W = $$('.axc-w', k); let i = 1;
+    k.style.setProperty('--ax-mv', P.mv + 'ms');
+    const place = (idx, anim) => { k.classList.toggle('mv', anim); const it = W[idx]; k.style.transform = `translateY(${Math.round((vis.clientHeight - it.offsetHeight) / 2 - it.offsetTop)}px)`;
+      W.forEach((x, m) => x.classList.toggle('on', m === idx)); };
+    requestAnimationFrame(() => place(i, false));
+    // and again, at once, when its room changes (the row stacking on a narrow stage)
+    if (window.ResizeObserver){ const ro = new ResizeObserver(() => place(i, false)); ro.observe(vis); c.offs.push(() => ro.disconnect()); }
+    if (REDUCE) return;
+    const at = el => { const v = vis.getBoundingClientRect(), b = el.getBoundingClientRect(); return [b.left - v.left + b.width * .55, b.top - v.top + b.height * .5]; };
+    await c.wait(P.at + 900);
+    for (;;){
+      const go = $('[data-go]', W[i]);
+      if (go){
+        const [x, y] = at(go);
+        cur.classList.remove('press'); cur.style.transition = 'none'; cur.style.transform = `translate(${x + 34}px,${y + 26}px)`; void cur.offsetWidth; cur.style.transition = '';
+        cur.style.opacity = 1; cur.style.transform = `translate(${x}px,${y}px)`;
+        await c.wait(700);
+        cur.classList.add('press'); cur.style.transform = `translate(${x}px,${y}px) scale(.8)`;
+        await c.wait(140);
+        cur.style.transform = `translate(${x}px,${y}px)`; go.classList.add(go.classList.contains('axc-m') ? 'in' : 'ok');
+        await c.wait(520);
+        cur.classList.remove('press'); cur.style.opacity = 0; cur.style.transform = `translate(${x + 18}px,${y + 14}px)`;
+      }
+      await c.wait(Math.max(300, P.step - 1700));
+      // scroll up to the next item; past the end, jump back unseen to the same item at the start, all fresh again
+      i++; place(i, true);
+      await c.wait(P.mv + 60);
+      if (i === n + 1){ i = 1; W.forEach(x => $$('[data-go]', x).forEach(g => g.classList.remove('in', 'ok'))); place(i, false); }
+    }
+  };
+  c.run(() => Promise.all($$('.axc-c', r).map(loop)));
 });
 /* ---------- Data picker ---------- */
 DM.def('data-picker', (r, c) => {
