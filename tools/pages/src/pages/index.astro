@@ -129,6 +129,12 @@ if (ROWS.flat().length !== total) throw new Error('landing: the wall shows ' + R
 // while it plays, in each style (tools/site/measure-wall.js writes wall-sizes.json), so its card frames it the way its picture
 // does (the component, 40px round it, at 16:10) at its largest, and nothing in it is cut off or jumps as it grows and shrinks.
 // A component missing there is framed by what it shows as it plays
+// each card's line under its name: the first sentence of the component's summary in its docs copy, without the name it
+// starts with ("Status pill is a single line…" reads "A single line…" under "Status pill")
+const WALL_DESC = Object.fromEntries(COMPONENTS.map(c => { const f = path.join(ROOT, 'tools/pages/content', c.reg + '.json');
+  let t = fs.existsSync(f) ? (JSON.parse(fs.readFileSync(f, 'utf8')).summary || '').split(/(?<=\.)\s/)[0] : '';
+  if (t.startsWith(c.title + ' ')) { t = t.slice(c.title.length + 1).replace(/^(is|are) /, ''); t = t.charAt(0).toUpperCase() + t.slice(1); }
+  return [c.reg, t]; }));
 const WALL_SIZES = (() => { const f = path.join(ROOT, 'tools/site/wall-sizes.json'); return fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, 'utf8')) : {}; })();
 const WALL = JSON.stringify({ font:FONT_CSS, sizes:Object.fromEntries(COMPONENTS.map(c => [c.reg, Object.fromEntries(Object.keys(KEYS).map(st => [st, (WALL_SIZES[st] || {})[c.reg] || null]))])) }).replace(/</g, '\\u003c');
 const STYLE_DEMO = comp('decision-prompt');
@@ -287,7 +293,7 @@ const jsonld = [
       :root[data-style="clean"] .lp{--lp-r1:var(--dm-r-in);--lp-r2:var(--dm-r-card)}
       @supports (corner-shape:squircle){
         :root[data-style="soft"] .lp{--lp-r1:16px;--lp-r2:var(--dm-r-card)}
-        :root[data-style="soft"] :is(.lp-bg,.lp-win,.lp-show,.lp-show .dvf-dev:not(.mobile),.lp-wt,.lp-wt img,.lp-wl,.lp-line){corner-shape:squircle}
+        :root[data-style="soft"] :is(.lp-bg,.lp-win,.lp-show,.lp-show .dvf-dev:not(.mobile),.lp-wt,.lp-wp,.lp-wt img,.lp-wl,.lp-line){corner-shape:squircle}
       }
       .lp-in{max-width:1464px;margin:0 auto;padding-inline:32px}
       .lp code{font:500 12.5px/1.4 var(--pg-mono);font-variant-ligatures:none;background:var(--pg-chip);padding:1px 5px;border-radius:5px;color:var(--pg-fg)}
@@ -436,38 +442,52 @@ const jsonld = [
       :root[data-style="clean"] .lp-panes{background:var(--dm-stage)}
       .lp-pane{display:flex;flex-direction:column;min-width:0}
 
-      /* ---- the wall: every component, two rows that drift in turn left and right across the site's grey the full width of
-         the window, fading out into the grey at both sides. A row holds still under the pointer or while a tile in it has the
-         focus; with reduced motion the rows stand still and scroll by hand ---- */
-      .lp .lp-rows{--lp-wg:var(--pg-soft);position:relative;display:flex;flex-direction:column;gap:16px;padding:56px 0;background:var(--lp-wg)}
-      :root[data-style="clean"] .lp .lp-rows{--lp-wg:var(--dm-stage)}
-      .lp-rows::before,.lp-rows::after{content:"";position:absolute;top:0;bottom:0;z-index:2;width:min(160px,12vw);pointer-events:none}
-      .lp-rows::before{left:0;background:linear-gradient(90deg,var(--lp-wg),transparent)}
-      .lp-rows::after{right:0;background:linear-gradient(270deg,var(--lp-wg),transparent)}
-      /* each row clips the tiles that drift past its ends, with room above and below for their shadows */
+      /* ---- the wall (owner, 27 Nov: "go with the full-width slider for the wall, just make sure only like 5-6 components are
+         showing at a time"): every component as a large card (its picture at 16:10 in a framed preview, its name and one line
+         about it under it), in two rows the full width of the window, the second half a card along from the first. The rows
+         drift slowly in turn left and right, hold still under the pointer or while a card in them has the focus, and the
+         previous and next buttons under them move both by a card. With reduced motion they don't drift, and the buttons
+         step at once. About 5.5 cards show at a time from 1100 up, then fewer as the window narrows ---- */
+      .lp .lp-rows{--lp-wn:5.5;--lp-wgap:20px;--lp-ww:clamp(176px,calc(100cqw / var(--lp-wn) - var(--lp-wgap)),360px);container-type:inline-size;display:flex;flex-direction:column;gap:40px;padding:8px 0 0}
+      @media (max-width:1099px){.lp .lp-rows{--lp-wn:4.5}}
+      @media (max-width:899px){.lp .lp-rows{--lp-wn:3.5}}
+      @media (max-width:639px){.lp .lp-rows{--lp-wn:2.5;--lp-wgap:16px}}
+      @media (max-width:479px){.lp .lp-rows{--lp-wn:1.5}}
+      /* each row clips the cards that drift past its ends, with room above and below for their shadows; the script moves it */
       .lp-row{overflow:hidden;padding:16px 0;margin:-16px 0}
-      .lp-track{display:flex;width:max-content;animation:lp-drift var(--dur,200s) linear infinite}
-      .lp-row.rev .lp-track{animation-direction:reverse}
-      .lp-set{display:flex;gap:16px;padding-right:16px}
-      @keyframes lp-drift{to{transform:translateX(-50%)}}
-      .lp-row:hover .lp-track,.lp-row:focus-within .lp-track{animation-play-state:paused}
-      .lp-wt{position:relative;flex:none;display:flex;flex-direction:column;gap:8px;width:240px;padding:6px 6px 10px;border-radius:var(--lp-r2);background:var(--pg-bg);box-shadow:var(--dm-shadow);color:var(--pg-fg);text-decoration:none;transition:background-color 220ms var(--lp-ease),transform 220ms var(--lp-ease),box-shadow 220ms var(--lp-ease)}
-      /* a card under the pointer lifts a little, with the neutral shadow, and its demo starts again from the beginning */
-      .lp-wt:hover{background:var(--pg-soft);transform:translateY(-2px);box-shadow:var(--dm-shadow-pop)}
-      .lp-wt:focus-visible{outline:2px solid var(--pg-focus);outline-offset:-2px}
-      .lp-wt img,.lp-wl{display:block;width:100%;height:auto;aspect-ratio:16/10;border-radius:max(0px,calc(var(--lp-r2) - 6px));background:var(--pg-soft)}
+      .lp-track{display:flex;width:max-content;will-change:transform}
+      .lp-set{display:flex;gap:var(--lp-wgap);padding-right:var(--lp-wgap)}
+      .lp-wt{position:relative;flex:none;display:flex;flex-direction:column;width:var(--lp-ww);border-radius:var(--lp-r2);color:var(--pg-fg);text-decoration:none}
+      .lp-wp{position:relative;display:block;overflow:hidden;border-radius:var(--lp-r2);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pg-line) 50%,transparent);background:#fafafa;transition:box-shadow 220ms var(--lp-ease)}
+      :root[data-theme="dark"] .lp-wp{background:#1c1c1c}
+      @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .lp-wp{background:#1c1c1c}}
+      :root[data-style="clean"] .lp-wp{background:var(--dm-stage)}
+      :root:not([data-style="soft"],[data-style="clean"]) :is(.lp-wt,.lp-wp,.lp-wp img,.lp-wl){border-radius:0}
+      /* the picture sits inside the preview's hairline (drawn over it), so the edge stays the same half-strength grey */
+      .lp-wp::after{content:"";position:absolute;inset:0;z-index:1;border-radius:inherit;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pg-line) 50%,transparent);pointer-events:none;transition:box-shadow 220ms var(--lp-ease)}
+      .lp-wt img,.lp-wl{display:block;width:100%;height:auto;aspect-ratio:16/10;border-radius:inherit}
+      /* a card under the pointer: its preview's edge one step stronger and the neutral shadow, and its demo starts again */
+      @media (hover:hover) and (pointer:fine){.lp-wt:hover .lp-wp{box-shadow:var(--dm-shadow)}.lp-wt:hover .lp-wp::after{box-shadow:inset 0 0 0 1px var(--pg-line)}}
+      .lp-wt:focus-visible{outline:none}
+      .lp-wt:focus-visible .lp-wp::after{box-shadow:inset 0 0 0 2px var(--pg-focus)}
       /* the card's component, live, over its picture: the installed HTML, CSS and JS on the shared core, in a frame of its own
          laid out at the size the picture frames it and scaled down to the picture's box. It shows once it has started, and
          the picture stands in while it loads and while the card is out of view (dm-idle, as in the library: nothing in it is
          drawn and its demo holds). The frame takes no pointer or focus, so a click is the card's link and a wheel scrolls
          the page */
-      .lp-wl{position:absolute;top:6px;left:6px;width:calc(100% - 12px);overflow:hidden;background:none;pointer-events:none;opacity:0;transition:opacity 320ms var(--lp-ease);contain:layout paint style}
+      .lp-wl{position:absolute;top:0;left:0;overflow:hidden;background:none;pointer-events:none;opacity:0;transition:opacity 320ms var(--lp-ease);contain:layout paint style}
       .lp-wl.on{opacity:1}
       .lp-wl iframe{position:absolute;top:0;left:0;border:0;transform-origin:0 0;pointer-events:none;color-scheme:normal}
       .lp-wt.dm-idle .lp-wl{content-visibility:hidden}
-      .lp-wt span{padding:0 4px;font-size:13px;line-height:18px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-      @media (max-width:640px){.lp-wt{width:176px}.lp .lp-rows{padding:24px 0;margin:0}}
-      @media (prefers-reduced-motion:reduce){.lp-wl{display:none}.lp-track{animation:none}.lp-set[aria-hidden]{display:none}.lp-row{overflow-x:auto;scrollbar-width:none}.lp-row::-webkit-scrollbar{display:none}}
+      .lp-wn,.lp-wd{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .lp-wn{margin-top:12px;font-size:14px;line-height:20px;font-weight:500}
+      .lp-wd{margin-top:2px;font-size:13px;line-height:20px;color:var(--pg-muted)}
+      /* previous and next, under the rows, ending on the content's right edge */
+      .lp-wnav{display:flex;justify-content:flex-end;gap:8px;padding-top:32px;padding-bottom:8px}
+      .lp-wib{width:36px;height:36px;padding:0;display:grid;place-items:center;border-radius:999px}
+      .lp-wib .lp-ar{margin:0}
+      .lp-wib[data-d="-1"] .lp-ar{transform:rotate(180deg)}
+      @media (prefers-reduced-motion:reduce){.lp-wl{display:none}}
 
       /* ---- styles (owner, 26 Nov: picked from the lab's 1b, with 2a's switch): one stage with the same live component in
          Blueprint, Soft and Clean laid over each other, each in a frame of its own (a style is set on <html>), cut by two
@@ -1028,10 +1048,14 @@ const jsonld = [
       <div class="lp-rows">
         {ROWS.map((row, i) => <div class:list={['lp-row', { rev:i % 2 === 1 }]} style={`--dur:${[420, 480][i]}s`}>
           <div class="lp-track">
-            <div class="lp-set">{row.map(c => <a class="lp-wt" href={c.url} data-reg={c.reg}><img alt="" width="480" height="300" loading="lazy" decoding="async"><span>{c.title}</span></a>)}</div>
-            <div class="lp-set" aria-hidden="true">{row.map(c => <a class="lp-wt" href={c.url} data-reg={c.reg} tabindex="-1"><img alt="" width="480" height="300" loading="lazy" decoding="async"><span>{c.title}</span></a>)}</div>
+            <div class="lp-set">{row.map(c => <a class="lp-wt" href={c.url} data-reg={c.reg}><span class="lp-wp"><img alt="" width="480" height="300" loading="lazy" decoding="async"></span><span class="lp-wn">{c.title}</span><span class="lp-wd">{WALL_DESC[c.reg]}</span></a>)}</div>
+            <div class="lp-set" aria-hidden="true">{row.map(c => <a class="lp-wt" href={c.url} data-reg={c.reg} tabindex="-1"><span class="lp-wp"><img alt="" width="480" height="300" loading="lazy" decoding="async"></span><span class="lp-wn">{c.title}</span><span class="lp-wd">{WALL_DESC[c.reg]}</span></a>)}</div>
           </div>
         </div>)}
+      </div>
+      <div class="lp-in lp-wnav">
+        <button type="button" class="pill line lp-wib" data-d="-1" aria-label="Previous components"><Fragment set:html={arrow} /></button>
+        <button type="button" class="pill line lp-wib" data-d="1" aria-label="Next components"><Fragment set:html={arrow} /></button>
       </div>
       <script is:inline>
       // each picture in the style and theme on screen (tools/pages/wall.mjs takes a set of each), swapped when either changes.
@@ -1041,13 +1065,59 @@ const jsonld = [
         var set = function(){ if (!near) return;
           var s = root.getAttribute('data-style'), t = root.getAttribute('data-theme') || (mq.matches ? 'dark' : 'light');
           var dir = '/components/wall/' + (s === 'soft' || s === 'clean' ? s : 'bp') + '-' + (t === 'dark' ? 'dark' : 'light') + '/';
-          imgs.forEach(function(i){ var u = dir + i.parentNode.getAttribute('data-reg') + '.webp'; if (i.getAttribute('src') !== u) i.setAttribute('src', u); });
+          imgs.forEach(function(i){ var u = dir + i.closest('.lp-wt').getAttribute('data-reg') + '.webp'; if (i.getAttribute('src') !== u) i.setAttribute('src', u); });
         };
         var rows = document.querySelector('.lp-rows');
         if ('IntersectionObserver' in window && rows){ var io = new IntersectionObserver(function(es){ if (!es[es.length - 1].isIntersecting) return; io.disconnect(); near = true; set(); }, { rootMargin:'100% 0px' }); io.observe(rows); }
         else { near = true; set(); }
         new MutationObserver(set).observe(root, { attributes:true, attributeFilter:['data-style', 'data-theme'] });
         if (mq.addEventListener) mq.addEventListener('change', set);
+      })();
+      </script>
+      <script is:inline>
+      // the rows' motion: each drifts slowly, one left and one right (a set of its cards every --dur seconds, as before), and
+      // holds still under the pointer or while a card in it has the focus. Previous and next move both rows by a card, on
+      // Clean's ease over 600ms, and the drift carries on from there. A row holds its cards twice over, so its place wraps
+      // round a set's width without a jump. With reduced motion the rows stand still and the buttons step at once
+      (function(){
+        var wall = document.querySelector('.lp-rows'); if (!wall) return;
+        var reduce = matchMedia('(prefers-reduced-motion: reduce)'), EASE = function(t){ // cubic-bezier(.23,1,.32,1)
+          var cx = 3 * .23, bx = 3 * (.32 - .23) - cx, ax = 1 - cx - bx, cy = 3, by = 3 * (1 - 1) - cy, ay = 1 - cy - by, u = t;
+          for (var i = 0; i < 8; i++){ var x = ((ax * u + bx) * u + cx) * u - t, d = (3 * ax * u + 2 * bx) * u + cx; if (Math.abs(x) < 1e-5 || !d) break; u -= x / d; }
+          return ((ay * u + by) * u + cy) * u; };
+        var rows = [].map.call(wall.querySelectorAll('.lp-row'), function(el, i){
+          var r = { el:el, track:el.querySelector('.lp-track'), set:el.querySelector('.lp-set'), dir:el.classList.contains('rev') ? 1 : -1,
+            dur:parseFloat(getComputedStyle(el).getPropertyValue('--dur')) || 420, x:0, hov:false, foc:false, step:null, start:i ? -.75 : -.25 };
+          el.addEventListener('mouseenter', function(){ r.hov = true; });
+          el.addEventListener('mouseleave', function(){ r.hov = false; });
+          el.addEventListener('focusin', function(e){ r.foc = true; el.scrollLeft = 0;
+            // a card the keyboard reaches comes fully into view, on the content's edge
+            var c = e.target.getBoundingClientRect(), w = el.getBoundingClientRect(), pad = 32;
+            if (c.left < w.left + pad) r.x += w.left + pad - c.left; else if (c.right > w.right - pad) r.x -= c.right - (w.right - pad);
+            r.step = null; put(r); });
+          el.addEventListener('focusout', function(){ r.foc = false; });
+          return r; });
+        var pitch = function(r){ var c = r.set.firstElementChild; return c ? c.getBoundingClientRect().width + parseFloat(getComputedStyle(r.set).columnGap || 0) : 0; };
+        var width = function(r){ return r.set.getBoundingClientRect().width; };
+        var put = function(r){ var w = width(r); if (w){ r.x %= w; if (r.x > 0) r.x -= w; } r.track.style.transform = 'translate3d(' + r.x.toFixed(2) + 'px,0,0)'; };
+        var place = function(){ rows.forEach(function(r){ r.x = r.start * pitch(r); put(r); }); };
+        place();
+        var last = 0, raf = 0, on = false;
+        var tick = function(t){ raf = 0; var dt = last ? Math.min(t - last, 64) / 1000 : 0; last = t;
+          rows.forEach(function(r){
+            if (r.step){ var k = Math.min(1, (t - r.step.t0) / 600), e = EASE(k); r.x += (e - r.step.e) * r.step.d; r.step.e = e; if (k >= 1) r.step = null; }
+            if (!reduce.matches && !r.hov && !r.foc && !window.DM_WALL_STILL) r.x += r.dir * width(r) / r.dur * dt;
+            put(r); });
+          if (on) raf = requestAnimationFrame(tick); };
+        var run = function(v){ on = v; last = 0; if (v && !raf) raf = requestAnimationFrame(tick); };
+        if ('IntersectionObserver' in window) new IntersectionObserver(function(es){ run(es[es.length - 1].isIntersecting); }).observe(wall); else run(true);
+        [].forEach.call(document.querySelectorAll('.lp-wib'), function(b){ b.addEventListener('click', function(){
+          var d = -parseFloat(b.getAttribute('data-d'));
+          rows.forEach(function(r){ var p = pitch(r) * d;
+            if (r.step){ r.x += (1 - r.step.e) * r.step.d; r.step = null; }  // a step still under way finishes at once
+            if (reduce.matches){ r.x += p; put(r); } else r.step = { d:p, e:0, t0:performance.now() }; });
+          if (!on) rows.forEach(put); }); });
+        var rz = 0; addEventListener('resize', function(){ if (!rz) rz = requestAnimationFrame(function(){ rz = 0; rows.forEach(put); }); });
       })();
       </script>
       <script type="application/json" id="lp-wall-data" set:html={WALL} />
@@ -1123,7 +1193,7 @@ const jsonld = [
         };
         var make = function(a){ if (a._lw) return; var reg = a.dataset.reg;
           var el = document.createElement('div'); el.className = 'lp-wl'; el.setAttribute('aria-hidden', 'true'); el.inert = true;
-          var img = a.querySelector('img'); a.insertBefore(el, img ? img.nextSibling : a.firstChild);
+          (a.querySelector('.lp-wp') || a).appendChild(el);
           var f = a._lw = { el:el };
           files(reg).then(function(x){ if (a._lw !== f) return;
             var ifr = f.ifr = document.createElement('iframe'); ifr.tabIndex = -1; ifr.setAttribute('aria-hidden', 'true'); ifr.title = '';
@@ -1138,7 +1208,7 @@ const jsonld = [
         var queue = function(a){ if (a._lw || q.indexOf(a) >= 0) return; q.push(a); if (!qr) qr = requestAnimationFrame(pump); };
         if (MEASURE){
           // tools/site/measure-wall.js: the rows stand still, and every component plays at once, at a component page's width
-          rows.querySelectorAll('.lp-track').forEach(function(t){ t.style.animation = 'none'; });
+          window.DM_WALL_STILL = true;
           cards.filter(function(a){ return !a.closest('[aria-hidden]'); }).forEach(function(a){ a._vis = a._on = true; queue(a); });
           window.dmWallBoxes = function(){ var o = {}; cards.forEach(function(a){ var b = a._lw && boxIn(a._lw); if (b) o[a.dataset.reg] = b; }); return o; };
         } else {
