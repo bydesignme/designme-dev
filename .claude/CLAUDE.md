@@ -203,6 +203,14 @@ every session and every agent.
   in the 16 Nov library trim come back with Clean designs for the posts that follow: Hand-off to a person, Steering,
   Browser session, Voice orb, Image generation, Tool call, Code viewer, Design tuner (their code is in the commit before
   f0e4fbfd).
+- Templates and the components behind them (owner, 27 Nov, for the Monday launch): the landing shows only template views whose
+  components are all live: the Sales CRM's Accounts, Pipeline, Calendar and Forecast, the Workflow editor and the Whiteboard.
+  The Sales CRM's Reports view is removed, with what only it used. The Dashboard builder comes off the landing and the template
+  list for now and launches later. Every component those views use goes live, linked from the template, sourced from the
+  template's own code where the library has no such component yet (never designed from scratch). Kanban comes back as the
+  Pipeline's board exactly as the product has it, not the earlier made-up demo. New components from the templates: the
+  Whiteboard's tool rail and zoom bar, and the CRM's agent action cards; their buttons show hover and pressed states and link
+  to nothing. Meeting card (the "live call") comes back too.
 - What is live (owner, 24 Nov): each component has a live flag in the build. Only live components are in the library, the
   sidebar, search, the registry index, the installs and the sitemap; the others stay in the code, unlisted and unpublished
   (their pages send visitors on to `/library`), until their post goes out. At launch the 37 above are live. Making one live
