@@ -6,7 +6,7 @@ Designme.dev docs. The same page with navigation: https://designme.dev/docs/intr
 
 ## What it is
 
-37 free components for the AI agents in your product, like status pills, reasoning trails, agent trees, permission gates, plan reviews and run costs.
+40 free components for the AI agents in your product, like status pills, reasoning trails, agent trees, permission gates, plan reviews and run costs.
 
 Every component plays as a demo in the [library](https://designme.dev/library), and has a page of its own with its install command, React props, code and questions.
 
@@ -61,6 +61,7 @@ Each style has a light and a dark theme. Switch them in the header of any page h
 - [Plan review](https://designme.dev/components/plan-review.md)
 - [Permission gate](https://designme.dev/components/permission-gate.md)
 - [Decision prompt](https://designme.dev/components/decision-prompt.md)
+- [Action cards](https://designme.dev/components/action-cards.md)
 - [Inline text diff](https://designme.dev/components/inline-text-diff.md)
 
 ### Sources and output
@@ -71,6 +72,8 @@ Each style has a light and a dark theme. Switch them in the header of any page h
 
 ### Workspace
 
+- [Tool rail](https://designme.dev/components/tool-rail.md)
+- [Zoom bar](https://designme.dev/components/zoom-bar.md)
 - [Run drawer](https://designme.dev/components/run-drawer.md)
 - [Command palette](https://designme.dev/components/command-palette.md)
 - [Memory panel](https://designme.dev/components/memory-panel.md)

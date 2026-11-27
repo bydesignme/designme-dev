@@ -4,7 +4,7 @@ React versions of the [designme.dev](https://designme.dev) components, for Next.
 
 They use the same markup and the same CSS as the site, so they look and move exactly like the previews on designme.dev, in all three styles (Blueprint, Soft and Clean) and in light and dark. The difference is that each one takes props, so you drive it from your own state instead of a scripted demo.
 
-All 37 components are here, from Live answer to Event calendar, each with an example that replays its demo from the site.
+All 40 components are here, from Live answer to Event calendar, each with an example that replays its demo from the site.
 
 Each one has a page on designme.dev with its demo, its React usage, its props and its code, at `https://designme.dev/components/<name>`. To see them all running locally, run `npm run dev` here.
 
@@ -171,6 +171,10 @@ The agent's edits to a piece of copy, accepted or rejected one by one.
 Check the agent's plan, edit steps, then let it run.  
 `title`, `steps` / `defaultSteps` / `onStepsChange` (`{ id, text, skipped?, edited?, state?: 'run' | 'retry' | 'done', detail? }[]`; `detail` is the line a step reports under it, and `retry` shows it waiting out a problem; people can edit a step in place, skip one or add one), `phase: 'review' | 'running' | 'done'`, `status`, `note`, `meta` (quiet text at the end of the header, like an elapsed time), `onApprove`, `onRequestChanges`, `onStop`, `onSeeChanges`, `bare` (on by default: it sits in the chat with no card; `false` draws the card).
 
+**ActionCards** · `action-cards/ActionCards.tsx`  
+What is waiting on the person, as a row of cards: each with its title, a line of detail, its button and a small animated picture of what the button opens.  
+`cards: ActionCard[]` (`id`, `title`, `detail`, `action` (the button's words), `onAction`, `picture`; three forecast cards when left out). Three across from 900px wide, stacked below.
+
 ### Sources and output
 
 **SourceStack** · `source-stack/SourceStack.tsx`  
@@ -214,6 +218,14 @@ The files, sites and folders the agent knows, and how far each is indexed.
 **ScheduledRuns** · `scheduled-runs/ScheduledRuns.tsx`  
 Tasks the agent runs on a schedule, with their last result and a switch.  
 `runs` / `defaultRuns` / `onRunsChange` (`{ key, name, schedule, next?, enabled?, result?: 'passed' | 'failed' | 'running' | 'never', ago?, error?, fix?, fixing?, brand? or icon? and color? }[]`), `onRunNow(key)` (adds Run now), `onFix(key)` (the button a failed run shows, labelled with its `fix`), `onCreate({ task, repeat, days, schedule, next })` (adds New schedule: Every day, Every Monday or Custom days), `time`, `hour`, `title`, `status`. The switch pauses a run: its row dims and says Paused.
+
+**ToolRail** · `tool-rail/ToolRail.tsx`  
+A board's tools in one vertical rail: pick one, and its name and key show on hover.  
+`value` / `defaultValue` / `onChange` (`'select' | 'hand' | 'sticky' | 'pen' | 'eraser' | 'shape' | 'arrow' | 'text' | 'comment'`). The arrow keys and each tool's letter pick a tool while the rail has focus.
+
+**ZoomBar** · `zoom-bar/ZoomBar.tsx`  
+Undo, redo, zoom and fit in one floating bar for a canvas.  
+`zoom` / `defaultZoom` (1) / `onZoomChange`, `steps` (the levels − and + step through, 25% to 400%), `onUndo`, `onRedo`, `onFit`, `canUndo`, `canRedo`. Pressing the level sets it back to 100%.
 
 ### Dates
 

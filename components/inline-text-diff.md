@@ -284,5 +284,6 @@ export function InlineTextDiff({ title, parts, decisions, defaultDecisions = {},
 - [Plan review](https://designme.dev/components/plan-review.md): Check the agent's plan, edit steps, then let it run.
 - [Permission gate](https://designme.dev/components/permission-gate.md): The agent asks before it touches something new.
 - [Decision prompt](https://designme.dev/components/decision-prompt.md): The agent asks a few quick questions before it starts.
+- [Action cards](https://designme.dev/components/action-cards.md): What is waiting on you, each card with its button and a small picture of what it opens.
 
 All components: https://designme.dev/llms.txt
