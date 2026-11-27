@@ -53,7 +53,7 @@
       f.wrap.style.width = Math.round(w * k) + 'px'; f.wrap.style.height = Math.round(h * k) + 'px';
       f.wrap.style.top = pad + 'px';
       f.el.style.width = w + 'px'; f.el.style.height = Math.round(h) + 'px';
-      f.el.style.transform = k < 1 ? 'scale(' + k.toFixed(4) + ')' : '';
+      f.el.style.transform = k < 1 ? 'scale(' + k.toFixed(4) + ')' : ''; f.wrap.style.setProperty('--dvf-k', k.toFixed(4)); if (f.wrap.classList.contains('on') || !box.style.getPropertyValue('--dvf-k')) box.style.setProperty('--dvf-k', k.toFixed(4));
     }
     function make(src){
       var wrap = document.createElement('div'), el = document.createElement('iframe');

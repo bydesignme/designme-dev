@@ -1181,7 +1181,11 @@ body:has(.crm) .dmf{display:none}
   /* in dark mode the panel keeps a hairline, or it would blend into the frame (owner, 10 Nov) */
   :root:is([data-style="soft"],[data-style="clean"])[data-theme="dark"] .crm-main{box-shadow:var(--dm-shadow),0 0 0 1px color-mix(in srgb,var(--dm-fg) 10%,transparent)}
   @media (prefers-color-scheme:dark){:root:is([data-style="soft"],[data-style="clean"]):not([data-theme="light"]) .crm-main{box-shadow:var(--dm-shadow),0 0 0 1px color-mix(in srgb,var(--dm-fg) 10%,transparent)}}
-  @supports (corner-shape:squircle){:root:is([data-style="soft"],[data-style="clean"]) .crm-main{corner-shape:squircle}}
+  @supports (corner-shape:squircle){:root[data-style="soft"] .crm-main{corner-shape:squircle}}
+  /* Clean: the panel's corner is the cards' corner, round (no squircles in Clean), so the landing's frame can sit concentric round it */
+  :root[data-style="clean"] .crm-main{border-radius:var(--dm-r-card)}
+  /* ?nav=0 (the landing's showcase): no sidebar, so the panel is inset from the left edge as well (owner, 27 Nov) */
+  :root:is([data-style="soft"],[data-style="clean"]) .crm[data-nav="0"] .crm-main{margin-left:var(--dm-s-2)}
 }
 /* dark mode, both styles: Forecast, Calendar and Inbox sit on the cards' colour, so the content cuts out against the darker
    sidebar (owner, 10 Nov) */
@@ -1807,3 +1811,27 @@ body:has(.crm) .dmf{display:none}
 /* on a phone every view keeps the same 12px inset and the same 12px gap (the forecast's wide-screen centring had pushed its
    inset to 20px, and the reports' figures sat 8px apart) */
 @media (max-width:520px){.crm-fc{padding-left:var(--dm-s-3);padding-right:var(--dm-s-3)}.crm-fc .scx-grid{gap:var(--dm-s-3)}}
+
+/* Clean (owner, 27 Nov): one round corner everywhere, no squircles; overdue meetings keep their tint and "Overdue:" words, no
+   red stripe (the Event calendar's "tint only"); the reps table ends on its Team row, no hairline under it; the four figures
+   over the chart share their rows: labels on one top line, values on one baseline, notes on one top line */
+@supports (corner-shape:squircle){:root[data-style="clean"] :is(.crm-ax.panel,.crm-axw,.crm-axi){corner-shape:round}}
+:root[data-style="clean"] .crm-ecx .ecx-e.late{--crm-el:0 0 #0000;box-shadow:none}
+.crm-rpt tfoot td{border-bottom:0}
+.crm-fc .lnx-h>.crm-hm4{grid-auto-rows:auto}
+.crm-hk,.crm-hk:not(.big){display:grid;grid-row:span 3;grid-template-rows:subgrid;row-gap:3px;padding-top:0}
+.crm-hk .v,.crm-hk:not(.big) .v{min-height:0;align-self:baseline}
+/* Inbox, Clean (owner, 27 Nov): the draft's card hugs its content (no empty band under the foot strip), its content 16px in
+   from each edge, and the foot strip runs the card's full width, its controls on the content's column */
+@media (min-width:761px){
+  :root[data-style="clean"] .crm-ipv.panel{align-self:start;max-height:100%;padding:var(--dm-s-4)}
+}
+:root[data-style="clean"] .crm-ipv.panel>.crm-drff{width:auto;max-width:none;margin:var(--dm-s-1) calc(-1 * var(--dm-s-4)) calc(-1 * var(--dm-s-4));padding-inline:calc(var(--dm-s-4) + max(0px, (100% - 760px) / 2))}
+/* Pipeline, Clean (owner, 27 Nov: "you can't see vertical lines on the pipeline view"): the columns are white on white, so a
+   hairline runs down the middle of the gap between each pair */
+:root[data-style="clean"] .crm-kb:not(.list) .kbx-c{position:relative}
+:root[data-style="clean"] .crm-kb:not(.list) .kbx-c+.kbx-c::before{content:"";position:absolute;top:0;bottom:0;left:-7.5px;width:1px;background:var(--crm-hair);pointer-events:none}
+/* the draft's ghost buttons at the column's edges (Open account, Discard): their icon and words sit on the content's edge, the
+   hover fill reaching out round them (owner, 27 Nov) */
+.crm-pvh>.pill.ghost[data-ia="open"]{margin-right:calc(-1 * var(--crm-gx,11px))}
+.crm-drff>.pill.ghost:first-child{margin-left:calc(-1 * var(--crm-gx,11px))}
