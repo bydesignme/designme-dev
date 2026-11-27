@@ -2,7 +2,7 @@
 
 > Undo, redo, zoom and fit in one floating bar for a canvas.
 
-Components / Workspace. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/zoom-bar
+Agent components / Workspace. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/zoom-bar
 
 ## Install
 

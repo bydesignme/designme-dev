@@ -2,7 +2,7 @@
 
 > A week view where the agent finds a free slot for you.
 
-Components / Dates. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/event-calendar
+App basics / Dates. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/event-calendar
 
 ## Install
 
@@ -580,5 +580,9 @@ export function EventCalendar({
   );
 }
 ```
+
+## More in Dates
+
+- [Date picker](https://designme.dev/components/date-picker.md): A field that opens a calendar, with quick picks and natural language.
 
 All components: https://designme.dev/llms.txt

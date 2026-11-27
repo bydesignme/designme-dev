@@ -2,7 +2,7 @@
 
 > A board's tools in one vertical rail: pick one, and its name and key show on hover.
 
-Components / Workspace. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/tool-rail
+Agent components / Workspace. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/tool-rail
 
 ## Install
 

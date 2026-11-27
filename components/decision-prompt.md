@@ -2,7 +2,7 @@
 
 > The agent asks a few quick questions before it starts.
 
-Components / Review and approve. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/decision-prompt
+Agent components / Review and approve. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/decision-prompt
 
 ## Install
 

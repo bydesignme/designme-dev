@@ -4,7 +4,7 @@ React versions of the [designme.dev](https://designme.dev) components, for Next.
 
 They use the same markup and the same CSS as the site, so they look and move exactly like the previews on designme.dev, in all three styles (Blueprint, Soft and Clean) and in light and dark. The difference is that each one takes props, so you drive it from your own state instead of a scripted demo.
 
-All 40 components are here, from Live answer to Event calendar, each with an example that replays its demo from the site.
+All 45 components are here, from Live answer to Set limit, each with an example that replays its demo from the site.
 
 Each one has a page on designme.dev with its demo, its React usage, its props and its code, at `https://designme.dev/components/<name>`. To see them all running locally, run `npm run dev` here.
 
@@ -227,11 +227,39 @@ A board's tools in one vertical rail: pick one, and its name and key show on hov
 Undo, redo, zoom and fit in one floating bar for a canvas.  
 `zoom` / `defaultZoom` (1) / `onZoomChange`, `steps` (the levels − and + step through, 25% to 400%), `onUndo`, `onRedo`, `onFit`, `canUndo`, `canRedo`. Pressing the level sets it back to 100%.
 
+### Charts and tables
+
+**StatCards** · `stat-cards/StatCards.tsx`  
+Four headline numbers with sparklines and a period switch.  
+`stats: { key?, icon, label, values: { value, change, points }[], prefix?, suffix?, color? }[]` (one value per period), `periods: { label, compare? }[]`, `period` / `defaultPeriod` / `onPeriodChange`, `sparkRange`.
+
 ### Dates
+
+**DatePicker** · `date-picker/DatePicker.tsx`  
+A field that opens a calendar, with quick picks and natural language.  
+`value` / `defaultValue` / `onValueChange` (`Date | null`), `month` / `defaultMonth` / `onMonthChange`, `open` / `defaultOpen` / `onOpenChange`, `query` / `defaultQuery` / `onQueryChange` (typed text like "next friday" or "in 2 weeks" picks a day), `parse`, `today` (pass it when rendering on a server), `placeholder`, `queryPlaceholder`, `presets: { label, days }[]`, `format`, `locale`, `weekStartsOn: 0 | 1`. Arrow keys, Home, End and Page Up / Page Down move around the calendar.
 
 **EventCalendar** · `event-calendar/EventCalendar.tsx`  
 A week view where the agent finds a free slot for you.  
 `events` / `defaultEvents` / `onEventsChange` (`{ id, title, start: Date, end: Date, tone?, people? }[]`), `week` (the first day shown), `days`, `startHour`, `hours`, `title`, `now`, `selected` / `defaultSelected` / `onSelectedChange` (the event whose card is open), `onPrepNotes(event)`, `onJoin`, `newEvent`, `askLabel` and `onAsk`, `finding`, `suggestions: { id, title, start, end }[]`, `onBook`, `onSkip`, `status`. Drag events in 15-minute steps, click free time to add one, click an event for its details.
+
+### Forms and inputs
+
+**Form** · `form/Form.tsx`  
+A project brief with inline checks and an agent that drafts the rest.  
+`fields: { key, label, type?: 'text' | 'textarea' | 'choice', placeholder?, maxLength?, rows?, options?, autoComplete?, validate?(value, values) }[]`, `values` / `defaultValues` / `onValuesChange`, `onDraft` (adds "Draft with agent"; drafted fields are marked Drafted beside their label until edited), `onSubmit(values)` (spins while pending; a rejection's message shows beside the button), `title`, `submitLabel`, `invalidMessage`, `draftedMessage`, `doneTitle(values)`, `doneDetail`. A `ref` gives `draft()`, which runs the agent's draft as if the button were pressed.
+
+### Collaboration
+
+**ContextMenu** · `context-menu/ContextMenu.tsx`  
+A menu on right-click, long-press, Shift+F10 or the Menu key, with a submenu.  
+`items: { key, label, icon?, shortcut?, checked?, danger?, confirmLabel?, items?, separator? }[]`, `onSelect(key, item)`, `label`, `targetLabel`, `targetClassName`, `children` (what you right-click).
+
+### Product
+
+**SetLimit** · `set-limit/SetLimit.tsx`  
+A monthly agent budget with a draggable cap and a forecast.  
+`value` / `defaultValue` / `onValueChange` (the cap), `min`, `max`, `step`, `spent` and `forecast` (the solid and striped bars), `mode` / `defaultMode` / `onModeChange` (`'pause' | 'ask' | 'keep'`, what happens at the limit), `title`, `subtitle`, `passesOn`, `format`, `message({ over, cap, left, mode })`, `editable` (on by default: click the figure and type a budget; Enter keeps it, Escape goes back). Drag on the bar or use the arrow keys on the knob.
 
 ## Examples
 

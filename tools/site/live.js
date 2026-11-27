@@ -12,4 +12,6 @@ module.exports = [
   'toast', 'toast-stack',
   // owner, 27 Nov: from the templates, approved
   'tool-rail', 'zoom-bar', 'action-cards',
+  // batch 1, approved (owner, 27 Nov)
+  'date-picker', 'set-limit', 'stat-cards', 'form', 'context-menu',
 ];

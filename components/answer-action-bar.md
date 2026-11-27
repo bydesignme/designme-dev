@@ -2,7 +2,7 @@
 
 > Copy, regenerate, rate and listen to an answer from one row under it.
 
-Components / Conversation. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/answer-action-bar
+Agent components / Conversation. Free and MIT licensed, as plain HTML, CSS and JavaScript or as a typed React component, in three styles (Soft, Blueprint and Clean) with light and dark mode. Live demo: https://designme.dev/components/answer-action-bar
 
 ## Install
 
