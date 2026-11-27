@@ -281,7 +281,7 @@ When the agent and the team were busy, by day and hour.
 
 **StatCards** · `stat-cards/StatCards.tsx`  
 Four headline numbers with sparklines and a period switch.  
-`stats: { key?, icon, label, values: { value, change, points }[], prefix?, suffix?, color? }[]` (one value per period), `periods: { label, compare? }[]`, `period` / `defaultPeriod` / `onPeriodChange`, `sparkRange`.
+`title` (on the left of the head, beside the period switch), `stats: { key?, icon, label, values: { value, change, points }[], prefix?, suffix?, color? }[]` (one value per period), `periods: { label, compare? }[]`, `period` / `defaultPeriod` / `onPeriodChange`, `sparkRange`.
 
 **AccountTable** · `account-table/AccountTable.tsx`  
 Customer accounts with health, plan and an agent note per row.  
@@ -361,7 +361,7 @@ A one-time code, one box per digit, that fills from a paste.
 
 **Form** · `form/Form.tsx`  
 A project brief with inline checks and an agent that drafts the rest.  
-`fields: { key, label, type?: 'text' | 'textarea' | 'choice', placeholder?, maxLength?, rows?, options?, autoComplete?, validate?(value, values) }[]`, `values` / `defaultValues` / `onValuesChange`, `onDraft` (adds "Draft with agent"; drafted fields are marked Drafted beside their label until edited), `onSubmit(values)` (spins while pending; a rejection's message shows beside the button), `title`, `submitLabel`, `invalidMessage`, `draftedMessage`, `doneTitle(values)`, `doneDetail`. A `ref` gives `draft()`, which runs the agent's draft as if the button were pressed.
+`fields: { key, label, type?: 'text' | 'textarea' | 'choice', placeholder?, maxLength?, rows?, options?: { value, label, tone? }[] (`tone`: a core tag colour, b, l, m, p, r, y, k or t), autoComplete?, validate?(value, values) }[]`, `values` / `defaultValues` / `onValuesChange`, `onDraft` (adds "Draft with agent"; each field it fills gets a small sparkle after its label, with the tooltip `draftedLabel`, "Drafted by the agent", until edited), `onSubmit(values)` (spins while pending; a rejection's message shows beside the button), `title`, `submitLabel`, `invalidMessage`, `draftedMessage`, `doneTitle(values)`, `doneDetail`. A `ref` gives `draft()`, which runs the agent's draft as if the button were pressed.
 
 **PaymentForm** · `payment-form/PaymentForm.tsx`  
 Card details with live formatting, brand detection and a clear total.  

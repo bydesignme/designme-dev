@@ -3,7 +3,7 @@ import { useEffect, useImperativeHandle, useRef, useState, type FormEvent, type 
 import { cx } from '../../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
-import { enter, Spin, Swap, Think, useGrow } from '../../lib/motion';
+import { enter, Spin, Swap, Think, Tip, useGrow } from '../../lib/motion';
 import '../../designme.css';
 import './form.css';
 
@@ -11,7 +11,7 @@ export type FormValues = Record<string, string>;
 
 /** What a ref to the form can do */
 export interface FormHandle {
-  /** Runs onDraft as if "Draft with agent" were pressed, with the same Drafting and Drafted states */
+  /** Runs onDraft as if "Draft with agent" were pressed, with the same Drafting state and drafted marks */
   draft: () => Promise<void>;
 }
 
@@ -26,8 +26,8 @@ export interface FormField {
   maxLength?: number;
   /** Rows for a textarea. Defaults to 2 */
   rows?: number;
-  /** The chips of a choice field */
-  options?: { value: string; label: string }[];
+  /** The chips of a choice field. A `tone` gives the option its core tag colour: a dot in it at rest, and its tint and text colour once picked */
+  options?: { value: string; label: string; tone?: 'b' | 'l' | 'm' | 'p' | 'r' | 'y' | 'k' | 't' }[];
   autoComplete?: string;
   /** Returns the message to show when the value won't do, like "Give it a name". Checked on submit */
   validate?: (value: string, values: FormValues) => string | false | null | undefined;
@@ -41,10 +41,11 @@ export interface FormProps {
   values?: FormValues;
   defaultValues?: FormValues;
   onValuesChange?: (values: FormValues) => void;
-  /** Adds "Draft with agent". Fill the values in while the promise runs; the fields it fills are marked Drafted beside their label until someone edits them */
+  /** Adds "Draft with agent". Fill the values in while the promise runs; the fields it fills get a small sparkle after their label until someone edits them */
   onDraft?: () => void | Promise<void>;
   draftLabel?: string;
   draftingLabel?: string;
+  /** The sparkle's tooltip and its name for screen readers. Defaults to "Drafted by the agent" */
   draftedLabel?: string;
   /** Shown beside the submit button after a draft. Defaults to "Review what the agent drafted" */
   draftedMessage?: string;
@@ -81,7 +82,7 @@ function useEaseWidth(ref: RefObject<HTMLElement | null>, key: unknown) {
     its messages and eases to the confirmation's height, keeping no room for either. */
 export function Form({
   title = 'New project brief', fields, values, defaultValues = {}, onValuesChange, onDraft, draftLabel = 'Draft with agent', draftingLabel = 'Drafting',
-  draftedLabel = 'Drafted', draftedMessage = 'Review what the agent drafted', onSubmit, submitLabel = 'Create brief', submittingLabel = 'Creating', invalidMessage = 'A few fields need a look',
+  draftedLabel = 'Drafted by the agent', draftedMessage = 'Review what the agent drafted', onSubmit, submitLabel = 'Create brief', submittingLabel = 'Creating', invalidMessage = 'A few fields need a look',
   errorMessage = 'Something went wrong, try again', doneTitle, doneDetail = 'The agent is gathering references now', className, ref
 }: FormProps) {
   const [vals, setVals] = useControllable(values, defaultValues, onValuesChange);
@@ -150,8 +151,8 @@ export function Form({
           <div className="dm-fmx-h">
             <b>{title}</b>
             {onDraft && (
-              <button ref={ai_} type="button" className={cx('dm-pill dm-line dm-sm dm-fmx-ai', draft === 'drafted' && 'dm-done')} onClick={runDraft}>
-                {draft === 'drafting' ? <><Think /><span className="dm-shim">{draftingLabel}</span></> : draft === 'drafted' ? <><Icon name="check" size="xs" />{draftedLabel}</> : <><Icon name="spark" size="xs" />{draftLabel}</>}
+              <button ref={ai_} type="button" className="dm-pill dm-line dm-sm dm-fmx-ai" onClick={runDraft}>
+                {draft === 'drafting' ? <><Think /><span className="dm-shim">{draftingLabel}</span></> : <><Icon name="spark" size="xs" />{draftLabel}</>}
               </button>
             )}
           </div>
@@ -163,14 +164,14 @@ export function Form({
               <div key={f.key} className={state}>
                 <span>{f.label}</span>
                 <div className="dm-fmx-ty" role="group" aria-label={f.label}>
-                  {f.options?.map(o => <button type="button" key={o.value} className={cx('dm-chip dm-sm', value === o.value && 'dm-on')} aria-pressed={value === o.value} onClick={() => set(f.key, o.value)}>{o.label}</button>)}
+                  {f.options?.map(o => <button type="button" key={o.value} data-tone={o.tone} className={cx('dm-chip dm-sm', value === o.value && 'dm-on')} aria-pressed={value === o.value} onClick={() => set(f.key, o.value)}>{o.label}</button>)}
                 </div>
                 {note}
               </div>
             );
             return (
               <label key={f.key} className={state}>
-                <span>{f.label}<i className="dm-fmx-dr" aria-hidden="true"><Icon name="spark" size="xs" />{draftedLabel}</i></span>
+                <span>{f.label}<Tip label={draftedLabel} off={!ai.includes(f.key)}><i className="dm-fmx-dr" role="img" aria-label={draftedLabel}><Icon name="spark" size="xs" /></i></Tip></span>
                 {f.type === 'textarea'
                   ? <textarea name={f.key} rows={f.rows ?? 2} placeholder={f.placeholder} maxLength={f.maxLength} autoComplete={f.autoComplete} aria-invalid={!!err || undefined} value={value} onChange={e => set(f.key, e.target.value)} />
                   : <input name={f.key} placeholder={f.placeholder} maxLength={f.maxLength} autoComplete={f.autoComplete} aria-invalid={!!err || undefined} value={value} onChange={e => set(f.key, e.target.value)} />}

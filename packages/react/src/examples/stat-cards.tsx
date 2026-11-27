@@ -21,5 +21,5 @@ const STATS: StatCardsStat[] = [
 ];
 
 export default function StatCardsDemo() {
-  return <div style={{ width: '100%' }}><StatCards stats={STATS} periods={PERIODS} defaultPeriod={1} sparkRange={[0, 8.75]} /></div>;
+  return <div style={{ width: '100%' }}><StatCards title="Workspace" stats={STATS} periods={PERIODS} defaultPeriod={1} sparkRange={[0, 8.75]} /></div>;
 }

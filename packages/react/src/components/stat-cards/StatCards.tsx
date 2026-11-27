@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable, useTween } from '../../lib/hooks';
 import { Icon, type IconName } from '../../lib/icons';
@@ -44,6 +44,8 @@ export interface StatCardsPeriod {
 }
 
 export interface StatCardsProps {
+  /** What the numbers are about, like "Workspace": on the left of the head, on one line with the period switch */
+  title?: ReactNode;
   stats: StatCardsStat[];
   periods: StatCardsPeriod[];
   /** The period on show, by index. Leave it out to let the switch pick it */
@@ -98,7 +100,7 @@ function Card({ stat, index, period, compare, drawn, range }: { stat: StatCardsS
 }
 
 /** A row of numbers with their change and a sparkline. Switch the period and they roll to the new values. */
-export function StatCards({ stats, periods, period, defaultPeriod = 0, onPeriodChange, sparkRange, className }: StatCardsProps) {
+export function StatCards({ title, stats, periods, period, defaultPeriod = 0, onPeriodChange, sparkRange, className }: StatCardsProps) {
   const [at, setAt] = useControllable(period, defaultPeriod, onPeriodChange);
   // the numbers roll up and the lines draw a moment after the cards come in
   const [drawn, setDrawn] = useState(false);
@@ -106,9 +108,10 @@ export function StatCards({ stats, periods, period, defaultPeriod = 0, onPeriodC
 
   return (
     <div data-dm="" className={cx('dm-scx', className)}>
-      {periods.length > 1 && (
+      {(title != null || periods.length > 1) && (
         <div className="dm-scx-h">
-          <Seg className="dm-scx-sg" label="Period" value={String(at)} onChange={v => setAt(+v)} options={periods.map((p, i) => ({ value: String(i), label: p.label }))} />
+          {title != null && <b className="dm-scx-t">{title}</b>}
+          {periods.length > 1 && <Seg className="dm-scx-sg" label="Period" value={String(at)} onChange={v => setAt(+v)} options={periods.map((p, i) => ({ value: String(i), label: p.label }))} />}
         </div>
       )}
       <div className="dm-scx-grid">

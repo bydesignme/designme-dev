@@ -7,7 +7,7 @@ import { Form, type FormField, type FormHandle, type FormValues } from '../compo
 const FIELDS: FormField[] = [
   { key: 'name', label: 'Project name', placeholder: 'Pricing refresh', maxLength: 40, validate: v => !v.trim() && 'Give it a name' },
   { key: 'goal', label: 'Goal', type: 'textarea', rows: 2, placeholder: 'What should change, and why?', validate: v => v.trim().length < 12 && 'Add a sentence about the goal' },
-  { key: 'type', label: 'Type', type: 'choice', options: [{ value: 'web', label: 'Website' }, { value: 'app', label: 'App' }, { value: 'brand', label: 'Brand' }], validate: v => !v && 'Pick a type' },
+  { key: 'type', label: 'Type', type: 'choice', options: [{ value: 'web', label: 'Website', tone: 'b' }, { value: 'app', label: 'App', tone: 'l' }, { value: 'brand', label: 'Brand', tone: 'p' }], validate: v => !v && 'Pick a type' },
   { key: 'due', label: 'Due', placeholder: 'Nov 14' }
 ];
 
