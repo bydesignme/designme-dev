@@ -23,7 +23,7 @@ npx shadcn@latest add https://designme.dev/r/shadcn/astro/form.json  # Astro
 
 ## About
 
-Form is a short form, set up as a project brief by default, with a Draft with agent button that fills the fields in for the person. Fields the agent filled carry a Drafted mark beside their label until the person edits them, so it is clear what still needs a human read. On submit every field is checked, and a confirmation replaces the form once it goes through.
+Form is a short form, set up as a project brief by default, with a Draft with agent button that fills the fields in for the person. Fields the agent filled carry a small sparkle after their label until the person edits them, and the line by the submit button says to review what the agent drafted, so it is clear what still needs a human read. On submit every field is checked, and a confirmation replaces the form once it goes through.
 
 ### When to use it
 
@@ -34,10 +34,10 @@ Form is a short form, set up as a project brief by default, with a Draft with ag
 
 ### What it does
 
-- Fields can be text, textarea or `choice`, a row of chips that picks one value.
+- Fields can be text, textarea or `choice`, a row of chips that picks one value. A choice option's `tone` gives it a core tag colour: a dot in that colour at rest, and its tint and text colour once picked.
 - A `maxLength` on a text field shows a live counter like 0/40 and stops typing there.
-- Passing `onDraft` adds the Draft with agent button, which shows Drafting (the words shimmer) while your promise runs and then Drafted with a green tick, easing to the width of its words each time.
-- Text fields that change while the draft runs are marked Drafted until the person edits them; choice fields are not marked.
+- Passing `onDraft` adds the Draft with agent button, which shows Drafting (the words shimmer) while your promise runs and then goes back to Draft with agent, easing to the width of its words each time.
+- Text fields that change while the draft runs get a sparkle after their label until the person edits them; pointing at it says "Drafted by the agent" (`draftedLabel`). Choice fields are not marked.
 - Each field's `validate` runs on submit, shows its message under the field, and clears as soon as the value changes.
 - If `onSubmit` returns a promise, the button shows a spinner and `submittingLabel` ("Creating") until it settles; a rejection shows its message, and success shows the done screen with a green tick. The card grows with field messages and eases to the done screen's height, keeping no room for either.
 
@@ -45,7 +45,7 @@ Form is a short form, set up as a project brief by default, with a Draft with ag
 
 - Field messages render with `role="alert"`, and invalid inputs set `aria-invalid`.
 - Choice chips sit in a `group` labelled with the field name, and each chip reports `aria-pressed`.
-- The Drafted mark beside a label is `aria-hidden`, so it is not read into the field's name.
+- The sparkle after a drafted field's label is an image named "Drafted by the agent", so screen readers hear it with the field's name; it leaves the accessibility tree once the person edits the field.
 - The confirmation after submit has `role="status"`.
 
 ## Usage in React
@@ -66,7 +66,7 @@ import { Form, type FormField, type FormHandle, type FormValues } from './Form';
 const FIELDS: FormField[] = [
   { key: 'name', label: 'Project name', placeholder: 'Pricing refresh', maxLength: 40, validate: v => !v.trim() && 'Give it a name' },
   { key: 'goal', label: 'Goal', type: 'textarea', rows: 2, placeholder: 'What should change, and why?', validate: v => v.trim().length < 12 && 'Add a sentence about the goal' },
-  { key: 'type', label: 'Type', type: 'choice', options: [{ value: 'web', label: 'Website' }, { value: 'app', label: 'App' }, { value: 'brand', label: 'Brand' }], validate: v => !v && 'Pick a type' },
+  { key: 'type', label: 'Type', type: 'choice', options: [{ value: 'web', label: 'Website', tone: 'b' }, { value: 'app', label: 'App', tone: 'l' }, { value: 'brand', label: 'Brand', tone: 'p' }], validate: v => !v && 'Pick a type' },
   { key: 'due', label: 'Due', placeholder: 'Nov 14' }
 ];
 
@@ -111,10 +111,10 @@ export default function FormDemo() {
 | `values` (optional) | `FormValues` | The values by field key. Leave it out to let the fields hold their own |
 | `defaultValues` (optional) | `FormValues` |  |
 | `onValuesChange` (optional) | `(values: FormValues) => void` |  |
-| `onDraft` (optional) | `() => void \| Promise<void>` | Adds "Draft with agent". Fill the values in while the promise runs; the fields it fills are marked Drafted beside their label until someone edits them |
+| `onDraft` (optional) | `() => void \| Promise<void>` | Adds "Draft with agent". Fill the values in while the promise runs; the fields it fills get a small sparkle after their label until someone edits them |
 | `draftLabel` (optional) | `string` |  |
 | `draftingLabel` (optional) | `string` |  |
-| `draftedLabel` (optional) | `string` |  |
+| `draftedLabel` (optional) | `string` | The sparkle's tooltip and its name for screen readers. Defaults to "Drafted by the agent" |
 | `draftedMessage` (optional) | `string` | Shown beside the submit button after a draft. Defaults to "Review what the agent drafted" |
 | `onSubmit` (optional) | `(values: FormValues) => void \| Promise<void>` | Called with the values once every field passes. Return a promise and the button shows a spinner and submittingLabel until it settles |
 | `submitLabel` (optional) | `string` |  |
@@ -141,11 +141,11 @@ It plays its demo; change `form.js` to show your own data. `data-style="soft"` d
 
 **How does the agent fill in the fields?**
 
-Control the form with `values` and `onValuesChange`, and update the values inside your `onDraft` promise. Any text field that changes while the draft runs gets the Drafted mark.
+Control the form with `values` and `onValuesChange`, and update the values inside your `onDraft` promise. Any text field that changes while the draft runs gets the drafted sparkle.
 
 **Can I start the agent's draft without a click?**
 
-Yes. Put a ref on the form and call `ref.current.draft()`. It runs `onDraft` with the same Drafting and Drafted states as the button.
+Yes. Put a ref on the form and call `ref.current.draft()`. It runs `onDraft` with the same Drafting state and drafted marks as the button.
 
 **How do I validate a field against another field?**
 
@@ -161,7 +161,7 @@ import { useEffect, useImperativeHandle, useRef, useState, type FormEvent, type 
 import { cx } from '../lib/cx';
 import { useControllable, useIsoLayoutEffect, useReducedMotion } from '../lib/hooks';
 import { Icon } from '../lib/icons';
-import { enter, Spin, Swap, Think, useGrow } from '../lib/motion';
+import { enter, Spin, Swap, Think, Tip, useGrow } from '../lib/motion';
 import '../designme.css';
 import './form.css';
 
@@ -169,7 +169,7 @@ export type FormValues = Record<string, string>;
 
 /** What a ref to the form can do */
 export interface FormHandle {
-  /** Runs onDraft as if "Draft with agent" were pressed, with the same Drafting and Drafted states */
+  /** Runs onDraft as if "Draft with agent" were pressed, with the same Drafting state and drafted marks */
   draft: () => Promise<void>;
 }
 
@@ -184,8 +184,8 @@ export interface FormField {
   maxLength?: number;
   /** Rows for a textarea. Defaults to 2 */
   rows?: number;
-  /** The chips of a choice field */
-  options?: { value: string; label: string }[];
+  /** The chips of a choice field. A `tone` gives the option its core tag colour: a dot in it at rest, and its tint and text colour once picked */
+  options?: { value: string; label: string; tone?: 'b' | 'l' | 'm' | 'p' | 'r' | 'y' | 'k' | 't' }[];
   autoComplete?: string;
   /** Returns the message to show when the value won't do, like "Give it a name". Checked on submit */
   validate?: (value: string, values: FormValues) => string | false | null | undefined;
@@ -199,10 +199,11 @@ export interface FormProps {
   values?: FormValues;
   defaultValues?: FormValues;
   onValuesChange?: (values: FormValues) => void;
-  /** Adds "Draft with agent". Fill the values in while the promise runs; the fields it fills are marked Drafted beside their label until someone edits them */
+  /** Adds "Draft with agent". Fill the values in while the promise runs; the fields it fills get a small sparkle after their label until someone edits them */
   onDraft?: () => void | Promise<void>;
   draftLabel?: string;
   draftingLabel?: string;
+  /** The sparkle's tooltip and its name for screen readers. Defaults to "Drafted by the agent" */
   draftedLabel?: string;
   /** Shown beside the submit button after a draft. Defaults to "Review what the agent drafted" */
   draftedMessage?: string;
@@ -239,7 +240,7 @@ function useEaseWidth(ref: RefObject<HTMLElement | null>, key: unknown) {
     its messages and eases to the confirmation's height, keeping no room for either. */
 export function Form({
   title = 'New project brief', fields, values, defaultValues = {}, onValuesChange, onDraft, draftLabel = 'Draft with agent', draftingLabel = 'Drafting',
-  draftedLabel = 'Drafted', draftedMessage = 'Review what the agent drafted', onSubmit, submitLabel = 'Create brief', submittingLabel = 'Creating', invalidMessage = 'A few fields need a look',
+  draftedLabel = 'Drafted by the agent', draftedMessage = 'Review what the agent drafted', onSubmit, submitLabel = 'Create brief', submittingLabel = 'Creating', invalidMessage = 'A few fields need a look',
   errorMessage = 'Something went wrong, try again', doneTitle, doneDetail = 'The agent is gathering references now', className, ref
 }: FormProps) {
   const [vals, setVals] = useControllable(values, defaultValues, onValuesChange);
@@ -308,8 +309,8 @@ export function Form({
           <div className="dm-fmx-h">
             <b>{title}</b>
             {onDraft && (
-              <button ref={ai_} type="button" className={cx('dm-pill dm-line dm-sm dm-fmx-ai', draft === 'drafted' && 'dm-done')} onClick={runDraft}>
-                {draft === 'drafting' ? <><Think /><span className="dm-shim">{draftingLabel}</span></> : draft === 'drafted' ? <><Icon name="check" size="xs" />{draftedLabel}</> : <><Icon name="spark" size="xs" />{draftLabel}</>}
+              <button ref={ai_} type="button" className="dm-pill dm-line dm-sm dm-fmx-ai" onClick={runDraft}>
+                {draft === 'drafting' ? <><Think /><span className="dm-shim">{draftingLabel}</span></> : <><Icon name="spark" size="xs" />{draftLabel}</>}
               </button>
             )}
           </div>
@@ -321,14 +322,14 @@ export function Form({
               <div key={f.key} className={state}>
                 <span>{f.label}</span>
                 <div className="dm-fmx-ty" role="group" aria-label={f.label}>
-                  {f.options?.map(o => <button type="button" key={o.value} className={cx('dm-chip dm-sm', value === o.value && 'dm-on')} aria-pressed={value === o.value} onClick={() => set(f.key, o.value)}>{o.label}</button>)}
+                  {f.options?.map(o => <button type="button" key={o.value} data-tone={o.tone} className={cx('dm-chip dm-sm', value === o.value && 'dm-on')} aria-pressed={value === o.value} onClick={() => set(f.key, o.value)}>{o.label}</button>)}
                 </div>
                 {note}
               </div>
             );
             return (
               <label key={f.key} className={state}>
-                <span>{f.label}<i className="dm-fmx-dr" aria-hidden="true"><Icon name="spark" size="xs" />{draftedLabel}</i></span>
+                <span>{f.label}<Tip label={draftedLabel} off={!ai.includes(f.key)}><i className="dm-fmx-dr" role="img" aria-label={draftedLabel}><Icon name="spark" size="xs" /></i></Tip></span>
                 {f.type === 'textarea'
                   ? <textarea name={f.key} rows={f.rows ?? 2} placeholder={f.placeholder} maxLength={f.maxLength} autoComplete={f.autoComplete} aria-invalid={!!err || undefined} value={value} onChange={e => set(f.key, e.target.value)} />
                   : <input name={f.key} placeholder={f.placeholder} maxLength={f.maxLength} autoComplete={f.autoComplete} aria-invalid={!!err || undefined} value={value} onChange={e => set(f.key, e.target.value)} />}

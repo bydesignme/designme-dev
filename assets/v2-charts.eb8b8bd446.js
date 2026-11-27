@@ -1,4 +1,4 @@
-TPLS["stat-cards"] = "<div class=\"scx\">\n  <div class=\"scx-h\"><div class=\"seg2 scx-sg\" role=\"group\" aria-label=\"Period\"><button aria-pressed=\"false\" data-v=\"0\">7 days</button><button aria-pressed=\"true\" data-v=\"1\">30 days</button><button aria-pressed=\"false\" data-v=\"2\">Quarter</button></div></div>\n  <div class=\"scx-grid\"></div>\n</div>";
+TPLS["stat-cards"] = "<div class=\"scx\">\n  <div class=\"scx-h\"><b class=\"scx-t\">Workspace</b><div class=\"seg2 scx-sg\" role=\"group\" aria-label=\"Period\"><button aria-pressed=\"false\" data-v=\"0\">7 days</button><button aria-pressed=\"true\" data-v=\"1\">30 days</button><button aria-pressed=\"false\" data-v=\"2\">Quarter</button></div></div>\n  <div class=\"scx-grid\"></div>\n</div>";
 
 /* ---------- Stat cards ---------- */
 DM.def('stat-cards', (r, c) => {

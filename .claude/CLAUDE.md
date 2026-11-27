@@ -212,7 +212,9 @@ every session and every agent.
   The Sales CRM's Reports view is removed, with what only it used. The Dashboard builder comes off the landing and the template
   list for now and launches later. Every component those views use goes live, linked from the template, sourced from the
   template's own code where the library has no such component yet (never designed from scratch). Kanban comes back as the
-  Pipeline's board exactly as the product has it, not the earlier made-up demo. New components from the templates: the
+  Pipeline's board exactly as the product has it, not the earlier made-up demo. The Accounts table and the account details panel ship as the Sales CRM has them
+  (its `crmt`/`crmd` versions become the components); the templates' side list ships as a small App sidebar, not the whole Agent
+  harness; the Agent inbox view stays, so Draft review and Rewrite toolbar go live too (owner, 27 Nov). New components from the templates: the
   Whiteboard's tool rail and zoom bar, and the CRM's agent action cards; their buttons show hover and pressed states and link
   to nothing. Meeting card (the "live call") comes back too.
 - What is live (owner, 24 Nov): each component has a live flag in the build. Only live components are in the library, the

@@ -11,12 +11,12 @@
 /* a field marked wrong keeps its red edge, focused or not, until it is fixed; the message says what is wrong */
 .fmx-f.bad input,.fmx-f.bad textarea{box-shadow:inset 0 0 0 1px var(--dm-bad)}
 .fmx-f .er{font-size:11.5px;color:var(--dm-bad);font-weight:400;animation:enter .35s var(--dm-ease) backwards}
-/* what the agent drafted says so quietly at the end of its label's line, every mark on the content's right edge, until
-   someone edits it */
-.fmx-f>span:first-child{display:flex;align-items:center;justify-content:space-between;gap:var(--dm-s-2)}
-.fmx-dr{display:inline-flex;align-items:center;gap:3px;font-style:normal;font-size:11px;font-weight:400;color:var(--dm-muted);opacity:0;transform:translateX(-3px);transition:opacity var(--dm-t) var(--dm-ease),transform var(--dm-t) var(--dm-ease)}
-.fmx-dr .i{color:var(--dm-accent-fg,var(--dm-accent))}
-.fmx-f.ai .fmx-dr{opacity:1;transform:none}
+/* what the agent drafted is marked by a small sparkle right after its label, with no word (owner, 27 Nov: the foot line says
+   it once in words): pointing at it says "Drafted by the agent", which is also its name for screen readers. It shows until
+   someone edits the field; hidden, it is out of the accessibility tree too */
+.fmx-f>span:first-child{display:flex;align-items:center;gap:var(--dm-s-1)}
+.fmx-dr{display:inline-grid;place-items:center;font-style:normal;color:var(--dm-accent-mark,var(--dm-accent));cursor:default;visibility:hidden;opacity:0;transform:translateX(-3px);transition:opacity var(--dm-t) var(--dm-ease),transform var(--dm-t) var(--dm-ease),visibility var(--dm-t)}
+.fmx-f.ai .fmx-dr{visibility:visible;opacity:1;transform:none}
 .fmx-c{position:absolute;right:12px;top:24px;height:40px;display:flex;align-items:center;font-style:normal;font-size:11px;color:var(--dm-muted);font-weight:400;pointer-events:none}
 .fmx-ty{display:flex;gap:6px}
 /* the types are white chips with a dimmed grey edge; the picked one's edge is a step stronger. A hover is a quiet fill */
@@ -26,6 +26,15 @@
 @media (prefers-color-scheme:dark){@media (hover:hover) and (pointer:fine){:root:not([data-theme="light"]) .fmx-ty .chip:hover{background:color-mix(in srgb,var(--dm-fg) 9%,var(--dm-surface))}}}
 @media (hover:hover) and (pointer:fine){:root[data-theme="dark"] .fmx-ty .chip:hover{background:color-mix(in srgb,var(--dm-fg) 9%,var(--dm-surface))}}
 .fmx-ty .chip.on{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-pick-on) 50%,transparent)}
+/* each type is a label with its own core tag colour, wherever it shows (owner, 27 Nov: "add some color"): at rest a small dot
+   in its colour on the neutral chip; picked, the colour's tint with its text colour (as .tag draws it) and the selected edge */
+.fmx-ty .chip[data-tone]::before{content:"";flex:none;width:6px;height:6px;margin-left:-1px;border-radius:50%;corner-shape:round;background:var(--dm-tn)}
+.fmx-ty .chip[data-tone="b"]{--dm-tn:var(--dm-pb);--dm-tn-bg:var(--dm-pb-bg)}.fmx-ty .chip[data-tone="l"]{--dm-tn:var(--dm-pl);--dm-tn-bg:var(--dm-pl-bg)}
+.fmx-ty .chip[data-tone="m"]{--dm-tn:var(--dm-pm);--dm-tn-bg:var(--dm-pm-bg)}.fmx-ty .chip[data-tone="p"]{--dm-tn:var(--dm-pp);--dm-tn-bg:var(--dm-pp-bg)}
+.fmx-ty .chip[data-tone="r"]{--dm-tn:var(--dm-pr);--dm-tn-bg:var(--dm-pr-bg)}.fmx-ty .chip[data-tone="y"]{--dm-tn:var(--dm-py);--dm-tn-bg:var(--dm-py-bg)}
+.fmx-ty .chip[data-tone="k"]{--dm-tn:var(--dm-pk);--dm-tn-bg:var(--dm-pk-bg)}.fmx-ty .chip[data-tone="t"]{--dm-tn:var(--dm-pt);--dm-tn-bg:var(--dm-pt-bg)}
+.fmx-ty .chip[data-tone].on{background:var(--dm-tn-bg);color:var(--dm-tn)}
+@media (hover:hover) and (pointer:fine){.fmx-ty .chip[data-tone].on:hover{background:var(--dm-tn-bg);color:var(--dm-tn)}}
 /* the footer sits under a hairline in Soft and Blueprint (owner, 21 Nov), 16px under the fields and 12px over its button */
 .fmx-ft{display:flex;align-items:center;justify-content:space-between;gap:var(--dm-s-2);margin-top:var(--dm-s-1);padding-top:var(--dm-s-4);border-top:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
 /* Clean: the footer is the card's off-white foot strip (owner, 21 Nov: "clean doesnt follow its style with buttons being
@@ -37,8 +46,6 @@
 .fmx :is(.pill,.chip):active{transform:none}
 .fmx :is(.fmx-ai,.fmx-go){overflow:hidden}
 .fmx-ai .shim{font-size:inherit}
-/* the green tick on the button's grey fill keeps 3:1 (the vivid green with a touch of the text green) */
-.fmx-ai.done .i{color:color-mix(in srgb,var(--dm-ok-mark) 70%,var(--dm-ok))}
 /* the words on a filled button sweep in its own text colour */
 .fmx-go .shim{background-image:linear-gradient(90deg,var(--dm-on-accent) 0%,var(--dm-on-accent) 38%,color-mix(in srgb,var(--dm-on-accent) 45%,transparent) 50%,var(--dm-on-accent) 62%,var(--dm-on-accent) 100%);font-size:inherit}
 :root[data-style="clean"] .fmx-go .shim,:root [data-style="clean"] .fmx-go .shim,:root [data-style="clean"].fmx-go .shim{background-image:linear-gradient(90deg,var(--dm-on-btn) 0%,var(--dm-on-btn) 38%,color-mix(in srgb,var(--dm-on-btn) 45%,transparent) 50%,var(--dm-on-btn) 62%,var(--dm-on-btn) 100%)}
@@ -46,6 +53,7 @@
 :root[data-style="clean"] .fmx-ty .chip,:root [data-style="clean"] .fmx-ty .chip,:root [data-style="clean"].fmx-ty .chip{transition:background-color var(--dm-t-fast) var(--dm-ease),box-shadow var(--dm-t-fast) var(--dm-ease),color var(--dm-t-fast) var(--dm-ease)}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .fmx-ty .chip:not(.on):hover,:root [data-style="clean"] .fmx-ty .chip:not(.on):hover,:root [data-style="clean"].fmx-ty .chip:not(.on):hover{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-pick-line) 50%,transparent),inset 0 0 0 99px var(--dm-row)}}
 :root[data-style="clean"] .fmx-ty .chip.on,:root [data-style="clean"] .fmx-ty .chip.on,:root [data-style="clean"].fmx-ty .chip.on{background:var(--dm-surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-pick-line) 50%,transparent),inset 0 0 0 99px var(--dm-row-on)}
+:root[data-style="clean"] .fmx-ty .chip[data-tone].on,:root [data-style="clean"] .fmx-ty .chip[data-tone].on,:root [data-style="clean"].fmx-ty .chip[data-tone].on{background:var(--dm-tn-bg);color:var(--dm-tn);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-pick-line) 50%,transparent)}
 /* done: the card eases to the confirmation's height (grow()), with the vivid green tick */
 .fmx-done{display:flex;flex-direction:column;align-items:center;gap:6px;padding:var(--dm-s-6) 0;text-align:center;font-size:13px}
 .fmx-done>svg.i{width:28px;height:28px;color:var(--dm-ok-mark)}

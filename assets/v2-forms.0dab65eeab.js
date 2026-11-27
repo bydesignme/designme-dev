@@ -1,4 +1,4 @@
-TPLS["form"] = "<form class=\"fmx panel\" novalidate>\n  <div class=\"fmx-h\"><b>New project brief</b><button type=\"button\" class=\"pill line sm fmx-ai\">{spark}Draft with agent</button></div>\n  <label class=\"fmx-f\"><span>Project name<i class=\"fmx-dr\" aria-hidden=\"true\">{spark}Drafted</i></span><input name=\"n\" placeholder=\"Pricing refresh\" maxlength=\"40\"><em class=\"fmx-c num\">0/40</em></label>\n  <label class=\"fmx-f\"><span>Goal<i class=\"fmx-dr\" aria-hidden=\"true\">{spark}Drafted</i></span><textarea name=\"g\" rows=\"2\" placeholder=\"What should change, and why?\"></textarea></label>\n  <div class=\"fmx-f\"><span>Type</span><div class=\"fmx-ty\"><button type=\"button\" class=\"chip sm\" data-v=\"web\">Website</button><button type=\"button\" class=\"chip sm\" data-v=\"app\">App</button><button type=\"button\" class=\"chip sm\" data-v=\"brand\">Brand</button></div></div>\n  <label class=\"fmx-f\"><span>Due<i class=\"fmx-dr\" aria-hidden=\"true\">{spark}Drafted</i></span><input name=\"d\" type=\"text\" placeholder=\"Nov 14\"></label>\n  <div class=\"fmx-ft\"><span class=\"fmx-ms muted\"></span><button class=\"pill primary sm fmx-go\" type=\"submit\">Create brief</button></div>\n</form>";
+TPLS["form"] = "<form class=\"fmx panel\" novalidate>\n  <div class=\"fmx-h\"><b>New project brief</b><button type=\"button\" class=\"pill line sm fmx-ai\">{spark}Draft with agent</button></div>\n  <label class=\"fmx-f\"><span>Project name<i class=\"fmx-dr\" role=\"img\" aria-label=\"Drafted by the agent\" data-tip=\"Drafted by the agent\">{spark}</i></span><input name=\"n\" placeholder=\"Pricing refresh\" maxlength=\"40\"><em class=\"fmx-c num\">0/40</em></label>\n  <label class=\"fmx-f\"><span>Goal<i class=\"fmx-dr\" role=\"img\" aria-label=\"Drafted by the agent\" data-tip=\"Drafted by the agent\">{spark}</i></span><textarea name=\"g\" rows=\"2\" placeholder=\"What should change, and why?\"></textarea></label>\n  <div class=\"fmx-f\"><span>Type</span><div class=\"fmx-ty\"><button type=\"button\" class=\"chip sm\" data-v=\"web\" data-tone=\"b\">Website</button><button type=\"button\" class=\"chip sm\" data-v=\"app\" data-tone=\"l\">App</button><button type=\"button\" class=\"chip sm\" data-v=\"brand\" data-tone=\"p\">Brand</button></div></div>\n  <label class=\"fmx-f\"><span>Due<i class=\"fmx-dr\" role=\"img\" aria-label=\"Drafted by the agent\" data-tip=\"Drafted by the agent\">{spark}</i></span><input name=\"d\" type=\"text\" placeholder=\"Nov 14\"></label>\n  <div class=\"fmx-ft\"><span class=\"fmx-ms muted\"></span><button class=\"pill primary sm fmx-go\" type=\"submit\">Create brief</button></div>\n</form>";
 
 /* ---------- Form ---------- */
 DM.def('form', (r, c) => {
@@ -17,7 +17,8 @@ DM.def('form', (r, c) => {
   function clear(el){ const f = el.closest('.fmx-f'); f.classList.remove('bad', 'ai'); $('.er', f)?.remove(); }
   function bad(el, t){ const f = el.closest('.fmx-f'); if (f.classList.contains('bad')) return; f.classList.add('bad'); f.insertAdjacentHTML('beforeend', `<span class="er">${t}</span>`); }
   async function type_(el, s){ el.closest('.fmx-f').classList.add('ai'); el.value = ''; for (const ch of s){ el.value += ch; el.dispatchEvent(new Event('input')); el.closest('.fmx-f').classList.add('ai'); await c.wait(18); } }
-  // the agent's draft: the button says Drafting with the highlight sweep while it types, then Drafted with the green tick
+  // the agent's draft: the button says Drafting with the highlight sweep while it types, then goes back to Draft with agent;
+  // each field it filled shows its sparkle, and the foot line says it once in words
   let drafting = false;
   $('.fmx-ai', r).onclick = () => { if (drafting) return; drafting = true; c.run(async () => {
     const b = $('.fmx-ai', r); label(b, '<span class="think on"><i></i><i></i><i></i><i></i></span><span class="shim">Drafting</span>');
@@ -25,7 +26,7 @@ DM.def('form', (r, c) => {
     await type_(g, 'Lift trial to paid by showing annual plans first and keeping one CTA per card.');
     if (!type) chips[0].click();
     if (!d.value) await type_(d, 'Nov 14');
-    label(b, I('check','xs') + 'Drafted'); b.classList.add('done'); swap(ms, 'Review what the agent drafted'); drafting = false;
+    label(b, I('spark','xs') + 'Draft with agent'); swap(ms, 'Review what the agent drafted'); drafting = false;
   }); };
   // the preview has the agent fill it in once on its own, unless you take over first. The agent's typing keeps going under the
   // pointer (DM.PLAYS); the press that starts it waits while a mouse rests on the card
