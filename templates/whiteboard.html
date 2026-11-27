@@ -162,7 +162,12 @@
   };
   try { var a = localStorage.getItem('dmui-accent'); if (a && a !== 'default') window.dmAccent(a); } catch(e){}
 })();
-</script><script>try { if (/[?&]embed=1(&|$)/.test(location.search) || (window.frameElement && window.frameElement.closest('.dvf'))) document.documentElement.setAttribute('data-embed', ''); } catch(e){}</script><style>html[data-embed]{--pg-head:0px;scrollbar-gutter:auto}html[data-embed] :is(.pg-top,.pg-skip,.dmf){display:none!important}</style><link rel="stylesheet" href="/components/assets/core.css"><style>/* Canvas toolbar */
+</script><script>try { if (/[?&]embed=1(&|$)/.test(location.search) || (window.frameElement && window.frameElement.closest('.dvf'))){ document.documentElement.setAttribute('data-embed', '');
+  // in a frame, a focus or a scroll into view inside the app scrolls the app only, never the page around the frame (owner, 27 Nov:
+  // a click in a template, or a view switching, took the reader back up to the templates section)
+  var P = window.parent; if (P && P !== window){ var keep = function(fn){ return function(){ var x, y; try { x = P.scrollX; y = P.scrollY; } catch(e){ return fn.apply(this, arguments); }
+      var r = fn.apply(this, arguments); try { if (P.scrollX !== x || P.scrollY !== y) P.scrollTo({ left:x, top:y, behavior:'instant' }); } catch(e){} return r; }; };
+    [HTMLElement.prototype, SVGElement.prototype].forEach(function(o){ o.focus = keep(o.focus); }); Element.prototype.scrollIntoView = keep(Element.prototype.scrollIntoView); } } } catch(e){}</script><style>html[data-embed]{--pg-head:0px;scrollbar-gutter:auto}html[data-embed] :is(.pg-top,.pg-skip,.dmf){display:none!important}</style><link rel="stylesheet" href="/components/assets/core.css"><style>/* Canvas toolbar */
 /* ---------- Canvas toolbar ---------- */
 /* a workflow canvas with its floating toolbar fixed at the bottom centre: Run (Stop while a run is going), the pointer tools
    as one radio group, Comment, Fit and zoom. A narrow canvas moves Comment and Fit, then the zoom buttons, into a More menu,

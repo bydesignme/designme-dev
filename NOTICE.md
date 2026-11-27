@@ -47,3 +47,9 @@ These are part of the site, not of anything you install.
   packs, CC0 1.0 (`tools/site/sounds-src/License-*.txt`).
 - **The share image** `og.png` is drawn from the components themselves (`tools/pages/og.mjs`), so the credits above for
   their brand marks apply to it too.
+
+## Agent tool marks on the landing page
+
+The Claude Code, Codex (OpenAI), Cursor and Visual Studio Code marks in the landing page's "Or hand it to your coding agent"
+section are trademarks of their owners, shown only to say the components work with those tools. Their vector paths come from
+Simple Icons (CC0 1.0); the Visual Studio Code path is from Simple Icons 6. They are on the site only, never in installs.
