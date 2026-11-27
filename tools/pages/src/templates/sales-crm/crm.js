@@ -2450,7 +2450,7 @@
   $$('.lnx-k', fc).forEach(k => k.onclick = () => { const s = +k.dataset.s; if (lineOn[s] && !lineOn[1 - s]) return; lineOn[s] = !lineOn[s]; k.setAttribute('aria-pressed', lineOn[s]); renderForecast(); });
 
   /* ---------- views: the sidebar switches them, the header names the one on show with a live summary ---------- */
-  const VIEWS = { accounts:'Accounts', inbox:'Agent inbox', calendar:'Calendar', pipeline:'Pipeline', forecast:'Forecast', reports:'Reports' };
+  const VIEWS = { accounts:'Accounts', inbox:'Agent inbox', calendar:'Calendar', pipeline:'Pipeline', forecast:'Forecast' };
   function setView(k){
     const was = view; view = k; app.dataset.view = k;
     Object.keys(VIEWS).forEach(v => $('#crm-v-' + v, app).hidden = v !== k);
@@ -2620,7 +2620,7 @@
   let items = [], hi = 0, back = null;
   const ACTIONS = () => [
     ['Go to', I('table', 'xs'), 'Accounts', 'Table', () => { F.A = []; renderTable(); setView('accounts'); }], ['Go to', I('spark', 'xs'), 'Agent inbox', waiting().length + ' waiting', () => setView('inbox')], ['Go to', I('cal', 'xs'), 'Calendar', 'Week', () => setView('calendar')],
-    ['Go to', I('grid', 'xs'), 'Pipeline', 'Board', () => setView('pipeline')], ['Go to', I('chart', 'xs'), 'Forecast', 'By rep', () => setView('forecast')], ['Go to', I('bars', 'xs'), 'Reports', 'Charts', () => setView('reports')],
+    ['Go to', I('grid', 'xs'), 'Pipeline', 'Board', () => setView('pipeline')], ['Go to', I('chart', 'xs'), 'Forecast', 'By rep', () => setView('forecast')],
     ['Actions', I('spark', 'xs'), 'Plan follow-ups for quiet accounts', '', () => { setView('calendar'); planFollowUps(); }],
     ['Actions', I('plus', 'xs'), 'Add account', '', () => newAccount()], ['Actions', I('down', 'xs'), 'Export accounts in view', 'CSV', () => exportCsv(rows)],
     ['Actions', I('moon', 'xs'), isDark() ? 'Switch to light theme' : 'Switch to dark theme', '', () => th.click()],
