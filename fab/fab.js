@@ -103,10 +103,8 @@
       // a step bigger than on the other pages (owner, 26 Nov), with the smiley scaled with it
       + '.dmf-lp .dmf-b{width:56px;height:56px}'
       + '.dmf-lp .dmf-b>svg{width:30px;height:26px}'
-      // a calm call for attention until the pop-up has been opened once (this session): the button breathes (1 to 1.04)
-      // every 4s, inside its own place. Scale only, no colour
-      + '.dmf-lp.pulse.in:not(.open) .dmf-b{animation:dmf-breath 4s ease-in-out 1.6s infinite}'
-      + '@keyframes dmf-breath{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}'
+      // no pulse or ring round the button (owner, 27 Nov: "too distracting"): the only call for attention is the shimmer
+      // passing through the mark
       + '.dmf-lp .dmf-b:focus-visible{outline-color:var(--sh-line-2,var(--pg-line2))}'
       + '.dmf-p{position:absolute;right:0;bottom:calc(100% + 12px);width:min(304px,calc(100vw - 32px));box-sizing:border-box;padding:16px;border-radius:16px;border:1px solid color-mix(in srgb,var(--pg-line2) 50%,transparent);background:var(--pg-bg);color:var(--pg-fg);'
       + 'box-shadow:var(--dm-shadow-pop,0 1px 2px rgba(0,0,0,.06),0 24px 48px -16px rgba(0,0,0,.3));text-align:left;outline:0;'
@@ -153,9 +151,7 @@
     var b = fab.querySelector('.dmf-b'), pop = fab.querySelector('.dmf-p');
     pop.inert = true;
     var isOpen = function(){ return fab.classList.contains('open'); };
-    // the attention ring, until the pop-up has been opened once this session
-    var seenKey = 'dmf-opened', seen0 = false; try { seen0 = sessionStorage.getItem(seenKey) === '1'; } catch (e) {}
-    if (!seen0) fab.classList.add('pulse');
+    var seenKey = 'dmf-opened';
     // the 3D mark: loaded the first time the pop-up opens, drawn only while it is open
     var stage = fab.querySelector('.dmf-3d'), logo = null, loading = null, reduceQ = matchMedia('(prefers-reduced-motion:reduce)');
     var isDark = function(){ return (getComputedStyle(document.documentElement).getPropertyValue('color-scheme') || '').indexOf('dark') >= 0; };
@@ -164,7 +160,7 @@
         if (logo){ stage.classList.add('ready'); if (isOpen()) logo.start(); } }).catch(function(){ logo = null; });
       return loading; };
     new MutationObserver(function(){ if (logo) logo.theme(isDark()); }).observe(document.documentElement, { attributes:true, attributeFilter:['data-theme', 'data-style'] });
-    var show = function(){ fab.classList.add('open'); fab.classList.remove('pulse'); try { sessionStorage.setItem(seenKey, '1'); } catch (e) {}
+    var show = function(){ fab.classList.add('open'); try { sessionStorage.setItem(seenKey, '1'); } catch (e) {}
       b.setAttribute('aria-expanded', 'true'); pop.inert = false; pop.focus({ preventScroll:true }); if (logo) logo.start(); else load3d(); };
     var hide = function(back){ if (!isOpen()) return; fab.classList.remove('open'); if (logo) setTimeout(function(){ if (!isOpen() && logo) logo.stop(); }, 400); b.setAttribute('aria-expanded', 'false'); pop.inert = true;
       if (back) b.focus({ preventScroll:true }); };
