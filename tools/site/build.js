@@ -1116,7 +1116,7 @@ Every CSS variable starts with \`--dm-\` in every version, and in the React vers
   }
   // the templates (tools/pages/src/pages/templates, also in the sitemap): whole apps made of the components, each with the
   // line its page describes itself with
-  const TEMPLATES = [['sales-crm', 'Sales CRM'], ['workflow-editor', 'Workflow editor'], ['dashboard-builder', 'Dashboard builder'], ['whiteboard', 'Whiteboard']];
+  const TEMPLATES = [['sales-crm', 'Sales CRM'], ['workflow-editor', 'Workflow editor'], ['whiteboard', 'Whiteboard']];
   md += `\n## Templates\n\nWhole apps made of the components, each a live page.\n\n` + TEMPLATES.map(([slug, name]) => {
     const src = fs.readFileSync(path.resolve(__dirname, `../pages/src/pages/templates/${slug}.astro`), 'utf8'), d = src.match(/^const description = '((?:[^'\\]|\\.)*)';$/m);
     if (!d) throw new Error(`llms.txt: the ${slug} template has no description line`);
