@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Sales CRM showcase</title>
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<!-- A looping showcase of the Sales CRM template for socials (owner, 27 Nov): the camera and pointer feel of the owner's
+     reference reel (a flat 1.7x zoom in and out, every move on cubic-bezier(.65,0,.25,1)), played on our own CRM. The CRM runs
+     untouched in a same-origin iframe; this page only drives it (real clicks and input events) and adds showcase-only motion
+     for the view swap. Lab only; nothing ships from here. One cut: Soft, light. -->
+<style>
+:root{--bg:#ececeb;--ink:#0a0a0a}
+html,body{margin:0;height:100%;background:var(--bg);overflow:hidden}
+/* the fixed 1680x1144 stage, scaled to fit the window */
+.sc-fit{position:absolute;left:50%;top:50%;width:1680px;height:1144px;transform-origin:0 0;overflow:hidden;background:var(--bg);opacity:0;transition:opacity .4s}
+.sc-fit.on{opacity:1}
+/* the camera: a flat scale and move of everything on the stage, never a tilt */
+.sc-cam{position:absolute;inset:0;transform-origin:0 0;will-change:transform}
+/* the app as a window: 1440 wide, 120px sides, 80px top and bottom, the site's neutral --shadow-pop */
+.sc-win{position:absolute;left:120px;top:80px;width:1440px;height:984px;border-radius:14px;overflow:hidden;background:#fff;
+  box-shadow:0 0 0 1px rgba(0,0,0,.05),0 1px 2px rgba(0,0,0,.03),0 4px 8px -4px rgba(0,0,0,.04),0 10px 20px -8px rgba(0,0,0,.05),0 20px 36px -16px rgba(0,0,0,.07)}
+.sc-win iframe{display:block;width:1440px;height:984px;border:0;pointer-events:none}
+/* the pointer: a plain arrow that becomes a hand over anything clickable */
+.sc-ptr{position:absolute;left:0;top:0;width:28px;height:28px;pointer-events:none;will-change:transform;z-index:5}
+.sc-ptr svg{position:absolute;left:0;top:0;transition:opacity 60ms linear}
+.sc-ptr .hand{opacity:0}
+.sc-ptr.hand .hand{opacity:1}.sc-ptr.hand .arrow{opacity:0}
+@media (prefers-reduced-motion:reduce){.sc-ptr{display:none}}
+</style>
+</head>
+<body>
+<div class="sc-fit" id="fit">
+  <div class="sc-cam" id="cam">
+    <div class="sc-win" id="win"><iframe id="crm" title="Sales CRM, driven by the showcase" tabindex="-1" src="/templates/sales-crm.html?embed=1&amp;style=soft&amp;theme=light&amp;view=pipeline"></iframe></div>
+    <div class="sc-ptr" id="ptr" aria-hidden="true">
+      <svg class="arrow" width="28" height="28" viewBox="0 0 28 28"><path d="M6 3.5v18.2l4.4-4.2 2.8 6.6 3.1-1.3-2.8-6.5h6.1z" fill="#0a0a0a" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>
+      <svg class="hand" width="28" height="28" viewBox="0 0 28 28"><path d="M10.2 13.2V5.6a1.7 1.7 0 0 1 3.4 0v6.1-1.4a1.7 1.7 0 0 1 3.4 0v1.6-.9a1.7 1.7 0 0 1 3.4 0v1.5a1.6 1.6 0 0 1 3.1.6v5.3c0 3.7-2.6 6.4-6.3 6.4h-1.6c-2.2 0-3.6-.9-4.8-2.5l-3.9-5.4a1.7 1.7 0 0 1 2.6-2.2z" fill="#fff" stroke="#0a0a0a" stroke-width="1.4" stroke-linejoin="round"/><path d="M13.6 12v4.2M17 12.4v3.8M20.4 13v3.2" stroke="#0a0a0a" stroke-width="1.2" stroke-linecap="round"/></svg>
+    </div>
+  </div>
+</div>
+<script>
+(() => {
+  const W = 1680, H = 1144, APP = { x:120, y:80 }, L = 10.6, Z = 1.7;
+  const REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const fit = document.getElementById('fit'), cam = document.getElementById('cam'), ptr = document.getElementById('ptr'), frame = document.getElementById('crm');
+  const fitStage = () => { const k = Math.min(innerWidth / W, innerHeight / H); fit.style.transform = `scale(${k}) translate(-50%,-50%)`; };
+  fitStage(); addEventListener('resize', fitStage);
+
+  /* cubic-bezier(x1,y1,x2,y2) as a function of linear progress, solved for x */
+  const bez = (x1, y1, x2, y2) => t => {
+    if (t <= 0) return 0; if (t >= 1) return 1;
+    let lo = 0, hi = 1, m = t;
+    for (let i = 0; i < 40; i++){ m = (lo + hi) / 2; const x = 3 * (1 - m) * (1 - m) * m * x1 + 3 * (1 - m) * m * m * x2 + m * m * m; if (x < t) lo = m; else hi = m; }
+    return 3 * (1 - m) * (1 - m) * m * y1 + 3 * (1 - m) * m * m * y2 + m * m * m;
+  };
+  const CAM_EASE = bez(.65, 0, .25, 1);          // every camera move, measured from the reference
+  const PTR_EASE = bez(.45, 0, .2, 1);           // the pointer's glide between targets, a smooth ease-in-out
+
+  /* the camera: where the 1.7x shot looks (a region of the stage, top-left corner), and when it moves */
+  const SHOT = { x:560, y:100 };                 // the toolbar's search, filter, sort and Board/List, over the list's columns
+  const MOVES = [ { t:2.57, d:.90, to:1 }, { t:5.97, d:.96, to:0 }, { t:7.30, d:.80, to:1 }, { t:9.32, d:.96, to:0 } ];
+  function zoomAt(t){
+    let z = 0;
+    for (const m of MOVES){ if (t < m.t) break; const p = CAM_EASE(Math.min(1, (t - m.t) / m.d)); z = m.to ? p : 1 - p; }
+    return z;
+  }
+  // scale and move both linear in the eased progress, so every point on the stage travels on the camera's curve
+  function camera(z){ const s = 1 + (Z - 1) * z; cam.style.transform = `translate(${-SHOT.x * Z * z}px,${-SHOT.y * Z * z}px) scale(${s})`; }
+
+  let D, A;                                       // the CRM's document and its window, once loaded
+  // the CRM's own parts only, never the still copies laid over it during a swap
+  const real = e => !e.closest('.sc-ghost');
+  const $$ = (s, r = D) => [...r.querySelectorAll(s)].filter(real), $ = (s, r = D) => $$(s, r)[0] || null;
+  const centre = (el, dx = 0, dy = 0) => { const b = el.getBoundingClientRect(); return { x:b.left + b.width / 2 + dx, y:b.top + b.height / 2 + dy }; };
+  const at = (sel, dx, dy) => () => { const e = $(sel); return e ? centre(e, dx, dy) : null; };
+  const rowAt = (i, dx = 0) => () => { const r = $$('.kbx-k[data-id]').filter(k => k.offsetParent)[i]; if (!r) return null; const b = r.getBoundingClientRect(); return { x:b.left + 470 + dx, y:b.top + b.height / 2 }; };
+
+  /* the pointer, in the app's own pixels */
+  const HOME = { x:1012, y:452 };
+  const P = { x:HOME.x, y:HOME.y };
+  const GLIDES = [
+    { t:.55, d:.62, to:() => ({ x:880, y:612 }) },                 // drift down the list, over a row or two
+    { t:1.40, d:.48, to:() => ({ x:1150, y:532 }) },
+    { t:1.98, d:.44, to:at('.kbx-hd .kbx-q input', -24, 1) },      // to the search field
+    { t:4.10, d:.42, to:rowAt(1) },                                 // down to a found deal
+    { t:4.78, d:.40, to:at('.kbx-hd .kbx-qx', 0, 0) },              // to the field's clear button
+    { t:5.42, d:.42, to:at('.kbx-vw [data-v="board"]', 4, 1) },     // to Board
+    { t:6.12, d:.66, to:() => ({ x:1086, y:300 }) },                // the board lands: over a Negotiation card
+    { t:7.02, d:.78, to:at('.kbx-vw [data-v="list"]', 2, 1) },      // to List as the camera goes in again
+    { t:8.50, d:.52, to:rowAt(2) },                                  // over a row as they arrive
+    { t:9.38, d:.86, to:() => HOME },                                // and home, under the camera's way out
+  ];
+  let glide = null;
+  function pointer(t){
+    for (const g of GLIDES){
+      if (t < g.t) break;
+      if (t <= g.t + g.d){
+        if (glide !== g){ glide = g; g.from = { x:P.x, y:P.y }; g.dest = (g.to() || g.from); }
+        const p = PTR_EASE((t - g.t) / g.d); P.x = g.from.x + (g.dest.x - g.from.x) * p; P.y = g.from.y + (g.dest.y - g.from.y) * p;
+      } else if (glide === g){ P.x = g.dest.x; P.y = g.dest.y; }
+    }
+    ptr.style.transform = `translate(${APP.x + P.x - 6}px,${APP.y + P.y - 3.5}px)`;
+  }
+
+  /* hover and press, the way a mouse would give them: the CRM's own :hover and :active rules, copied as classes */
+  let hovered = [];
+  function emulateStates(){
+    const out = [];
+    const walk = list => { for (const r of list){
+      if (r.cssRules && !(r instanceof A.CSSStyleRule)) { walk(r.cssRules); continue; }
+      if (r instanceof A.CSSStyleRule && /:hover|:active/.test(r.selectorText)) out.push(r.selectorText.replace(/:hover/g, '.sc-h').replace(/:active/g, '.sc-a') + '{' + r.style.cssText + '}');
+      if (r.cssRules && r.cssRules.length) walk(r.cssRules);
+    } };
+    for (const s of D.styleSheets){ try { walk(s.cssRules); } catch (e) {} }
+    const st = D.createElement('style'); st.id = 'sc-states';
+    st.textContent = out.join('\n') + `
+      /* showcase-only timing, measured from the reference: the switch's knob slides in 0.1s, easing out */
+      .kbx-vw .knob{transition:left .1s cubic-bezier(.2,.7,.3,1),width .1s cubic-bezier(.2,.7,.3,1)!important}
+      .sc-ghost{position:fixed;margin:0;pointer-events:none;z-index:50;overflow:hidden;background:transparent}`;
+    D.head.appendChild(st);
+  }
+  function hover(){
+    const el = D.elementFromPoint(P.x, P.y), chain = [];
+    for (let e = el; e && e.nodeType === 1; e = e.parentElement) chain.push(e);
+    hovered.forEach(e => { if (!chain.includes(e)) e.classList.remove('sc-h'); });
+    chain.forEach(e => e.classList.add('sc-h')); hovered = chain;
+    const hand = chain.some(e => A.getComputedStyle(e).cursor === 'pointer' || e.matches('button,a[href],[role="button"],.kbx-k'));
+    ptr.classList.toggle('hand', hand);
+  }
+  // a click: the press shows at once (the CRM's own :active), then the click lands; a field the click leaves goes back to rest
+  function press(el){
+    if (!el) return;
+    el.classList.add('sc-a');
+    setTimeout(() => { el.classList.remove('sc-a'); const f = D.activeElement; if (f && f !== el && f.matches('input')) f.blur(); el.click(); if (el.matches('input')) el.focus({ preventScroll:true }); }, 70);
+  }
+
+  /* the view swap, showcase-only: the outgoing view is a still copy that fades and blurs away over the real one, and the
+     incoming parts arrive: board columns rise 12px from a blur, 40ms apart left to right; list rows fade in from the top */
+  const EASE_OUT = 'cubic-bezier(.23,1,.32,1)';
+  function ghost(how){
+    const bd = $('.kbx-bd'), kb = bd.parentElement, b = bd.getBoundingClientRect(), c = bd.cloneNode(true);
+    c.removeAttribute('id'); c.querySelectorAll('[id]').forEach(e => e.removeAttribute('id'));
+    // the copy sits in a holder that carries the board's classes as they are now (list or board), beside the board, so the
+    // view it shows keeps its own rules after the real one has switched; any offset a containing block adds to fixed
+    // positioning is measured and taken back out
+    const g = D.createElement('div'); g.className = kb.className + ' sc-ghost'; g.appendChild(c);
+    Object.assign(g.style, { left:b.left + 'px', top:b.top + 'px', width:b.width + 'px', height:b.height + 'px', transformOrigin:'50% 0', padding:'0', border:'0', display:'block', boxShadow:'none', gap:'0' });
+    Object.assign(c.style, { width:b.width + 'px', height:b.height + 'px', margin:'0' });
+    kb.after(g);
+    const gb = g.getBoundingClientRect();
+    if (Math.abs(gb.left - b.left) > .5 || Math.abs(gb.top - b.top) > .5){ g.style.left = (2 * b.left - gb.left) + 'px'; g.style.top = (2 * b.top - gb.top) + 'px'; }
+    const src = [bd, ...bd.querySelectorAll('*')], dst = [c, ...c.querySelectorAll('*')];
+    src.forEach((e, i) => { if (e.scrollTop || e.scrollLeft){ dst[i].scrollTop = e.scrollTop; dst[i].scrollLeft = e.scrollLeft; } });
+    // the copy keeps only what is on screen, so the frame that makes it stays light
+    const vw = A.innerWidth, vh = A.innerHeight;
+    src.forEach((e, i) => { if (!e.matches('.kbx-k,.kbx-c')) return; const r = e.getBoundingClientRect(); if (r.top > vh || r.left > vw || r.right < 0) dst[i].style.visibility = 'hidden'; });
+    dst.forEach(e => { if (e.style.visibility === 'hidden' && e.matches('.kbx-k')) e.remove(); });
+    const k = how === 'shrink'
+      ? [{ opacity:1, filter:'blur(0)', transform:'scale(1)' }, { opacity:0, filter:'blur(3px)', transform:'scale(.97)' }]
+      : [{ opacity:1, filter:'blur(0)' }, { opacity:0, filter:'blur(4px)' }];
+    g.animate(k, { duration:how === 'shrink' ? 100 : 120, easing:'cubic-bezier(.4,0,1,1)', fill:'forwards' }).onfinish = () => g.remove();
+    return g;
+  }
+  function boardIn(){
+    $$('.kbx-c:not(.gone)').filter(c => c.offsetParent).forEach((c, i) => c.animate(
+      [{ opacity:0, filter:'blur(4px)', transform:'translateY(12px)' }, { opacity:1, filter:'blur(0)', transform:'none' }],
+      { duration:250, delay:70 + i * 40, easing:EASE_OUT, fill:'backwards' }));
+  }
+  function listIn(){
+    const top = $('.kbx-bd').getBoundingClientRect().top, vh = A.innerHeight;
+    const parts = [$('.crm-lhd'), ...$$('.kbx-c:not(.gone) .kbx-ch, .kbx-c:not(.gone) .kbx-k, .kbx-c:not(.gone) .crm-cft'), $('.crm-lsum')]
+      .filter(e => e && e.offsetParent && e.getBoundingClientRect().top < vh);
+    parts.forEach(e => { const y = e.getBoundingClientRect().top; e.animate([{ opacity:0 }, { opacity:1 }],
+      { duration:150, delay:90 + Math.max(0, (y - top) / (vh - top)) * 150, easing:'linear', fill:'backwards' }); });
+  }
+  function view(v){
+    const b = $(`.kbx-vw [data-v="${v}"]`);
+    $('.kbx-vw [data-v="' + v + '"]').classList.add('sc-a');
+    setTimeout(() => { b.classList.remove('sc-a'); ghost(v === 'board' ? 'fade' : 'shrink'); const f = D.activeElement; if (f && f.matches('input')) f.blur(); b.click(); v === 'board' ? boardIn() : listIn(); }, 70);
+  }
+  // typing in the search: each key is a real input event; the list it leaves crossfades out under the rows that stay
+  function key(ch){
+    const q = $('.kbx-hd .kbx-q input'); ghost('fade'); q.value += ch; q.dispatchEvent(new A.Event('input', { bubbles:true }));
+  }
+  function clearSearch(){
+    const x = $('.kbx-hd .kbx-qx'); x.classList.add('sc-a');
+    setTimeout(() => { x.classList.remove('sc-a'); ghost('fade'); x.click(); D.activeElement && D.activeElement.blur(); }, 70);
+  }
+
+  /* what happens when (seconds into the 10.6s loop); a click lands 70ms after its time, as the press shows first */
+  const EVENTS = [
+    { t:2.40, run:() => press($('.kbx-hd .kbx-q input')) },         // click into Search deals; the camera goes in just after
+    ...[...'halcyon'].map((ch, i) => ({ t:3.56 + i * .075, run:() => key(ch) })),
+    { t:5.20, run:clearSearch },                                     // clear: every deal comes back
+    { t:5.83, run:() => view('board') },                             // Board; the camera goes out as the board lands
+    { t:8.14, run:() => view('list') },                              // List; the rows come back from the top
+  ];
+
+  // the loop's start: List, no search, nothing focused, the list at its top; called under the wide shot at 0s
+  function reset(){
+    const q = $('.kbx-hd .kbx-q input');
+    if (q.value){ q.value = ''; q.dispatchEvent(new A.Event('input', { bubbles:true })); }
+    if ($('.kbx-vw [data-v="list"]').getAttribute('aria-pressed') !== 'true') $('.kbx-vw [data-v="list"]').click();
+    if (D.activeElement && D.activeElement !== D.body) D.activeElement.blur();
+    D.querySelectorAll('.sc-ghost').forEach(g => g.remove());
+    glide = null; P.x = HOME.x; P.y = HOME.y;
+  }
+
+  let t0 = 0, last = -1, fired = 0;
+  window.SC = { log:null, time:() => ((performance.now() - t0) / 1000) % L };
+  function tick(now){
+    const T = (now - t0) / 1000, t = T % L;
+    if (t < last){ reset(); fired = 0; }
+    while (fired < EVENTS.length && EVENTS[fired].t <= t){ EVENTS[fired].run(); fired++; }
+    last = t;
+    camera(zoomAt(t)); pointer(t); hover();
+    if (SC.log) { const b = document.getElementById('win').getBoundingClientRect(); SC.log.push([+t.toFixed(4), b.left, b.top, b.width]); }
+    requestAnimationFrame(tick);
+  }
+
+  frame.addEventListener('load', () => {
+    D = frame.contentDocument; A = frame.contentWindow;
+    const ready = () => {
+      if (!$('.kbx-vw [data-v="list"]')) return setTimeout(ready, 100);
+      $('.kbx-vw [data-v="list"]').click();
+      setTimeout(() => {
+        emulateStates(); camera(0); pointer(0); fit.classList.add('on');
+        if (REDUCE) return;                                          // reduced motion: one still wide shot
+        setTimeout(() => { t0 = performance.now(); last = -1; requestAnimationFrame(tick); }, 400);
+      }, 900);
+    };
+    ready();
+  });
+})();
+</script>
+</body>
+</html>
