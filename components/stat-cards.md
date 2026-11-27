@@ -23,7 +23,7 @@ npx shadcn@latest add https://designme.dev/r/shadcn/astro/stat-cards.json  # Ast
 
 ## About
 
-A row of headline numbers, each on its own card (in Clean, a cell of one panel) with an icon, its change against the period before and a sparkline. A period switch, such as 7 days, 30 days and Quarter, rolls every number and line to the new values at once. It works as the top row of an agent dashboard, for numbers like runs, hours saved and spend.
+A row of headline numbers, each on its own card (in Clean, a cell of one panel) with an icon, its change against the period before and a sparkline. A head holds a `title`, like Workspace, on the left and a period switch, such as 7 days, 30 days and Quarter, on the right; the switch rolls every number and line to the new values at once. It works as the top row of an agent dashboard, for numbers like runs, hours saved and spend.
 
 ### When to use it
 
@@ -34,7 +34,7 @@ A row of headline numbers, each on its own card (in Clean, a cell of one panel) 
 ### What it does
 
 - Each card shows an icon, a label, a large number that rolls to its value, and its change against the period before as a percentage.
-- A sparkline per card draws in from the left, in the card's `color`, or the chart palette in order: the accent, then violet, green and orange. In Clean the four are cells of one panel, split by hairlines, with the period switch in an off-white head strip; each sparkline is a thin line in the same colours (the accent is white in Clean's dark mode), and the area under it fades from the line's colour to nothing.
+- A sparkline per card draws in from the left, in the card's `color`, or the chart palette in order: the accent, then violet, green and orange. In Clean the four are cells of one panel, split by hairlines, with the title and period switch in an off-white head strip; each sparkline is a thin line in the same colours (the accent is white in Clean's dark mode), and the area under it fades from the line's colour to nothing.
 - Each stat has one entry in `values` per entry in `periods`, and switching the period updates every card together.
 - Pointing at the change shows the period's `compare` text, like "vs previous 30 days". The cards aren't buttons, so pointing at a card itself changes nothing.
 - `prefix` and `suffix` wrap the number, like "$" or "h".
@@ -81,7 +81,7 @@ const STATS: StatCardsStat[] = [
 ];
 
 export default function StatCardsDemo() {
-  return <div style={{ width: '100%' }}><StatCards stats={STATS} periods={PERIODS} defaultPeriod={1} sparkRange={[0, 8.75]} /></div>;
+  return <div style={{ width: '100%' }}><StatCards title="Workspace" stats={STATS} periods={PERIODS} defaultPeriod={1} sparkRange={[0, 8.75]} /></div>;
 }
 ```
 
@@ -89,6 +89,7 @@ export default function StatCardsDemo() {
 
 | Prop | Type | What it does |
 | --- | --- | --- |
+| `title` (optional) | `ReactNode` | What the numbers are about, like "Workspace": on the left of the head, on one line with the period switch |
 | `stats` | `StatCardsStat[]` |  |
 | `periods` | `StatCardsPeriod[]` |  |
 | `period` (optional) | `number` | The period on show, by index. Leave it out to let the switch pick it |
@@ -128,7 +129,7 @@ Pass a single entry in `periods`, with one value per stat. The switch only shows
 
 ```tsx
 'use client';
-import { useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { cx } from '../lib/cx';
 import { useControllable, useTween } from '../lib/hooks';
 import { Icon, type IconName } from '../lib/icons';
@@ -173,6 +174,8 @@ export interface StatCardsPeriod {
 }
 
 export interface StatCardsProps {
+  /** What the numbers are about, like "Workspace": on the left of the head, on one line with the period switch */
+  title?: ReactNode;
   stats: StatCardsStat[];
   periods: StatCardsPeriod[];
   /** The period on show, by index. Leave it out to let the switch pick it */
@@ -227,7 +230,7 @@ function Card({ stat, index, period, compare, drawn, range }: { stat: StatCardsS
 }
 
 /** A row of numbers with their change and a sparkline. Switch the period and they roll to the new values. */
-export function StatCards({ stats, periods, period, defaultPeriod = 0, onPeriodChange, sparkRange, className }: StatCardsProps) {
+export function StatCards({ title, stats, periods, period, defaultPeriod = 0, onPeriodChange, sparkRange, className }: StatCardsProps) {
   const [at, setAt] = useControllable(period, defaultPeriod, onPeriodChange);
   // the numbers roll up and the lines draw a moment after the cards come in
   const [drawn, setDrawn] = useState(false);
@@ -235,9 +238,10 @@ export function StatCards({ stats, periods, period, defaultPeriod = 0, onPeriodC
 
   return (
     <div data-dm="" className={cx('dm-scx', className)}>
-      {periods.length > 1 && (
+      {(title != null || periods.length > 1) && (
         <div className="dm-scx-h">
-          <Seg className="dm-scx-sg" label="Period" value={String(at)} onChange={v => setAt(+v)} options={periods.map((p, i) => ({ value: String(i), label: p.label }))} />
+          {title != null && <b className="dm-scx-t">{title}</b>}
+          {periods.length > 1 && <Seg className="dm-scx-sg" label="Period" value={String(at)} onChange={v => setAt(+v)} options={periods.map((p, i) => ({ value: String(i), label: p.label }))} />}
         </div>
       )}
       <div className="dm-scx-grid">
