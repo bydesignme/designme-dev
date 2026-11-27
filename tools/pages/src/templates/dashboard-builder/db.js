@@ -381,7 +381,7 @@
   // one widget: the component's panel, and in edit mode the toolbar under it (move, remove and the width)
   function widget(it, { edit = false, anim = false } = {}){
     const u = ++uid, t = titleOf(it);
-    const n = html(`<div class="dbb-w" role="listitem" data-key="${it.id}" data-t="${it.t}" aria-label="${esc(t)}">${VIEWS[it.t].html(it, u)}${edit ? `<div class="dbb-tb" role="group" aria-label="${esc(t)}"><button class="ib dbb-mv" aria-label="Move ${esc(t)}" aria-describedby="dbb-mvhelp" data-tip="Drag to move">${I('grip')}</button><button class="ib dbb-del" aria-label="Remove ${esc(t)}" data-tip="Remove">${I('trash')}</button><div class="seg2 dbb-sz" role="group" aria-label="Width of ${esc(t)}">${[[1, 'One column'], [2, 'Two columns'], [3, 'Full width, three columns']].map(([v, l]) => `<button aria-pressed="${it.w === v}" data-v="${v}" aria-label="${l}" data-tip="${l.split(',')[0]}"><i class="dbb-g g${v}" aria-hidden="true"></i></button>`).join('')}</div></div>` : ''}</div>`);
+    const n = html(`<div class="dbb-w" role="listitem" data-key="${it.id}" data-t="${it.t}" aria-label="${esc(t)}">${VIEWS[it.t].html(it, u)}${edit ? `<div class="dbb-tb" role="group" aria-label="${esc(t)}"><button class="ib dbb-mv" aria-label="Move ${esc(t)}" aria-describedby="dbb-mvhelp" data-tip="Drag to move" data-tip-at="below">${I('grip')}</button><button class="ib dbb-del" aria-label="Remove ${esc(t)}" data-tip="Remove" data-tip-at="below">${I('trash')}</button><i class="dbb-tbd" aria-hidden="true"></i><div class="seg2 dbb-sz" role="group" aria-label="Width of ${esc(t)}">${[[1, 'One column'], [2, 'Two columns'], [3, 'Full width, three columns']].map(([v, l]) => `<button aria-pressed="${it.w === v}" data-v="${v}" aria-label="${l}" data-tip="${l.split(',')[0]}" data-tip-at="below"><i class="dbb-g g${v}" aria-hidden="true"></i></button>`).join('')}</div></div>` : ''}</div>`);
     const p = $('.dbb-p', n);
     if (edit){ p.inert = true; p.setAttribute('aria-hidden', 'true'); seg($('.dbb-sz', n), v => setWidth(it, +v)); }
     // drawn once it is on the page (every caller puts it there straight away), so its entrance plays where it is seen
@@ -412,7 +412,8 @@
   let mode = 'view', draft = null;
   // the palette: each widget a small drawing of its component, monochrome with the accent, and its name under it
   const ART = {
-    metric:'<rect class="g" x="10" y="10" width="20" height="4" rx="2"/><rect class="k" x="10" y="19" width="30" height="7" rx="2"/><rect class="t" x="43" y="19" width="12" height="7" rx="3.5"/><path class="a" d="M10 33 L20 31 L28 32 L38 28 L46 29 L54 25"/>',
+    // a metric card's sketch: its label, the number with its change chip beside it (apart, never touching), and the sparkline under them
+    metric:'<rect class="g" x="10" y="7" width="18" height="3.5" rx="1.75"/><rect class="k" x="10" y="14" width="22" height="7" rx="2"/><rect class="t" x="35" y="15" width="11" height="5" rx="2.5"/><path class="a" d="M10 34 L18 32 L25 33 L33 29 L41 30 L54 25"/>',
     line:'<path class="gl" d="M6 14H58M6 23H58M6 32H58"/><path class="a2" d="M6 30 C14 28 18 24 26 25 S38 20 44 21 S54 16 58 15"/><path class="a" d="M6 31 C12 26 18 27 24 21 S34 22 40 15 S52 13 58 8"/>',
     bar:'<rect class="g" x="8" y="22" width="6" height="12" rx="1.5"/><rect class="g" x="18" y="16" width="6" height="18" rx="1.5"/><rect class="g" x="28" y="19" width="6" height="15" rx="1.5"/><rect class="a" x="38" y="9" width="6" height="25" rx="1.5"/><rect class="g" x="48" y="14" width="6" height="20" rx="1.5"/>',
     donut:'<circle class="ring" cx="32" cy="21" r="11"/><path class="arc" d="M32 10 A11 11 0 0 1 42.5 24.3"/>',
