@@ -355,9 +355,13 @@ function hoverGlide(list, rows = '.mi', o = {}){
   const set = (k, v) => list.style.setProperty('--hg-' + k, v);
   const show = r => {
     if (!ok(r)) r = null;
+    // the picked row has its own fill: the highlight never lays a second fill over it, so the two edges never show (owner, 28 Nov)
+    if (r && r.dataset.hgr === 'k') r = null;
     if (!r){ if (on){ on = false; gone = performance.now(); set('o', '0'); } at = null; return; }
-    // coming back from hidden it starts where the row is; a quick return while it still fades glides on from where it was
-    const jump = !on && performance.now() - gone > 200, [x, y] = off(r);
+    // coming back from hidden it starts where the row is; a quick return while it still fades glides on from where it was; a move
+    // that would pass over the picked row fades across instead of gliding through it
+    const crosses = on && at && all().some(k => k.dataset.hgr === 'k' && ((k.compareDocumentPosition(at) & 2) ? (k.compareDocumentPosition(r) & 4) : (k.compareDocumentPosition(r) & 2) && (k.compareDocumentPosition(at) & 4)));
+    const jump = (!on && performance.now() - gone > 200) || crosses, [x, y] = off(r);
     if (jump) list.classList.add('hg-jump');
     set('x', x + 'px'); set('y', y + 'px'); set('w', r.offsetWidth + 'px'); set('h', r.offsetHeight + 'px'); set('r', getComputedStyle(r).borderRadius); set('o', '1');
     if (jump){ void getComputedStyle(list, side === 'b' ? '::before' : '::after').transform; requestAnimationFrame(() => list.classList.remove('hg-jump')); }

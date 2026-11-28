@@ -50,9 +50,14 @@ export function hoverGlide(el: HTMLElement | null, rows = '.dm-mi', o: HoverGlid
   const ro = typeof ResizeObserver === 'function' ? new ResizeObserver(() => { if (at) show(at); }) : null;
   function show(r: HTMLElement | null) {
     if (!ok(r)) r = null;
+    // the picked row has its own fill: the highlight never lays a second fill over it, so the two edges never show
+    if (r && r.dataset.hgr === 'k') r = null;
     if (!r) { if (on) { on = false; gone = performance.now(); set('o', '0'); } at = null; return; }
-    // coming back from hidden it starts where the row is; a quick return while it still fades glides on from where it was
-    const jump = !on && performance.now() - gone > 200, [x, y] = off(r);
+    // coming back from hidden it starts where the row is; a quick return while it still fades glides on from where it was; a move
+    // that would pass over the picked row fades across instead of gliding through it
+    const from = at, to = r;
+    const crosses = on && !!from && all().some(k => k.dataset.hgr === 'k' && ((k.compareDocumentPosition(from) & 2) ? !!(k.compareDocumentPosition(to) & 4) : !!(k.compareDocumentPosition(to) & 2) && !!(k.compareDocumentPosition(from) & 4)));
+    const jump = (!on && performance.now() - gone > 200) || crosses, [x, y] = off(r);
     if (jump) list.classList.add('dm-hg-jump');
     set('x', x + 'px'); set('y', y + 'px'); set('w', r.offsetWidth + 'px'); set('h', r.offsetHeight + 'px'); set('r', getComputedStyle(r).borderRadius); set('o', '1');
     if (jump) { void getComputedStyle(list, side === 'b' ? '::before' : '::after').transform; requestAnimationFrame(() => list.classList.remove('dm-hg-jump')); }
