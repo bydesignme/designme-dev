@@ -63,7 +63,8 @@ export function ContextMenu({ items, onSelect, label = 'Actions', targetLabel = 
   useEffect(() => () => { clearTimeout(press.current); clearTimeout(hov.current); }, []);
   const open = !!at;
   const itemsOf = (m: HTMLElement | null) => m ? [...m.querySelectorAll<HTMLElement>('.dm-mi')] : [];
-  const bounds = () => { const card = (root.current!.closest('[data-c],.dm-card') || document.body).getBoundingClientRect(); return { lo: Math.max(card.left, 0) + 8, hi: Math.min(card.right, innerWidth) - 8 }; };
+  // the room across is the screen, not the box round the target, so the submenu has room beside its item
+  const bounds = () => ({ lo: 8, hi: innerWidth - 8 });
   // where a menu goes: at the point, turned back from the right and bottom edges so it stays on screen
   const fit = (m: HTMLElement, x: number, y: number) => {
     const rb = root.current!.getBoundingClientRect(), { lo, hi } = bounds(), w = m.offsetWidth, h = m.offsetHeight;
@@ -77,12 +78,14 @@ export function ContextMenu({ items, onSelect, label = 'Actions', targetLabel = 
     m.style.left = x + 'px'; m.style.top = y + 'px'; m.style.setProperty('--dm-origin', (up ? 'bottom ' : 'top ') + 'left');
   };
   useIsoLayoutEffect(() => { if (at && menu.current) { fit(menu.current, at.x, at.y); if (at.keyed) itemsOf(menu.current)[0]?.focus({ preventScroll: true }); } }, [at]);
-  // the submenu opens beside its item, on the right or else the left; where neither side has room it drops under the item
+  // on a wide screen the submenu opens beside its item, on the right or else the left, its first item level with the item; only
+  // on a phone, or where neither side has room, does it drop under the item
   useIsoLayoutEffect(() => {
     const m = subMenu.current, p = menu.current; if (!sub || !m || !p) return;
     const row = p.querySelector<HTMLElement>(`[data-k="${sub.key}"]`)!, pr = p.getBoundingClientRect(), b = row.getBoundingClientRect(), rb = root.current!.getBoundingClientRect(), { lo, hi } = bounds(), w = m.offsetWidth;
-    if (pr.right - 4 + w <= hi) fit(m, pr.right - rb.left - 4, b.top - rb.top - 6);
-    else if (pr.left + 4 - w >= lo) fit(m, pr.left - rb.left + 4 - w, b.top - rb.top - 6);
+    const cs = getComputedStyle(m), top = b.top - rb.top - parseFloat(cs.paddingTop) - parseFloat(cs.borderTopWidth), wide = innerWidth >= 640;
+    if (wide && pr.right - 4 + w <= hi) fit(m, pr.right - rb.left - 4, top);
+    else if (wide && pr.left + 4 - w >= lo) fit(m, pr.left - rb.left + 4 - w, top);
     else fit(m, b.left - rb.left + 24, b.bottom - rb.top + 2);
     if (sub.focus) itemsOf(m)[0]?.focus({ preventScroll: true });
   }, [sub]);

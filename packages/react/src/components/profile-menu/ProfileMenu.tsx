@@ -1,7 +1,7 @@
 'use client';
-import { useEffect, useId, useRef, useState, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, type CSSProperties, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react';
 import { cx } from '../../lib/cx';
-import { useControllable } from '../../lib/hooks';
+import { useControllable, useIsoLayoutEffect } from '../../lib/hooks';
 import { Icon } from '../../lib/icons';
 import { avatarInk, Fold, Swap, Tip } from '../../lib/motion';
 import { usePopover } from '../../lib/popover';
@@ -12,6 +12,10 @@ import './profile-menu.css';
 
 /** The colour of a workspace's tile: the avatars' fills (white letters on blue, violet, red and pink). Clean draws every tile grey */
 export type ProfileMenuTint = 'pb' | 'pl' | 'pm' | 'pp' | 'pr' | 'py' | 'pk' | 'pt';
+
+/** The theme the menu's Theme row offers: follow the device, or always light or dark */
+export type ProfileMenuTheme = 'system' | 'light' | 'dark';
+const THEMES: { value: ProfileMenuTheme; label: string }[] = [{ value: 'system', label: 'System' }, { value: 'light', label: 'Light' }, { value: 'dark', label: 'Dark' }];
 
 /** One workspace the account belongs to */
 export interface ProfileMenuWorkspace {
@@ -42,11 +46,11 @@ export interface ProfileMenuProps {
   onWorkspaceChange?: (id: string) => void;
   /** The quiet line under the workspace name in the bar, like the page you're on */
   context?: ReactNode;
-  /** The theme switch. It only reports the change: apply the theme in `onDarkChange` */
-  dark?: boolean;
-  defaultDark?: boolean;
-  onDarkChange?: (dark: boolean) => void;
-  /** Defaults to "Dark theme" */
+  /** The theme row's three-way choice: System, Light or Dark. It only reports the change: apply the theme in `onThemeChange` */
+  theme?: ProfileMenuTheme;
+  defaultTheme?: ProfileMenuTheme;
+  onThemeChange?: (theme: ProfileMenuTheme) => void;
+  /** Defaults to "Theme" */
   themeLabel?: string;
   /** The list Keyboard shortcuts opens. Defaults to the keys this menu answers to */
   shortcuts?: ProfileMenuShortcut[];
@@ -73,14 +77,14 @@ const SHORTCUTS: ProfileMenuShortcut[] = [
   { keys: ['Esc'], label: 'Close the menu' }, { keys: ['?'], label: 'Show these shortcuts' }
 ];
 
-/** The account menu behind an avatar: who is signed in, the workspaces to switch between, a theme switch, keyboard shortcuts and Sign out. */
+/** The account menu behind an avatar: who is signed in, the workspaces to switch between, a Theme row (System, Light, Dark), keyboard shortcuts and Sign out. */
 export function ProfileMenu({
-  user, workspaces, workspace, defaultWorkspace, onWorkspaceChange, context, dark, defaultDark = false, onDarkChange, themeLabel = 'Dark theme',
+  user, workspaces, workspace, defaultWorkspace, onWorkspaceChange, context, theme, defaultTheme = 'system', onThemeChange, themeLabel = 'Theme',
   shortcuts = SHORTCUTS, shortcutsOpen, defaultShortcutsOpen = false, onShortcutsOpenChange, signedIn, defaultSignedIn = true, onSignedInChange,
   note, open, defaultOpen = false, onOpenChange, className
 }: ProfileMenuProps) {
   const [ws, setWs] = useControllable(workspace, defaultWorkspace ?? workspaces[0]?.id ?? '', onWorkspaceChange);
-  const [isDark, setDark] = useControllable(dark, defaultDark, onDarkChange);
+  const [th, setTh] = useControllable(theme, defaultTheme, onThemeChange);
   const [keysOpen, setKeysOpen] = useControllable(shortcutsOpen, defaultShortcutsOpen, onShortcutsOpenChange);
   const [isIn, setIn] = useControllable(signedIn, defaultSignedIn, onSignedInChange);
   // the menu opens downwards under the avatar, lined up with its right edge
@@ -93,7 +97,17 @@ export function ProfileMenu({
 
   // where the focus goes once the menu has opened: the first or last item, or nowhere for a scripted click
   const focusTo = useRef<'first' | 'last' | null>(null);
-  const items = () => Array.from(pop.current?.querySelectorAll<HTMLElement>('[role^="menuitem"]') ?? []);
+  // the arrow keys stop once on the theme row, on its picked choice (or the one with the focus); Left and Right move between its three
+  const thRow = useRef<HTMLDivElement>(null);
+  const items = () => Array.from(pop.current?.querySelectorAll<HTMLElement>('[role^="menuitem"]') ?? []).filter(x => !x.classList.contains('dm-pfm-tho')
+    || (thRow.current?.contains(document.activeElement) ? x === document.activeElement : x.getAttribute('aria-checked') === 'true'));
+  // the knob slides under the picked theme
+  const [knob, setKnob] = useState<CSSProperties>({});
+  useIsoLayoutEffect(() => {
+    const el = thRow.current; if (!el) return;
+    const place = () => { const b = el.querySelector<HTMLElement>('[aria-checked="true"]'); if (b && b.offsetWidth) setKnob({ left: b.offsetLeft, width: b.offsetWidth }); };
+    place(); const ro = new ResizeObserver(place); ro.observe(el); return () => ro.disconnect();
+  }, [th]);
   useEffect(() => {
     if (!menu.open || !focusTo.current) return;
     const all = items(); (focusTo.current === 'last' ? all[all.length - 1] : all[0])?.focus(); focusTo.current = null;
@@ -110,7 +124,9 @@ export function ProfileMenu({
   const onMenuKey = (e: KeyboardEvent) => {
     const all = items(), i = all.indexOf(document.activeElement as HTMLElement);
     const go = ({ ArrowDown: all[(i + 1) % all.length], ArrowUp: all[(i - 1 + all.length) % all.length], Home: all[0], End: all[all.length - 1] } as Record<string, HTMLElement | undefined>)[e.key];
-    if (go) { e.preventDefault(); go.focus(); } else if (e.key === 'Tab') setTimeout(() => menu.close());
+    const opts = Array.from(thRow.current?.querySelectorAll<HTMLElement>('.dm-pfm-tho') ?? []), t = opts.indexOf(document.activeElement as HTMLElement);
+    const side = ({ ArrowLeft: -1, ArrowRight: 1 } as Record<string, number>)[e.key];
+    if (go) { e.preventDefault(); go.focus(); } else if (t >= 0 && side) { e.preventDefault(); opts[(t + side + opts.length) % opts.length].focus(); } else if (e.key === 'Tab') setTimeout(() => menu.close());
   };
   const showKeys = (on: boolean) => setKeysOpen(on);
   // the menu opens over the component from the avatar and never moves the bar: the component keeps room for it below the bar,
@@ -155,9 +171,14 @@ export function ProfileMenu({
           ))}
         </div>
         <div className="dm-sep" role="separator" />
-        <button type="button" className="dm-mi dm-pfm-th" role="menuitemcheckbox" aria-checked={isDark} tabIndex={-1} onClick={() => setDark(!isDark)}>
-          <Icon name="moon" /><span>{themeLabel}</span><span className="dm-toggle" aria-hidden="true" />
-        </button>
+        {/* the theme row: its label, and a small three-way choice on the segmented track; the menu stays open so the change shows */}
+        <div className="dm-pfm-th" role="group" aria-label={themeLabel}>
+          <Icon name="moon" /><span aria-hidden="true">{themeLabel}</span>
+          <span className="dm-seg2 dm-pfm-ths" ref={thRow}>
+            <span className="dm-knob" style={knob} />
+            {THEMES.map(o => <button key={o.value} type="button" className="dm-pfm-tho" role="menuitemradio" aria-checked={o.value === th} tabIndex={-1} onClick={() => setTh(o.value)}>{o.label}</button>)}
+          </span>
+        </div>
         <button type="button" className="dm-mi dm-pfm-ky" role="menuitem" tabIndex={-1} onClick={() => { const had = pop.current?.contains(document.activeElement); menu.close(); showKeys(true); if (had) setTimeout(() => closeKeys.current?.focus()); }}>
           <Icon name="keyboard" /><span>Keyboard shortcuts</span><span className="dm-kbd" aria-hidden="true">?</span>
         </button>

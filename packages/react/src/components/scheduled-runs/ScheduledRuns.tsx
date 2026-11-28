@@ -152,7 +152,8 @@ export function ScheduledRuns({ runs, defaultRuns = [], onRunsChange, onRunNow, 
                 <span className="dm-res">{running ? <Spin /> : (r.result === 'passed' || r.result === 'failed') && <Icon name={r.result === 'passed' ? 'ok' : 'alert'} size="xs" />}<Swap className={running ? 'dm-shim' : undefined}>{res}</Swap></span>
               </span>
               <span className="dm-shx-act">
-                {onRunNow && <Tip label="Run now"><button type="button" className="dm-ib dm-shx-run dm-mx-press" aria-label={`Run ${r.name} now`} disabled={running || !on(r)} onClick={() => onRunNow(r.key)}><Icon name="play" /></button></Tip>}
+                {/* a labelled ghost button, so the switch is the one control on the row's right edge */}
+                {onRunNow && <button type="button" className="dm-pill dm-ghost dm-sm dm-shx-run dm-mx-press" aria-label={`Run ${r.name} now`} disabled={running || !on(r)} onClick={() => onRunNow(r.key)}>Run now</button>}
                 <Tip label={on(r) ? 'Pause' : 'Resume'}><button type="button" className="dm-toggle" role="switch" aria-checked={on(r)} aria-label={r.name} onClick={() => toggle(r.key)} /></Tip>
               </span>
               <Fold open={r.result === 'failed' && !!r.fix} className="dm-shx-fx">
