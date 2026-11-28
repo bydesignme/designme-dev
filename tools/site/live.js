@@ -14,4 +14,6 @@ module.exports = [
   'tool-rail', 'zoom-bar', 'action-cards',
   // batch 1, approved (owner, 27 Nov)
   'date-picker', 'set-limit', 'stat-cards', 'form', 'context-menu',
+  // batch 2, approved (owner, 28 Nov)
+  'tooltip', 'search-input', 'banner', 'comments', 'health-score',
 ];

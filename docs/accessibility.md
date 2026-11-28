@@ -20,7 +20,7 @@ Components use the ARIA pattern that fits what they do. For example:
 
 ## Live updates
 
-Agent work changes while you watch. The parts that change are `aria-live="polite"` regions, so the change is read out: [Status pill](https://designme.dev/components/status-pill.md), the thread above [Composer](https://designme.dev/components/composer.md), the message line of [Context meter](https://designme.dev/components/context-meter.md) and the month in [Date picker](https://designme.dev/components/date-picker.md).
+Agent work changes while you watch. The parts that change are `aria-live="polite"` regions, so the change is read out: [Status pill](https://designme.dev/components/status-pill.md), the thread above [Composer](https://designme.dev/components/composer.md), the message line of [Context meter](https://designme.dev/components/context-meter.md), the thread in [Comments](https://designme.dev/components/comments.md) and the month in [Date picker](https://designme.dev/components/date-picker.md).
 
 Decorative motion, like status glyphs and the wires of a canvas, is `aria-hidden`, so screen readers hear the words, not the animation.
 

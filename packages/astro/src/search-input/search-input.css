@@ -1,0 +1,62 @@
+/* Generated from designme.dev by scripts/sync.mjs. Edit the site, then sync. */
+/* ---------- Search input ---------- */
+/* one field, as wide as the other single fields (the full width on a phone), with its suggestions in a list that opens from
+   it: under it, or over it when the room under it is too short (placePop). Its script keeps the field and the open list
+   centred in the stage together, the field gliding up as the list opens (centre()); no room is kept for the list. The
+   field's glass, the rows' icons, the answer's spark and the group names share one column 12px in, and the words another */
+.six{position:relative;width:100%;max-width:var(--dm-field-w);margin:0 auto}
+.six-box{background:var(--dm-surface);border-radius:var(--dm-r-field);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line) 50%,transparent);transition:box-shadow var(--dm-t-fast)}
+@supports (corner-shape:squircle){.six-box{corner-shape:squircle;border-radius:var(--dm-r-field-sq)}}
+/* the edge steps up while the field is in use (it has the focus, or the preview types in it); nothing else changes */
+.six-box.f{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dm-field-line-strong) 50%,transparent)}
+/* 12px in at both ends: the magnifier on the left, and on the right the ⌘K key or the clear button's box (check-rules R2, 27 Nov) */
+.six-in{display:flex;align-items:center;gap:var(--dm-s-2);height:var(--dm-field-h);padding:0 var(--dm-s-3);color:var(--dm-muted)}
+.six-in input{flex:1;min-width:0;height:100%;border:0;outline:0;background:transparent;font:inherit;font-size:13.5px;color:var(--dm-fg)}
+/* (its words start right after the glass, as the rows' words do) */
+.six .six-in input{padding:0}
+.six-in input::placeholder{color:var(--dm-muted)}
+.six-chips{display:flex;gap:var(--dm-s-1)}
+.six-chips:empty{display:none}
+.six-ch{display:inline-flex;align-items:center;gap:2px;height:24px;padding:0 2px 0 var(--dm-s-2);border-radius:var(--dm-r-tag);background:var(--dm-accent-bg);color:var(--dm-accent-fg,var(--dm-accent));font-size:12px;font-weight:500;white-space:nowrap}
+.six-ch button{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;opacity:.7;transition:opacity var(--dm-t-fast),background var(--dm-t-fast)}
+@media (hover:hover) and (pointer:fine){.six-ch button:hover{opacity:1;background:color-mix(in srgb,currentColor 12%,transparent)}}
+@supports (corner-shape:squircle){.six-ch{corner-shape:squircle;border-radius:var(--dm-r-tag-sq)}}
+/* the key hint and the clear button's cross end 14px in, where the rows' sources end */
+.six-x{width:24px;height:24px}
+/* nothing in it grows or shrinks when pressed */
+.six :is(.ib,.pill):active,:root[data-style="clean"] .six .ib:active,:root [data-style="clean"] .six .ib:active,:root [data-style="clean"].six .ib:active{transform:none}
+/* the list: one family with the field (owner, 21 Nov: "the input is different shape than the dropdown"): as wide as it, 6px
+   under it, with the field's corners. Its rows sit 6px in, their corners the list's less those 6px, so their icons and words
+   fall on the field's columns and their sources end where the field's cross does. (The 6px are the results' own padding, so
+   the answer above them can run to the list's edges) */
+.six-pop{left:0;right:0;min-width:0;padding:0;border-radius:var(--dm-r-field)}
+@supports (corner-shape:squircle){.six-pop{border-radius:var(--dm-r-field-sq)}}
+.six-res{position:relative;padding:6px}
+.six-g{font-size:11.5px;color:var(--dm-muted);padding:var(--dm-s-2) var(--dm-s-2) var(--dm-s-1) 6px}
+.six-it{display:flex;align-items:center;gap:var(--dm-s-2);width:100%;padding:7px var(--dm-s-2) 7px 6px;border-radius:calc(var(--dm-r-field) - 4px);font-size:13px;text-align:left;transition:background .15s}
+@supports (corner-shape:squircle){.six-it{border-radius:calc(var(--dm-r-field-sq) - 6px)}}
+.six-it.hl{background:var(--dm-row)}
+@media (hover:hover) and (pointer:fine){.six-it:hover{background:var(--dm-row)}}
+.six-it .ic{color:var(--dm-muted);display:grid;flex:none}
+.six-it .d{margin-left:auto;padding-left:var(--dm-s-2);font-size:12px;color:var(--dm-muted);transition:color .15s}
+/* on a highlighted row's grey the source steps up, so it keeps 4.5:1 and APCA Lc 60 in dark mode */
+@media (hover:hover) and (pointer:fine){.six-it:is(:hover,.hl) .d{color:var(--dm-fg2)}}
+.six-it mark{background:transparent;color:var(--dm-accent-fg,var(--dm-accent));font-weight:500}
+/* the agent's answer is the list's head section (owner, 21 Nov: "too stark"): no box and no tint, running to the list's edges
+   with a hairline under it. Its spark is on the icons' column, in the accent's mark colour, the only colour in it; its words
+   are on the words' column, in the text colour at the rows' size. It grows with the list as its words come in. Clean makes
+   it the list's off-white head strip, with the spark muted */
+.six-ans{display:flex;gap:var(--dm-s-2);margin:-6px -6px 6px;padding:10px 14px 10px 12px;border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent);font-size:13px;line-height:1.5;color:var(--dm-fg)}
+.six-ans>svg{color:var(--dm-accent-mark);flex:none;margin-top:3px}
+.six-ans .w{animation:sxw .4s var(--dm-ease) both}
+.six-ans .w.done{animation:none}
+@keyframes sxw{from{opacity:0;filter:blur(3px)}}
+@keyframes sxwc{from{opacity:0}}
+/* Clean: the list has the field's 10px corners and its rows follow them, 6px in (4px corners); the answer is the off-white
+   head strip under the list's top corners, with a full hairline under it; the rows' hover is Clean's quiet fill at its own
+   ease; the filter is a tag with rounded corners, not a pill; new words fade in without a blur */
+:root[data-style="clean"] .six-it,:root [data-style="clean"] .six-it,:root [data-style="clean"].six-it{border-radius:calc(var(--dm-r-field) - 6px);transition:background-color var(--dm-t-fast) var(--dm-ease)}
+:root[data-style="clean"] .six-ans,:root [data-style="clean"] .six-ans,:root [data-style="clean"].six-ans{background:var(--dm-strip);border-bottom-color:var(--dm-line);border-radius:var(--dm-r-field) var(--dm-r-field) 0 0}
+:root[data-style="clean"] .six-ans>svg,:root [data-style="clean"] .six-ans>svg,:root [data-style="clean"].six-ans>svg{color:var(--dm-muted)}
+:root[data-style="clean"] .six-ch,:root [data-style="clean"] .six-ch,:root [data-style="clean"].six-ch{border-radius:var(--dm-r-sm)}
+:root[data-style="clean"] .six-ans .w:not(.done),:root [data-style="clean"] .six-ans .w:not(.done),:root [data-style="clean"].six-ans .w:not(.done){animation-name:sxwc;animation-duration:var(--dm-t)}

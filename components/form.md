@@ -349,4 +349,9 @@ export function Form({
 }
 ```
 
+## More in Forms and inputs
+
+- [Tooltip](https://designme.dev/components/tooltip.md): Quiet labels on hover, with shortcuts and a richer preview card.
+- [Search input](https://designme.dev/components/search-input.md): Search with scoped filters, recent queries and an agent answer.
+
 All components: https://designme.dev/llms.txt

@@ -6,7 +6,7 @@ Designme.dev docs. The same page with navigation: https://designme.dev/docs/intr
 
 ## What it is
 
-45 free components: 39 for the agent itself, like status pills, reasoning trails, agent trees, permission gates, plan reviews and run costs, and 6 app basics around it.
+50 free components: 39 for the agent itself, like status pills, reasoning trails, agent trees, permission gates, plan reviews and run costs, and 11 app basics around it.
 
 Every component plays as a demo in the [library](https://designme.dev/library), and has a page of its own with its install command, React props, code and questions.
 
@@ -82,7 +82,7 @@ Each style has a light and a dark theme. Switch them in the header of any page h
 - [Scheduled runs](https://designme.dev/components/scheduled-runs.md)
 - [File explorer](https://designme.dev/components/file-explorer.md)
 
-There are also 6 app basics for the product around the agent: [Stat cards](https://designme.dev/components/stat-cards.md), [Date picker](https://designme.dev/components/date-picker.md), [Event calendar](https://designme.dev/components/event-calendar.md), [Form](https://designme.dev/components/form.md), [Context menu](https://designme.dev/components/context-menu.md) and [Set limit](https://designme.dev/components/set-limit.md). They are all in the [library](https://designme.dev/library#s-charts).
+There are also 11 app basics for the product around the agent: charts and tables, dates, forms and inputs, collaboration and product. They are all in the [library](https://designme.dev/library#s-charts).
 
 ## HTML, React or Astro
 
