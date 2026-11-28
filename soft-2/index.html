@@ -8440,7 +8440,7 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .sgc-r{flex:1;min-width:0;font-size:13px;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sgc-bar .ib{width:28px;height:28px}
 .sgc-bar .pill{margin-right:var(--s-1)}
-.sgc-bar .sgc-nx{margin-right:-8px}
+/* (Next's box ends on the content's 16px column, as the switch's track above it does: its box fills on hover) */
 .sgc-seg{position:relative;display:inline-flex;padding:3px;border-radius:var(--r-pill);background:var(--chip);flex:none}
 .sgc-k{position:absolute;top:3px;bottom:3px;left:3px;width:0;border-radius:var(--r-pill);background:var(--raised);box-shadow:var(--seg-k-shadow,var(--shadow));transition:left .42s var(--ease),width .42s var(--ease)}
 .sgc-seg button{position:relative;z-index:1;height:30px;padding:0 14px;border-radius:var(--r-pill);font-size:13px;color:var(--fg2);outline:0;transition:color .2s}
@@ -8469,14 +8469,18 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .sgc-none{padding:var(--s-3) 0;font-size:13px;color:var(--muted)}
 /* the week: the five working days, one row each with its first event and a count of the rest. Each row's words sit on the
    content's edges and its hover fill reaches 8px out round them; today's date is the accent circle, as in Event calendar */
-.sgc-wk{display:flex;flex-direction:column;gap:var(--s-1)}
+/* (the last row's words and today's mark end 16px from the card's bottom; its hover fill reaches out round it, into the
+   padding, as at the sides) */
+.sgc-wk{display:flex;flex-direction:column;gap:var(--s-1);margin-bottom:-5px}
+:root[data-style="clean"] .sgc-wk{margin-bottom:0}
 .sgc-wr{display:flex;align-items:center;gap:var(--s-3);width:calc(100% + 16px);height:32px;margin:0 -8px;padding:0 8px;border-radius:var(--r-sm);font-size:13px;text-align:left;transition:background var(--t-fast)}
 .sgc-wr:hover{background:var(--row)}
 .sgc-wr:focus-visible,.sgc-mo .d:focus-visible{outline:0;box-shadow:0 0 0 2px var(--focus)}
 .sgc-wr .d{width:52px;flex:none;display:flex;align-items:center;gap:4px;color:var(--muted)}
 .sgc-wr .d b{font-weight:400}
 .sgc-wr.now .d{color:var(--fg)}
-.sgc-wr.now .d b{display:grid;place-items:center;min-width:22px;height:22px;margin:-2px 0 -2px -1px;padding:0 4px;border-radius:var(--r-pill);background:var(--accent);color:var(--on-accent);font-size:12px;font-weight:500}
+/* today's date is a 22px circle (every date is one or two digits) */
+.sgc-wr.now .d b{display:grid;place-items:center;width:22px;height:22px;margin:-2px 0 -2px -1px;padding:0;border-radius:50%;background:var(--accent);color:var(--on-accent);font-size:12px;font-weight:500}
 .sgc-wr .e{flex:1;min-width:0;display:flex;align-items:center;gap:var(--s-2);white-space:nowrap}
 .sgc-wr .e i{width:6px;height:6px;border-radius:50%;background:var(--c);flex:none}
 .sgc-wr .e span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis}
@@ -8509,7 +8513,6 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 :root[data-style="clean"] .sgc-td:hover{background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-hover)}
 :root[data-style="clean"] .sgc-bar .ib{border-radius:50%}
 /* (the last arrow, a control, ends on the content's right edge, as a strip's last control does) */
-:root[data-style="clean"] .sgc-bar .sgc-nx{margin-right:0}
 :root[data-style="clean"] :is(.sgc-ev,.sgc-wr .e){--pb:var(--av-b);--pl:var(--av-l);--pm:var(--c3);--pt:var(--c6)}
 :root[data-style="clean"] .sgc-day{gap:2px}
 :root[data-style="clean"] .sgc-ev{margin:0 -8px;padding:6px 8px;border-radius:10px}
@@ -8793,7 +8796,8 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 /* the next meeting, told as it goes: a countdown, "Starting now", the meeting in progress and then over. The track is the
    morning from 10:00 to 12:30 with the meeting on it in the accent tint, its start and end on the block itself. Time that
    has gone is hatched out in neutral grey (the hatch and the tint meet at the now line), and the status chip at the top right
-   rolls its minutes. Join stays open while the meeting runs, since people join late, and breathes gently while it is live.
+   rolls its minutes. Join stays open while the meeting runs, since people join late. Join is the library's primary button
+   (28 Nov: the standard .pill.primary, 32px like the copy button beside it, with no breathing of its own; Clean's ink primary).
    Every state is the same height. Its content sits 16px in from every edge, and nothing in it grows or shrinks when it is
    pressed (owner, 18 Nov) */
 .mtx{width:100%;max-width:400px;margin:0 auto;padding:var(--s-4);display:flex;flex-direction:column;gap:var(--s-4);container:mtx/inline-size}
@@ -8850,20 +8854,21 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .mtx-cp.copied:hover{color:var(--ok-mark)!important}
 /* Join and its menu as one split button: a very light divider, a chevron that opens the meeting's actions */
 .mtx-jg{position:relative;display:flex;flex:none}
-.mtx-jg .mtx-join{border-top-right-radius:0;border-bottom-right-radius:0;padding-right:var(--s-3)}
-.mtx-jm{position:relative;height:34px;width:30px;padding:0;justify-content:center;border-top-left-radius:0;border-bottom-left-radius:0}
+.mtx-jg .mtx-join{border-top-right-radius:0;border-bottom-right-radius:0}
+.mtx-jm{position:relative;width:32px;padding:0;justify-content:center;border-top-left-radius:0;border-bottom-left-radius:0}
 .mtx-jm::before{content:"";position:absolute;left:0;top:9px;bottom:9px;width:1px;background:color-mix(in srgb,var(--on-accent) 30%,transparent)}
 .mtx-jm.done{color:var(--on-accent)}
 .mtx-pop{min-width:190px}
-.mtx-cp{width:34px;height:34px}
-.mtx-join{height:34px;padding:0 var(--s-4) 0 6px;gap:var(--s-2);overflow:hidden;justify-content:flex-start;transition:background var(--t-fast),opacity var(--t-fast)}
-.mtx-join .mk{width:22px;height:22px;display:grid;place-items:center;border-radius:calc(6px * var(--rk-s,var(--rk)));background:#fff;flex:none}
+/* until it first opens (placePop sets its left), the closed menu hangs from Join's right edge, so on a phone it never reaches
+   past the page and scrolls it sideways */
+.mtx-pop:not([style*="left"]){right:0}
+.mtx-cp{width:32px;height:32px}
+.mtx-join{padding:0 var(--s-3) 0 6px;gap:var(--s-2);overflow:hidden;justify-content:flex-start;transition:background var(--t-fast),opacity var(--t-fast)}
+.mtx-join .mk{width:26px;height:26px;display:grid;place-items:center;border-radius:calc(6px * var(--rk-s,var(--rk)));background:#fff;flex:none}
 .mtx-join .mk .brand{width:15px;height:12.5px}
-/* live: Join breathes a step darker and back, slowly; a darker fill keeps its label's contrast where fading it would not */
-.mtx.live :is(.mtx-join,.mtx-jm):not(:hover){animation:mtxpulse 2.4s ease-in-out infinite}
-@keyframes mtxpulse{50%{background:color-mix(in srgb,var(--accent) 86%,#000)}}
-.mtx-join[disabled] .mk{opacity:.5}
-@media (prefers-reduced-motion:reduce){.mtx.live :is(.mtx-join,.mtx-jm){animation:none}.mtx-bp,.mtx-now{transition:none}.mtx-roll i.in,.mtx-fade{animation:none}}
+/* a disabled Join goes quiet as a whole: its mark loses its white tile and its colour with the words */
+.mtx-join[disabled] .mk{background:none;filter:grayscale(1);opacity:.5}
+@media (prefers-reduced-motion:reduce){.mtx-bp,.mtx-now{transition:none}.mtx-roll i.in,.mtx-fade{animation:none}}
 /* Clean (owner, 17 and 18 Nov): the meeting and its track on white, the people and actions on an off-white foot strip under a
    hairline. Its content sits 16px in from every edge: the people on the content's edge, and the copy button and Join, split,
    28px pills 16px from the strip's edges (owner, 23 Nov). The track and its block have ordinary round
@@ -8906,7 +8911,6 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
    icon without white bg on clean style") */
 :root[data-style="clean"] .mtx-join .mk{width:14px;height:14px;border-radius:0;background:none}
 :root[data-style="clean"] .mtx-join .mk .brand{width:14px;height:11.7px}
-:root[data-style="clean"] .mtx.live :is(.mtx-join,.mtx-jm){animation:none}
 /* Join and its chevron are one split button: a press sinks its fill (the ink's pressed shade) and never scales one half */
 :root[data-style="clean"] .mtx .mtx-jg .pill:is(.mtx-join,.mtx-jm):active{transform:none}
 /* a phone: the foot strip's pieces close up a little, so Join keeps its room beside the people as its words change */
@@ -9625,8 +9629,8 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 /* Clean: the head's mark has a hairline like the other tiles, and a new item rises in without a blur */
 :root[data-style="clean"] .ntx-hi{box-shadow:inset 0 0 0 1px var(--hair)}
 /* the head (the inbox, its count and Mark all read) is an off-white head strip, as every Clean card with a head has; its
-   controls sit 8px from the strip's top and bottom and on the content's 16px column */
-:root[data-style="clean"] .ntx.panel .ntx-h{margin:calc(-1 * var(--s-4)) calc(-1 * var(--s-4)) var(--s-2);padding:var(--s-2) var(--s-4);background:var(--strip);border-bottom:1px solid var(--line);border-radius:var(--r-card) var(--r-card) 0 0}
+   controls sit 16px from the strip's top and bottom (--strip-y, owner, 23 Nov) and on the content's 16px column */
+:root[data-style="clean"] .ntx.panel .ntx-h{margin:calc(-1 * var(--s-4)) calc(-1 * var(--s-4)) var(--s-2);padding:var(--strip-y) var(--s-4);background:var(--strip);border-bottom:1px solid var(--line);border-radius:var(--r-card) var(--r-card) 0 0}
 :root[data-style="clean"] .ntx.panel .ntx-n.new{animation:clpiece var(--t-slow) var(--ease) both}
 /* ---------- Banner ---------- */
 /* an announcement on a tint of its tone: an eyebrow, a title, a line of text and its actions on the left, and one of four line
@@ -9843,9 +9847,10 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 /* an app's top bar with the account behind the avatar. The menu opens under it, lined up with its right edge, over the room
    the component keeps for it under the bar, so the bar never moves as the menu opens and shuts (owner, 20 Nov: menus open over
    the component from their trigger and never move it) and the menu is never cut off. The bar's content sits 16px in all round
-   in every style: the workspace's tile on the left, the avatar's chevron on the right, its hover box reaching out round it */
+   in every style: the workspace's tile on the left, the avatar's trigger on the right. The trigger's box fills on hover and
+   while its menu is open, so the box itself is 16px from the bar's top, right and bottom (32px tall round the 26px avatar) */
 .pfm{position:relative;width:100%;max-width:400px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
-.pfm-bar{display:flex;align-items:center;gap:12px;min-height:64px;padding:12px;padding-left:16px;border-radius:var(--r-card)}
+.pfm-bar{display:flex;align-items:center;gap:12px;min-height:64px;padding:var(--s-4);border-radius:var(--r-card)}
 /* a workspace's tile is its identity mark: in Soft and Blueprint a vivid fill with its own ink, the avatars' colours (white on
    blue, violet, red and pink; 4.5:1 and APCA Lc 60); Clean keeps its marks monochrome */
 .pfm-lg{--tb:var(--chip);--tc:var(--fg2);width:28px;height:28px;border-radius:var(--r-sm);display:grid;place-items:center;flex:none;font-size:12px;font-weight:500;background:var(--tb);color:var(--tc);transition:background var(--t) var(--ease),color var(--t) var(--ease)}
@@ -9854,11 +9859,11 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .pfm-ws{flex:1;min-width:0;display:flex;flex-direction:column}
 .pfm-wn{font-size:13.5px;line-height:18px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .pfm-ws .muted{font-size:12px;line-height:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pfm-tr{display:flex;align-items:center;gap:6px;height:40px;padding:0 4px 0 6px;border-radius:var(--r-pill);color:var(--muted);flex:none;transition:background-color var(--t-fast) var(--ease)}
+.pfm-tr{display:flex;align-items:center;gap:4px;height:32px;padding:0 2px 0 6px;border-radius:var(--r-pill);color:var(--muted);flex:none;transition:background-color var(--t-fast) var(--ease)}
 .pfm-tr[aria-expanded="true"]{background:color-mix(in srgb,var(--fg) 5%,transparent)}
 .pfm-tr:hover{background:color-mix(in srgb,var(--fg) 5%,transparent)}
 .pfm-tr .av,.pfm-me .av{background:var(--av-l);color:var(--av-l-ink)}
-.pfm-tr .av{width:28px;height:28px;font-size:11px}
+.pfm-tr .av{width:26px;height:26px;font-size:11px}
 .pfm-tr>.i{transition:transform var(--t) var(--ease)}
 .pfm-tr[aria-expanded="true"]>.i{transform:rotate(180deg)}
 .pfm-in{flex:none;margin-right:4px}
