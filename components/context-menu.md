@@ -337,4 +337,9 @@ export function ContextMenu({ items, onSelect, label = 'Actions', targetLabel = 
 }
 ```
 
+## More in Collaboration
+
+- [Banner](https://designme.dev/components/banner.md): An announcement on a tint of its tone, with its own line drawing.
+- [Comments](https://designme.dev/components/comments.md): A design thread where you can @mention the agent and it replies.
+
 All components: https://designme.dev/llms.txt

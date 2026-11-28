@@ -4,7 +4,7 @@ React versions of the [designme.dev](https://designme.dev) components, for Next.
 
 They use the same markup and the same CSS as the site, so they look and move exactly like the previews on designme.dev, in all three styles (Blueprint, Soft and Clean) and in light and dark. The difference is that each one takes props, so you drive it from your own state instead of a scripted demo.
 
-All 45 components are here, from Live answer to Set limit, each with an example that replays its demo from the site.
+All 50 components are here, from Live answer to Set limit, each with an example that replays its demo from the site.
 
 Each one has a page on designme.dev with its demo, its React usage, its props and its code, at `https://designme.dev/components/<name>`. To see them all running locally, run `npm run dev` here.
 
@@ -229,6 +229,10 @@ Undo, redo, zoom and fit in one floating bar for a canvas.
 
 ### Charts and tables
 
+**HealthScore** · `health-score/HealthScore.tsx`  
+An account's health: a score ring, four factors that open, and the agent's next move.  
+`account: { name?, segment?, factors, score?, previous?, suggestion? }` (pass another account, or the same one changed, and the ring sweeps, the score counts and what changed crossfades), with `factors: { key, label, status: 'ok' | 'warn' | 'bad', value, unit?, summary, points, max, detail? }[]` (one row each; the score defaults to the points added up; the weakest factor off track is labelled Weakest; `trend` is still accepted but ignored) and `suggestion: { text, action, icon?, done?, doneText?, doneLabel? }`, `label` ("Account health"), `period` ("30 days"), `bands` (`[70, 50]`: Healthy, Watch, At risk), `verdicts`, `open` / `defaultOpen` / `onOpenChange` (the open factor's key, or null), `onAction(account)` (return a promise to spin until it settles, then pass the account back with `suggestion.done`). Fits a 440px details sheet.
+
 **StatCards** · `stat-cards/StatCards.tsx`  
 Four headline numbers with sparklines and a period switch.  
 `title` (on the left of the head, beside the period switch), `stats: { key?, icon, label, values: { value, change, points }[], prefix?, suffix?, color? }[]` (one value per period), `periods: { label, compare? }[]`, `period` / `defaultPeriod` / `onPeriodChange`, `sparkRange`.
@@ -245,11 +249,27 @@ A week view where the agent finds a free slot for you.
 
 ### Forms and inputs
 
+**Tooltip** · `tooltip/Tooltip.tsx`  
+Quiet labels on hover, with shortcuts and a richer preview card.  
+`groups: { key, icon, label, tip?, kbd?, onClick? }[][]` (toolbar buttons, a line between groups), `people: { key, initials, color, name, role, status, working? }[]` (hovering or focusing an avatar shows its card after `cardDelay`), `note`, `openTip` (a button key whose tip shows) and `openCard` (a person key whose card shows).
+
+**SearchInput** · `search-input/SearchInput.tsx`  
+Search with scoped filters, recent queries and an agent answer.  
+`items: { icon, label, source }[]`, `sources: { key, label, icon }[]` (typing `@` lists them; picking one adds a filter chip), `recent: string[]`, `value` / `defaultValue` / `onValueChange`, `scope` / `defaultScope` / `onScopeChange`, `open` / `defaultOpen` / `onOpenChange`, `answer` (the agent's answer above the results; feed it as it grows), `filter(item, search)`, `onSelect(item)`, `onSubmit(search, scope)`, `placeholder`, `shortcut`, `emptyLabel`. ↑ and ↓ highlight, Enter picks, Escape closes, Backspace in an empty box removes the filter.
+
 **Form** · `form/Form.tsx`  
 A project brief with inline checks and an agent that drafts the rest.  
 `fields: { key, label, type?: 'text' | 'textarea' | 'choice', placeholder?, maxLength?, rows?, options?: { value, label, tone? }[] (`tone`: a core tag colour, b, l, m, p, r, y, k or t), autoComplete?, validate?(value, values) }[]`, `values` / `defaultValues` / `onValuesChange`, `onDraft` (adds "Draft with agent"; each field it fills gets a small sparkle after its label, with the tooltip `draftedLabel`, "Drafted by the agent", until edited), `onSubmit(values)` (spins while pending; a rejection's message shows beside the button), `title`, `submitLabel`, `invalidMessage`, `draftedMessage`, `doneTitle(values)`, `doneDetail`. A `ref` gives `draft()`, which runs the agent's draft as if the button were pressed.
 
 ### Collaboration
+
+**Comments** · `comments/Comments.tsx`  
+A design thread where you can @mention the agent and it replies.  
+`title`, `pin`, `comments: { id, author: { name, initials, color, handle? }, text, time, agent?, thinking?, actions?: { label, primary?, onClick }[], resolution?, agrees? }[]` (the first starts the thread, the rest are replies indented under it), `people` (handles for the @ menu), `value` / `defaultValue` / `onValueChange` (the reply), `onSend(text)`, `placeholder`, `resolved` / `defaultResolved` / `onResolvedChange`, `agreed` / `defaultAgreed` / `onAgreedChange` (ids of the comments you agreed with). Each comment's Agree button shows on hover or keyboard focus. An agent reply's words fade in as `text` grows.
+
+**Banner** · `banner/Banner.tsx`  
+An announcement on a tint of its tone, with its own line drawing and a dismiss.  
+`tone: 'accent' | 'neutral' | 'blue' | 'violet' | 'green' | 'amber'` (the tint, and the colour of the eyebrow and the drawing), `art: 'layers' | 'steps' | 'tools' | 'path'` or your own SVG element (shown at 240 by 160 and cropped by its area; give its lines `className="dm-ln"` and `pathLength={1}` to draw them in), or `null` for none, `eyebrow`, `title`, `description`, `action: { label, onClick?, href? }` (the primary button, on the accent), `secondary` (the same, as a quieter link), `onDismiss`, `dismissible`, `open` / `defaultOpen` / `onOpenChange`, `undo` (after a dismiss a line with Undo keeps its place; a string changes its words, `false` leaves nothing), `label`. The drawing draws itself in, and shows at once with reduced motion; in a column narrower than 480px it becomes a strip across the top.
 
 **ContextMenu** · `context-menu/ContextMenu.tsx`  
 A menu on right-click, long-press, Shift+F10 or the Menu key, with a submenu.  

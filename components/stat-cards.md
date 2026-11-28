@@ -252,4 +252,8 @@ export function StatCards({ title, stats, periods, period, defaultPeriod = 0, on
 }
 ```
 
+## More in Charts and tables
+
+- [Health score](https://designme.dev/components/health-score.md): An account's health: a score ring, four factors that open, and the agent's next move.
+
 All components: https://designme.dev/llms.txt
