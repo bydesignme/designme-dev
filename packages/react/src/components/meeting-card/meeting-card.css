@@ -3,7 +3,8 @@
 /* the next meeting, told as it goes: a countdown, "Starting now", the meeting in progress and then over. The track is the
    morning from 10:00 to 12:30 with the meeting on it in the accent tint, its start and end on the block itself. Time that
    has gone is hatched out in neutral grey (the hatch and the tint meet at the now line), and the status chip at the top right
-   rolls its minutes. Join stays open while the meeting runs, since people join late, and breathes gently while it is live.
+   rolls its minutes. Join stays open while the meeting runs, since people join late. Join is the library's primary button
+   (28 Nov: the standard .pill.primary, 32px like the copy button beside it, with no breathing of its own; Clean's ink primary).
    Every state is the same height. Its content sits 16px in from every edge, and nothing in it grows or shrinks when it is
    pressed (owner, 18 Nov) */
 .dm-mtx{width:100%;max-width:400px;margin:0 auto;padding:var(--dm-s-4);display:flex;flex-direction:column;gap:var(--dm-s-4);container:mtx/inline-size}
@@ -60,20 +61,21 @@
 @media (hover:hover) and (pointer:fine){.dm-mtx-cp.dm-copied:hover{color:var(--dm-ok-mark)!important}}
 /* Join and its menu as one split button: a very light divider, a chevron that opens the meeting's actions */
 .dm-mtx-jg{position:relative;display:flex;flex:none}
-.dm-mtx-jg .dm-mtx-join{border-top-right-radius:0;border-bottom-right-radius:0;padding-right:var(--dm-s-3)}
-.dm-mtx-jm{position:relative;height:34px;width:30px;padding:0;justify-content:center;border-top-left-radius:0;border-bottom-left-radius:0}
+.dm-mtx-jg .dm-mtx-join{border-top-right-radius:0;border-bottom-right-radius:0}
+.dm-mtx-jm{position:relative;width:32px;padding:0;justify-content:center;border-top-left-radius:0;border-bottom-left-radius:0}
 .dm-mtx-jm::before{content:"";position:absolute;left:0;top:9px;bottom:9px;width:1px;background:color-mix(in srgb,var(--dm-on-accent) 30%,transparent)}
 .dm-mtx-jm.dm-done{color:var(--dm-on-accent)}
 .dm-mtx-pop{min-width:190px}
-.dm-mtx-cp{width:34px;height:34px}
-.dm-mtx-join{height:34px;padding:0 var(--dm-s-4) 0 6px;gap:var(--dm-s-2);overflow:hidden;justify-content:flex-start;transition:background var(--dm-t-fast),opacity var(--dm-t-fast)}
-.dm-mtx-join .dm-mk{width:22px;height:22px;display:grid;place-items:center;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));background:#fff;flex:none}
+/* until it first opens (placePop sets its left), the closed menu hangs from Join's right edge, so on a phone it never reaches
+   past the page and scrolls it sideways */
+.dm-mtx-pop:not([style*="left"]){right:0}
+.dm-mtx-cp{width:32px;height:32px}
+.dm-mtx-join{padding:0 var(--dm-s-3) 0 6px;gap:var(--dm-s-2);overflow:hidden;justify-content:flex-start;transition:background var(--dm-t-fast),opacity var(--dm-t-fast)}
+.dm-mtx-join .dm-mk{width:26px;height:26px;display:grid;place-items:center;border-radius:calc(6px * var(--dm-rk-s,var(--dm-rk)));background:#fff;flex:none}
 .dm-mtx-join .dm-mk .dm-brand{width:15px;height:12.5px}
-/* live: Join breathes a step darker and back, slowly; a darker fill keeps its label's contrast where fading it would not */
-.dm-mtx.dm-live :is(.dm-mtx-join,.dm-mtx-jm):not(:hover){animation:dm-mtxpulse 2.4s ease-in-out infinite}
-@keyframes dm-mtxpulse{50%{background:color-mix(in srgb,var(--dm-accent) 86%,#000)}}
-.dm-mtx-join[disabled] .dm-mk{opacity:.5}
-@media (prefers-reduced-motion:reduce){.dm-mtx.dm-live :is(.dm-mtx-join,.dm-mtx-jm){animation:none}.dm-mtx-bp,.dm-mtx-now{transition:none}.dm-mtx-roll i.dm-in,.dm-mtx-fade{animation:none}}
+/* a disabled Join goes quiet as a whole: its mark loses its white tile and its colour with the words */
+.dm-mtx-join[disabled] .dm-mk{background:none;filter:grayscale(1);opacity:.5}
+@media (prefers-reduced-motion:reduce){.dm-mtx-bp,.dm-mtx-now{transition:none}.dm-mtx-roll i.dm-in,.dm-mtx-fade{animation:none}}
 /* Clean (owner, 17 and 18 Nov): the meeting and its track on white, the people and actions on an off-white foot strip under a
    hairline. Its content sits 16px in from every edge: the people on the content's edge, and the copy button and Join, split,
    28px pills 16px from the strip's edges (owner, 23 Nov). The track and its block have ordinary round
@@ -116,7 +118,6 @@
    icon without white bg on clean style") */
 :root[data-style="clean"] .dm-mtx-join .dm-mk,:root [data-style="clean"] .dm-mtx-join .dm-mk,:root [data-style="clean"].dm-mtx-join .dm-mk{width:14px;height:14px;border-radius:0;background:none}
 :root[data-style="clean"] .dm-mtx-join .dm-mk .dm-brand,:root [data-style="clean"] .dm-mtx-join .dm-mk .dm-brand,:root [data-style="clean"].dm-mtx-join .dm-mk .dm-brand{width:14px;height:11.7px}
-:root[data-style="clean"] .dm-mtx.dm-live :is(.dm-mtx-join,.dm-mtx-jm),:root [data-style="clean"] .dm-mtx.dm-live :is(.dm-mtx-join,.dm-mtx-jm),:root [data-style="clean"].dm-mtx.dm-live :is(.dm-mtx-join,.dm-mtx-jm){animation:none}
 /* Join and its chevron are one split button: a press sinks its fill (the ink's pressed shade) and never scales one half */
 :root[data-style="clean"] .dm-mtx .dm-mtx-jg .dm-pill:is(.dm-mtx-join,.dm-mtx-jm):active,:root [data-style="clean"] .dm-mtx .dm-mtx-jg .dm-pill:is(.dm-mtx-join,.dm-mtx-jm):active,:root [data-style="clean"].dm-mtx .dm-mtx-jg .dm-pill:is(.dm-mtx-join,.dm-mtx-jm):active{transform:none}
 /* a phone: the foot strip's pieces close up a little, so Join keeps its room beside the people as its words change */
