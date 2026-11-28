@@ -45,7 +45,9 @@ export interface SetLimitProps {
   passesOn?: string;
   /** Writes an amount, like "$200" */
   format?: (n: number) => string;
-  /** Lets the person click the big figure and type a cap (the default). Enter or leaving the field keeps it, held to min and max; Escape goes back */
+  /** The word in front of the cap, "Cap" by default */
+  capLabel?: string;
+  /** Shows the cap as a small field the person can type in (the default). Enter or leaving the field keeps it, held to min and max; Escape goes back */
   editable?: boolean;
   /** Replaces the line under the bar, which by default warns when the forecast passes the cap */
   message?: (state: SetLimitMessage) => ReactNode;
@@ -57,7 +59,7 @@ const WILL: Record<SetLimitMode, string> = { pause: 'pause', ask: 'wait for you'
 
 /** A spending cap on a bar that shows what is spent and what is forecast, with what to do at the limit. */
 export function SetLimit({ value, defaultValue = 200, onValueChange, min = 50, max = 500, step = 10, spent = 128, forecast = 184, mode, defaultMode = 'pause', onModeChange,
-  title = 'Monthly agent budget', subtitle = 'Resets Nov 1', passesOn = 'Oct 27', format = n => '$' + n, editable = true, message, className }: SetLimitProps) {
+  title = 'Monthly agent budget', subtitle = 'Resets Nov 1', passesOn = 'Oct 27', format = n => '$' + n, capLabel = 'Cap', editable = true, message, className }: SetLimitProps) {
   const [capRaw, setCap] = useControllable(value, defaultValue, onValueChange);
   const [atLimit, setMode] = useControllable(mode, defaultMode, onModeChange);
   const cap = Math.max(min, Math.min(max, capRaw));
@@ -104,10 +106,12 @@ export function SetLimit({ value, defaultValue = 200, onValueChange, min = 50, m
     <div data-dm="" ref={outer} className={cx('dm-slx dm-panel dm-growing', className)}><div ref={inner} className="dm-grow">
       <div className="dm-slx-h">
         <div><b>{title}</b>{subtitle && <span className="dm-muted">{subtitle}</span>}</div>
+        {/* the cap is labelled and, when it can change, is a small field with the currency in front (a click selects it all,
+            so typing replaces it) */}
+        <span className="dm-slx-cap"><span className="dm-muted" aria-hidden="true">{capLabel}</span>
         {editable ? (
-          // reads as the figure until it is clicked; a click selects it all, so typing replaces it
           <label className="dm-num dm-slx-v" onPointerDown={e => { if (document.activeElement !== input.current) { e.preventDefault(); input.current?.focus(); } }}>
-            {pre}<input ref={input} className="dm-slx-in" inputMode="numeric" autoComplete="off" aria-label={title} value={figure} style={{ width: Math.max(1, figure.length) + 'ch' }}
+            {pre && <span className="dm-cur">{pre}</span>}<input ref={input} className="dm-slx-in" inputMode="numeric" autoComplete="off" aria-label={`${title}, ${capLabel.toLowerCase()}`} value={figure} style={{ width: Math.max(1, figure.length) + 'ch' }}
               onFocus={e => { before.current = cap; setDraft(String(cap)); e.currentTarget.select(); }}
               onChange={e => { const v = e.target.value.replace(/\D/g, '').slice(0, 6); setDraft(v); const n = +v; if (v && n >= min && n <= max) setCap(n); }}
               onKeyDown={e => {
@@ -118,6 +122,7 @@ export function SetLimit({ value, defaultValue = 200, onValueChange, min = 50, m
               onBlur={commit} />{post}
           </label>
         ) : <b className="dm-num dm-slx-v">{format(cap)}</b>}
+        </span>
       </div>
       <div ref={bar} className="dm-slx-bar"
         onPointerDown={e => { e.currentTarget.setPointerCapture(e.pointerId); setDrag(true); at(e); }}

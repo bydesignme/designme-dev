@@ -1,139 +1,125 @@
 'use client';
 // The animated preview from designme.dev, rebuilt from the React component: an example of driving it from your own state.
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { SegmentedControl } from '../components/segmented-control/SegmentedControl';
 import { cx } from '../lib/cx';
 import { Icon } from '../lib/icons';
-import { Swap, useGrow } from '../lib/motion';
+import { mxIn, Swap, Tip, useGrow } from '../lib/motion';
 import { useStory } from './useScript';
 import { useHoverGlide } from '../lib/glide';
 
-/* ---------- Segmented control: the pricing launch as a day, a week or a month, stepped through and opened a day at a time ---------- */
-type View = 'day' | 'week' | 'month';
-type Ev = [time: string, title: string, detail: string, color: string];
-// the pricing launch in October 2026. Today is Friday the 23rd
-const TODAY = new Date(2026, 9, 23, 12), DAY = 864e5;
-const at = (d: Date, n: number) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n, 12);
-const iso = (d: Date) => d.toISOString().slice(0, 10);
-const same = (a: Date, b: Date) => iso(a) === iso(b);
+/* ---------- Segmented control: a month of a pricing launch, as a calendar or a list ---------- */
+type View = 'list' | 'cal';
+type Ev = [day: string, name: string, time: string, launch?: boolean];
+// October 2026: today is Friday the 23rd, and the launch on the 28th is the one accent mark
+const TODAY = '2026-10-23';
+const EV: Ev[] = [['2026-10-06', 'Kickoff', '10:00'], ['2026-10-09', 'Brief review', '14:00'], ['2026-10-14', 'Copy review', '11:00'], ['2026-10-20', 'Design sign-off', '16:00'], ['2026-10-26', 'QA pass', '09:30'], ['2026-10-28', 'Pricing goes live', '10:00', true]];
+const pad = (n: number) => String(n).padStart(2, '0');
+const iso = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const day = (k: string) => { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d, 12); };
 const fmt = (d: Date, o: Intl.DateTimeFormatOptions) => d.toLocaleDateString('en-US', o);
-const mon = (d: Date) => at(d, -((d.getDay() + 6) % 7));
-// launch week is written out; the days around it are drawn from the work that leads up to it and follows it
-const E: Record<string, Ev[]> = {
-  '2026-10-19': [['10:00', 'Kickoff with Maya', 'Pricing v4 brief', 'var(--dm-pl)'], ['15:00', 'Brief the agents', 'Build and copy agents', 'var(--dm-pm)']],
-  '2026-10-20': [['10:00', 'Wireframe review', 'Pricing v4, frames 1 to 6', 'var(--dm-pl)'], ['11:30', 'Copy for the plan cards', 'Copy agent', 'var(--dm-pt)'], ['14:00', 'Token audit', 'Build agent', 'var(--dm-pm)']],
-  '2026-10-21': [['11:00', 'Copy pass', 'Plan cards and FAQ', 'var(--dm-pt)']],
-  '2026-10-22': [['14:00', 'Design QA', 'Pricing v4, all frames', 'var(--dm-pb)'], ['16:30', 'Fix contrast issues', 'Build agent', 'var(--dm-pm)']],
-  '2026-10-23': [['09:30', 'Pricing review with Maya', 'Pricing v4, frames 1 to 3', 'var(--dm-pl)'], ['13:00', 'Export tokens to CSS', 'Build agent', 'var(--dm-pm)'], ['16:00', 'Ship pricing v4', 'designme.studio/pricing', 'var(--dm-pb)']],
-  '2026-10-24': [], '2026-10-25': []
-};
-const POOL = [['Design crit', 'Pricing frames', 'var(--dm-pl)'], ['Token audit', 'Build agent', 'var(--dm-pm)'], ['Copy pass', 'Plan cards', 'var(--dm-pt)'], ['Stakeholder check-in', 'Weekly', 'var(--dm-pb)'],
-  ['User interviews', 'Three sessions', 'var(--dm-pl)'], ['Conversion review', 'Trial to paid', 'var(--dm-pb)'], ['Research synthesis', 'Notes and quotes', 'var(--dm-pt)'], ['Fix review notes', 'Build agent', 'var(--dm-pm)']];
-const TIMES = ['09:30', '10:00', '11:30', '13:00', '14:00', '15:30', '16:00'];
-function events(d: Date): Ev[] {
-  const k = iso(d); if (E[k]) return E[k];
-  if (d.getDay() === 0 || d.getDay() === 6) return (E[k] = []);
-  let h = Math.floor(+d / DAY) * 2654435761 >>> 0; const nx = (m: number) => { h = Math.imul(h ^ h >>> 15, 2246822519) >>> 0; return h % m; };
-  const n = [0, 1, 1, 2, 2, 3][nx(6)], t = new Set<string>();
-  while (t.size < n) t.add(TIMES[nx(TIMES.length)]);
-  return (E[k] = [...t].sort().map(tm => { const e = POOL[nx(POOL.length)]; return [tm, e[0], e[1], e[2]] as Ev; }));
-}
-const label = (d: Date, n: number) => `${fmt(d, { weekday: 'long', month: 'long', day: 'numeric' })}, ${n ? n + (n === 1 ? ' event' : ' events') : 'nothing planned'}`;
-const RANGE: Record<View, (d: Date) => string> = {
-  day: d => fmt(d, { weekday: 'long', month: 'short', day: 'numeric' }),
-  week: d => { const a = mon(d), b = at(a, 4); return fmt(a, { month: 'short', day: 'numeric' }) + ' – ' + (a.getMonth() === b.getMonth() ? b.getDate() : fmt(b, { month: 'short', day: 'numeric' })); },
-  month: d => fmt(d, { month: 'long', year: 'numeric' })
-};
+const short = (k: string) => fmt(day(k), { month: 'short', day: 'numeric' });
+const ev = (k: string) => EV.find(e => e[0] === k);
+const inMonth = (m: Date) => EV.filter(e => e[0].startsWith(iso(m).slice(0, 7)));
+// a month's picked day when you step to it: the launch, else its first event, else the 1st
+const firstPick = (m: Date) => { const L = inMonth(m); return (L.find(e => e[3]) ?? L[0])?.[0] ?? iso(m); };
 
-// a day in the week or the month opens that day
-function Panel({ view, date, open }: { view: View; date: Date; open: (d: Date) => void }) {
-  if (view === 'day') {
-    const ev = events(date);
-    return ev.length ? (
-      <div className="dm-sgc-day">
-        {ev.map(([t, n, d, c]) => <div key={t} className="dm-sgc-ev" style={{ '--dm-c': c } as CSSProperties}><span className="dm-num dm-muted">{t}</span><i /><span className="dm-t">{n}<span>{d}</span></span></div>)}
-      </div>
-    ) : <div className="dm-sgc-none">Nothing planned</div>;
-  }
-  if (view === 'week') return (
-    <div className="dm-sgc-wk">
-      {Array.from({ length: 5 }, (_, i) => at(mon(date), i)).map(d => {
-        const ev = events(d);
-        return (
-          <button key={iso(d)} type="button" aria-label={label(d, ev.length)} onClick={() => open(d)}
-            className={['dm-sgc-wr', same(d, TODAY) && 'dm-now', !ev.length && 'dm-none'].filter(Boolean).join(' ')}>
-            <span className="dm-d">{fmt(d, { weekday: 'short' })} <b>{d.getDate()}</b></span>
-            {ev.length
-              ? <><span className="dm-e" style={{ '--dm-c': ev[0][3] } as CSSProperties}><i /><span>{ev[0][1]}</span></span>{ev.length > 1 && <span className="dm-more">+{ev.length - 1} more</span>}</>
-              : <span className="dm-e">Nothing planned</span>}
-          </button>
-        );
-      })}
-    </div>
-  );
-  const first = new Date(date.getFullYear(), date.getMonth(), 1, 12), lead = (first.getDay() + 6) % 7, len = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+// the calendar: a calm month, a grey dot on a day with something on (the launch's dot in the accent), today a quiet ring and the
+// picked day a small accent circle; under a hairline, the picked day's line
+function Calendar({ month, sel, pick }: { month: Date; sel: string; pick: (k: string) => void }) {
+  const lead = (month.getDay() + 6) % 7, len = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate(), e = ev(sel);
   return (
-    <div className={['dm-sgc-mo', lead + len > 35 && 'dm-r6'].filter(Boolean).join(' ')}>
-      {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((w, i) => <span key={'w' + i} className="dm-w" aria-hidden="true">{w}</span>)}
-      {Array.from({ length: lead }, (_, i) => <span key={'b' + i} />)}
-      {Array.from({ length: len }, (_, i) => {
-        const d = at(first, i), n = events(d).length;
-        return <button key={i} type="button" aria-label={label(d, n)} onClick={() => open(d)}
-          className={['dm-d', 'dm-num', n && 'dm-e', same(d, TODAY) && 'dm-now', same(d, date) && !same(d, TODAY) && 'dm-on'].filter(Boolean).join(' ')}>{i + 1}</button>;
-      })}
+    <div className="dm-sgc-cal">
+      <div className="dm-sgc-mo">
+        {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((w, i) => <span key={'w' + i} className="dm-w" aria-hidden="true">{w}</span>)}
+        {Array.from({ length: lead }, (_, i) => <span key={'b' + i} />)}
+        {Array.from({ length: len }, (_, i) => {
+          const d = new Date(month.getFullYear(), month.getMonth(), i + 1, 12), k = iso(d), x = ev(k), on = k === sel;
+          return (
+            <button key={k} type="button" aria-pressed={on} aria-label={`${fmt(d, { weekday: 'long', month: 'long', day: 'numeric' })}, ${x ? x[1] : 'nothing planned'}`} onClick={() => pick(k)}
+              className={cx('dm-d dm-num', x && 'dm-e', x?.[3] && 'dm-x', k === TODAY && 'dm-now', on && 'dm-on')}><b>{i + 1}</b></button>
+          );
+        })}
+      </div>
+      <div className="dm-sgc-sel" aria-live="polite">
+        <Swap className="dm-num">{short(sel)}</Swap>
+        <i className={cx(e?.[3] && 'dm-x')} />
+        {e ? <span className="dm-t">{e[1]} <span>· {e[2]}</span></span> : <span className="dm-t dm-none">Nothing planned</span>}
+      </div>
     </div>
   );
+}
+
+// the list: the month's events as rows, a row opening its day in the calendar
+function List({ month, open }: { month: Date; open: (k: string) => void }) {
+  const L = inMonth(month);
+  return L.length ? (
+    <div className="dm-sgc-ls">
+      {L.map(e => (
+        <button key={e[0]} type="button" className="dm-sgc-lr" onClick={() => open(e[0])}>
+          <span className="dm-num">{short(e[0])}</span>
+          <span className="dm-t"><i className={cx(e[3] && 'dm-x')} /><span>{e[1]}</span></span>
+          <span className="dm-num dm-tm">{e[2]}</span>
+        </button>
+      ))}
+    </div>
+  ) : <div className="dm-sgc-none">Nothing planned this month</div>;
 }
 
 export default function SegmentedControlDemo() {
   const ref = useRef<HTMLDivElement>(null);
-  const [view, setView] = useState<View>('day');
-  const [date, setDate] = useState(TODAY);
-  // the panel on show, and the one it replaced while that fades out under the new one, so no frame is empty
-  const key = view + iso(date);
-  const [layers, setLayers] = useState([{ key, view, date, gone: false }]);
-  if (layers[layers.length - 1].key !== key) setLayers([...layers.filter(l => !l.gone).slice(-1).map(l => ({ ...l, gone: true })), { key, view, date, gone: false }]);
+  const [view, setView] = useState<View>('cal');
+  const [month, setMonth] = useState(() => new Date(2026, 9, 1, 12));
+  const [sel, setSel] = useState('2026-10-28');
+  // the view on show, and the one it replaced while that fades out under the new one, so no frame is empty
+  const key = view + iso(month);
+  const [layers, setLayers] = useState([{ key, view, month, gone: false }]);
+  if (layers[layers.length - 1].key !== key) setLayers([...layers.filter(l => !l.gone).slice(-1).map(l => ({ ...l, gone: true })), { key, view, month, gone: false }]);
   useEffect(() => {
     if (!layers.some(l => l.gone)) return;
-    const t = setTimeout(() => setLayers(ls => ls.filter(l => !l.gone)), 260);
+    const t = setTimeout(() => setLayers(ls => ls.filter(l => !l.gone)), 240);
     return () => clearTimeout(t);
   }, [layers]);
-  // previous and next step by the view's unit; Today comes back to the 23rd
-  const step = (k: number) => setDate(d => view === 'day' ? at(d, k) : view === 'week' ? at(d, 7 * k) : new Date(d.getFullYear(), d.getMonth() + k, 1, 12));
-  const open = (d: Date) => { setDate(d); setView('day'); };
+  // the new view's days or rows come in one after another
+  const fresh = useRef<HTMLDivElement>(null), first = useRef(true);
+  useLayoutEffect(() => {
+    if (first.current) { first.current = false; return; }
+    const el = fresh.current; if (!el) return;
+    const days = Array.from(el.querySelectorAll('.dm-sgc-mo .dm-d'));
+    if (days.length) mxIn([...days, el.querySelector('.dm-sgc-sel')], { ms: 300, step: 6, y: 4 });
+    else mxIn(Array.from(el.querySelectorAll('.dm-sgc-lr')), { ms: 300, step: 40, y: 4 });
+  }, [key]);
+  const step = (k: number) => { const m = new Date(month.getFullYear(), month.getMonth() + k, 1, 12); setMonth(m); setSel(firstPick(m)); };
+  const open = (k: string) => { setSel(k); setView('cal'); };
   // the panel is as tall as the view on show and eases to the next one's height
   const [panel, panelIn] = useGrow();
-  // Clean's one hover: a highlight that glides from event to event and day to day
-  useHoverGlide(panel, '.dm-sgc-ev,.dm-sgc-wr,.dm-sgc-mo .dm-d', { keep: '.dm-on,.dm-d.dm-now' });
+  // Clean's one hover: a highlight that glides from row to row in the list
+  useHoverGlide(panel, '.dm-sgc-lr');
 
-  // the preview's story: the week, then Tuesday opened from it, a step on to Wednesday, the month, and back to the week
+  // the preview's story, calm: the calendar, the list, and back to the calendar
   useStory(ref, async ({ wait, press }) => {
-    await wait(1500); press('[data-v="week"]');
-    await wait(2000); press('.dm-sgc-wr:nth-child(2)');
-    await wait(2000); press('.dm-sgc-nx');
-    await wait(1500); press('[data-v="month"]');
-    await wait(2000); press('[data-v="week"]');
+    await wait(2000); press('[data-v="list"]');
+    await wait(2500); press('[data-v="cal"]');
   });
 
   return (
     <div ref={ref} style={{ width: '100%' }}>
-      <div data-dm="" className="dm-sgc dm-panel">
+      <div data-dm="" className="dm-sgc dm-panel" data-v={view}>
+        {/* one line: the month as the title between two quiet chevrons, and the switch, two icons, on the right */}
         <div className="dm-sgc-h">
-          <div className="dm-sgc-ht"><b>Pricing launch</b></div>
+          <div className="dm-sgc-mt">
+            <Tip label="Previous month"><button type="button" className="dm-ib dm-sgc-pv" aria-label="Previous month" onClick={() => step(-1)}><Icon name="chev-l" size="xs" /></button></Tip>
+            <b className="dm-sgc-r" aria-live="polite"><Swap>{fmt(month, { month: 'long', year: 'numeric' })}</Swap></b>
+            <Tip label="Next month"><button type="button" className="dm-ib dm-sgc-nx" aria-label="Next month" onClick={() => step(1)}><Icon name="chev-r" size="xs" /></button></Tip>
+          </div>
           <SegmentedControl id="launch-view" label="View" value={view} onValueChange={setView}
-            options={[{ value: 'day', label: 'Day' }, { value: 'week', label: 'Week' }, { value: 'month', label: 'Month' }]} />
-        </div>
-        <div className="dm-sgc-bar">
-          <span className="dm-sgc-r" aria-live="polite"><Swap>{RANGE[view](date)}</Swap></span>
-          <button type="button" className="dm-pill dm-ghost dm-sm dm-sgc-td" onClick={() => setDate(TODAY)}>Today</button>
-          <button type="button" className="dm-ib dm-sgc-pv" aria-label={'Previous ' + view} onClick={() => step(-1)}><Icon name="chev-l" size="xs" /></button>
-          <button type="button" className="dm-ib dm-sgc-nx" aria-label={'Next ' + view} onClick={() => step(1)}><Icon name="chev-r" size="xs" /></button>
+            options={[{ value: 'list', label: <Icon name="list" size="s" />, title: 'List' }, { value: 'cal', label: <Icon name="cal" size="s" />, title: 'Calendar' }]} />
         </div>
         <div ref={panel} className="dm-sgc-p dm-growing" id="launch-view-panel" role="tabpanel" aria-labelledby={`launch-view-${view}`} tabIndex={0}>
           <div ref={panelIn} className="dm-grow">
             {layers.map((l, i) => (
-              <div key={l.key} className={cx('dm-sgc-in', l.gone ? 'dm-gone' : i > 0 && 'dm-fresh')} inert={l.gone} aria-hidden={l.gone || undefined}>
-                <Panel view={l.view} date={l.date} open={open} />
+              <div key={l.key} ref={l.gone ? undefined : fresh} className={cx('dm-sgc-in', l.gone ? 'dm-gone' : i > 0 && 'dm-fresh')} inert={l.gone} aria-hidden={l.gone || undefined}>
+                {l.view === 'cal' ? <Calendar month={l.month} sel={sel} pick={setSel} /> : <List month={l.month} open={open} />}
               </div>
             ))}
           </div>

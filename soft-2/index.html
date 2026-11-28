@@ -145,7 +145,7 @@
 .pulse::after{corner-shape:round}
 .radar::after{corner-shape:round}
 .radar::before{corner-shape:round}
-.sgc-mo .d.e::after{corner-shape:round}
+.sgc-mo .d.e::after,.sgc-mo .d b,.sgc-sel i,.sgc-lr i,.ntx-u i{corner-shape:round}
 .stx-ok::after{corner-shape:round}
 .tmx-body::-webkit-scrollbar-thumb{corner-shape:round}
 .toggle::after{corner-shape:round}
@@ -1855,11 +1855,13 @@ th:last-child>.col-rz{display:none}
 .slx-h>div{display:flex;flex-direction:column;font-size:14px}
 .slx-h b{font-weight:500}
 .slx-h .muted{font-size:12px}
-.slx-v{display:inline-flex;align-items:baseline;font-size:14px;font-weight:500!important;letter-spacing:-.02em;margin:0 -7px 0 0;padding:1px 7px;border-radius:var(--r-field);cursor:text;transition:background-color .2s var(--ease),box-shadow .2s var(--ease)}
-/* the budget reads as a figure until you point at it or click it: then it is a field, white with the dimmed field edge,
-   which steps up while you type a new one. A budget you can't change has no hover */
-.slx-v:has(input):hover{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent)}
-.slx-v:has(input):focus-within{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
+/* the cap is labelled and reads as a field at rest (owner, 28 Nov): "Cap" in the muted text, then a small field with its $ in
+   front, white with the dimmed field edge, which steps up one grey while you type. A cap you can't change is the figure alone */
+.slx-cap{display:inline-flex;align-items:baseline;gap:var(--s-2)}
+.slx-v{display:inline-flex;align-items:baseline;font-size:14px;font-weight:500!important;letter-spacing:-.02em;padding:3px var(--s-2);border-radius:var(--r-field);cursor:text;transition:box-shadow .2s var(--ease)}
+.slx-v:has(input){background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent)}
+.slx-v:has(input):focus-within{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
+.slx-v .cur{color:var(--muted);font-weight:400;margin-right:2px}
 @supports (corner-shape:squircle){.slx-v{corner-shape:squircle;border-radius:var(--r-field-sq)}}
 .slx-in{width:3ch;min-width:1ch;padding:0;margin:0;border:0;background:none;font:inherit;font-variant-numeric:tabular-nums;letter-spacing:inherit;color:inherit;text-align:right;outline:none;caret-color:var(--accent-fg,var(--accent))}
 /* the bar, with the same room above and below its knob. The cap it sets is the figure in the head, so the knob carries no
@@ -7198,7 +7200,8 @@ button.dtp-v:hover,button.dtp-v[aria-expanded="true"]{background:var(--row)}
 .shx-r[data-st="bad"] .res>span{white-space:normal;text-wrap:pretty}
 .shx-r[data-st="bad"] .res .i{color:var(--bad-mark)}
 .shx-act{grid-column:3;grid-row:1/4;align-self:center;display:flex;align-items:center;gap:var(--s-2)}
-.shx-run{width:28px;height:28px}
+/* Run now is a labelled ghost button (owner, 28 Nov), so the switch is the one control on the row's right edge */
+.shx-run.pill{padding:0 var(--s-2)}
 .shx-run:disabled{opacity:1;cursor:not-allowed;background:none;color:var(--dis);transform:none}
 .shx-r .shx-fx{grid-column:2/-1;grid-row:4}
 .shx-fx>div{overflow-clip-margin:0px}
@@ -8429,101 +8432,79 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 @keyframes dpks{from{transform:scale(.8)}}
 /* ---------- Segmented control ---------- */
 /* one choice from a few views of the same thing: the picked one sits on a white knob that slides to it. It is a tab
-   list, so the arrow keys move along it and the panel under it changes with it */
-.sgc{width:100%;max-width:400px;margin:0 auto;padding:var(--s-4);display:flex;flex-direction:column;gap:14px}
-.sgc-h{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);flex-wrap:wrap}
-.sgc-ht{display:flex;flex-direction:column;min-width:0}
-.sgc-ht b{font-weight:500;font-size:14px}
-/* the range on the content's left edge; Today and the arrows at the right, the last arrow's glyph on the content's right edge
-   with its hover circle reaching out round it */
-.sgc-bar{display:flex;align-items:center;gap:2px;margin:-4px 0 -6px}
-.sgc-r{flex:1;min-width:0;font-size:13px;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sgc-bar .ib{width:28px;height:28px}
-.sgc-bar .pill{margin-right:var(--s-1)}
-/* (Next's box ends on the content's 16px column, as the switch's track above it does: its box fills on hover) */
+   list, so the arrow keys move along it and the panel under it changes with it. The demo (owner, 28 Nov) is a month of a
+   pricing launch: a one-line head, the month as the title between two quiet chevrons on the left and the switch on the right,
+   two icons on the grey track (List and Calendar, each named and with a tooltip) */
+.sgc{width:100%;max-width:400px;margin:0 auto;padding:var(--s-4);display:flex;flex-direction:column;gap:14px;transition:padding-bottom var(--t) cubic-bezier(.23,1,.32,1)}
+/* in the list, the last row's hover room makes up the foot, so its words still end 16px from the card's bottom */
+.sgc.panel[data-v="list"]{padding-bottom:calc(var(--s-4) - 7px)}
+.sgc-h{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3)}
+/* the first chevron's box starts on the content's left edge, its hover circle round it */
+.sgc-mt{display:flex;align-items:center;gap:2px;min-width:0}
+.sgc-mt .ib{width:28px;height:28px;color:var(--fg2)}
+.sgc-mt b{font-size:14px;font-weight:500;padding:0 var(--s-1);white-space:nowrap}
 .sgc-seg{position:relative;display:inline-flex;padding:3px;border-radius:var(--r-pill);background:var(--chip);flex:none}
 .sgc-k{position:absolute;top:3px;bottom:3px;left:3px;width:0;border-radius:var(--r-pill);background:var(--raised);box-shadow:var(--seg-k-shadow,var(--shadow));transition:left .42s var(--ease),width .42s var(--ease)}
 .sgc-seg button{position:relative;z-index:1;height:30px;padding:0 14px;border-radius:var(--r-pill);font-size:13px;color:var(--fg2);outline:0;transition:color .2s}
+.sgc-seg button:has(>.i:only-child){width:36px;padding:0;display:grid;place-items:center}
 .sgc-seg button:hover,.sgc-seg button[aria-selected="true"],.sgc-seg button[aria-checked="true"]{color:var(--fg)}
 .sgc-seg button:focus-visible{box-shadow:0 0 0 2px var(--focus)}
-/* the panel is as tall as the view on show, and eases to the next one's height (grow()): a day with one event is short, the
-   month tall, and nothing keeps room for a view that isn't there */
+/* the panel is as tall as the view on show, and eases to the next one's height (grow()) */
 .sgc-p{position:relative;border-radius:var(--r-in);outline:0}
 .sgc-p.growing{overflow-clip-margin:10px}
 .sgc-p:focus-visible{box-shadow:0 0 0 2px var(--focus)}
-/* a new view crossfades over the one it replaces, so the panel is never empty between them */
-.sgc-in.fresh{animation:sgcin .24s var(--ease) both}
-.sgc-in.gone{position:absolute;inset:0 0 auto;pointer-events:none;animation:sgcout .24s var(--ease) both}
-@keyframes sgcin{from{opacity:0;transform:translateY(4px)}}
+/* a new view crossfades over the one it replaces, so the panel is never empty between them; its days or rows come in one after
+   another (mxIn), on Clean's ease in every style. With reduced motion it only swaps */
+.sgc-in{--ease:cubic-bezier(.23,1,.32,1)}
+.sgc-in.fresh{animation:sgcin .22s var(--ease) both}
+.sgc-in.gone{position:absolute;inset:0 0 auto;pointer-events:none;animation:sgcout .22s var(--ease) both}
+@keyframes sgcin{from{opacity:0}}
 @keyframes sgcout{to{opacity:0}}
+@media (prefers-reduced-motion:reduce){.sgc-in.fresh,.sgc-in.gone{animation:none}}
 /* nothing in it grows or shrinks when it is pressed (owner, 18 Nov) */
 .sgc :is(.ib,.pill):active,:root[data-style="clean"] .sgc .ib:active{transform:none}
-/* the day: its events in order, a plain list (they are not buttons, so no card behind them). The times sit in the same 52px
-   column as the week's days, each bar is centred on the week's dot column and the titles start where the week's do */
-.sgc-day{display:flex;flex-direction:column;gap:var(--s-3)}
-.sgc-ev{display:flex;align-items:flex-start;gap:var(--s-3);font-size:13px;line-height:18px}
-.sgc-ev>.num{width:52px;flex:none}
-.sgc-ev i{width:3px;align-self:stretch;margin:0 1.5px;border-radius:var(--r-tiny,2px);background:var(--c);flex:none}
-.sgc-ev .t{flex:1;min-width:0;display:flex;flex-direction:column;margin-left:-4px}
-.sgc-ev .t span{font-size:12px;line-height:17px;color:var(--muted)}
-.sgc-none{padding:var(--s-3) 0;font-size:13px;color:var(--muted)}
-/* the week: the five working days, one row each with its first event and a count of the rest. Each row's words sit on the
-   content's edges and its hover fill reaches 8px out round them; today's date is the accent circle, as in Event calendar */
-/* (the last row's words and today's mark end 16px from the card's bottom; its hover fill reaches out round it, into the
-   padding, as at the sides) */
-.sgc-wk{display:flex;flex-direction:column;gap:var(--s-1);margin-bottom:-5px}
-:root[data-style="clean"] .sgc-wk{margin-bottom:0}
-.sgc-wr{display:flex;align-items:center;gap:var(--s-3);width:calc(100% + 16px);height:32px;margin:0 -8px;padding:0 8px;border-radius:var(--r-sm);font-size:13px;text-align:left;transition:background var(--t-fast)}
-.sgc-wr:hover{background:var(--row)}
-.sgc-wr:focus-visible,.sgc-mo .d:focus-visible{outline:0;box-shadow:0 0 0 2px var(--focus)}
-.sgc-wr .d{width:52px;flex:none;display:flex;align-items:center;gap:4px;color:var(--muted)}
-.sgc-wr .d b{font-weight:400}
-.sgc-wr.now .d{color:var(--fg)}
-/* today's date is a 22px circle (every date is one or two digits) */
-.sgc-wr.now .d b{display:grid;place-items:center;width:22px;height:22px;margin:-2px 0 -2px -1px;padding:0;border-radius:50%;background:var(--accent);color:var(--on-accent);font-size:12px;font-weight:500}
-.sgc-wr .e{flex:1;min-width:0;display:flex;align-items:center;gap:var(--s-2);white-space:nowrap}
-.sgc-wr .e i{width:6px;height:6px;border-radius:50%;background:var(--c);flex:none}
-.sgc-wr .e span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis}
-.sgc-wr .more{flex:none;font-size:12px;color:var(--muted)}
-.sgc-wr.none .e{color:var(--muted)}
-/* the month: a dot on each day with something on, today the accent fill */
+/* the calendar: a calm month. A grey dot only on a day with something on, the launch day's dot the one accent mark; today a
+   quiet grey ring; the picked day a small accent circle. Under a hairline, the picked day's line: its date, its event and time */
+.sgc-cal{display:flex;flex-direction:column;gap:14px}
 .sgc-mo{display:grid;grid-template-columns:repeat(7,1fr);gap:2px var(--s-1);font-size:12px;text-align:center}
 .sgc-mo .w{font-size:11px;color:var(--muted);padding-bottom:2px}
-.sgc-mo .d{position:relative;height:26px;display:grid;place-items:center;border-radius:var(--r-sm);color:var(--fg2);transition:background var(--t-fast)}
-.sgc-mo.r6 .d{height:22px}
-.sgc-mo .d:hover{background:var(--row)}
-.sgc-mo .d.on{background:var(--surface);color:var(--fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pick-on) 50%,transparent)}
-.sgc-mo .d.e::after{content:"";position:absolute;bottom:2px;left:50%;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--accent-mark,var(--accent))}
-.sgc-mo .d.now{background:var(--accent);color:var(--on-accent);font-weight:500}
-.sgc-mo .d.now:hover{background:var(--accent);color:var(--on-accent);font-weight:500}
-.sgc-mo .d.now::after{background:var(--on-accent)}
-/* Clean (owner, 17 and 18 Nov): its content 16px in from every edge; the switch is Clean's (a white knob on a grey track,
-   in the Clean section with the other switchers) */
-:root[data-style="clean"] .sgc.panel{padding:16px}
-/* Clean (owner, 21 Nov, on the Pricing launch agenda: "no difference besides the corners, need to change a lot more"). The title
-   and the switch sit in an off-white head strip under a hairline, the switch Clean's monochrome one; Today is a flat hairline
-   pill and ‹ › ghost circles. The events are rows under one gliding highlight (hoverGlide), their hover reaching 8px out round
-   their words as the week's rows do; their bars and dots take the labels' vivid marks (a step brighter than the labels' text
-   colours, 3:1 on the card), and the times stand muted in one tabular column. A new view crossfades at Clean's pace while the
-   panel grows or shrinks to it; a picked day in the month takes the one selected fill. The rows' hover room makes up the
-   foot, so the last row's words sit 16px from it in every view */
-:root[data-style="clean"] .sgc.panel{padding:0 16px 10px}
+.sgc-mo .d{position:relative;height:32px;display:grid;place-items:center;color:var(--fg2)}
+.sgc-mo .d b{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;font-weight:400;transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease)}
+@media (hover:hover) and (pointer:fine){.sgc-mo .d:not(.on):hover b{background:var(--row)}}
+.sgc-mo .d:focus-visible{outline:0}
+.sgc-mo .d:focus-visible b{box-shadow:0 0 0 2px var(--focus)}
+.sgc-mo .d.e::after{content:"";position:absolute;bottom:0;left:50%;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--faint)}
+.sgc-mo .d.x::after{background:var(--accent-mark,var(--accent))}
+.sgc-mo .d.now b{color:var(--fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line-strong) 50%,transparent)}
+.sgc-mo .d.on b{background:var(--accent);color:var(--on-accent);font-weight:500;box-shadow:none}
+.sgc-mo .d.on::after{opacity:0}
+.sgc-sel{display:flex;align-items:center;gap:var(--s-3);padding-top:var(--s-3);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:13px;line-height:18px}
+.sgc-sel .num{width:44px;flex:none;color:var(--muted)}
+.sgc-sel i,.sgc-lr i{width:6px;height:6px;border-radius:50%;flex:none}
+.sgc-sel i.x,.sgc-lr i.x{background:var(--accent-mark,var(--accent))}
+.sgc-sel .t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sgc-sel .t span,.sgc-sel .t.none{color:var(--muted)}
+/* the list: the month's events as rows, a muted date, the event and its time on the right; no lines between them, a quiet
+   hover fill that reaches 8px out round the words, and the launch keeps its one accent dot */
+.sgc-ls{display:flex;flex-direction:column}
+.sgc-lr{display:flex;align-items:center;gap:var(--s-3);width:calc(100% + 16px);height:32px;margin:0 -8px;padding:0 8px;border-radius:var(--r-sm);font-size:13px;line-height:18px;text-align:left;color:var(--fg);transition:background-color var(--t-fast) var(--ease)}
+@media (hover:hover) and (pointer:fine){.sgc-lr:hover{background:var(--row)}}
+.sgc-lr:focus-visible{outline:0;box-shadow:0 0 0 2px var(--focus)}
+.sgc-lr>.num:first-child{width:44px;flex:none;color:var(--muted)}
+.sgc-lr .t{flex:1;min-width:0;display:flex;align-items:center;gap:var(--s-2);white-space:nowrap}
+.sgc-lr .t span{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.sgc-lr .tm{flex:none;color:var(--muted)}
+.sgc-none{padding:var(--s-3) 0 calc(var(--s-3) - 7px);font-size:13px;color:var(--muted)}
+/* Clean (owner, 17, 18 and 21 Nov): the head is an off-white strip under a hairline, the switch Clean's monochrome one, the
+   chevrons ghost circles; the rows take Clean's 10px corners under one gliding highlight (hoverGlide), and a day's hover is a
+   pill. The picked day is the accent in light and white in dark, as every Clean accent */
+:root[data-style="clean"] .sgc.panel{padding:0 16px 16px}
+:root[data-style="clean"] .sgc.panel[data-v="list"]{padding-bottom:calc(16px - 7px)}
 :root[data-style="clean"] .sgc-h{min-height:calc(28px + 2 * var(--strip-y) + 1px);margin:0 -16px;padding:var(--strip-y) 16px;background:var(--strip);border-bottom:1px solid var(--line);border-radius:var(--r-card) var(--r-card) 0 0}
-:root[data-style="clean"] .sgc-td{color:var(--fg);background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-depth)}
-:root[data-style="clean"] .sgc-td:hover{background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-hover)}
-:root[data-style="clean"] .sgc-bar .ib{border-radius:50%}
-/* (the last arrow, a control, ends on the content's right edge, as a strip's last control does) */
-:root[data-style="clean"] :is(.sgc-ev,.sgc-wr .e){--pb:var(--av-b);--pl:var(--av-l);--pm:var(--c3);--pt:var(--c6)}
-:root[data-style="clean"] .sgc-day{gap:2px}
-:root[data-style="clean"] .sgc-ev{margin:0 -8px;padding:6px 8px;border-radius:10px}
-:root[data-style="clean"] .sgc-ev>.num,:root[data-style="clean"] .sgc-wr .d{color:var(--muted);font-variant-numeric:tabular-nums}
-:root[data-style="clean"] .sgc-wr{border-radius:10px;transition:background-color var(--t-fast) var(--ease)}
-:root[data-style="clean"] .sgc-mo .d{border-radius:var(--r-pill);transition:background-color var(--t-fast) var(--ease)}
-:root[data-style="clean"] .sgc-mo .d.on{background:var(--row-on);box-shadow:none}
-/* (the month's days are boxes with no fill until hovered: a little room under the last week keeps its numbers 16px off the foot) */
-:root[data-style="clean"] .sgc-mo{padding-bottom:5px}
-:root[data-style="clean"] .sgc-in.fresh{animation:sgcin var(--t-fast) var(--ease) both}
-:root[data-style="clean"] .sgc-in.gone{animation:sgcout var(--t-fast) var(--ease) both}
+:root[data-style="clean"] .sgc-mt .ib{border-radius:50%}
+:root[data-style="clean"] :is(.sgc-lr>.num,.sgc-sel .num,.sgc-lr .tm){font-variant-numeric:tabular-nums}
+:root[data-style="clean"] .sgc-lr{border-radius:10px}
+:root[data-style="clean"] .sgc-mo .d b{border-radius:var(--r-pill)}
 /* ---------- Date range picker ---------- */
 .drx{display:grid;grid-template-columns:160px 1fr;overflow:hidden}
 @media (max-width:720px){.drx{grid-template-columns:1fr}.drx-side{flex-direction:row!important;flex-wrap:wrap;border-right:0!important;border-bottom:1px solid color-mix(in srgb,var(--line) 50%,transparent)}}
@@ -9610,7 +9591,24 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .ntx.panel .ntx-ct{margin-left:calc(-1 * var(--s-1))}
 /* Mark all read is a text button: its words end on the content's edge and its hover box reaches out round them */
 .ntx.panel .ntx-all.pill{padding:0 var(--s-2);margin-right:calc(-1 * var(--s-2))}
-.ntx.panel .ntx-tabs{display:flex}
+/* the filter is a row of underline tabs under the head (owner, 28 Nov): the head keeps Mark all read top right and has no line
+   of its own; the tabs' row carries the hairline, edge to edge, and the picked tab's 2px line slides along it. A tab's words
+   are muted, and the picked one (or one under the pointer) is the text colour */
+.ntx.panel:has(.ntx-ut) .ntx-h{border-bottom:0;margin-bottom:0}
+.ntx-ut{position:relative;display:flex;gap:var(--s-4);margin:calc(-1 * var(--s-2)) calc(-1 * var(--s-4)) var(--s-2);padding:0 var(--s-4);border-bottom:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+.ntx-ut button{position:relative;height:32px;padding:0;font-size:13px;color:var(--muted);transition:color var(--t-fast) var(--ease)}
+.ntx-ut button:is(:hover,[aria-selected="true"]){color:var(--fg)}
+.ntx-ui{position:absolute;bottom:-1px;left:0;height:2px;border-radius:2px 2px 0 0;background:var(--fg);transition:left var(--t) var(--ease),width var(--t) var(--ease)}
+/* an item is two buttons on one row: the item itself, which opens it and marks it read, and, at the unread dot's place, Mark as
+   unread, a hollow dot that shows on a read item under the pointer or with the focus in the row */
+.ntx-o{flex:1;min-width:0;display:flex;align-items:center;gap:var(--s-3);text-align:left;color:inherit}
+.ntx-m{position:relative;flex:none;width:7px;height:7px;display:grid}
+.ntx.panel .ntx-n .ntx-m .u{margin:0}
+.ntx-u{position:absolute;left:50%;top:50%;width:24px;height:24px;margin:-12px 0 0 -12px;opacity:0;visibility:hidden;transition:opacity var(--t-fast) var(--ease),visibility 0s var(--t-fast),background var(--t-fast)}
+.ntx-u i{width:7px;height:7px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--muted)}
+.ntx-n.read:is(:hover,:focus-within) .ntx-u{opacity:1;visibility:visible;transition-delay:0s}
+.ntx-n:not(.read) .ntx-u{display:none}
+.ntx-sr{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .ntx.panel .ntx-list{margin:0 calc(-1 * var(--s-2)) calc(-1 * var(--s-2))}
 .ntx.panel .ntx-n{align-items:center;gap:var(--s-3);padding:var(--s-2);border-radius:calc(var(--r-card) - var(--s-2));transition:background-color var(--t-fast)}
 .ntx.panel .ntx-n .t span{line-height:15px}
@@ -9631,6 +9629,9 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 /* the head (the inbox, its count and Mark all read) is an off-white head strip, as every Clean card with a head has; its
    controls sit 16px from the strip's top and bottom (--strip-y, owner, 23 Nov) and on the content's 16px column */
 :root[data-style="clean"] .ntx.panel .ntx-h{margin:calc(-1 * var(--s-4)) calc(-1 * var(--s-4)) var(--s-2);padding:var(--strip-y) var(--s-4);background:var(--strip);border-bottom:1px solid var(--line);border-radius:var(--r-card) var(--r-card) 0 0}
+:root[data-style="clean"] .ntx.panel:has(.ntx-ut) .ntx-h{margin-bottom:0;border-bottom:0}
+/* the tabs end the head strip: they sit on its off-white, and their row's line is the strip's own */
+:root[data-style="clean"] .ntx-ut{background:var(--strip);border-bottom-color:var(--line)}
 :root[data-style="clean"] .ntx.panel .ntx-n.new{animation:clpiece var(--t-slow) var(--ease) both}
 /* ---------- Banner ---------- */
 /* an announcement on a tint of its tone: an eyebrow, a title, a line of text and its actions on the left, and one of four line
@@ -9881,13 +9882,13 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .pfm-me .muted{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pfm-pop .mi .pfm-lg{width:24px;height:24px;font-size:11px;border-radius:calc(7px * var(--rk-m,var(--rk)))}
 .pfm-pop .mi .d{white-space:nowrap}
-/* the theme row is a switch: on, it shows the switch on rather than a selected row */
-.pfm-th[aria-checked="true"]{background:none;font-weight:400}
-.pfm-th.hl{background:color-mix(in srgb,var(--fg) 5%,transparent)}
-.pfm-th[aria-checked="true"]:hover{background:color-mix(in srgb,var(--fg) 5%,transparent)}
-.pfm-th .toggle{margin-left:auto}
-.pfm-th[aria-checked="true"] .toggle{background:var(--accent);box-shadow:inset 0 0 0 1px var(--accent-mark,var(--accent))}
-.pfm-th[aria-checked="true"] .toggle::after{transform:translateX(12px);background:var(--on-accent)}
+/* the theme row (owner, 28 Nov): Theme, and a small three-way choice in the row, System, Light and Dark, on the segmented
+   control's grey track with its sliding knob. The row itself has no hover: its three choices are what you press */
+.pfm-th{display:flex;align-items:center;gap:10px;padding:2px 2px 2px var(--s-2);font-size:13px;color:var(--fg)}
+.pfm-th>.i{color:var(--fg2)}
+.pfm-ths{margin-left:auto}
+.pfm-ths button{height:24px;padding:0 var(--s-2);font-size:12px}
+.pfm-ths button[aria-checked="true"]{color:var(--fg)}
 .pfm-ky .kbd{margin-left:auto}
 /* the shortcuts: a plain list of keys and what they do, 16px in from every edge; Close sits on the title's line with its glyph
    16px in */
@@ -9903,13 +9904,12 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
    line of text repeats it under the bar (owner, 18 Nov) */
 .pfm-note{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 /* Clean: the bar is a card with 22px corners; the tiles are monochrome; the menu takes the card's corners with its rows
-   concentric inside them; the theme switch is ink when on; the shortcuts card has an off-white head strip with Close a 28px
+   concentric inside them; the Theme row's choice is the segmented track; the shortcuts card has an off-white head strip with Close a 28px
    circle 16px from its top and right edges (owner, 23 Nov) */
 :root[data-style="clean"] .pfm-lg[data-t]{background:var(--chip);color:var(--fg2);box-shadow:inset 0 0 0 1px var(--hair)}
 :root[data-style="clean"] .pfm-pop{padding:6px;border-radius:var(--r-card)}
 :root[data-style="clean"] .pfm-pop .mi{border-radius:calc(var(--r-card) - 6px)}
-:root[data-style="clean"] .pfm-th[aria-checked="true"] .toggle{background:var(--btn-2);box-shadow:inset 0 0 0 1px var(--btn-2),inset 0 2px 4px -1px rgba(0,0,0,.3)}
-:root[data-style="clean"] .pfm-th[aria-checked="true"] .toggle::after{background:var(--on-btn)}
+:root[data-style="clean"] .pfm-ths button[aria-checked="true"]{color:var(--fg)}
 :root[data-style="clean"] .pfm-keys{padding:0 16px 16px}
 :root[data-style="clean"] .pfm-kh{height:auto;margin:0 -16px 16px;padding:var(--strip-y) 16px;background:var(--strip);border-bottom:1px solid var(--line);border-radius:var(--r-card) var(--r-card) 0 0;line-height:28px}
 :root[data-style="clean"] .pfm-kh .ib{width:28px;height:28px;margin:0}
@@ -10079,9 +10079,6 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 :root[data-style="clean"] .flm-pop{padding:6px;border-radius:var(--r-card)}
 :root[data-style="clean"] .flm-pop .mi{border-radius:calc(var(--r-card) - 6px)}
 :root[data-style="clean"] .flm-r:hover{background:var(--row)}
-/* the theme switch in the account menu is a row with a switch: its switch says it is on, so the row itself keeps no fill and
-   takes the one hover like the rows round it */
-:root[data-style="clean"] .pfm-pop.pop .pfm-th[aria-checked="true"]{background:transparent}
 /* ---------- Number field ---------- */
 /* a number you can type or step: minus and plus at the ends of the field, a unit beside the value, and a hint under it that
    gives the range, or says what changed when a typed value was rounded to the step or kept inside the range */
@@ -13522,12 +13519,11 @@ button.pvb-row:focus-visible{outline-offset:-2px}
   <div class="card-h"><div><h3>Segmented control</h3><p>Switch between views of the same thing, with a sliding indicator.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
   <template><div class="sgc panel">
-  <div class="sgc-h"><div class="sgc-ht"><b>Pricing launch</b></div>
-    <div class="sgc-seg" role="tablist" aria-label="View"><span class="sgc-k" aria-hidden="true"></span><button role="tab" aria-selected="true" data-v="day">Day</button><button role="tab" aria-selected="false" tabindex="-1" data-v="week">Week</button><button role="tab" aria-selected="false" tabindex="-1" data-v="month">Month</button></div></div>
-  <div class="sgc-bar"><span class="sgc-r" aria-live="polite">Friday, Oct 23</span><button class="pill ghost sm sgc-td">Today</button><button class="ib sgc-pv" aria-label="Previous day"></button><button class="ib sgc-nx" aria-label="Next day"></button></div>
+  <div class="sgc-h"><div class="sgc-mt"><button class="ib sgc-pv" aria-label="Previous month" data-tip="Previous month">{chev-l}</button><b class="sgc-r" aria-live="polite">October 2026</b><button class="ib sgc-nx" aria-label="Next month" data-tip="Next month">{chev-r}</button></div>
+    <div class="sgc-seg" role="tablist" aria-label="View"><span class="sgc-k" aria-hidden="true"></span><button role="tab" aria-selected="false" tabindex="-1" data-v="list" aria-label="List" data-tip="List">{list}</button><button role="tab" aria-selected="true" data-v="cal" aria-label="Calendar" data-tip="Calendar">{cal}</button></div></div>
   <div class="sgc-p" role="tabpanel" tabindex="0"><div class="sgc-in"></div></div>
 </div></template>
-  <div class="card-f"><span>Pick a view, step through dates, or open a day</span><span class="sp"></span><button class="replay" aria-label="Replay Segmented control"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
+  <div class="card-f"><span>Switch between the calendar and the list, pick a day</span><span class="sp"></span><button class="replay" aria-label="Replay Segmented control"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
 <article class="card wide" data-c="date-range-picker" id="c-date-range-picker">
   <div class="card-h"><div><h3>Date range picker</h3><p>Pick a start and end across two months, or use a preset.</p></div></div>
@@ -13776,8 +13772,8 @@ button.pvb-row:focus-visible{outline-offset:-2px}
   <div class="stage"><div class="stage-in"></div></div>
   <template><div class="ntx panel">
   <div class="ntx-h"><span class="ntx-hi" aria-hidden="true"><svg class="i s"><use href="#i-bell"/></svg></span><b>Inbox</b><span class="ntx-ct num">0</span><span class="ntx-sp"></span><button class="pill ghost sm ntx-all">Mark all read</button></div>
-  <div class="ntx-tabs"><div class="seg2" role="group" aria-label="Filter"><button aria-pressed="true" data-v="all">All</button><button aria-pressed="false" data-v="agent">Agent</button><button aria-pressed="false" data-v="men">Mentions</button></div></div>
-  <div class="ntx-list"></div>
+  <div class="ntx-ut" role="tablist" aria-label="Filter"><span class="ntx-ui" aria-hidden="true"></span><button role="tab" aria-selected="true" data-v="all">All</button><button role="tab" aria-selected="false" tabindex="-1" data-v="agent">Agent</button><button role="tab" aria-selected="false" tabindex="-1" data-v="men">Mentions</button></div>
+  <div class="ntx-list" role="tabpanel"></div>
 </div></template>
   <div class="card-f"><span>Mark read, switch tabs, watch new ones arrive</span><span class="sp"></span><button class="replay" aria-label="Replay Notifications"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
@@ -13836,7 +13832,7 @@ button.pvb-row:focus-visible{outline-offset:-2px}
     <div class="sep" role="separator"></div>
     <div class="pfm-grp" role="group"><div class="ph pfm-gl" role="none">Workspaces</div><div class="pfm-wsl"></div></div>
     <div class="sep" role="separator"></div>
-    <button class="mi pfm-th" role="menuitemcheckbox" aria-checked="false" tabindex="-1">{moon}<span>Dark theme</span><span class="toggle" aria-hidden="true"></span></button>
+    <div class="pfm-th" role="group" aria-label="Theme">{moon}<span aria-hidden="true">Theme</span><span class="seg2 pfm-ths"><button class="pfm-tho" role="menuitemradio" aria-checked="true" tabindex="-1" data-v="system">System</button><button class="pfm-tho" role="menuitemradio" aria-checked="false" tabindex="-1" data-v="light">Light</button><button class="pfm-tho" role="menuitemradio" aria-checked="false" tabindex="-1" data-v="dark">Dark</button></span></div>
     <button class="mi pfm-ky" role="menuitem" tabindex="-1">{keyboard}<span>Keyboard shortcuts</span><span class="kbd" aria-hidden="true">?</span></button>
     <div class="sep" role="separator"></div>
     <button class="mi pfm-out" role="menuitem" tabindex="-1">{logout}<span>Sign out</span></button>
@@ -13847,7 +13843,7 @@ button.pvb-row:focus-visible{outline-offset:-2px}
   </div></div></div>
   <p class="pfm-note" aria-live="polite"></p>
 </div></template>
-  <div class="card-f"><span>Open the menu, switch workspace, flip the theme</span><span class="sp"></span><button class="replay" aria-label="Replay Profile menu"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
+  <div class="card-f"><span>Open the menu, switch workspace, pick a theme</span><span class="sp"></span><button class="replay" aria-label="Replay Profile menu"><svg class="i s"><use href="#i-refresh"/></svg>Replay</button></div>
 </article>
 <article class="card" data-c="context-menu" id="c-context-menu">
   <div class="card-h"><div><h3>Context menu</h3><p>Right-click an agent reply for its actions, with a submenu that asks the agent about it.</p></div></div>
@@ -13989,7 +13985,7 @@ button.pvb-row:focus-visible{outline-offset:-2px}
   <div class="card-h"><div><h3>Set limit</h3><p>A monthly agent budget with a draggable cap and a forecast.</p></div></div>
   <div class="stage"><div class="stage-in"></div></div>
   <template><div class="slx panel">
-  <div class="slx-h"><div><b>Monthly agent budget</b><span class="muted">Resets Nov 1</span></div><label class="num slx-v" data-tip="Type a budget"><span class="cur">$</span><input class="slx-in" inputmode="numeric" autocomplete="off" aria-label="Monthly budget, in dollars" value="200"></label></div>
+  <div class="slx-h"><div><b>Monthly agent budget</b><span class="muted">Resets Nov 1</span></div><span class="slx-cap"><span class="muted" aria-hidden="true">Cap</span><label class="num slx-v"><span class="cur">$</span><input class="slx-in" inputmode="numeric" autocomplete="off" aria-label="Monthly cap, in dollars" value="200"></label></span></div>
   <div class="slx-bar"><div class="slx-used"></div><div class="slx-fc"></div><button class="slx-k" role="slider" aria-label="Budget cap" aria-valuemin="50" aria-valuemax="500"></button></div>
   <div class="slx-lg muted"><span><i style="background:var(--accent-mark,var(--accent))"></i>Spent <b class="num slx-sp">$128</b></span><span><i class="fc"></i>Forecast <b class="num slx-fv">$184</b></span></div>
   <div class="slx-warn"></div>
@@ -23280,7 +23276,7 @@ DM.def('scheduled-runs', (r, c) => {
   const inp = $('.shx-in', r), days = $('.shx-days', r), sum = $('.shx-sum', r), mk = $('.shx-mk', r);
   function row(x){
     const ic = x.mark[0] === '@' ? `<span class="ic brandic" aria-hidden="true">${BRAND[x.mark.slice(1)]}</span>` : `<span class="ic" style="background:var(--av-${x.col});color:var(--av-${x.col}-ink)" aria-hidden="true">${I(x.mark,'xs')}</span>`;
-    x.el = html(`<div class="shx-r" role="listitem">${ic}<span class="t"><span class="nm"></span><span class="d"></span><span class="res"></span></span><span class="shx-act"><button class="ib shx-run mx-press" data-tip="Run now">${I('play')}</button><button class="toggle" role="switch"></button></span><div class="shx-fx fold shut" inert><div><div><button class="pill accent sm shx-fix"></button></div></div></div></div>`);
+    x.el = html(`<div class="shx-r" role="listitem">${ic}<span class="t"><span class="nm"></span><span class="d"></span><span class="res"></span></span><span class="shx-act"><button class="pill ghost sm shx-run mx-press">Run now</button><button class="toggle" role="switch"></button></span><div class="shx-fx fold shut" inert><div><div><button class="pill accent sm shx-fix"></button></div></div></div></div>`);
     $('.nm', x.el).textContent = x.name; $('.shx-run', x.el).setAttribute('aria-label', 'Run ' + x.name + ' now'); $('.toggle', x.el).setAttribute('aria-label', x.name);
     $('.shx-run', x.el).onclick = () => run(x);
     $('.toggle', x.el).onclick = () => { x.on = !x.on; paint(x); };
@@ -24553,79 +24549,58 @@ DM.def('date-picker', (r, c) => {
 });
 /* ---------- Segmented control ---------- */
 DM.def('segmented-control', (r, c) => {
+  r.innerHTML = r.innerHTML.replace('{chev-l}', I('chev-l','xs')).replace('{chev-r}', I('chev-r','xs')).replace('{list}', I('list','s')).replace('{cal}', I('cal','s'));
   const uid = Math.random().toString(36).slice(2, 7);
-  const seg = $('.sgc-seg', r), knob = $('.sgc-k', r), tabs = $$('[role="tab"]', seg), panel = $('.sgc-p', r), range = $('.sgc-r', r);
-  // Clean's one hover: a highlight that glides from event to event and day to day (hoverGlide)
-  // (today's day in the month keeps its accent; today's row in the week has no fill of its own)
-  c.offs.push(hoverGlide(panel, '.sgc-ev,.sgc-wr,.sgc-mo .d', { keep:'.on,.d.now' }));
+  const seg = $('.sgc-seg', r), knob = $('.sgc-k', r), tabs = $$('[role="tab"]', seg), panel = $('.sgc-p', r), title = $('.sgc-r', r), root = $('.sgc', r) || r;
+  root.dataset.v = 'cal';
+  // Clean's one hover: a highlight that glides from row to row in the list (a day's hover is its own circle)
+  c.offs.push(hoverGlide(panel, '.sgc-lr'));
   let inner = $('.sgc-in', r);
   tabs.forEach(t => { t.id = `sgc-${t.dataset.v}-${uid}`; t.setAttribute('aria-controls', 'sgc-p-' + uid); });
   panel.id = 'sgc-p-' + uid;
-  // the pricing launch in October 2026, seen as a day, a week or a month. Today is Friday the 23rd
-  const TODAY = new Date(2026, 9, 23, 12), DAY0 = 864e5;
-  const at = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n, 12), iso = d => d.toISOString().slice(0, 10);
-  const same = (a, b) => iso(a) === iso(b);
-  // launch week is written out; the days around it are drawn from the work that leads up to it and follows it
-  const E = {
-    '2026-10-19':[['10:00', 'Kickoff with Maya', 'Pricing v4 brief', 'var(--pl)'], ['15:00', 'Brief the agents', 'Build and copy agents', 'var(--pm)']],
-    '2026-10-20':[['10:00', 'Wireframe review', 'Pricing v4, frames 1 to 6', 'var(--pl)'], ['11:30', 'Copy for the plan cards', 'Copy agent', 'var(--pt)'], ['14:00', 'Token audit', 'Build agent', 'var(--pm)']],
-    '2026-10-21':[['11:00', 'Copy pass', 'Plan cards and FAQ', 'var(--pt)']],
-    '2026-10-22':[['14:00', 'Design QA', 'Pricing v4, all frames', 'var(--pb)'], ['16:30', 'Fix contrast issues', 'Build agent', 'var(--pm)']],
-    '2026-10-23':[['09:30', 'Pricing review with Maya', 'Pricing v4, frames 1 to 3', 'var(--pl)'], ['13:00', 'Export tokens to CSS', 'Build agent', 'var(--pm)'], ['16:00', 'Ship pricing v4', 'designme.studio/pricing', 'var(--pb)']],
-    '2026-10-24':[], '2026-10-25':[]
-  };
-  const POOL = [['Design crit', 'Pricing frames', 'var(--pl)'], ['Token audit', 'Build agent', 'var(--pm)'], ['Copy pass', 'Plan cards', 'var(--pt)'], ['Stakeholder check-in', 'Weekly', 'var(--pb)'],
-    ['User interviews', 'Three sessions', 'var(--pl)'], ['Conversion review', 'Trial to paid', 'var(--pb)'], ['Research synthesis', 'Notes and quotes', 'var(--pt)'], ['Fix review notes', 'Build agent', 'var(--pm)']];
-  const TIMES = ['09:30', '10:00', '11:30', '13:00', '14:00', '15:30', '16:00'];
-  function evs(d){
-    const k = iso(d); if (E[k]) return E[k];
-    const wd = d.getDay(); if (wd === 0 || wd === 6) return [];
-    let h = Math.floor(d / DAY0) * 2654435761 >>> 0; const nx = m => { h = Math.imul(h ^ h >>> 15, 2246822519) >>> 0; return h % m; };
-    const n = [0, 1, 1, 2, 2, 3][nx(6)], t = new Set(), out = [];
-    while (t.size < n) t.add(TIMES[nx(TIMES.length)]);
-    [...t].sort().forEach(tm => { const e = POOL[nx(POOL.length)]; out.push([tm, e[0], e[1], e[2]]); });
-    return E[k] = out;
-  }
-  const mon = d => at(d, -((d.getDay() + 6) % 7));
-  const mo = (d, o) => d.toLocaleDateString('en-US', o);
-  const UNIT = { day:'day', week:'week', month:'month' };
+  // a pricing launch in October 2026: today is Friday the 23rd, and the launch on the 28th is the one accent mark
+  const TODAY = new Date(2026, 9, 23, 12);
+  const EV = [['2026-10-06', 'Kickoff', '10:00'], ['2026-10-09', 'Brief review', '14:00'], ['2026-10-14', 'Copy review', '11:00'], ['2026-10-20', 'Design sign-off', '16:00'], ['2026-10-26', 'QA pass', '09:30'], ['2026-10-28', 'Pricing goes live', '10:00', 1]];
+  const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const day = k => { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d, 12); };
+  const fmt = (d, o) => d.toLocaleDateString('en-US', o), short = d => fmt(d, { month:'short', day:'numeric' });
+  const ev = k => EV.find(e => e[0] === k);
+  let cur = 'cal', month = new Date(2026, 9, 1, 12), sel = day('2026-10-28');
+  // a month's picked day when you step to it: the launch, else its first event, else the 1st
+  const firstPick = m => { const L = EV.filter(e => e[0].startsWith(iso(m).slice(0, 7))); return day((L.find(e => e[3]) || L[0] || [iso(m)])[0]); };
+  const selLine = () => { const e = ev(iso(sel)); return `<span class="num">${short(sel)}</span><i${e && e[3] ? ' class="x"' : ''}></i>` + (e ? `<span class="t">${e[1]} <span>· ${e[2]}</span></span>` : '<span class="t none">Nothing planned</span>'); };
   const V = {
-    day:[d => mo(d, { weekday:'long', month:'short', day:'numeric' }), d => { const e = evs(d); return e.length ? `<div class="sgc-day">${e.map(([t, n, x, col]) => `<div class="sgc-ev" style="--c:${col}"><span class="num muted">${t}</span><i></i><span class="t">${n}<span>${x}</span></span></div>`).join('')}</div>` : '<div class="sgc-none">Nothing planned</div>'; }],
-    week:[d => { const a = mon(d), b = at(a, 4); return mo(a, { month:'short', day:'numeric' }) + ' – ' + (a.getMonth() === b.getMonth() ? b.getDate() : mo(b, { month:'short', day:'numeric' })); },
-      d => `<div class="sgc-wk">${Array.from({ length:5 }, (_, i) => at(mon(d), i)).map(x => { const ev = evs(x);
-        return `<button class="sgc-wr${same(x, TODAY) ? ' now' : ''}${ev.length ? '' : ' none'}" data-d="${iso(x)}" aria-label="${mo(x, { weekday:'long', month:'long', day:'numeric' })}, ${ev.length ? ev.length + (ev.length === 1 ? ' event' : ' events') : 'nothing planned'}"><span class="d">${mo(x, { weekday:'short' })} <b>${x.getDate()}</b></span>${ev.length ? `<span class="e" style="--c:${ev[0][3]}"><i></i><span>${ev[0][1]}</span></span>${ev.length > 1 ? `<span class="more">+${ev.length - 1} more</span>` : ''}` : '<span class="e">Nothing planned</span>'}</button>`; }).join('')}</div>`],
-    month:[d => mo(d, { month:'long', year:'numeric' }), d => { const a = new Date(d.getFullYear(), d.getMonth(), 1, 12), lead = (a.getDay() + 6) % 7, len = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
-      return `<div class="sgc-mo${lead + len > 35 ? ' r6' : ''}">${['M','T','W','T','F','S','S'].map(w => `<span class="w" aria-hidden="true">${w}</span>`).join('')}${'<span></span>'.repeat(lead)}${Array.from({ length:len }, (_, i) => { const x = at(a, i), n = evs(x).length;
-        return `<button class="d num${n ? ' e' : ''}${same(x, TODAY) ? ' now' : ''}${same(x, sel) && !same(x, TODAY) ? ' on' : ''}" data-d="${iso(x)}" aria-label="${mo(x, { weekday:'long', month:'long', day:'numeric' })}, ${n ? n + (n === 1 ? ' event' : ' events') : 'nothing planned'}">${i + 1}</button>`; }).join('')}</div>`; }]
+    cal:() => { const a = month, lead = (a.getDay() + 6) % 7, len = new Date(a.getFullYear(), a.getMonth() + 1, 0).getDate();
+      return `<div class="sgc-cal"><div class="sgc-mo">${['M','T','W','T','F','S','S'].map(w => `<span class="w" aria-hidden="true">${w}</span>`).join('')}${'<span></span>'.repeat(lead)}${Array.from({ length:len }, (_, i) => { const x = new Date(a.getFullYear(), a.getMonth(), i + 1, 12), k = iso(x), e = ev(k), on = k === iso(sel);
+        return `<button class="d num${e ? ' e' : ''}${e && e[3] ? ' x' : ''}${k === iso(TODAY) ? ' now' : ''}${on ? ' on' : ''}" data-d="${k}" aria-pressed="${on}" aria-label="${fmt(x, { weekday:'long', month:'long', day:'numeric' })}, ${e ? e[1] : 'nothing planned'}"><b>${i + 1}</b></button>`; }).join('')}</div><div class="sgc-sel" aria-live="polite">${selLine()}</div></div>`; },
+    list:() => { const L = EV.filter(e => e[0].startsWith(iso(month).slice(0, 7)));
+      return L.length ? `<div class="sgc-ls">${L.map(e => `<button class="sgc-lr" data-d="${e[0]}"><span class="num">${short(day(e[0]))}</span><span class="t"><i${e[3] ? ' class="x"' : ''}></i><span>${e[1]}</span></span><span class="num tm">${e[2]}</span></button>`).join('')}</div>` : '<div class="sgc-none">Nothing planned this month</div>'; }
   };
-  const pv = $('.sgc-pv', r), nxB = $('.sgc-nx', r), td = $('.sgc-td', r);
   // the knob slides to the picked tab and takes its width
   const place = () => { const t = tabs.find(x => x.getAttribute('aria-selected') === 'true'); knob.style.left = t.offsetLeft + 'px'; knob.style.width = t.offsetWidth + 'px'; };
-  let cur = 'day', sel = TODAY, n = 0;
-  // a day in the week or the month opens that day
-  const bind = el => $$('[data-d]', el).forEach(b => b.onclick = () => { const [y, m, dd] = b.dataset.d.split('-').map(Number); sel = new Date(y, m - 1, dd, 12); pick(tabs[0], false, true); });
-  // shows the view for the picked date: the range eases over and the new dates crossfade over the old ones, which stay
-  // on screen until they have faded, so no frame is empty. The panel eases to the new view's height (grow())
+  // picking a day moves the small accent circle to it and the line under the hairline changes to it; a row in the list opens
+  // its day in the calendar
+  const choose = k => { sel = day(k); $$('.sgc-mo .d', inner).forEach(b => { const on = b.dataset.d === k; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); }); const l = $('.sgc-sel', inner); if (l) swap(l, selLine(), true); };
+  const bind = el => { $$('.sgc-mo .d', el).forEach(b => b.onclick = () => choose(b.dataset.d)); $$('.sgc-lr', el).forEach(b => b.onclick = () => { sel = day(b.dataset.d); pick(tabs[1]); }); };
+  // shows the view: the new one crossfades in over the old, which stays until it has faded, so no frame is empty; its days or
+  // rows come in one after another, and the panel eases to the new view's height (grow())
   function show(){
-    const v = cur;
-    swap(range, V[v][0](sel)); pv.setAttribute('aria-label', 'Previous ' + UNIT[v]); nxB.setAttribute('aria-label', 'Next ' + UNIT[v]);
-    const old = inner; inner = html(`<div class="sgc-in fresh">${V[v][1](sel)}</div>`); bind(inner);
+    const old = inner; inner = html(`<div class="sgc-in fresh">${V[cur]()}</div>`); bind(inner);
     $$('.sgc-in.gone', panel).forEach(x => x.remove());
     old.classList.remove('fresh'); old.classList.add('gone'); old.inert = true; old.setAttribute('aria-hidden', 'true');
     old.parentElement.appendChild(inner);
-    c.later(REDUCE ? 0 : 260, () => old.remove());
+    c.later(REDUCE ? 0 : 240, () => old.remove());
+    if (!REDUCE){ const days = $$('.sgc-mo .d', inner); if (days.length) mxIn([...days, $('.sgc-sel', inner)], { ms:300, step:6, y:4, blur:0 }); else mxIn($$('.sgc-lr', inner), { ms:300, step:40, y:4, blur:0 }); }
   }
-  function pick(t, focus, force){
+  function pick(t, focus){
     tabs.forEach(x => { const on = x === t; x.setAttribute('aria-selected', on); x.tabIndex = on ? 0 : -1; });
-    panel.setAttribute('aria-labelledby', t.id); place();
+    panel.setAttribute('aria-labelledby', t.id); place(); hideTip();
     if (focus) t.focus({ preventScroll:true });
-    if (t.dataset.v === cur && !force) return; cur = t.dataset.v; show();
+    if (t.dataset.v === cur) return; cur = t.dataset.v; root.dataset.v = cur; show();
   }
-  // previous and next step by the view's unit; Today comes back to the 23rd
-  const step = k => { sel = cur === 'day' ? at(sel, k) : cur === 'week' ? at(sel, 7 * k) : new Date(sel.getFullYear(), sel.getMonth() + k, 1, 12); show(); };
-  pv.innerHTML = I('chev-l','xs'); nxB.innerHTML = I('chev-r','xs');
-  pv.onclick = () => step(-1); nxB.onclick = () => step(1);
-  td.onclick = () => { sel = TODAY; show(); };
+  // previous and next step a month; the title eases over to the new one
+  const step = k => { month = new Date(month.getFullYear(), month.getMonth() + k, 1, 12); sel = firstPick(month); swap(title, fmt(month, { month:'long', year:'numeric' })); show(); };
+  $('.sgc-pv', r).onclick = () => step(-1); $('.sgc-nx', r).onclick = () => step(1);
   tabs.forEach(t => t.onclick = () => pick(t));
   // the arrow keys move along the tabs and pick as they go; Home and End jump to the ends
   seg.onkeydown = e => {
@@ -24633,17 +24608,14 @@ DM.def('segmented-control', (r, c) => {
     const go = { ArrowRight:i + 1, ArrowLeft:i - 1, Home:0, End:tabs.length - 1 }[e.key]; if (go === undefined) return;
     e.preventDefault(); pick(tabs[(go + tabs.length) % tabs.length], true);
   };
-  inner.innerHTML = V.day[1](sel); bind(inner); pick(tabs[0]); c.offs.push(grow(panel));
+  inner.innerHTML = V.cal(); bind(inner); pick(tabs[1]); c.offs.push(grow(panel));
   knob.style.transition = 'none'; requestAnimationFrame(() => { place(); requestAnimationFrame(() => { knob.style.transition = ''; }); });
   const ro = new ResizeObserver(place); ro.observe(seg); c.offs.push(() => ro.disconnect());
-  // the preview's story: the week, then Tuesday opened from it, a step on to Wednesday, the month, and back to the week
+  // the preview's story, on a calm loop: the calendar, the list, and back to the calendar
   c.story(async s => {
-    await s.beat(3);
-    await s.tap(tabs[1]); s.away(); await s.beat(4);
-    await s.tap($$('.sgc-wr', inner)[1]); s.away(); await s.beat(4);
-    await s.tap(nxB); s.away(); await s.beat(3);
-    await s.tap(tabs[2]); s.away(); await s.beat(4);
-    await s.tap(tabs[1]); s.away(); await s.beat(3);
+    await s.beat(4);
+    await s.tap(tabs[0]); s.away(); await s.beat(5);
+    await s.tap(tabs[1]); s.away(); await s.beat(5);
   });
 });
 /* ---------- Date range picker ---------- */
@@ -25619,15 +25591,26 @@ DM.def('notifications', (r, c) => {
   ];
   const root = r.classList.contains('ntx') ? r : $('.ntx', r), list = $('.ntx-list', r), ct = $('.ntx-ct', r); let f = 'all';
   const count = (bump) => { const n = N.filter(x => !x.read).length; ct.textContent = n; ct.classList.toggle('z', !n); if (bump){ ct.classList.remove('bump'); void ct.offsetWidth; ct.classList.add('bump'); } };
-  const row = x => `<button class="ntx-n${x.read ? ' read' : ''}" aria-pressed="${!!x.read}"><span class="ic"${x.ic ? ` data-tone="${x.tone || 'neutral'}"` : ''}>${x.ic ? I(x.ic,'xs') : AV(x.av[0], x.av[1], x.av[2])}</span><span class="t">${x.t}<span>${x.w}</span></span><span class="u"></span></button>`;
-  const flip = (b, x) => { x.read = !x.read; b.classList.toggle('read', x.read); b.setAttribute('aria-pressed', x.read); count(); };
+  const row = x => `<div class="ntx-n${x.read ? ' read' : ''}"><button class="ntx-o"><span class="ic"${x.ic ? ` data-tone="${x.tone || 'neutral'}"` : ''}>${x.ic ? I(x.ic,'xs') : AV(x.av[0], x.av[1], x.av[2])}</span><span class="t">${x.t}<span>${x.w}</span></span><span class="ntx-sr">${x.read ? '' : 'Unread'}</span></button><span class="ntx-m"><span class="u" aria-hidden="true"></span><button class="ib ntx-u" aria-label="Mark as unread" data-tip="Mark as unread"><i></i></button></span></div>`;
+  // clicking an item opens it (onOpen in React) and marks it read; Mark as unread, on the row, takes it back
+  const mark = (b, x, read) => { if (x.read === read) return; x.read = read; b.classList.toggle('read', read); $('.ntx-sr', b).textContent = read ? '' : 'Unread'; count(); };
+  const wire = (b, x) => { $('.ntx-o', b).onclick = () => mark(b, x, true); $('.ntx-u', b).onclick = () => { hideTip(); mark(b, x, false); $('.ntx-o', b).focus({ preventScroll:true }); }; };
   // an empty filter shows Clean's empty state: a small sketch of a list, a title and one muted line
   const EMPTY = '<div class="ntx-em"><span class="ntx-em-art" aria-hidden="true"></span><b>Nothing here yet</b><span>New updates and mentions show up here</span></div>';
   function paint(anim){ const L = N.filter(x => f === 'all' || x.k === f); list.innerHTML = L.length ? L.map(row).join('') : EMPTY;
-    $$('.ntx-n', list).forEach((b, i) => b.onclick = () => flip(b, L[i]));
+    $$('.ntx-n', list).forEach((b, i) => wire(b, L[i]));
     if (anim) stagger($$('.ntx-n', list), 40); count(); }
-  seg($('.ntx-tabs .seg2', r), v => { f = v; paint(true); });
-  $('.ntx-all', r).onclick = () => { N.forEach(x => x.read = true); $$('.ntx-n', list).forEach((b, i) => c.later(i * 50, () => { b.classList.add('read'); b.setAttribute('aria-pressed', 'true'); })); count(); };
+  // the filter's tabs: a click or Left and Right pick one, and the line under the tabs slides to it (placed at once the first time)
+  const tl = $('.ntx-ut', r), tabs = $$('[role="tab"]', tl), ui = $('.ntx-ui', tl), uid = Math.random().toString(36).slice(2, 7);
+  tabs.forEach((t, i) => { t.id = `ntx-t${i}-${uid}`; });
+  const under = () => { const t = tabs.find(x => x.getAttribute('aria-selected') === 'true'); if (t && t.offsetWidth){ ui.style.left = t.offsetLeft + 'px'; ui.style.width = t.offsetWidth + 'px'; } };
+  const pick = (t, focus) => { tabs.forEach(x => { const on = x === t; x.setAttribute('aria-selected', on); x.tabIndex = on ? 0 : -1; }); list.setAttribute('aria-labelledby', t.id); under(); if (focus) t.focus({ preventScroll:true }); if (f !== t.dataset.v){ f = t.dataset.v; paint(true); } };
+  tabs.forEach(t => t.addEventListener('click', () => pick(t)));
+  c.on(tl, 'keydown', e => { const i = tabs.indexOf(document.activeElement), d = { ArrowLeft:-1, ArrowRight:1 }[e.key]; if (i < 0 || !d) return; e.preventDefault(); pick(tabs[(i + d + tabs.length) % tabs.length], true); });
+  list.setAttribute('aria-labelledby', tabs[0].id);
+  requestAnimationFrame(() => { ui.style.transition = 'none'; under(); void ui.offsetWidth; ui.style.transition = ''; });
+  const ro = new ResizeObserver(under); ro.observe(tl); c.offs.push(() => ro.disconnect());
+  $('.ntx-all', r).onclick = () => { N.forEach(x => x.read = true); count(); $$('.ntx-n', list).forEach((b, i) => c.later(i * 50, () => { b.classList.add('read'); $('.ntx-sr', b).textContent = ''; })); };
   paint(true);
   // the card fits its items at every moment (owner, 17 and 18 Nov: no room kept for the ones to come): it eases taller as one
   // arrives or a filter shows more, and shorter as one shows fewer, centred in its stage (grow(), once its entrance has ended)
@@ -25635,7 +25618,7 @@ DM.def('notifications', (r, c) => {
   const incoming = [{ k:'agent', ic:'spark', tone:'accent', t:'<b>Weekly design QA</b> started on 12 frames', w:'Just now' }, { k:'men', av:['AR','var(--av-p)','AR-g02'], t:'<b>Ari</b> replied: “Looks great, ship it”', w:'Just now' }];
   // two items arrive while you watch; once you click or type in the inbox the preview leaves it to you, so a tab you
   // picked or a Mark all read stays as you left it
-  incoming.forEach((x, i) => c.later(2200 + i * 2600, () => { if (c.mine) return; N.unshift(x); if (f === 'all' || f === x.k){ const el = html(row(x)); el.classList.add('new'); list.prepend(el); $('.ntx-em', list)?.remove(); el.onclick = () => flip(el, x); } count(true); }));
+  incoming.forEach((x, i) => c.later(2200 + i * 2600, () => { if (c.mine) return; N.unshift(x); if (f === 'all' || f === x.k){ const el = html(row(x)); el.classList.add('new'); list.prepend(el); $('.ntx-em', list)?.remove(); wire(el, x); } count(true); }));
 });
 /* ---------- Banner ---------- */
 /* the four drawings, each 240 by 160 and written as plain paths, all in one isometric view on a floor grid, with their
@@ -25753,20 +25736,27 @@ DM.def('profile-menu', (r, c) => {
   // the workspaces this account belongs to: initial, name, plan and the tint of its tile
   const WS = [['N', 'Northwind', 'Pro, 12 members', 'pb'], ['A', 'Acme Labs', 'Free, 3 members', 'pk'], ['P', 'Personal', 'Just you', 'pl']];
   const uid = Math.random().toString(36).slice(2, 7);
-  const tr = $('.pfm-tr', r), pop = $('.pfm-pop', r), wsl = $('.pfm-wsl', r), th = $('.pfm-th', r), note = $('.pfm-note', r), kf = $('.pfm-kf', r), sin = $('.pfm-in', r), cur = $('.pfm-cur', r), wn = $('.pfm-wn', r);
+  const tr = $('.pfm-tr', r), pop = $('.pfm-pop', r), wsl = $('.pfm-wsl', r), th = $('.pfm-th', r), ths = $('.pfm-ths', r), tho = $$('.pfm-tho', r), note = $('.pfm-note', r), kf = $('.pfm-kf', r), sin = $('.pfm-in', r), cur = $('.pfm-cur', r), wn = $('.pfm-wn', r);
   // the menu is named by the account it belongs to, and the workspaces by their heading
   $('.pfm-nm', r).id = 'pfm-nm-' + uid; $('.pfm-em', r).id = 'pfm-em-' + uid; $('.pfm-gl', r).id = 'pfm-gl-' + uid;
   pop.setAttribute('aria-labelledby', `pfm-nm-${uid} pfm-em-${uid}`); $('.pfm-grp', r).setAttribute('aria-labelledby', 'pfm-gl-' + uid);
   wsl.innerHTML = WS.map((w, i) => `<button class="mi" role="menuitemradio" aria-checked="${!i}" tabindex="-1" data-i="${i}"><span class="pfm-lg" data-t="${w[3]}">${w[0]}</span><span>${w[1]}<span class="d">${w[2]}</span></span><span class="ck">${I('check','xs')}</span></button>`).join('');
-  const rows = $$('.mi', wsl), items = () => $$('.mi', pop);
-  // the theme switch starts from the page's own theme
+  const rows = $$('.mi', wsl);
+  // the arrow keys stop once on the theme row, on its picked choice (or the one with the focus); Left and Right move between its three
+  const items = () => $$('.mi, .pfm-tho', pop).filter(x => !x.matches('.pfm-tho') || (th.contains(document.activeElement) ? x === document.activeElement : x.getAttribute('aria-checked') === 'true'));
+  // the theme choice starts from the page's own theme: System when the page follows the device
   const root = document.documentElement;
-  let ws = 0, dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  const pageTheme = () => root.dataset.theme === 'dark' || root.dataset.theme === 'light' ? root.dataset.theme : 'system';
+  let ws = 0, theme = pageTheme();
+  // the knob slides under the picked choice, placed at once the first time
+  const knob = document.createElement('span'); knob.className = 'knob'; ths.prepend(knob);
+  const place = () => { const b = tho.find(x => x.getAttribute('aria-checked') === 'true'); if (b && b.offsetWidth){ knob.style.left = b.offsetLeft + 'px'; knob.style.width = b.offsetWidth + 'px'; } };
+  const ro = new ResizeObserver(place); ro.observe(ths); c.offs.push(() => ro.disconnect());
   // what changed is said to screen readers; the bar and the menu show it, so it has no line of its own under the bar
   const say = t => { note.textContent = t || ''; };
   function paint(){
     const w = WS[ws]; cur.textContent = w[0]; cur.dataset.t = w[3];
-    rows.forEach((m, i) => m.setAttribute('aria-checked', i === ws)); th.setAttribute('aria-checked', dark);
+    rows.forEach((m, i) => m.setAttribute('aria-checked', i === ws)); tho.forEach(x => x.setAttribute('aria-checked', x.dataset.v === theme)); place();
   }
   // the workspace name in the bar crossfades to the new one. Each switch replaces the one before it, so switching again
   // before the fade has finished (or straight back) still ends on the workspace you picked, never on an empty line
@@ -25785,7 +25775,7 @@ DM.def('profile-menu', (r, c) => {
   // the focus is the one highlight: a row the demo's pointer left lit goes dark
   const focusItem = m => { if (!m) return; items().forEach(x => { x.tabIndex = x === m ? 0 : -1; x.classList.remove('hl'); }); m.focus({ preventScroll:true }); };
   function show(on, focus){
-    if (on && !isOpen()){ hideTip(); placePop(tr, pop); }
+    if (on && !isOpen()){ hideTip(); placePop(tr, pop); knob.style.transition = 'none'; place(); void knob.offsetWidth; knob.style.transition = ''; }
     pop.classList.toggle('open', on); pop.inert = !on; tr.setAttribute('aria-expanded', on);
     if (on && focus){ const all = items(); focusItem(focus === 'last' ? all[all.length - 1] : all[0]); }
     if (!on){ items().forEach(x => x.classList.remove('hl')); if (pop.contains(document.activeElement)) tr.focus({ preventScroll:true }); }
@@ -25806,7 +25796,9 @@ DM.def('profile-menu', (r, c) => {
   c.on(pop, 'keydown', e => {
     const all = items(), i = all.indexOf(document.activeElement);
     const go = { ArrowDown:all[(i + 1) % all.length], ArrowUp:all[(i - 1 + all.length) % all.length], Home:all[0], End:all[all.length - 1] }[e.key];
+    const t = tho.indexOf(document.activeElement), side = { ArrowLeft:-1, ArrowRight:1 }[e.key];
     if (go){ e.preventDefault(); focusItem(go); }
+    else if (t >= 0 && side){ e.preventDefault(); focusItem(tho[(t + side + 3) % 3]); }
     else if (e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); show(false); }
     else if (e.key === 'Tab') setTimeout(() => show(false));
   });
@@ -25814,18 +25806,18 @@ DM.def('profile-menu', (r, c) => {
     show(false); if (i === ws) return;
     ws = i; paint(); setName(WS[ws][1]); say(`Switched to ${WS[ws][1]}`);
   }));
-  // the theme is a switch: the menu stays open so the change shows where it was made
-  // a real click switches the page too, through its own theme button where there is one; the preview's story only flips the
-  // switch, so the page doesn't flash between themes while the demo loops
-  const pageDark = () => root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
-  th.addEventListener('click', e => {
-    dark = !dark; paint(); say(`Theme set to ${dark ? 'dark' : 'light'}`);
-    if (!e.isTrusted || pageDark() === dark) return;
-    const btn = document.getElementById('theme-btn');
-    if (btn) btn.click(); else { root.dataset.theme = dark ? 'dark' : 'light'; try { localStorage.setItem('dmui-theme', root.dataset.theme); } catch(err){} }
-  });
-  // and when the page's theme changes from anywhere else, the switch follows it
-  const mo = new MutationObserver(() => { if (pageDark() !== dark){ dark = pageDark(); paint(); } });
+  // the theme is a three-way choice: the menu stays open so the change shows where it was made. A real click sets the page's
+  // theme too (System follows the device again); the preview's story only moves the choice, so the page doesn't flash between
+  // themes while the demo loops
+  tho.forEach(b => b.addEventListener('click', e => {
+    if (b.dataset.v === theme) return;
+    theme = b.dataset.v; paint(); say(`Theme set to ${b.textContent}`);
+    if (!e.isTrusted) return;
+    if (theme === 'system'){ delete root.dataset.theme; try { localStorage.removeItem('dmui-theme'); } catch(err){} }
+    else { root.dataset.theme = theme; try { localStorage.setItem('dmui-theme', theme); } catch(err){} }
+  }));
+  // and when the page's theme changes from anywhere else, the choice follows it
+  const mo = new MutationObserver(() => { if (pageTheme() !== theme){ theme = pageTheme(); paint(); } });
   mo.observe(root, { attributes:true, attributeFilter:['data-theme'] }); c.offs.push(() => mo.disconnect());
   // Keyboard shortcuts, or ? anywhere in the component, opens the list of the keys the menu answers to
   const keys = on => { kf.classList.toggle('shut', !on); kf.inert = !on; };
@@ -25836,7 +25828,7 @@ DM.def('profile-menu', (r, c) => {
   // signing out swaps the avatar for Sign in, which brings it back
   $('.pfm-out', r).addEventListener('click', () => { const had = pop.contains(document.activeElement); show(false); tr.hidden = true; sin.hidden = false; if (had) sin.focus({ preventScroll:true }); say(`Signed out of ${WS[ws][1]}`); });
   sin.onclick = () => { sin.hidden = true; tr.hidden = false; tr.focus({ preventScroll:true }); say('Signed in as Maya Kim'); };
-  // the preview's story: open the menu, look over the workspaces, switch to Acme Labs, then open it again and flip the theme
+  // the preview's story: open the menu, look over the workspaces, switch to Acme Labs, then open it again and pick Dark
   c.story(async s => {
     const hl = el => items().forEach(x => x.classList.toggle('hl', x === el));
     await s.beat(3); await s.tap(tr); await s.beat(2);
@@ -25844,7 +25836,7 @@ DM.def('profile-menu', (r, c) => {
     hl(rows[1]); await s.point(rows[1]); await s.beat(2);
     await s.tap(rows[1]); s.away(); await s.beat(4);
     await s.tap(tr); await s.beat(2);
-    hl(th); await s.tap(th); await s.beat(3);
+    await s.tap(tho[2]); await s.beat(3);
     await s.tap(tr); s.away(); await s.beat(3);
   });
 });
@@ -26727,10 +26719,14 @@ DM.def('context-menu', (r, c) => {
   const pop = $('.cxm-pop', r), sub = $('.cxm-pop2', r), subRow = $('.cxm-sub', r), del = $('.cxm-del', r);
   const items = m => $$('.mi', m);
   let open = false, subOpen = false, opener = null, openedAt = 0;
-  // where a menu goes: at the point, turned back from the right and bottom edges so it stays on screen and inside the card
+  // the room a menu has across: the demo's stage where there is one, else the screen (owner, 28 Nov: measured against the stage
+  // or the viewport, not the narrow card, so the submenu has room beside its row)
+  const span = () => { const st = root.closest('.stage-inner,.stage'), b = st ? st.getBoundingClientRect() : { left:0, right:innerWidth };
+    return { lo:Math.max(b.left, 0) + 8, hi:Math.min(b.right, innerWidth) - 8 }; };
+  // where a menu goes: at the point, turned back from the right and bottom edges so it stays on screen and inside its stage
   const fit = (m, x, y, { left } = {}) => {
-    const rb = root.getBoundingClientRect(), card = (root.closest('.card,.comp,[data-c]') || document.body).getBoundingClientRect();
-    const lo = Math.max(card.left, 0) + 8 - rb.left, hi = Math.min(card.right, innerWidth) - 8 - rb.left, w = m.offsetWidth, h = m.offsetHeight;
+    const rb = root.getBoundingClientRect(), sp = span();
+    const lo = sp.lo - rb.left, hi = sp.hi - rb.left, w = m.offsetWidth, h = m.offsetHeight;
     if (x + w > hi && left != null) x = left - w; else if (x + w > hi) x = x - w;
     x = Math.max(lo, Math.min(x, hi - w));
     // short of room below (the screen's foot, a box that would cut it off, or the end of the demo's stage, past which it would
@@ -26751,13 +26747,14 @@ DM.def('context-menu', (r, c) => {
     if (keyed) items(pop)[0].focus({ preventScroll:true });
   }
   function close(back){ if (!open) return; back = back && (pop.contains(document.activeElement) || sub.contains(document.activeElement)); open = false; closeSub(); show(pop, false); msg.classList.remove('on'); if (back) msg.focus({ preventScroll:true }); }
-  // the submenu opens beside its row, on the right or else the left; where neither side has room (a phone) it drops under the row
+  // on a wide screen the submenu opens beside its row (the row has the chevron), on the right or else the left, its first item
+  // level with the row; only on a phone, or where neither side has room, does it drop under the row
   function openSub(focus){
     subOpen = true; subRow.setAttribute('aria-expanded', 'true'); show(sub, true);
-    const p = pop.getBoundingClientRect(), b = subRow.getBoundingClientRect(), rb = root.getBoundingClientRect(), card = (root.closest('.card,.comp,[data-c]') || document.body).getBoundingClientRect(), w = sub.offsetWidth;
-    const lo = Math.max(card.left, 0) + 8, hi = Math.min(card.right, innerWidth) - 8;
-    if (p.right - 4 + w <= hi) fit(sub, p.right - rb.left - 4, b.top - rb.top - 6);
-    else if (p.left + 4 - w >= lo) fit(sub, p.left - rb.left + 4 - w, b.top - rb.top - 6);
+    const p = pop.getBoundingClientRect(), b = subRow.getBoundingClientRect(), rb = root.getBoundingClientRect(), w = sub.offsetWidth, { lo, hi } = span();
+    const cs = getComputedStyle(sub), top = b.top - rb.top - parseFloat(cs.paddingTop) - parseFloat(cs.borderTopWidth), wide = innerWidth >= 640;
+    if (wide && p.right - 4 + w <= hi) fit(sub, p.right - rb.left - 4, top);
+    else if (wide && p.left + 4 - w >= lo) fit(sub, p.left - rb.left + 4 - w, top);
     else fit(sub, b.left - rb.left + 24, b.bottom - rb.top + 2);
     if (focus) items(sub)[0].focus({ preventScroll:true });
   }

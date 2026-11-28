@@ -2,12 +2,15 @@
 import { useId, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react';
 import { cx } from '../../lib/cx';
 import { useControllable, useIsoLayoutEffect } from '../../lib/hooks';
+import { Tip } from '../../lib/motion';
 import '../../designme.css';
 import './segmented-control.css';
 
 export interface SegmentOption<T extends string = string> {
   value: T;
   label: ReactNode;
+  /** The option's name when `label` is only an icon, like "Calendar": its aria-label and its tooltip */
+  title?: string;
 }
 
 export interface SegmentedControlProps<T extends string = string> {
@@ -62,13 +65,15 @@ export function SegmentedControl<T extends string = string>({ options, value, de
       <span className="dm-sgc-k" style={knob} aria-hidden="true" />
       {options.map(o => {
         const on = o.value === cur;
-        return (
-          <button key={o.value} type="button" data-v={o.value} data-on={on} id={`${base}-${o.value}`} tabIndex={on ? 0 : -1}
+        const b = (
+          <button key={o.value} type="button" data-v={o.value} data-on={on} id={`${base}-${o.value}`} tabIndex={on ? 0 : -1} aria-label={o.title}
             role={tabs ? 'tab' : 'radio'} {...(tabs ? { 'aria-selected': on, 'aria-controls': `${base}-panel` } : { 'aria-checked': on })}
             onClick={() => setCur(o.value)}>
             {o.label}
           </button>
         );
+        // an icon-only option is named, and shows its name in a tooltip
+        return o.title ? <Tip key={o.value} label={o.title}>{b}</Tip> : b;
       })}
     </div>
   );

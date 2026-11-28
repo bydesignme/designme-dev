@@ -1,5 +1,5 @@
 {
-  "summary": "Profile menu is the account menu that opens from an avatar in an app's top bar. It shows who is signed in, lists the workspaces to switch between, and holds a theme switch, a Keyboard shortcuts row with its key, and Sign out. It is a real menu: the arrow keys move through it, Escape closes it and puts the focus back on the avatar.",
+  "summary": "Profile menu is the account menu that opens from an avatar in an app's top bar. It shows who is signed in, lists the workspaces to switch between, and holds a Theme row (System, Light or Dark), a Keyboard shortcuts row with its key, and Sign out. It is a real menu: the arrow keys move through it, Escape closes it and puts the focus back on the avatar.",
   "use": [
     "When people belong to more than one workspace and switch between them from anywhere in the app.",
     "When the account's settings that apply everywhere, like the theme, should sit one click from every page.",
@@ -9,20 +9,20 @@
   "features": [
     "The menu opens under the avatar, lined up with its right edge, and starts with the person's name and email. It opens over the room the component keeps for it under the bar, so the bar never moves as it opens and closes, and the menu is never cut off.",
     "The workspaces are a group of radio items, each with its tile, a name and a quiet `detail` like \"Free, 3 members\". The tile is the workspace's initial on its `tint`, one of the avatars' fills with its own ink (white on blue, violet, red and pink); in Clean every tile is grey. The current one is checked; picking another closes the menu and the bar crossfades to its name.",
-    "The theme is a switch row. It stays in the menu after a click, so the change shows where it was made. It reports the change through `onDarkChange`; applying the theme is up to you.",
+    "The Theme row shows its label and a small three-way choice in the row, System, Light and Dark, on the segmented control's grey track, with the knob sliding to the pick. System follows the device. The menu stays open after a pick, so the change shows where it was made. It reports the pick through `onThemeChange`; applying the theme is up to you.",
     "Keyboard shortcuts shows its key, ?, and opens a short list under the bar. Pressing ? anywhere in the component opens and closes the same list. By default it lists the keys the menu itself answers to.",
     "Sign out swaps the avatar for a Sign in button, which swaps it back. `note` says what just changed, like \"Switched to Acme Labs\", to screen readers only: the bar and the menu already show it, so there is no line of text under the bar."
   ],
   "a11y": [
     "The avatar is a button with `aria-haspopup=\"menu\"` and `aria-expanded`, labelled \"Account menu\" and the person's name.",
-    "The menu has `role=\"menu\"` and is named by the name and email at its top. The workspaces are `menuitemradio` items in a group named \"Workspaces\"; the theme row is a `menuitemcheckbox`; the rest are `menuitem`s.",
-    "Enter, Space or the down arrow on the avatar opens the menu on its first item, and the up arrow on its last. Inside, the arrow keys move and wrap, Home and End jump to the ends, Escape closes it and gives the focus back to the avatar, and Tab closes it and moves on.",
+    "The menu has `role=\"menu\"` and is named by the name and email at its top. The workspaces are `menuitemradio` items in a group named \"Workspaces\"; the Theme row is a group of three `menuitemradio` choices, with the picked one checked; the rest are `menuitem`s.",
+    "Enter, Space or the down arrow on the avatar opens the menu on its first item, and the up arrow on its last. Inside, the up and down arrows move and wrap (stopping once on the Theme row, where Left and Right move between its choices), Home and End jump to the ends, Escape closes it and gives the focus back to the avatar, and Tab closes it and moves on.",
     "`note` is a polite live region, so a switch or a theme change is announced."
   ],
   "faq": [
     {
-      "q": "Does the theme switch change the theme?",
-      "a": "No. It flips its own state and calls `onDarkChange`. Set `data-theme` on `<html>` there, or call your own theme code. On designme.dev the demo only says what it was set to."
+      "q": "Does the Theme row change the theme?",
+      "a": "No. It keeps its own pick and calls `onThemeChange` with `'system'`, `'light'` or `'dark'`. Set `data-theme` on `<html>` there (or remove it for System), or call your own theme code. On designme.dev a click sets the page's theme too; the demo only moves the pick."
     },
     {
       "q": "Can the workspaces be a submenu instead?",

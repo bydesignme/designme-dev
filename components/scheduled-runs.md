@@ -36,7 +36,7 @@ A list of tasks an agent runs on a schedule, like a weekly design QA. Each row s
 
 - Each run in `runs` shows its `name`, its `schedule` in words with its `next` run, and its last `result`: "Passed 5 days ago", "Failed: Figma token expired", "Running now" or "No runs yet".
 - The result leads with its mark: a green tick when it passed, a red sign when it failed, and a turning ring while it runs, when its words shimmer. Its tile shows a service logo (`brand`) on white, or an `icon` on a vivid tile of its `color`; in Clean the tiles are one neutral grey.
-- `onRunNow` adds a Run now button to each row; it is unavailable while the run is running or paused.
+- `onRunNow` adds Run now to each row, a labelled ghost button just before the switch, so the switch is the one control on the row's right edge; it is unavailable while the run is running or paused.
 - The switch pauses and resumes a run (`enabled`), and the change comes back through `onRunsChange`. A paused row dims and reads "Paused" in place of its next run.
 - A failed run with a `fix` shows a button with that label that calls `onFix`; set `fixing` to spin it. The button is as wide as its words and eases to "Reconnecting" and back.
 - `onCreate` adds New schedule: a form with the task, Every day, Every Monday or Custom days, and a line saying when the first run would be. Create hands over the task, the days, the schedule in words and when it runs next. The form opens under the button, or above it when there is no room below.
@@ -307,7 +307,8 @@ export function ScheduledRuns({ runs, defaultRuns = [], onRunsChange, onRunNow, 
                 <span className="dm-res">{running ? <Spin /> : (r.result === 'passed' || r.result === 'failed') && <Icon name={r.result === 'passed' ? 'ok' : 'alert'} size="xs" />}<Swap className={running ? 'dm-shim' : undefined}>{res}</Swap></span>
               </span>
               <span className="dm-shx-act">
-                {onRunNow && <Tip label="Run now"><button type="button" className="dm-ib dm-shx-run dm-mx-press" aria-label={`Run ${r.name} now`} disabled={running || !on(r)} onClick={() => onRunNow(r.key)}><Icon name="play" /></button></Tip>}
+                {/* a labelled ghost button, so the switch is the one control on the row's right edge */}
+                {onRunNow && <button type="button" className="dm-pill dm-ghost dm-sm dm-shx-run dm-mx-press" aria-label={`Run ${r.name} now`} disabled={running || !on(r)} onClick={() => onRunNow(r.key)}>Run now</button>}
                 <Tip label={on(r) ? 'Pause' : 'Resume'}><button type="button" className="dm-toggle" role="switch" aria-checked={on(r)} aria-label={r.name} onClick={() => toggle(r.key)} /></Tip>
               </span>
               <Fold open={r.result === 'failed' && !!r.fix} className="dm-shx-fx">

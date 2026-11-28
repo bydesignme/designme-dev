@@ -1,5 +1,5 @@
 {
-  "summary": "Notifications is an inbox panel where updates from the agent and mentions from people arrive in one list. New items drop in at the top and bump the unread count, and tabs split the list into All, Agent and Mentions. A person clicks an item to mark it read or unread, or clears everything at once with Mark all read.",
+  "summary": "Notifications is an inbox panel where updates from the agent and mentions from people arrive in one list. New items drop in at the top and bump the unread count, and underline tabs under the head split the list into All, Agent and Mentions. A person clicks an item to open it, which marks it read; a read item has Mark as unread on its row, and Mark all read clears everything at once.",
   "use": [
     "When background agent runs finish, pause or need review while the person is elsewhere",
     "When agent updates and teammates' mentions should share one inbox but stay easy to separate",
@@ -10,15 +10,16 @@
     "Agent items show an `icon` on a tile in the tint of its `tone` (`ok`, `warn`, `bad`, `accent` or `neutral`), with the icon in that status's text colour; people's items show an `avatar` with initials. `color` sets a colour of your own instead.",
     "A new id at the top of `items` drops in on its own and makes the unread count bump.",
     "The panel keeps no room for items to come: it eases taller as one arrives or a filter shows more, and shorter as it shows fewer.",
-    "The filter switch shows all items or only those whose `kind` matches, and you can supply your own `filters`.",
-    "Clicking an item toggles `read`, and the change comes back through `onItemsChange`. A read item keeps its colours; only its unread dot goes.",
+    "The filter is a row of underline tabs under the head, on a hairline that runs edge to edge, with the picked tab's line sliding to it. It shows all items or only those whose `kind` matches, and you can supply your own `filters`. Mark all read stays at the head's top right.",
+    "Clicking an item opens it: it is marked read and `onOpen` is called with it, so you can show what it is about. A read item keeps its colours; only its unread dot goes. The change comes back through `onItemsChange`.",
+    "On a read item, Mark as unread (`markUnreadLabel`) shows where the unread dot was, as a hollow dot button, when the pointer is on the row or the keyboard focus is in it. It brings the dot back.",
     "Mark all read marks every item read, and the unread dots in view clear one row after another.",
     "An empty filter shows a small sketch of a list, `emptyLabel` (\"Nothing here yet\" by default) and `emptyDetail`, a muted line under it."
   ],
   "a11y": [
     "The unread count has an `aria-label` like \"3 unread\".",
-    "Each item is a button whose `aria-pressed` reports whether it has been read.",
-    "The filter is a `group` labelled Filter, and each option reports `aria-pressed`."
+    "Each item is a button that opens it; an unread one says \"Unread\" to screen readers. Mark as unread is a separate, labelled button in the row, reached with Tab once the focus is on its item.",
+    "The filter is a `tablist` labelled Filter: each tab reports `aria-selected`, Left and Right move between them, and the list is its `tabpanel`."
   ],
   "faq": [
     {

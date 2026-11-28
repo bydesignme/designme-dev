@@ -137,7 +137,7 @@
 .v2 .pulse::after{corner-shape:round}
 .v2 .radar::after{corner-shape:round}
 .v2 .radar::before{corner-shape:round}
-.v2 .sgc-mo .d.e::after{corner-shape:round}
+.v2 .sgc-mo .d.e::after,.v2 .sgc-mo .d b,.v2 .sgc-sel i,.v2 .sgc-lr i,.v2 .ntx-u i{corner-shape:round}
 .v2 .stx-ok::after{corner-shape:round}
 .v2 .tmx-body::-webkit-scrollbar-thumb{corner-shape:round}
 .v2 .toggle::after{corner-shape:round}
@@ -1813,11 +1813,13 @@
 .v2 .slx-h>div{display:flex;flex-direction:column;font-size:14px}
 .v2 .slx-h b{font-weight:500}
 .v2 .slx-h .muted{font-size:12px}
-.v2 .slx-v{display:inline-flex;align-items:baseline;font-size:14px;font-weight:500!important;letter-spacing:-.02em;margin:0 -7px 0 0;padding:1px 7px;border-radius:var(--r-field);cursor:text;transition:background-color .2s var(--ease),box-shadow .2s var(--ease)}
-/* the budget reads as a figure until you point at it or click it: then it is a field, white with the dimmed field edge,
-   which steps up while you type a new one. A budget you can't change has no hover */
-@media (hover:hover) and (pointer:fine){.v2 .slx-v:has(input):hover{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent)}}
-.v2 .slx-v:has(input):focus-within{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
+/* the cap is labelled and reads as a field at rest (owner, 28 Nov): "Cap" in the muted text, then a small field with its $ in
+   front, white with the dimmed field edge, which steps up one grey while you type. A cap you can't change is the figure alone */
+.v2 .slx-cap{display:inline-flex;align-items:baseline;gap:var(--s-2)}
+.v2 .slx-v{display:inline-flex;align-items:baseline;font-size:14px;font-weight:500!important;letter-spacing:-.02em;padding:3px var(--s-2);border-radius:var(--r-field);cursor:text;transition:box-shadow .2s var(--ease)}
+.v2 .slx-v:has(input){background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line) 50%,transparent)}
+.v2 .slx-v:has(input):focus-within{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--field-line-strong) 50%,transparent)}
+.v2 .slx-v .cur{color:var(--muted);font-weight:400;margin-right:2px}
 @supports (corner-shape:squircle){.v2 .slx-v{corner-shape:squircle;border-radius:var(--r-field-sq)}}
 .v2 .slx-in{width:3ch;min-width:1ch;padding:0;margin:0;border:0;background:none;font:inherit;font-variant-numeric:tabular-nums;letter-spacing:inherit;color:inherit;text-align:right;outline:none;caret-color:var(--accent-fg,var(--accent))}
 /* the bar, with the same room above and below its knob. The cap it sets is the figure in the head, so the knob carries no
@@ -7192,7 +7194,8 @@
 .v2 .shx-r[data-st="bad"] .res>span{white-space:normal;text-wrap:pretty}
 .v2 .shx-r[data-st="bad"] .res .i{color:var(--bad-mark)}
 .v2 .shx-act{grid-column:3;grid-row:1/4;align-self:center;display:flex;align-items:center;gap:var(--s-2)}
-.v2 .shx-run{width:28px;height:28px}
+/* Run now is a labelled ghost button (owner, 28 Nov), so the switch is the one control on the row's right edge */
+.v2 .shx-run.pill{padding:0 var(--s-2)}
 .v2 .shx-run:disabled{opacity:1;cursor:not-allowed;background:none;color:var(--dis);transform:none}
 .v2 .shx-r .shx-fx{grid-column:2/-1;grid-row:4}
 .v2 .shx-fx>div{overflow-clip-margin:0px}
@@ -8429,102 +8432,80 @@
 @keyframes v2-dpks{from{transform:scale(.8)}}
 /* ---------- Segmented control ---------- */
 /* one choice from a few views of the same thing: the picked one sits on a white knob that slides to it. It is a tab
-   list, so the arrow keys move along it and the panel under it changes with it */
-.v2 .sgc{width:100%;max-width:400px;margin:0 auto;padding:var(--s-4);display:flex;flex-direction:column;gap:14px}
-.v2 .sgc-h{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);flex-wrap:wrap}
-.v2 .sgc-ht{display:flex;flex-direction:column;min-width:0}
-.v2 .sgc-ht b{font-weight:500;font-size:14px}
-/* the range on the content's left edge; Today and the arrows at the right, the last arrow's glyph on the content's right edge
-   with its hover circle reaching out round it */
-.v2 .sgc-bar{display:flex;align-items:center;gap:2px;margin:-4px 0 -6px}
-.v2 .sgc-r{flex:1;min-width:0;font-size:13px;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.v2 .sgc-bar .ib{width:28px;height:28px}
-.v2 .sgc-bar .pill{margin-right:var(--s-1)}
-/* (Next's box ends on the content's 16px column, as the switch's track above it does: its box fills on hover) */
+   list, so the arrow keys move along it and the panel under it changes with it. The demo (owner, 28 Nov) is a month of a
+   pricing launch: a one-line head, the month as the title between two quiet chevrons on the left and the switch on the right,
+   two icons on the grey track (List and Calendar, each named and with a tooltip) */
+.v2 .sgc{width:100%;max-width:400px;margin:0 auto;padding:var(--s-4);display:flex;flex-direction:column;gap:14px;transition:padding-bottom var(--t) cubic-bezier(.23,1,.32,1)}
+/* in the list, the last row's hover room makes up the foot, so its words still end 16px from the card's bottom */
+.v2 .sgc.panel[data-v="list"]{padding-bottom:calc(var(--s-4) - 7px)}
+.v2 .sgc-h{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3)}
+/* the first chevron's box starts on the content's left edge, its hover circle round it */
+.v2 .sgc-mt{display:flex;align-items:center;gap:2px;min-width:0}
+.v2 .sgc-mt .ib{width:28px;height:28px;color:var(--fg2)}
+.v2 .sgc-mt b{font-size:14px;font-weight:500;padding:0 var(--s-1);white-space:nowrap}
 .v2 .sgc-seg{position:relative;display:inline-flex;padding:3px;border-radius:var(--r-pill);background:var(--chip);flex:none}
 .v2 .sgc-k{position:absolute;top:3px;bottom:3px;left:3px;width:0;border-radius:var(--r-pill);background:var(--raised);box-shadow:var(--seg-k-shadow,var(--shadow));transition:left .42s var(--ease),width .42s var(--ease)}
 .v2 .sgc-seg button{position:relative;z-index:1;height:30px;padding:0 14px;border-radius:var(--r-pill);font-size:13px;color:var(--fg2);outline:0;transition:color .2s}
+.v2 .sgc-seg button:has(>.i:only-child){width:36px;padding:0;display:grid;place-items:center}
 .v2 .sgc-seg button[aria-selected="true"],.v2 .sgc-seg button[aria-checked="true"]{color:var(--fg)}
 @media (hover:hover) and (pointer:fine){.v2 .sgc-seg button:hover{color:var(--fg)}}
 .v2 .sgc-seg button:focus-visible{box-shadow:0 0 0 2px var(--focus)}
-/* the panel is as tall as the view on show, and eases to the next one's height (grow()): a day with one event is short, the
-   month tall, and nothing keeps room for a view that isn't there */
+/* the panel is as tall as the view on show, and eases to the next one's height (grow()) */
 .v2 .sgc-p{position:relative;border-radius:var(--r-in);outline:0}
 .v2 .sgc-p.growing{overflow-clip-margin:10px}
 .v2 .sgc-p:focus-visible{box-shadow:0 0 0 2px var(--focus)}
-/* a new view crossfades over the one it replaces, so the panel is never empty between them */
-.v2 .sgc-in.fresh{animation:v2-sgcin .24s var(--ease) both}
-.v2 .sgc-in.gone{position:absolute;inset:0 0 auto;pointer-events:none;animation:v2-sgcout .24s var(--ease) both}
-@keyframes v2-sgcin{from{opacity:0;transform:translateY(4px)}}
+/* a new view crossfades over the one it replaces, so the panel is never empty between them; its days or rows come in one after
+   another (mxIn), on Clean's ease in every style. With reduced motion it only swaps */
+.v2 .sgc-in{--ease:cubic-bezier(.23,1,.32,1)}
+.v2 .sgc-in.fresh{animation:v2-sgcin .22s var(--ease) both}
+.v2 .sgc-in.gone{position:absolute;inset:0 0 auto;pointer-events:none;animation:v2-sgcout .22s var(--ease) both}
+@keyframes v2-sgcin{from{opacity:0}}
 @keyframes v2-sgcout{to{opacity:0}}
+@media (prefers-reduced-motion:reduce){.v2 .sgc-in.fresh,.v2 .sgc-in.gone{animation:none}}
 /* nothing in it grows or shrinks when it is pressed (owner, 18 Nov) */
 .v2 .sgc :is(.ib,.pill):active,:root[data-style="clean"] .v2 .sgc .ib:active{transform:none}
-/* the day: its events in order, a plain list (they are not buttons, so no card behind them). The times sit in the same 52px
-   column as the week's days, each bar is centred on the week's dot column and the titles start where the week's do */
-.v2 .sgc-day{display:flex;flex-direction:column;gap:var(--s-3)}
-.v2 .sgc-ev{display:flex;align-items:flex-start;gap:var(--s-3);font-size:13px;line-height:18px}
-.v2 .sgc-ev>.num{width:52px;flex:none}
-.v2 .sgc-ev i{width:3px;align-self:stretch;margin:0 1.5px;border-radius:var(--r-tiny,2px);background:var(--c);flex:none}
-.v2 .sgc-ev .t{flex:1;min-width:0;display:flex;flex-direction:column;margin-left:-4px}
-.v2 .sgc-ev .t span{font-size:12px;line-height:17px;color:var(--muted)}
-.v2 .sgc-none{padding:var(--s-3) 0;font-size:13px;color:var(--muted)}
-/* the week: the five working days, one row each with its first event and a count of the rest. Each row's words sit on the
-   content's edges and its hover fill reaches 8px out round them; today's date is the accent circle, as in Event calendar */
-/* (the last row's words and today's mark end 16px from the card's bottom; its hover fill reaches out round it, into the
-   padding, as at the sides) */
-.v2 .sgc-wk{display:flex;flex-direction:column;gap:var(--s-1);margin-bottom:-5px}
-:root[data-style="clean"] .v2 .sgc-wk{margin-bottom:0}
-.v2 .sgc-wr{display:flex;align-items:center;gap:var(--s-3);width:calc(100% + 16px);height:32px;margin:0 -8px;padding:0 8px;border-radius:var(--r-sm);font-size:13px;text-align:left;transition:background var(--t-fast)}
-@media (hover:hover) and (pointer:fine){.v2 .sgc-wr:hover{background:var(--row)}}
-.v2 .sgc-wr:focus-visible,.v2 .sgc-mo .d:focus-visible{outline:0;box-shadow:0 0 0 2px var(--focus)}
-.v2 .sgc-wr .d{width:52px;flex:none;display:flex;align-items:center;gap:4px;color:var(--muted)}
-.v2 .sgc-wr .d b{font-weight:400}
-.v2 .sgc-wr.now .d{color:var(--fg)}
-/* today's date is a 22px circle (every date is one or two digits) */
-.v2 .sgc-wr.now .d b{display:grid;place-items:center;width:22px;height:22px;margin:-2px 0 -2px -1px;padding:0;border-radius:50%;background:var(--accent);color:var(--on-accent,#fff);font-size:12px;font-weight:500}
-.v2 .sgc-wr .e{flex:1;min-width:0;display:flex;align-items:center;gap:var(--s-2);white-space:nowrap}
-.v2 .sgc-wr .e i{width:6px;height:6px;border-radius:50%;background:var(--c);flex:none}
-.v2 .sgc-wr .e span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis}
-.v2 .sgc-wr .more{flex:none;font-size:12px;color:var(--muted)}
-.v2 .sgc-wr.none .e{color:var(--muted)}
-/* the month: a dot on each day with something on, today the accent fill */
+/* the calendar: a calm month. A grey dot only on a day with something on, the launch day's dot the one accent mark; today a
+   quiet grey ring; the picked day a small accent circle. Under a hairline, the picked day's line: its date, its event and time */
+.v2 .sgc-cal{display:flex;flex-direction:column;gap:14px}
 .v2 .sgc-mo{display:grid;grid-template-columns:repeat(7,1fr);gap:2px var(--s-1);font-size:12px;text-align:center}
 .v2 .sgc-mo .w{font-size:11px;color:var(--muted);padding-bottom:2px}
-.v2 .sgc-mo .d{position:relative;height:26px;display:grid;place-items:center;border-radius:var(--r-sm);color:var(--fg2);transition:background var(--t-fast)}
-.v2 .sgc-mo.r6 .d{height:22px}
-@media (hover:hover) and (pointer:fine){.v2 .sgc-mo .d:hover{background:var(--row)}}
-.v2 .sgc-mo .d.on{background:var(--surface);color:var(--fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pick-on) 50%,transparent)}
-.v2 .sgc-mo .d.e::after{content:"";position:absolute;bottom:2px;left:50%;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--accent-mark,var(--accent))}
-.v2 .sgc-mo .d.now{background:var(--accent);color:var(--on-accent,#fff);font-weight:500}
-@media (hover:hover) and (pointer:fine){.v2 .sgc-mo .d.now:hover{background:var(--accent);color:var(--on-accent,#fff);font-weight:500}}
-.v2 .sgc-mo .d.now::after{background:var(--on-accent,#fff)}
-/* Clean (owner, 17 and 18 Nov): its content 16px in from every edge; the switch is Clean's (a white knob on a grey track,
-   in the Clean section with the other switchers) */
-:root[data-style="clean"] .v2 .sgc.panel{padding:16px}
-/* Clean (owner, 21 Nov, on the Pricing launch agenda: "no difference besides the corners, need to change a lot more"). The title
-   and the switch sit in an off-white head strip under a hairline, the switch Clean's monochrome one; Today is a flat hairline
-   pill and ‹ › ghost circles. The events are rows under one gliding highlight (hoverGlide), their hover reaching 8px out round
-   their words as the week's rows do; their bars and dots take the labels' vivid marks (a step brighter than the labels' text
-   colours, 3:1 on the card), and the times stand muted in one tabular column. A new view crossfades at Clean's pace while the
-   panel grows or shrinks to it; a picked day in the month takes the one selected fill. The rows' hover room makes up the
-   foot, so the last row's words sit 16px from it in every view */
-:root[data-style="clean"] .v2 .sgc.panel{padding:0 16px 10px}
+.v2 .sgc-mo .d{position:relative;height:32px;display:grid;place-items:center;color:var(--fg2)}
+.v2 .sgc-mo .d b{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;font-weight:400;transition:background-color var(--t-fast) var(--ease),color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease)}
+@media (hover:hover) and (pointer:fine){.v2 .sgc-mo .d:not(.on):hover b{background:var(--row)}}
+.v2 .sgc-mo .d:focus-visible{outline:0}
+.v2 .sgc-mo .d:focus-visible b{box-shadow:0 0 0 2px var(--focus)}
+.v2 .sgc-mo .d.e::after{content:"";position:absolute;bottom:0;left:50%;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--faint)}
+.v2 .sgc-mo .d.x::after{background:var(--accent-mark,var(--accent))}
+.v2 .sgc-mo .d.now b{color:var(--fg);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--line-strong) 50%,transparent)}
+.v2 .sgc-mo .d.on b{background:var(--accent);color:var(--on-accent,#fff);font-weight:500;box-shadow:none}
+.v2 .sgc-mo .d.on::after{opacity:0}
+.v2 .sgc-sel{display:flex;align-items:center;gap:var(--s-3);padding-top:var(--s-3);border-top:1px solid color-mix(in srgb,var(--line) 50%,transparent);font-size:13px;line-height:18px}
+.v2 .sgc-sel .num{width:44px;flex:none;color:var(--muted)}
+.v2 .sgc-sel i,.v2 .sgc-lr i{width:6px;height:6px;border-radius:50%;flex:none}
+.v2 .sgc-sel i.x,.v2 .sgc-lr i.x{background:var(--accent-mark,var(--accent))}
+.v2 .sgc-sel .t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2 .sgc-sel .t span,.v2 .sgc-sel .t.none{color:var(--muted)}
+/* the list: the month's events as rows, a muted date, the event and its time on the right; no lines between them, a quiet
+   hover fill that reaches 8px out round the words, and the launch keeps its one accent dot */
+.v2 .sgc-ls{display:flex;flex-direction:column}
+.v2 .sgc-lr{display:flex;align-items:center;gap:var(--s-3);width:calc(100% + 16px);height:32px;margin:0 -8px;padding:0 8px;border-radius:var(--r-sm);font-size:13px;line-height:18px;text-align:left;color:var(--fg);transition:background-color var(--t-fast) var(--ease)}
+@media (hover:hover) and (pointer:fine){.v2 .sgc-lr:hover{background:var(--row)}}
+.v2 .sgc-lr:focus-visible{outline:0;box-shadow:0 0 0 2px var(--focus)}
+.v2 .sgc-lr>.num:first-child{width:44px;flex:none;color:var(--muted)}
+.v2 .sgc-lr .t{flex:1;min-width:0;display:flex;align-items:center;gap:var(--s-2);white-space:nowrap}
+.v2 .sgc-lr .t span{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.v2 .sgc-lr .tm{flex:none;color:var(--muted)}
+.v2 .sgc-none{padding:var(--s-3) 0 calc(var(--s-3) - 7px);font-size:13px;color:var(--muted)}
+/* Clean (owner, 17, 18 and 21 Nov): the head is an off-white strip under a hairline, the switch Clean's monochrome one, the
+   chevrons ghost circles; the rows take Clean's 10px corners under one gliding highlight (hoverGlide), and a day's hover is a
+   pill. The picked day is the accent in light and white in dark, as every Clean accent */
+:root[data-style="clean"] .v2 .sgc.panel{padding:0 16px 16px}
+:root[data-style="clean"] .v2 .sgc.panel[data-v="list"]{padding-bottom:calc(16px - 7px)}
 :root[data-style="clean"] .v2 .sgc-h{min-height:calc(28px + 2 * var(--strip-y) + 1px);margin:0 -16px;padding:var(--strip-y) 16px;background:var(--strip);border-bottom:1px solid var(--line);border-radius:var(--r-card) var(--r-card) 0 0}
-:root[data-style="clean"] .v2 .sgc-td{color:var(--fg);background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-depth)}
-@media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .sgc-td:hover{background:linear-gradient(180deg,var(--btn2-1),var(--btn2-2));box-shadow:var(--btn2-hover)}}
-:root[data-style="clean"] .v2 .sgc-bar .ib{border-radius:50%}
-/* (the last arrow, a control, ends on the content's right edge, as a strip's last control does) */
-:root[data-style="clean"] .v2 :is(.sgc-ev,.sgc-wr .e){--pb:var(--av-b);--pl:var(--av-l);--pm:var(--c3);--pt:var(--c6)}
-:root[data-style="clean"] .v2 .sgc-day{gap:2px}
-:root[data-style="clean"] .v2 .sgc-ev{margin:0 -8px;padding:6px 8px;border-radius:10px}
-:root[data-style="clean"] .v2 .sgc-ev>.num,:root[data-style="clean"] .v2 .sgc-wr .d{color:var(--muted);font-variant-numeric:tabular-nums}
-:root[data-style="clean"] .v2 .sgc-wr{border-radius:10px;transition:background-color var(--t-fast) var(--ease)}
-:root[data-style="clean"] .v2 .sgc-mo .d{border-radius:var(--r-pill);transition:background-color var(--t-fast) var(--ease)}
-:root[data-style="clean"] .v2 .sgc-mo .d.on{background:var(--row-on);box-shadow:none}
-/* (the month's days are boxes with no fill until hovered: a little room under the last week keeps its numbers 16px off the foot) */
-:root[data-style="clean"] .v2 .sgc-mo{padding-bottom:5px}
-:root[data-style="clean"] .v2 .sgc-in.fresh{animation:v2-sgcin var(--t-fast) var(--ease) both}
-:root[data-style="clean"] .v2 .sgc-in.gone{animation:v2-sgcout var(--t-fast) var(--ease) both}
+:root[data-style="clean"] .v2 .sgc-mt .ib{border-radius:50%}
+:root[data-style="clean"] .v2 :is(.sgc-lr>.num,.sgc-sel .num,.sgc-lr .tm){font-variant-numeric:tabular-nums}
+:root[data-style="clean"] .v2 .sgc-lr{border-radius:10px}
+:root[data-style="clean"] .v2 .sgc-mo .d b{border-radius:var(--r-pill)}
 /* ---------- Date range picker ---------- */
 .v2 .drx{display:grid;grid-template-columns:160px 1fr;overflow:hidden}
 @media (max-width:720px){.v2 .drx{grid-template-columns:1fr}.v2 .drx-side{flex-direction:row!important;flex-wrap:wrap;border-right:0!important;border-bottom:1px solid color-mix(in srgb,var(--line) 50%,transparent)}}
@@ -9613,7 +9594,24 @@
 .v2 .ntx.panel .ntx-ct{margin-left:calc(-1 * var(--s-1))}
 /* Mark all read is a text button: its words end on the content's edge and its hover box reaches out round them */
 .v2 .ntx.panel .ntx-all.pill{padding:0 var(--s-2);margin-right:calc(-1 * var(--s-2))}
-.v2 .ntx.panel .ntx-tabs{display:flex}
+/* the filter is a row of underline tabs under the head (owner, 28 Nov): the head keeps Mark all read top right and has no line
+   of its own; the tabs' row carries the hairline, edge to edge, and the picked tab's 2px line slides along it. A tab's words
+   are muted, and the picked one (or one under the pointer) is the text colour */
+.v2 .ntx.panel:has(.ntx-ut) .ntx-h{border-bottom:0;margin-bottom:0}
+.v2 .ntx-ut{position:relative;display:flex;gap:var(--s-4);margin:calc(-1 * var(--s-2)) calc(-1 * var(--s-4)) var(--s-2);padding:0 var(--s-4);border-bottom:1px solid color-mix(in srgb,var(--line) 50%,transparent)}
+.v2 .ntx-ut button{position:relative;height:32px;padding:0;font-size:13px;color:var(--muted);transition:color var(--t-fast) var(--ease)}
+@media (hover:hover) and (pointer:fine){.v2 .ntx-ut button:is(:hover,[aria-selected="true"]){color:var(--fg)}}
+.v2 .ntx-ui{position:absolute;bottom:-1px;left:0;height:2px;border-radius:2px 2px 0 0;background:var(--fg);transition:left var(--t) var(--ease),width var(--t) var(--ease)}
+/* an item is two buttons on one row: the item itself, which opens it and marks it read, and, at the unread dot's place, Mark as
+   unread, a hollow dot that shows on a read item under the pointer or with the focus in the row */
+.v2 .ntx-o{flex:1;min-width:0;display:flex;align-items:center;gap:var(--s-3);text-align:left;color:inherit}
+.v2 .ntx-m{position:relative;flex:none;width:7px;height:7px;display:grid}
+.v2 .ntx.panel .ntx-n .ntx-m .u{margin:0}
+.v2 .ntx-u{position:absolute;left:50%;top:50%;width:24px;height:24px;margin:-12px 0 0 -12px;opacity:0;visibility:hidden;transition:opacity var(--t-fast) var(--ease),visibility 0s var(--t-fast),background var(--t-fast)}
+.v2 .ntx-u i{width:7px;height:7px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--muted)}
+@media (hover:hover) and (pointer:fine){.v2 .ntx-n.read:is(:hover,:focus-within) .ntx-u{opacity:1;visibility:visible;transition-delay:0s}}
+.v2 .ntx-n:not(.read) .ntx-u{display:none}
+.v2 .ntx-sr{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .v2 .ntx.panel .ntx-list{margin:0 calc(-1 * var(--s-2)) calc(-1 * var(--s-2))}
 .v2 .ntx.panel .ntx-n{align-items:center;gap:var(--s-3);padding:var(--s-2);border-radius:calc(var(--r-card) - var(--s-2));transition:background-color var(--t-fast)}
 .v2 .ntx.panel .ntx-n .t span{line-height:15px}
@@ -9634,6 +9632,9 @@
 /* the head (the inbox, its count and Mark all read) is an off-white head strip, as every Clean card with a head has; its
    controls sit 16px from the strip's top and bottom (--strip-y, owner, 23 Nov) and on the content's 16px column */
 :root[data-style="clean"] .v2 .ntx.panel .ntx-h{margin:calc(-1 * var(--s-4)) calc(-1 * var(--s-4)) var(--s-2);padding:var(--strip-y) var(--s-4);background:var(--strip);border-bottom:1px solid var(--line);border-radius:var(--r-card) var(--r-card) 0 0}
+:root[data-style="clean"] .v2 .ntx.panel:has(.ntx-ut) .ntx-h{margin-bottom:0;border-bottom:0}
+/* the tabs end the head strip: they sit on its off-white, and their row's line is the strip's own */
+:root[data-style="clean"] .v2 .ntx-ut{background:var(--strip);border-bottom-color:var(--line)}
 :root[data-style="clean"] .v2 .ntx.panel .ntx-n.new{animation:v2-clpiece var(--t-slow) var(--ease) both}
 /* ---------- Banner ---------- */
 /* an announcement on a tint of its tone: an eyebrow, a title, a line of text and its actions on the left, and one of four line
@@ -9885,13 +9886,13 @@
 .v2 .pfm-me .muted{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .v2 .pfm-pop .mi .pfm-lg{width:24px;height:24px;font-size:11px;border-radius:calc(7px * var(--rk-m,var(--rk)))}
 .v2 .pfm-pop .mi .d{white-space:nowrap}
-/* the theme row is a switch: on, it shows the switch on rather than a selected row */
-.v2 .pfm-th[aria-checked="true"]{background:none;font-weight:400}
-.v2 .pfm-th.hl{background:color-mix(in srgb,var(--fg) 5%,transparent)}
-@media (hover:hover) and (pointer:fine){.v2 .pfm-th[aria-checked="true"]:hover{background:color-mix(in srgb,var(--fg) 5%,transparent)}}
-.v2 .pfm-th .toggle{margin-left:auto}
-.v2 .pfm-th[aria-checked="true"] .toggle{background:var(--accent);box-shadow:inset 0 0 0 1px var(--accent-mark,var(--accent))}
-.v2 .pfm-th[aria-checked="true"] .toggle::after{transform:translateX(12px);background:var(--on-accent,#fff)}
+/* the theme row (owner, 28 Nov): Theme, and a small three-way choice in the row, System, Light and Dark, on the segmented
+   control's grey track with its sliding knob. The row itself has no hover: its three choices are what you press */
+.v2 .pfm-th{display:flex;align-items:center;gap:10px;padding:2px 2px 2px var(--s-2);font-size:13px;color:var(--fg)}
+.v2 .pfm-th>.i{color:var(--fg2)}
+.v2 .pfm-ths{margin-left:auto}
+.v2 .pfm-ths button{height:24px;padding:0 var(--s-2);font-size:12px}
+.v2 .pfm-ths button[aria-checked="true"]{color:var(--fg)}
 .v2 .pfm-ky .kbd{margin-left:auto}
 /* the shortcuts: a plain list of keys and what they do, 16px in from every edge; Close sits on the title's line with its glyph
    16px in */
@@ -9907,13 +9908,12 @@
    line of text repeats it under the bar (owner, 18 Nov) */
 .v2 .pfm-note{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 /* Clean: the bar is a card with 22px corners; the tiles are monochrome; the menu takes the card's corners with its rows
-   concentric inside them; the theme switch is ink when on; the shortcuts card has an off-white head strip with Close a 28px
+   concentric inside them; the Theme row's choice is the segmented track; the shortcuts card has an off-white head strip with Close a 28px
    circle 16px from its top and right edges (owner, 23 Nov) */
 :root[data-style="clean"] .v2 .pfm-lg[data-t]{background:var(--chip);color:var(--fg2);box-shadow:inset 0 0 0 1px var(--hair)}
 :root[data-style="clean"] .v2 .pfm-pop{padding:6px;border-radius:var(--r-card)}
 :root[data-style="clean"] .v2 .pfm-pop .mi{border-radius:calc(var(--r-card) - 6px)}
-:root[data-style="clean"] .v2 .pfm-th[aria-checked="true"] .toggle{background:var(--btn-2);box-shadow:inset 0 0 0 1px var(--btn-2),inset 0 2px 4px -1px rgba(0,0,0,.3)}
-:root[data-style="clean"] .v2 .pfm-th[aria-checked="true"] .toggle::after{background:var(--on-btn)}
+:root[data-style="clean"] .v2 .pfm-ths button[aria-checked="true"]{color:var(--fg)}
 :root[data-style="clean"] .v2 .pfm-keys{padding:0 16px 16px}
 :root[data-style="clean"] .v2 .pfm-kh{height:auto;margin:0 -16px 16px;padding:var(--strip-y) 16px;background:var(--strip);border-bottom:1px solid var(--line);border-radius:var(--r-card) var(--r-card) 0 0;line-height:28px}
 :root[data-style="clean"] .v2 .pfm-kh .ib{width:28px;height:28px;margin:0}
@@ -10083,9 +10083,6 @@
 :root[data-style="clean"] .v2 .flm-pop{padding:6px;border-radius:var(--r-card)}
 :root[data-style="clean"] .v2 .flm-pop .mi{border-radius:calc(var(--r-card) - 6px)}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .v2 .flm-r:hover{background:var(--row)}}
-/* the theme switch in the account menu is a row with a switch: its switch says it is on, so the row itself keeps no fill and
-   takes the one hover like the rows round it */
-:root[data-style="clean"] .v2 .pfm-pop.pop .pfm-th[aria-checked="true"]{background:transparent}
 /* ---------- Number field ---------- */
 /* a number you can type or step: minus and plus at the ends of the field, a unit beside the value, and a hint under it that
    gives the range, or says what changed when a typed value was rounded to the step or kept inside the range */
