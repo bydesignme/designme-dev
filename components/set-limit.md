@@ -23,20 +23,20 @@ npx shadcn@latest add https://designme.dev/r/shadcn/astro/set-limit.json  # Astr
 
 ## About
 
-Set limit is a budget card for capping what an agent can spend in a month. A bar shows what has been spent so far and where spending is forecast to land, and the person drags a knob or types a figure to set the cap. A line under the bar warns when the forecast will pass the cap, and a switch decides whether runs pause, ask first or keep going at the limit.
+Set limit is a budget card for capping what an agent can spend in a month. A bar shows what has been spent so far and where spending is forecast to land, and the cap sits in the head as a labelled field ("Cap $170"): the person types a new figure there or drags the knob along the bar. A line under the bar warns when the forecast will pass the cap, and a switch decides whether runs pause, ask first or keep going at the limit.
 
 ### When to use it
 
 - When agent runs cost money and a team needs a monthly ceiling
 - When people should see whether their current pace will go over before it happens
 - When the team must choose what the agent does at the limit: stop, ask, or continue
-- When a cap needs to be adjusted quickly by dragging or typing an exact amount
+- When a cap needs to be adjusted quickly by typing an exact amount or dragging the bar
 
 ### What it does
 
 - The bar shows `spent` as a solid fill and `forecast` as a striped fill up to the cap; the legend's swatches are the same fill and stripes.
 - Dragging along the bar snaps the cap to `step`, and the knob glides to new values set any other way.
-- Clicking the big figure lets the person type a cap; Enter or leaving the field keeps it within `min` and `max`, and Escape restores the old value.
+- The cap is labelled (`capLabel`, "Cap" by default) and shows as a small field with the currency in front, white with a quiet grey edge that steps up one grey while typing. Clicking it selects the figure, so typing replaces it; Enter or leaving the field keeps it within `min` and `max`, and Escape restores the old value. With `editable` off it is the figure alone.
 - When the forecast passes the cap, the line under the bar becomes a warning notice, a faint warning tint with the filled warning sign, that says "Forecast passes your cap around Oct 27" and what runs will do; otherwise it is a plain line with the green tick and the amount left. The card grows and shrinks with it.
 - The At the limit switch sets `mode` to pause, ask or keep, and `message` can replace the line under the bar.
 - `format` controls how amounts are written, and the symbols around the number stay in place while typing.
@@ -100,7 +100,8 @@ export default function SetLimitDemo() {
 | `subtitle` (optional) | `string` | The quiet line under the title, like "Resets Nov 1" |
 | `passesOn` (optional) | `string` | When the forecast passes the cap, like "Oct 27" |
 | `format` (optional) | `(n: number) => string` | Writes an amount, like "$200" |
-| `editable` (optional) | `boolean` | Lets the person click the big figure and type a cap (the default). Enter or leaving the field keeps it, held to min and max; Escape goes back |
+| `capLabel` (optional) | `string` | The word in front of the cap, "Cap" by default |
+| `editable` (optional) | `boolean` | Shows the cap as a small field the person can type in (the default). Enter or leaving the field keeps it, held to min and max; Escape goes back |
 | `message` (optional) | `(state: SetLimitMessage) => ReactNode` | Replaces the line under the bar, which by default warns when the forecast passes the cap |
 | `className` (optional) | `string` |  |
 
@@ -181,7 +182,9 @@ export interface SetLimitProps {
   passesOn?: string;
   /** Writes an amount, like "$200" */
   format?: (n: number) => string;
-  /** Lets the person click the big figure and type a cap (the default). Enter or leaving the field keeps it, held to min and max; Escape goes back */
+  /** The word in front of the cap, "Cap" by default */
+  capLabel?: string;
+  /** Shows the cap as a small field the person can type in (the default). Enter or leaving the field keeps it, held to min and max; Escape goes back */
   editable?: boolean;
   /** Replaces the line under the bar, which by default warns when the forecast passes the cap */
   message?: (state: SetLimitMessage) => ReactNode;
@@ -193,7 +196,7 @@ const WILL: Record<SetLimitMode, string> = { pause: 'pause', ask: 'wait for you'
 
 /** A spending cap on a bar that shows what is spent and what is forecast, with what to do at the limit. */
 export function SetLimit({ value, defaultValue = 200, onValueChange, min = 50, max = 500, step = 10, spent = 128, forecast = 184, mode, defaultMode = 'pause', onModeChange,
-  title = 'Monthly agent budget', subtitle = 'Resets Nov 1', passesOn = 'Oct 27', format = n => '$' + n, editable = true, message, className }: SetLimitProps) {
+  title = 'Monthly agent budget', subtitle = 'Resets Nov 1', passesOn = 'Oct 27', format = n => '$' + n, capLabel = 'Cap', editable = true, message, className }: SetLimitProps) {
   const [capRaw, setCap] = useControllable(value, defaultValue, onValueChange);
   const [atLimit, setMode] = useControllable(mode, defaultMode, onModeChange);
   const cap = Math.max(min, Math.min(max, capRaw));
@@ -240,10 +243,12 @@ export function SetLimit({ value, defaultValue = 200, onValueChange, min = 50, m
     <div data-dm="" ref={outer} className={cx('dm-slx dm-panel dm-growing', className)}><div ref={inner} className="dm-grow">
       <div className="dm-slx-h">
         <div><b>{title}</b>{subtitle && <span className="dm-muted">{subtitle}</span>}</div>
+        {/* the cap is labelled and, when it can change, is a small field with the currency in front (a click selects it all,
+            so typing replaces it) */}
+        <span className="dm-slx-cap"><span className="dm-muted" aria-hidden="true">{capLabel}</span>
         {editable ? (
-          // reads as the figure until it is clicked; a click selects it all, so typing replaces it
           <label className="dm-num dm-slx-v" onPointerDown={e => { if (document.activeElement !== input.current) { e.preventDefault(); input.current?.focus(); } }}>
-            {pre}<input ref={input} className="dm-slx-in" inputMode="numeric" autoComplete="off" aria-label={title} value={figure} style={{ width: Math.max(1, figure.length) + 'ch' }}
+            {pre && <span className="dm-cur">{pre}</span>}<input ref={input} className="dm-slx-in" inputMode="numeric" autoComplete="off" aria-label={`${title}, ${capLabel.toLowerCase()}`} value={figure} style={{ width: Math.max(1, figure.length) + 'ch' }}
               onFocus={e => { before.current = cap; setDraft(String(cap)); e.currentTarget.select(); }}
               onChange={e => { const v = e.target.value.replace(/\D/g, '').slice(0, 6); setDraft(v); const n = +v; if (v && n >= min && n <= max) setCap(n); }}
               onKeyDown={e => {
@@ -254,6 +259,7 @@ export function SetLimit({ value, defaultValue = 200, onValueChange, min = 50, m
               onBlur={commit} />{post}
           </label>
         ) : <b className="dm-num dm-slx-v">{format(cap)}</b>}
+        </span>
       </div>
       <div ref={bar} className="dm-slx-bar"
         onPointerDown={e => { e.currentTarget.setPointerCapture(e.pointerId); setDrag(true); at(e); }}

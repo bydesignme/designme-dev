@@ -89,7 +89,7 @@ How full the context is and what fills it, with Compact to free room.
 
 **RunCost** · `run-cost/RunCost.tsx`  
 Live credit and token spend, with a cap that pauses the run.  
-`used`, `budget`, `capAt` (90), `capOn` / `defaultCapOn` / `onCapChange`, `status: 'idle' | 'running' | 'stopped' | 'paused' | 'spent'`, `statusLabel`, `rows: { label, value }[]`, `actionLabel`, `onAction`, `title`, `bare`.
+`used`, `budget`, `capAt` (90), `capOn` / `defaultCapOn` / `onCapChange`, `status: 'idle' | 'running' | 'stopped' | 'paused' | 'spent'`, `statusLabel`, `rows: { label, value }[]` (what the run used, as counts like tokens and tool calls), `actionLabel`, `onAction`, `title`, `bare`.
 
 **Toast** · `toast/Toast.tsx`  
 A background job in one toast, from start to finish.  
@@ -217,7 +217,7 @@ The files, sites and folders the agent knows, and how far each is indexed.
 
 **ScheduledRuns** · `scheduled-runs/ScheduledRuns.tsx`  
 Tasks the agent runs on a schedule, with their last result and a switch.  
-`runs` / `defaultRuns` / `onRunsChange` (`{ key, name, schedule, next?, enabled?, result?: 'passed' | 'failed' | 'running' | 'never', ago?, error?, fix?, fixing?, brand? or icon? and color? }[]`), `onRunNow(key)` (adds Run now), `onFix(key)` (the button a failed run shows, labelled with its `fix`), `onCreate({ task, repeat, days, schedule, next })` (adds New schedule: Every day, Every Monday or Custom days), `time`, `hour`, `title`, `status`. The switch pauses a run: its row dims and says Paused.
+`runs` / `defaultRuns` / `onRunsChange` (`{ key, name, schedule, next?, enabled?, result?: 'passed' | 'failed' | 'running' | 'never', ago?, error?, fix?, fixing?, brand? or icon? and color? }[]`), `onRunNow(key)` (adds a labelled Run now ghost button before the switch), `onFix(key)` (the button a failed run shows, labelled with its `fix`), `onCreate({ task, repeat, days, schedule, next })` (adds New schedule: Every day, Every Monday or Custom days), `time`, `hour`, `title`, `status`. The switch pauses a run: its row dims and says Paused.
 
 **ToolRail** · `tool-rail/ToolRail.tsx`  
 A board's tools in one vertical rail: pick one, and its name and key show on hover.  
@@ -279,7 +279,7 @@ A menu on right-click, long-press, Shift+F10 or the Menu key, with a submenu.
 
 **SetLimit** · `set-limit/SetLimit.tsx`  
 A monthly agent budget with a draggable cap and a forecast.  
-`value` / `defaultValue` / `onValueChange` (the cap), `min`, `max`, `step`, `spent` and `forecast` (the solid and striped bars), `mode` / `defaultMode` / `onModeChange` (`'pause' | 'ask' | 'keep'`, what happens at the limit), `title`, `subtitle`, `passesOn`, `format`, `message({ over, cap, left, mode })`, `editable` (on by default: click the figure and type a budget; Enter keeps it, Escape goes back). Drag on the bar or use the arrow keys on the knob.
+`value` / `defaultValue` / `onValueChange` (the cap), `min`, `max`, `step`, `spent` and `forecast` (the solid and striped bars), `mode` / `defaultMode` / `onModeChange` (`'pause' | 'ask' | 'keep'`, what happens at the limit), `title`, `subtitle`, `passesOn`, `format`, `message({ over, cap, left, mode })`, `capLabel` ("Cap"), `editable` (on by default: the cap is a small labelled field with the currency in front; type a figure, Enter keeps it, Escape goes back). Drag on the bar or use the arrow keys on the knob as the second way.
 
 ## Examples
 

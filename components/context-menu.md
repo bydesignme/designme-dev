@@ -35,7 +35,7 @@ A menu that opens where you right-click an agent reply, or where you long-press 
 
 - Opens at the pointer for a right-click or a long press (half a second), and at the target's top left for Shift+F10 or the Menu key.
 - Turns back from the right edge so it stays inside the card. Short of room below (the foot of the screen, or a box round it that would cut it off) it opens upward from the point, or moves up just enough to stay whole, so it is never cut off.
-- The submenu opens when the pointer rests on its item, with Right, or with Enter; it sits beside the menu on the right, or on the left when there's no room, and drops under its item on a phone.
+- The submenu opens when the pointer rests on its item, with Right, or with Enter; on a wide screen it sits beside the menu, its first item level with the item that opened it (which carries a chevron), on the right or on the left when the screen has no room there; it is placed against the screen, not the box round the reply. Only on a phone does it drop under its item.
 - Items take an icon, a shortcut hint, a hairline above them (`separator`), `checked` for a checkable item, and `danger` for red.
 - `confirmLabel` makes an item ask again: the first press changes its label ("Press again to delete"), the second runs it.
 - A press anywhere outside closes it; choosing an item closes it and calls `onSelect` with the item's key (a checkable item keeps it open).
@@ -248,7 +248,8 @@ export function ContextMenu({ items, onSelect, label = 'Actions', targetLabel = 
   useEffect(() => () => { clearTimeout(press.current); clearTimeout(hov.current); }, []);
   const open = !!at;
   const itemsOf = (m: HTMLElement | null) => m ? [...m.querySelectorAll<HTMLElement>('.dm-mi')] : [];
-  const bounds = () => { const card = (root.current!.closest('[data-c],.dm-card') || document.body).getBoundingClientRect(); return { lo: Math.max(card.left, 0) + 8, hi: Math.min(card.right, innerWidth) - 8 }; };
+  // the room across is the screen, not the box round the target, so the submenu has room beside its item
+  const bounds = () => ({ lo: 8, hi: innerWidth - 8 });
   // where a menu goes: at the point, turned back from the right and bottom edges so it stays on screen
   const fit = (m: HTMLElement, x: number, y: number) => {
     const rb = root.current!.getBoundingClientRect(), { lo, hi } = bounds(), w = m.offsetWidth, h = m.offsetHeight;
@@ -262,12 +263,14 @@ export function ContextMenu({ items, onSelect, label = 'Actions', targetLabel = 
     m.style.left = x + 'px'; m.style.top = y + 'px'; m.style.setProperty('--dm-origin', (up ? 'bottom ' : 'top ') + 'left');
   };
   useIsoLayoutEffect(() => { if (at && menu.current) { fit(menu.current, at.x, at.y); if (at.keyed) itemsOf(menu.current)[0]?.focus({ preventScroll: true }); } }, [at]);
-  // the submenu opens beside its item, on the right or else the left; where neither side has room it drops under the item
+  // on a wide screen the submenu opens beside its item, on the right or else the left, its first item level with the item; only
+  // on a phone, or where neither side has room, does it drop under the item
   useIsoLayoutEffect(() => {
     const m = subMenu.current, p = menu.current; if (!sub || !m || !p) return;
     const row = p.querySelector<HTMLElement>(`[data-k="${sub.key}"]`)!, pr = p.getBoundingClientRect(), b = row.getBoundingClientRect(), rb = root.current!.getBoundingClientRect(), { lo, hi } = bounds(), w = m.offsetWidth;
-    if (pr.right - 4 + w <= hi) fit(m, pr.right - rb.left - 4, b.top - rb.top - 6);
-    else if (pr.left + 4 - w >= lo) fit(m, pr.left - rb.left + 4 - w, b.top - rb.top - 6);
+    const cs = getComputedStyle(m), top = b.top - rb.top - parseFloat(cs.paddingTop) - parseFloat(cs.borderTopWidth), wide = innerWidth >= 640;
+    if (wide && pr.right - 4 + w <= hi) fit(m, pr.right - rb.left - 4, top);
+    else if (wide && pr.left + 4 - w >= lo) fit(m, pr.left - rb.left + 4 - w, top);
     else fit(m, b.left - rb.left + 24, b.bottom - rb.top + 2);
     if (sub.focus) itemsOf(m)[0]?.focus({ preventScroll: true });
   }, [sub]);

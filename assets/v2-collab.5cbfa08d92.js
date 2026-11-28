@@ -146,10 +146,14 @@ DM.def('context-menu', (r, c) => {
   const pop = $('.cxm-pop', r), sub = $('.cxm-pop2', r), subRow = $('.cxm-sub', r), del = $('.cxm-del', r);
   const items = m => $$('.mi', m);
   let open = false, subOpen = false, opener = null, openedAt = 0;
-  // where a menu goes: at the point, turned back from the right and bottom edges so it stays on screen and inside the card
+  // the room a menu has across: the demo's stage where there is one, else the screen (owner, 28 Nov: measured against the stage
+  // or the viewport, not the narrow card, so the submenu has room beside its row)
+  const span = () => { const st = root.closest('.stage-inner,.stage'), b = st ? st.getBoundingClientRect() : { left:0, right:innerWidth };
+    return { lo:Math.max(b.left, 0) + 8, hi:Math.min(b.right, innerWidth) - 8 }; };
+  // where a menu goes: at the point, turned back from the right and bottom edges so it stays on screen and inside its stage
   const fit = (m, x, y, { left } = {}) => {
-    const rb = root.getBoundingClientRect(), card = (root.closest('.card,.comp,[data-c]') || document.body).getBoundingClientRect();
-    const lo = Math.max(card.left, 0) + 8 - rb.left, hi = Math.min(card.right, innerWidth) - 8 - rb.left, w = m.offsetWidth, h = m.offsetHeight;
+    const rb = root.getBoundingClientRect(), sp = span();
+    const lo = sp.lo - rb.left, hi = sp.hi - rb.left, w = m.offsetWidth, h = m.offsetHeight;
     if (x + w > hi && left != null) x = left - w; else if (x + w > hi) x = x - w;
     x = Math.max(lo, Math.min(x, hi - w));
     // short of room below (the screen's foot, a box that would cut it off, or the end of the demo's stage, past which it would
@@ -170,13 +174,14 @@ DM.def('context-menu', (r, c) => {
     if (keyed) items(pop)[0].focus({ preventScroll:true });
   }
   function close(back){ if (!open) return; back = back && (pop.contains(document.activeElement) || sub.contains(document.activeElement)); open = false; closeSub(); show(pop, false); msg.classList.remove('on'); if (back) msg.focus({ preventScroll:true }); }
-  // the submenu opens beside its row, on the right or else the left; where neither side has room (a phone) it drops under the row
+  // on a wide screen the submenu opens beside its row (the row has the chevron), on the right or else the left, its first item
+  // level with the row; only on a phone, or where neither side has room, does it drop under the row
   function openSub(focus){
     subOpen = true; subRow.setAttribute('aria-expanded', 'true'); show(sub, true);
-    const p = pop.getBoundingClientRect(), b = subRow.getBoundingClientRect(), rb = root.getBoundingClientRect(), card = (root.closest('.card,.comp,[data-c]') || document.body).getBoundingClientRect(), w = sub.offsetWidth;
-    const lo = Math.max(card.left, 0) + 8, hi = Math.min(card.right, innerWidth) - 8;
-    if (p.right - 4 + w <= hi) fit(sub, p.right - rb.left - 4, b.top - rb.top - 6);
-    else if (p.left + 4 - w >= lo) fit(sub, p.left - rb.left + 4 - w, b.top - rb.top - 6);
+    const p = pop.getBoundingClientRect(), b = subRow.getBoundingClientRect(), rb = root.getBoundingClientRect(), w = sub.offsetWidth, { lo, hi } = span();
+    const cs = getComputedStyle(sub), top = b.top - rb.top - parseFloat(cs.paddingTop) - parseFloat(cs.borderTopWidth), wide = innerWidth >= 640;
+    if (wide && p.right - 4 + w <= hi) fit(sub, p.right - rb.left - 4, top);
+    else if (wide && p.left + 4 - w >= lo) fit(sub, p.left - rb.left + 4 - w, top);
     else fit(sub, b.left - rb.left + 24, b.bottom - rb.top + 2);
     if (focus) items(sub)[0].focus({ preventScroll:true });
   }

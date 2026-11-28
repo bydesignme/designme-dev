@@ -23,13 +23,13 @@ npx shadcn@latest add https://designme.dev/r/shadcn/astro/run-cost.json  # Astro
 
 ## About
 
-Run cost shows how many credits an agent run has used against its budget, as a big number and a bar with a marker where the agent should pause. Under the bar it breaks the spend down, for example into input tokens, output tokens and tool calls, and a switch turns the pause on or off.
+Run cost shows how many credits an agent run has used against its budget, as a big number and a bar with a marker where the agent should pause. Under the bar it shows what the run used, as counts such as input tokens, output tokens and tool calls (not their share of the credits), and a switch turns the pause on or off.
 
 ### When to use it
 
 - When agent runs cost money or credits and people want to watch the spend while the run is going.
 - When a long run should stop at a set share of the budget and wait for someone to approve more.
-- When people ask what a run's cost is made of and you want to show the token and tool numbers behind it.
+- When people ask what a run has used and you want to show the token and tool counts beside the credits.
 
 ### What it does
 
@@ -38,7 +38,7 @@ Run cost shows how many credits an agent run has used against its budget, as a b
 - The "Pause at N%" switch can be left to the component or controlled with `capOn` and `onCapChange`.
 - `status` sets the tag and colour: idle, running (blue), stopped, paused (orange, and the bar and the dot in the tag turn bright orange too) or spent (red). `statusLabel` replaces the tag's words.
 - The main button's label follows the status: Start run, Stop, Resume, Raise cap or Start over. It calls `onAction`, and `actionLabel` replaces the label.
-- `rows` lists the breakdown under the bar, and `title` replaces the "Credits used" heading.
+- `rows` lists what the run used under the bar, each a label and a count (they are not split out of the credits), and `title` replaces the "Credits used" heading.
 - Ships in Clean too (`data-style="clean"`): a round card with its content 16px in from every edge, the status chip in its status colours (Running in the accent's tint, its words white in dark mode), the accent fill (white in dark mode, as every Clean meter is) and an ink budget line on a round grey rail, plain rows, and the controls on an off-white foot strip, 8px from its top and bottom and 16px in from the sides: the switch with its hover round it and the button a 28px pill.
 
 ### Accessibility

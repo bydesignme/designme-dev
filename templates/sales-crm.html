@@ -1134,9 +1134,6 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 :root[data-style="clean"] .flm-pop,:root [data-style="clean"] .flm-pop,:root [data-style="clean"].flm-pop{padding:6px;border-radius:var(--dm-r-card)}
 :root[data-style="clean"] .flm-pop .mi,:root [data-style="clean"] .flm-pop .mi,:root [data-style="clean"].flm-pop .mi{border-radius:calc(var(--dm-r-card) - 6px)}
 @media (hover:hover) and (pointer:fine){:root[data-style="clean"] .flm-r:hover,:root [data-style="clean"] .flm-r:hover,:root [data-style="clean"].flm-r:hover{background:var(--dm-row)}}
-/* the theme switch in the account menu is a row with a switch: its switch says it is on, so the row itself keeps no fill and
-   takes the one hover like the rows round it */
-:root[data-style="clean"] .pfm-pop.pop .pfm-th[aria-checked="true"],:root [data-style="clean"] .pfm-pop.pop .pfm-th[aria-checked="true"],:root [data-style="clean"].pfm-pop.pop .pfm-th[aria-checked="true"]{background:transparent}
 
 /* Search input */
 /* ---------- Search input ---------- */
@@ -1521,7 +1518,24 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .ntx.panel .ntx-ct{margin-left:calc(-1 * var(--dm-s-1))}
 /* Mark all read is a text button: its words end on the content's edge and its hover box reaches out round them */
 .ntx.panel .ntx-all.pill{padding:0 var(--dm-s-2);margin-right:calc(-1 * var(--dm-s-2))}
-.ntx.panel .ntx-tabs{display:flex}
+/* the filter is a row of underline tabs under the head (owner, 28 Nov): the head keeps Mark all read top right and has no line
+   of its own; the tabs' row carries the hairline, edge to edge, and the picked tab's 2px line slides along it. A tab's words
+   are muted, and the picked one (or one under the pointer) is the text colour */
+.ntx.panel:has(.ntx-ut) .ntx-h{border-bottom:0;margin-bottom:0}
+.ntx-ut{position:relative;display:flex;gap:var(--dm-s-4);margin:calc(-1 * var(--dm-s-2)) calc(-1 * var(--dm-s-4)) var(--dm-s-2);padding:0 var(--dm-s-4);border-bottom:1px solid color-mix(in srgb,var(--dm-line) 50%,transparent)}
+.ntx-ut button{position:relative;height:32px;padding:0;font-size:13px;color:var(--dm-muted);transition:color var(--dm-t-fast) var(--dm-ease)}
+@media (hover:hover) and (pointer:fine){.ntx-ut button:is(:hover,[aria-selected="true"]){color:var(--dm-fg)}}
+.ntx-ui{position:absolute;bottom:-1px;left:0;height:2px;border-radius:2px 2px 0 0;background:var(--dm-fg);transition:left var(--dm-t) var(--dm-ease),width var(--dm-t) var(--dm-ease)}
+/* an item is two buttons on one row: the item itself, which opens it and marks it read, and, at the unread dot's place, Mark as
+   unread, a hollow dot that shows on a read item under the pointer or with the focus in the row */
+.ntx-o{flex:1;min-width:0;display:flex;align-items:center;gap:var(--dm-s-3);text-align:left;color:inherit}
+.ntx-m{position:relative;flex:none;width:7px;height:7px;display:grid}
+.ntx.panel .ntx-n .ntx-m .u{margin:0}
+.ntx-u{position:absolute;left:50%;top:50%;width:24px;height:24px;margin:-12px 0 0 -12px;opacity:0;visibility:hidden;transition:opacity var(--dm-t-fast) var(--dm-ease),visibility 0s var(--dm-t-fast),background var(--dm-t-fast)}
+.ntx-u i{width:7px;height:7px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--dm-muted)}
+@media (hover:hover) and (pointer:fine){.ntx-n.read:is(:hover,:focus-within) .ntx-u{opacity:1;visibility:visible;transition-delay:0s}}
+.ntx-n:not(.read) .ntx-u{display:none}
+.ntx-sr{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .ntx.panel .ntx-list{margin:0 calc(-1 * var(--dm-s-2)) calc(-1 * var(--dm-s-2))}
 .ntx.panel .ntx-n{align-items:center;gap:var(--dm-s-3);padding:var(--dm-s-2);border-radius:calc(var(--dm-r-card) - var(--dm-s-2));transition:background-color var(--dm-t-fast)}
 .ntx.panel .ntx-n .t span{line-height:15px}
@@ -1542,6 +1556,9 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 /* the head (the inbox, its count and Mark all read) is an off-white head strip, as every Clean card with a head has; its
    controls sit 16px from the strip's top and bottom (--dm-strip-y, owner, 23 Nov) and on the content's 16px column */
 :root[data-style="clean"] .ntx.panel .ntx-h,:root [data-style="clean"] .ntx.panel .ntx-h,:root [data-style="clean"].ntx.panel .ntx-h{margin:calc(-1 * var(--dm-s-4)) calc(-1 * var(--dm-s-4)) var(--dm-s-2);padding:var(--dm-strip-y) var(--dm-s-4);background:var(--dm-strip);border-bottom:1px solid var(--dm-line);border-radius:var(--dm-r-card) var(--dm-r-card) 0 0}
+:root[data-style="clean"] .ntx.panel:has(.ntx-ut) .ntx-h,:root [data-style="clean"] .ntx.panel:has(.ntx-ut) .ntx-h,:root [data-style="clean"].ntx.panel:has(.ntx-ut) .ntx-h{margin-bottom:0;border-bottom:0}
+/* the tabs end the head strip: they sit on its off-white, and their row's line is the strip's own */
+:root[data-style="clean"] .ntx-ut,:root [data-style="clean"] .ntx-ut,:root [data-style="clean"].ntx-ut{background:var(--dm-strip);border-bottom-color:var(--dm-line)}
 :root[data-style="clean"] .ntx.panel .ntx-n.new,:root [data-style="clean"] .ntx.panel .ntx-n.new,:root [data-style="clean"].ntx.panel .ntx-n.new{animation:clpiece var(--dm-t-slow) var(--dm-ease) both}
 
 /* Profile menu */
@@ -1583,13 +1600,13 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
 .pfm-me .muted{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pfm-pop .mi .pfm-lg{width:24px;height:24px;font-size:11px;border-radius:calc(7px * var(--dm-rk-m,var(--dm-rk)))}
 .pfm-pop .mi .d{white-space:nowrap}
-/* the theme row is a switch: on, it shows the switch on rather than a selected row */
-.pfm-th[aria-checked="true"]{background:none;font-weight:400}
-.pfm-th.hl{background:color-mix(in srgb,var(--dm-fg) 5%,transparent)}
-@media (hover:hover) and (pointer:fine){.pfm-th[aria-checked="true"]:hover{background:color-mix(in srgb,var(--dm-fg) 5%,transparent)}}
-.pfm-th .toggle{margin-left:auto}
-.pfm-th[aria-checked="true"] .toggle{background:var(--dm-accent);box-shadow:inset 0 0 0 1px var(--dm-accent-mark,var(--dm-accent))}
-.pfm-th[aria-checked="true"] .toggle::after{transform:translateX(12px);background:var(--dm-on-accent)}
+/* the theme row (owner, 28 Nov): Theme, and a small three-way choice in the row, System, Light and Dark, on the segmented
+   control's grey track with its sliding knob. The row itself has no hover: its three choices are what you press */
+.pfm-th{display:flex;align-items:center;gap:10px;padding:2px 2px 2px var(--dm-s-2);font-size:13px;color:var(--dm-fg)}
+.pfm-th>.i{color:var(--dm-fg2)}
+.pfm-ths{margin-left:auto}
+.pfm-ths button{height:24px;padding:0 var(--dm-s-2);font-size:12px}
+.pfm-ths button[aria-checked="true"]{color:var(--dm-fg)}
 .pfm-ky .kbd{margin-left:auto}
 /* the shortcuts: a plain list of keys and what they do, 16px in from every edge; Close sits on the title's line with its glyph
    16px in */
@@ -1605,13 +1622,12 @@ svg.i:has(>use[href$="i-unfold"]){transition:transform .2s cubic-bezier(.22,1,.3
    line of text repeats it under the bar (owner, 18 Nov) */
 .pfm-note{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 /* Clean: the bar is a card with 22px corners; the tiles are monochrome; the menu takes the card's corners with its rows
-   concentric inside them; the theme switch is ink when on; the shortcuts card has an off-white head strip with Close a 28px
+   concentric inside them; the Theme row's choice is the segmented track; the shortcuts card has an off-white head strip with Close a 28px
    circle 16px from its top and right edges (owner, 23 Nov) */
 :root[data-style="clean"] .pfm-lg[data-t],:root [data-style="clean"] .pfm-lg[data-t],:root [data-style="clean"].pfm-lg[data-t]{background:var(--dm-chip);color:var(--dm-fg2);box-shadow:inset 0 0 0 1px var(--dm-hair)}
 :root[data-style="clean"] .pfm-pop,:root [data-style="clean"] .pfm-pop,:root [data-style="clean"].pfm-pop{padding:6px;border-radius:var(--dm-r-card)}
 :root[data-style="clean"] .pfm-pop .mi,:root [data-style="clean"] .pfm-pop .mi,:root [data-style="clean"].pfm-pop .mi{border-radius:calc(var(--dm-r-card) - 6px)}
-:root[data-style="clean"] .pfm-th[aria-checked="true"] .toggle,:root [data-style="clean"] .pfm-th[aria-checked="true"] .toggle,:root [data-style="clean"].pfm-th[aria-checked="true"] .toggle{background:var(--dm-btn-2);box-shadow:inset 0 0 0 1px var(--dm-btn-2),inset 0 2px 4px -1px rgba(0,0,0,.3)}
-:root[data-style="clean"] .pfm-th[aria-checked="true"] .toggle::after,:root [data-style="clean"] .pfm-th[aria-checked="true"] .toggle::after,:root [data-style="clean"].pfm-th[aria-checked="true"] .toggle::after{background:var(--dm-on-btn)}
+:root[data-style="clean"] .pfm-ths button[aria-checked="true"],:root [data-style="clean"] .pfm-ths button[aria-checked="true"],:root [data-style="clean"].pfm-ths button[aria-checked="true"]{color:var(--dm-fg)}
 :root[data-style="clean"] .pfm-keys,:root [data-style="clean"] .pfm-keys,:root [data-style="clean"].pfm-keys{padding:0 16px 16px}
 :root[data-style="clean"] .pfm-kh,:root [data-style="clean"] .pfm-kh,:root [data-style="clean"].pfm-kh{height:auto;margin:0 -16px 16px;padding:var(--dm-strip-y) 16px;background:var(--dm-strip);border-bottom:1px solid var(--dm-line);border-radius:var(--dm-r-card) var(--dm-r-card) 0 0;line-height:28px}
 :root[data-style="clean"] .pfm-kh .ib,:root [data-style="clean"] .pfm-kh .ib,:root [data-style="clean"].pfm-kh .ib{width:28px;height:28px;margin:0}
